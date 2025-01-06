@@ -17,7 +17,8 @@
     "web": "yarn build && cd apps/next && yarn next",
     "web:extract": "DISABLE_EXTRACTION=false yarn workspace next-app dev",
     "web:prod": "yarn workspace next-app build",
-    "web:prod:serve": "yarn workspace next-app serve"
+    "web:prod:serve": "yarn workspace next-app serve",
+    "lib:gen": "yarn turbo gen"
   },
   "resolutions": {
     "react": "^18.3.1",
