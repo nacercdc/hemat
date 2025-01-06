@@ -38,8 +38,8 @@
     "vitest": "^2.1.1"
   },
   "devDependencies": {
-    "@acme/prettier-config": "workspace:*",
     "@biomejs/biome": "^1.9.3",
+    "@e-market/prettier-config": "workspace:*",
     "@turbo/gen": "^2.3.1",
     "prettier": "^3.3.3",
     "turbo": "^2.3.1",
