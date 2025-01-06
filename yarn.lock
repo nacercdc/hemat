@@ -2151,56 +2151,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@e-market/app@workspace:apps/app":
-  version: 0.0.0-use.local
-  resolution: "@e-market/app@workspace:apps/app"
-  dependencies:
-    "@babel/core": "npm:^7.26.0"
-    "@babel/preset-env": "npm:^7.26.0"
-    "@babel/runtime": "npm:^7.26.0"
-    "@bacons/text-decoder": "npm:^0.0.0"
-    "@e-market/eslint-config": "workspace:*"
-    "@e-market/prettier-config": "workspace:*"
-    "@e-market/tailwind-config": "workspace:*"
-    "@e-market/tsconfig": "workspace:*"
-    "@expo/metro-config": "npm:^0.18.11"
-    "@expo/vector-icons": "npm:^14.0.2"
-    "@react-navigation/bottom-tabs": "npm:^7.0.0"
-    "@react-navigation/native": "npm:^7.0.0"
-    "@shopify/flash-list": "npm:1.7.1"
-    "@tanstack/react-query": "npm:^5.59.15"
-    "@types/babel__core": "npm:^7.20.5"
-    "@types/react": "npm:^18.3.11"
-    eslint: "npm:^9.12.0"
-    expo: "npm:~52.0.10"
-    expo-blur: "npm:~14.0.1"
-    expo-constants: "npm:~17.0.3"
-    expo-dev-client: "npm:~4.0.28"
-    expo-font: "npm:~13.0.1"
-    expo-haptics: "npm:~14.0.0"
-    expo-linking: "npm:~7.0.3"
-    expo-router: "npm:~4.0.7"
-    expo-secure-store: "npm:^13.0.2"
-    expo-splash-screen: "npm:~0.29.13"
-    expo-status-bar: "npm:~2.0.0"
-    expo-symbols: "npm:~0.2.0"
-    expo-system-ui: "npm:~4.0.3"
-    expo-web-browser: "npm:~14.0.1"
-    nativewind: "npm:^4.1.23"
-    prettier: "npm:^3.3.3"
-    react: "npm:18.3.1"
-    react-native: "npm:0.76.2"
-    react-native-css-interop: "npm:~0.0.36"
-    react-native-gesture-handler: "npm:~2.20.2"
-    react-native-reanimated: "npm:~3.16.1"
-    react-native-safe-area-context: "npm:4.12.0"
-    react-native-screens: "npm:~4.1.0"
-    superjson: "npm:2.2.1"
-    tailwindcss: "npm:^3.4.14"
-    typescript: "npm:^5.6.3"
-  languageName: unknown
-  linkType: soft
-
 "@e-market/eslint-config@workspace:*, @e-market/eslint-config@workspace:tooling/eslint":
   version: 0.0.0-use.local
   resolution: "@e-market/eslint-config@workspace:tooling/eslint"
@@ -2275,7 +2225,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@e-market/ui@workspace:shared/ui":
+"@e-market/ui@workspace:*, @e-market/ui@workspace:shared/ui":
   version: 0.0.0-use.local
   resolution: "@e-market/ui@workspace:shared/ui"
   dependencies:
@@ -13781,6 +13731,7 @@ __metadata:
     "@e-market/prettier-config": "workspace:*"
     "@e-market/tailwind-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
+    "@e-market/ui": "workspace:*"
     "@t3-oss/env-nextjs": "npm:^0.11.1"
     "@tanstack/react-query": "npm:^5.59.15"
     "@types/node": "npm:^20.14.1"

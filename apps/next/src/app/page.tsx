@@ -7,19 +7,15 @@ export default function HomePage() {
     <main className="container h-screen py-16">
       <div className="flex flex-col items-center justify-center gap-4">
         <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-          Create <span className="text-primary">T3</span> Turbo
+          Welcome <span className="text-primary">to</span> E-market
         </h1>
 
         <div className="w-full max-w-2xl overflow-y-scroll">
           <Suspense
             fallback={
-              <div className="flex w-full flex-col gap-4">
-                This is home page
-              </div>
+              <div className="flex w-full flex-col gap-4">Loading...</div>
             }
-          >
-            Test
-          </Suspense>
+          ></Suspense>
         </div>
       </div>
     </main>

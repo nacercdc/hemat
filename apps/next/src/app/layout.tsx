@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
+import { Nunito } from "next/font/google";
 
 import "~/app/globals.css";
+
+import { cn } from "@e-market/ui";
+
+const nunito = Nunito({ subsets: ["latin"], weight: ["700", "600"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
@@ -22,8 +27,14 @@ export const metadata: Metadata = {
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        <div className="absolute bottom-4 right-4">{props.children}</div>
+      <body
+        className={cn(
+          "min-h-screen bg-card text-primary-foreground antialiased",
+          nunito.className,
+        )}
+        suppressHydrationWarning
+      >
+        {props.children}
       </body>
     </html>
   );
