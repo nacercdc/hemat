@@ -1,0 +1,48 @@
+{
+  "name": "starter-free",
+  "private": true,
+  "workspaces": [
+    "./apps/*",
+    "./packages/*",
+    "./tooling/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces foreach --all --exclude next-app run build",
+    "native": "cd apps/expo && yarn start",
+    "prepare": "husky",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "vercel:install": "yarn set version 3.5 && yarn install",
+    "watch": "yarn workspaces foreach -pi run watch",
+    "web": "yarn build && cd apps/next && yarn next",
+    "web:extract": "DISABLE_EXTRACTION=false yarn workspace next-app dev",
+    "web:prod": "yarn workspace next-app build",
+    "web:prod:serve": "yarn workspace next-app serve"
+  },
+  "resolutions": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-native-svg": "15.3.0",
+    "react-native-web": "~0.19.12",
+    "react-refresh": "^0.14.0"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.24.6",
+    "check-dependency-version-consistency": "^4.1.0",
+    "eslint": "^9.3.0",
+    "husky": "^9.1.6",
+    "node-gyp": "^10.1.0",
+    "prettier": "^3.3.3",
+    "turbo": "^1.13.4",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.3"
+  },
+  "packageManager": "yarn@4.5.0",
+  "engines": {
+    "node": "22",
+    "npm": "10.8"
+  }
+}
