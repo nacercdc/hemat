@@ -8,17 +8,17 @@
     "./tooling/*"
   ],
   "scripts": {
-    "build": "yarn workspaces foreach --all --exclude next-app run build",
+    "build": "yarn workspaces foreach --all --exclude web run build",
     "native": "cd apps/expo && yarn start",
     "prepare": "husky",
     "test": "vitest run",
     "test:watch": "vitest",
     "vercel:install": "yarn set version 3.5 && yarn install",
     "watch": "yarn workspaces foreach -pi run watch",
-    "web": "yarn build && cd apps/next && yarn next",
-    "web:extract": "DISABLE_EXTRACTION=false yarn workspace next-app dev",
-    "web:prod": "yarn workspace next-app build",
-    "web:prod:serve": "yarn workspace next-app serve",
+    "web": "yarn build && cd apps/web && yarn next",
+    "web:extract": "DISABLE_EXTRACTION=false yarn workspace web dev",
+    "web:prod": "yarn workspace web build",
+    "web:prod:serve": "yarn workspace web serve",
     "lib:gen": "yarn turbo gen",
     "ui-add": "turbo run ui-add"
   },

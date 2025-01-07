@@ -6164,6 +6164,56 @@ __metadata:
   languageName: node
   linkType: hard
 
+"app@workspace:apps/app":
+  version: 0.0.0-use.local
+  resolution: "app@workspace:apps/app"
+  dependencies:
+    "@babel/core": "npm:^7.26.0"
+    "@babel/preset-env": "npm:^7.26.0"
+    "@babel/runtime": "npm:^7.26.0"
+    "@bacons/text-decoder": "npm:^0.0.0"
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tailwind-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    "@expo/metro-config": "npm:^0.18.11"
+    "@expo/vector-icons": "npm:^14.0.2"
+    "@react-navigation/bottom-tabs": "npm:^7.0.0"
+    "@react-navigation/native": "npm:^7.0.0"
+    "@shopify/flash-list": "npm:1.7.1"
+    "@tanstack/react-query": "npm:^5.59.15"
+    "@types/babel__core": "npm:^7.20.5"
+    "@types/react": "npm:^18.3.11"
+    eslint: "npm:^9.12.0"
+    expo: "npm:~52.0.10"
+    expo-blur: "npm:~14.0.1"
+    expo-constants: "npm:~17.0.3"
+    expo-dev-client: "npm:~4.0.28"
+    expo-font: "npm:~13.0.1"
+    expo-haptics: "npm:~14.0.0"
+    expo-linking: "npm:~7.0.3"
+    expo-router: "npm:~4.0.7"
+    expo-secure-store: "npm:^13.0.2"
+    expo-splash-screen: "npm:~0.29.13"
+    expo-status-bar: "npm:~2.0.0"
+    expo-symbols: "npm:~0.2.0"
+    expo-system-ui: "npm:~4.0.3"
+    expo-web-browser: "npm:~14.0.1"
+    nativewind: "npm:^4.1.23"
+    prettier: "npm:^3.3.3"
+    react: "npm:18.3.1"
+    react-native: "npm:0.76.2"
+    react-native-css-interop: "npm:~0.0.36"
+    react-native-gesture-handler: "npm:~2.20.2"
+    react-native-reanimated: "npm:~3.16.1"
+    react-native-safe-area-context: "npm:4.12.0"
+    react-native-screens: "npm:~4.1.0"
+    superjson: "npm:2.2.1"
+    tailwindcss: "npm:^3.4.14"
+    typescript: "npm:^5.6.3"
+  languageName: unknown
+  linkType: soft
+
 "application-config-path@npm:^0.1.0":
   version: 0.1.1
   resolution: "application-config-path@npm:0.1.1"
@@ -9547,56 +9597,6 @@ __metadata:
   checksum: 10/9b7a0077ba9d0ecdd41bf2d8644f83abf736e37622e3d1af39dec9d5f2cfa6bf8263301d0df489688dda3873d877f4168c01172cbafed5fffd12c808983515b0
   languageName: node
   linkType: hard
-
-"expo-app@workspace:apps/expo":
-  version: 0.0.0-use.local
-  resolution: "expo-app@workspace:apps/expo"
-  dependencies:
-    "@babel/core": "npm:^7.26.0"
-    "@babel/preset-env": "npm:^7.26.0"
-    "@babel/runtime": "npm:^7.26.0"
-    "@bacons/text-decoder": "npm:^0.0.0"
-    "@e-market/eslint-config": "workspace:*"
-    "@e-market/prettier-config": "workspace:*"
-    "@e-market/tailwind-config": "workspace:*"
-    "@e-market/tsconfig": "workspace:*"
-    "@expo/metro-config": "npm:^0.18.11"
-    "@expo/vector-icons": "npm:^14.0.2"
-    "@react-navigation/bottom-tabs": "npm:^7.0.0"
-    "@react-navigation/native": "npm:^7.0.0"
-    "@shopify/flash-list": "npm:1.7.1"
-    "@tanstack/react-query": "npm:^5.59.15"
-    "@types/babel__core": "npm:^7.20.5"
-    "@types/react": "npm:^18.3.11"
-    eslint: "npm:^9.12.0"
-    expo: "npm:~52.0.10"
-    expo-blur: "npm:~14.0.1"
-    expo-constants: "npm:~17.0.3"
-    expo-dev-client: "npm:~4.0.28"
-    expo-font: "npm:~13.0.1"
-    expo-haptics: "npm:~14.0.0"
-    expo-linking: "npm:~7.0.3"
-    expo-router: "npm:~4.0.7"
-    expo-secure-store: "npm:^13.0.2"
-    expo-splash-screen: "npm:~0.29.13"
-    expo-status-bar: "npm:~2.0.0"
-    expo-symbols: "npm:~0.2.0"
-    expo-system-ui: "npm:~4.0.3"
-    expo-web-browser: "npm:~14.0.1"
-    nativewind: "npm:^4.1.23"
-    prettier: "npm:^3.3.3"
-    react: "npm:18.3.1"
-    react-native: "npm:0.76.2"
-    react-native-css-interop: "npm:~0.0.36"
-    react-native-gesture-handler: "npm:~2.20.2"
-    react-native-reanimated: "npm:~3.16.1"
-    react-native-safe-area-context: "npm:4.12.0"
-    react-native-screens: "npm:~4.1.0"
-    superjson: "npm:2.2.1"
-    tailwindcss: "npm:^3.4.14"
-    typescript: "npm:^5.6.3"
-  languageName: unknown
-  linkType: soft
 
 "expo-asset@npm:~11.0.1":
   version: 11.0.1
@@ -13722,43 +13722,6 @@ __metadata:
   checksum: 10/375cabe898a5832816958664f26206f0a1e9f3605aa1816bfce803e060ff20f9d6ce56a2377e46f1470938358c31c27b3a8086f4a5e3ef678896147884d63ffa
   languageName: node
   linkType: hard
-
-"next-app@workspace:apps/next":
-  version: 0.0.0-use.local
-  resolution: "next-app@workspace:apps/next"
-  dependencies:
-    "@e-market/eslint-config": "workspace:*"
-    "@e-market/prettier-config": "workspace:*"
-    "@e-market/tailwind-config": "workspace:*"
-    "@e-market/tsconfig": "workspace:*"
-    "@e-market/ui": "workspace:*"
-    "@t3-oss/env-nextjs": "npm:^0.11.1"
-    "@tanstack/react-query": "npm:^5.59.15"
-    "@types/node": "npm:^20.14.1"
-    "@types/react": "npm:^19.0.3"
-    "@types/react-dom": "npm:^19.0.2"
-    dotenv-cli: "npm:^7.4.4"
-    eslint: "npm:^9.12.0"
-    eslint-config-next: "npm:^14.2.3"
-    geist: "npm:^1.3.1"
-    jiti: "npm:^1.21.6"
-    mini-css-extract-plugin: "npm:^2.9.1"
-    next: "npm:^15.1.3"
-    next-compose-plugins: "npm:^2.2.1"
-    next-transpile-modules: "npm:^10.0.1"
-    prettier: "npm:^3.3.3"
-    raf: "npm:^3.4.1"
-    react: "npm:^19.0.0"
-    react-dom: "npm:^19.0.0"
-    superjson: "npm:2.2.1"
-    tailwindcss: "npm:^3.4.14"
-    tree-kill: "npm:^1.2.2"
-    typescript: "npm:^5.6.3"
-    vercel: "npm:latest"
-    vitest: "npm:^2.1.1"
-    zod: "npm:3.23.8"
-  languageName: unknown
-  linkType: soft
 
 "next-compose-plugins@npm:^2.2.1":
   version: 2.2.1
@@ -18727,6 +18690,43 @@ __metadata:
   checksum: 10/e0f1873ea321d484f4ea904a07bb3c1481a2bb049a26c65c22fabdbf648c73f48c49ecc580875a5e2942d244821c09b93371d5e18872815f2cbdc2370cba532f
   languageName: node
   linkType: hard
+
+"web@workspace:apps/web":
+  version: 0.0.0-use.local
+  resolution: "web@workspace:apps/web"
+  dependencies:
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tailwind-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    "@e-market/ui": "workspace:*"
+    "@t3-oss/env-nextjs": "npm:^0.11.1"
+    "@tanstack/react-query": "npm:^5.59.15"
+    "@types/node": "npm:^20.14.1"
+    "@types/react": "npm:^19.0.3"
+    "@types/react-dom": "npm:^19.0.2"
+    dotenv-cli: "npm:^7.4.4"
+    eslint: "npm:^9.12.0"
+    eslint-config-next: "npm:^14.2.3"
+    geist: "npm:^1.3.1"
+    jiti: "npm:^1.21.6"
+    mini-css-extract-plugin: "npm:^2.9.1"
+    next: "npm:^15.1.3"
+    next-compose-plugins: "npm:^2.2.1"
+    next-transpile-modules: "npm:^10.0.1"
+    prettier: "npm:^3.3.3"
+    raf: "npm:^3.4.1"
+    react: "npm:^19.0.0"
+    react-dom: "npm:^19.0.0"
+    superjson: "npm:2.2.1"
+    tailwindcss: "npm:^3.4.14"
+    tree-kill: "npm:^1.2.2"
+    typescript: "npm:^5.6.3"
+    vercel: "npm:latest"
+    vitest: "npm:^2.1.1"
+    zod: "npm:3.23.8"
+  languageName: unknown
+  linkType: soft
 
 "webidl-conversions@npm:^3.0.0":
   version: 3.0.1

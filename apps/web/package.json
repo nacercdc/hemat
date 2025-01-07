@@ -1,10 +1,10 @@
 {
-  "name": "next-app",
+  "name": "web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cd ../.. && yarn build && cd apps/next && next build",
+    "build": "cd ../.. && yarn build && cd apps/web && next build",
     "dev": "next dev",
     "lint": "next lint",
     "serve": "NODE_ENV=production next start --port 8151",
