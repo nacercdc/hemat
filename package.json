@@ -1,5 +1,5 @@
 {
-  "name": "starter-free",
+  "name": "e-market",
   "private": true,
   "workspaces": [
     "./apps/*",
