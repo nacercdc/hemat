@@ -10,10 +10,6 @@ This monorepo comprises four main components: apps, packages, shared resources, 
 - `Expo app`: Expo v52, React Native Firebase, React v18, Nativewind V4, ...
 - `Web`: Firebase v11, React v19, Nextjs v15, Next Firebase Auth Edge latest, ...
 
-## 🗂 Folder layout
-
-coming soon..
-
 ## 🏁 Start the app
 
 - Install dependencies: `yarn`
@@ -22,9 +18,7 @@ coming soon..
 
 To run with optimizer on in dev mode (just for testing, it's faster to leave it off): `yarn web:extract`. To build for production `yarn web:prod`.
 
-To see debug output to verify the compiler, add `// debug` as a comment to the top of any file.
-
-- Expo local dev: `yarn android/ios`
+- Expo local build: `yarn android/ios`
 
 ## 🆕 Add new shared module
 
