@@ -2,7 +2,7 @@
 
 ## 🔦 About
 
-This monorepo comprises four main components: apps, packages, shared resources, and tooling. The apps section includes the backend, web application, and Expo application. The packages section contains modules designed to be published as npm packages. The shared section provides code and resources that are reusable locally across the apps within the monorepo. Lastly, the tooling includes shared and fine-grained configurations for ESLint presets, Prettier, Tailwind CSS, and extendable tsconfig.
+This monorepo comprises four main components: apps, packages, shared resources, and tooling. The apps section includes the backend, web application, and Expo application. The packages section contains modules designed to be published as npm packages and provides code and resources that are reusable locally across the apps within the monorepo. Lastly, the tooling includes shared and fine-grained configurations for ESLint presets, Prettier, Tailwind CSS, and extendable tsconfig.
 
 ## 📦Major packages are included in the apps:
 

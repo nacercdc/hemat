@@ -3,7 +3,7 @@ import { Nunito } from "next/font/google";
 
 import "~/app/globals.css";
 
-import { cn } from "@e-market/ui";
+import { cn } from "@etm/ui";
 
 const nunito = Nunito({ subsets: ["latin"], weight: ["700", "600"] });
 

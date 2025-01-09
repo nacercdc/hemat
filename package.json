@@ -19,7 +19,7 @@
     "web:extract": "DISABLE_EXTRACTION=false yarn workspace web dev",
     "web:prod": "yarn workspace web build",
     "web:prod:serve": "yarn workspace web serve",
-    "lib:gen": "yarn turbo gen",
+    "lib:gen": "yarn turbo gen init",
     "ui-add": "turbo run ui-add"
   },
   "resolutions": {
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",
-    "@e-market/prettier-config": "workspace:*",
+    "@etm/prettier-config": "workspace:*",
     "@turbo/gen": "^2.3.1",
     "prettier": "^3.3.3",
     "turbo": "^2.3.1",

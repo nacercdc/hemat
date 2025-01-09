@@ -1,5 +1,5 @@
 {
-  "extends": ["@e-market/tsconfig/base.json"],
+  "extends": ["@etm/tsconfig/base.json"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

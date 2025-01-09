@@ -10,7 +10,7 @@
     "cssVariables": true
   },
   "aliases": {
-    "utils": "@e-market/ui",
+    "utils": "@etm/ui",
     "components": "src",
     "ui": "src/shadcn-ui"
   }
