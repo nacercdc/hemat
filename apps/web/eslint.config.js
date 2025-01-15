@@ -1,3 +1,4 @@
+// @ts-nocheck
 import baseConfig, { restrictEnvAccess } from "@etm/eslint-config/base";
 import nextjsConfig from "@etm/eslint-config/nextjs";
 import reactConfig from "@etm/eslint-config/react";

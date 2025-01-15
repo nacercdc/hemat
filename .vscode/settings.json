@@ -30,7 +30,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always"
   },
-  "cSpell.words": ["nativewind"],
+  "cSpell.words": ["gradlew", "nativewind"],
   "files.associations": {
     "*.css": "tailwindcss"
   }

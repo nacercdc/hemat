@@ -1,15 +1,24 @@
 {
-  "name": "nativewind",
+  "name": "expo-app",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start --dev-client",
+    "dev:android": "expo start --android",
     "android": "expo run:android",
-    "prebuilt": "expo prebuild --platform android",
+    "prebuilt:android": "expo prebuild --platform android",
+    "dev:ios": "expo start --ios",
     "ios": "expo run:ios",
-    "web": "expo start --web",
+    "prebuilt:ios": "expo prebuild --platform ios",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "clean": "git clean -xdf .cache .expo .turbo android ios node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "build:gradle:prod": "yarn bundle:prod && cd ./android && ./gradlew app:assembleRelease && mv ./app/build/outputs/apk/release/app-release.apk ./app/build/outputs/apk/release/expo.apk",
+    "build:gradle:stage": "yarn bundle:stage && cd ./android && ./gradlew app:assembleRelease && mv ./app/build/outputs/apk/release/app-release.apk ./app/build/outputs/apk/release/expo.apk",
+    "bundle:prod": "rm -rf ./android/app/src/main/assets && mkdir ./android/app/src/main/assets && NODE_ENV=prod npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/",
+    "bundle:stage": "rm -rf ./android/app/src/main/assets && mkdir ./android/app/src/main/assets && NODE_ENV=stage npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/"
   },
   "jest": {
     "preset": "jest-expo"

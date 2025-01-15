@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 
-import "~/app/globals.css";
+import "~/app/styles.css";
 
 import { cn } from "@etm/ui";
 
@@ -9,13 +9,13 @@ const nunito = Nunito({ subsets: ["latin"], weight: ["700", "600"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
-  title: "Create T3 Turbo",
-  description: "Simple monorepo with shared backend for web & mobile apps",
+  title: "Yarn monorepo starter",
+  description: "Simple monorepo backend and web & mobile apps",
   openGraph: {
-    title: "Create T3 Turbo",
-    description: "Simple monorepo with shared backend for web & mobile apps",
-    url: "https://create-t3-turbo.vercel.app",
-    siteName: "Create T3 Turbo",
+    title: "Yarn monorepo starter",
+    description: "Simple monorepo backend and web & mobile apps",
+    url: "https://etmsoftwareplc.com",
+    siteName: "Yarn monorepo starter",
   },
   twitter: {
     card: "summary_large_image",

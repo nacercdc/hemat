@@ -4,12 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cd ../.. && yarn build && cd apps/web && next build",
-    "dev": "next dev",
-    "lint": "next lint",
-    "serve": "NODE_ENV=production next start --port 8151",
-    "start": "next start",
-    "test": "vitest"
+    "build": "yarn with-env next build",
+    "dev": "yarn with-env next dev",
+    "start": "yarn with-env next start",
+    "test": "vitest",
+    "clean": "git clean -xdf .cache .next .turbo node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
     "@etm/ui": "workspace:*",

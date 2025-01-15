@@ -1,5 +1,6 @@
 {
-  "name": "e-market",
+  "name": "yarn-monorepo-starter",
+  "description": "A starter template for monorepo projects with Yarn Workspaces, maintained by ETM Software PLC.",
   "private": true,
   "workspaces": [
     "./apps/*",
@@ -7,19 +8,29 @@
     "./tooling/*"
   ],
   "scripts": {
-    "build": "yarn workspaces foreach --all --exclude web run build",
-    "native": "cd apps/expo && yarn start",
+    "build": "turbo run build",
+    "clean": "git clean -xdf node_modules",
+    "clean:workspaces": "turbo run clean",
+    "dev": "turbo watch dev --continue",
+    "dev:next": "turbo watch dev -F web...",
+    "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
+    "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
+    "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
+    "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
+    "typecheck": "turbo run typecheck",
     "prepare": "husky",
     "test": "vitest run",
     "test:watch": "vitest",
-    "vercel:install": "yarn set version 3.5 && yarn install",
-    "watch": "yarn workspaces foreach -pi run watch",
-    "web": "yarn build && cd apps/web && yarn next",
-    "web:extract": "DISABLE_EXTRACTION=false yarn workspace web dev",
-    "web:prod": "yarn workspace web build",
-    "web:prod:serve": "yarn workspace web serve",
+    "android": "yarn workspace expo-app android",
+    "dev:android": "yarn workspace expo-app dev:android",
+    "android:prebuilt": "yarn workspace expo-app android:prebuilt",
+    "ios": "yarn workspace expo-app ios",
+    "dev:ios": "yarn workspace expo-app dev:ios",
+    "ios:prebuilt": "yarn workspace expo-app ios:prebuilt",
     "lib:gen": "yarn turbo gen init",
-    "ui-add": "turbo run ui-add"
+    "ui-add": "turbo run ui-add",
+    "build:gradle:stage": "yarn workspace expo-app build:gradle:stage",
+    "build:gradle:prod": "yarn workspace expo-app build:gradle:prod"
   },
   "resolutions": {
     "react": "^18.3.1",
@@ -37,7 +48,6 @@
     "vitest": "^2.1.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.3",
     "@etm/prettier-config": "workspace:*",
     "@turbo/gen": "^2.3.1",
     "prettier": "^3.3.3",

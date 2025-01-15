@@ -1185,97 +1185,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@biomejs/biome@npm:^1.9.3":
-  version: 1.9.4
-  resolution: "@biomejs/biome@npm:1.9.4"
-  dependencies:
-    "@biomejs/cli-darwin-arm64": "npm:1.9.4"
-    "@biomejs/cli-darwin-x64": "npm:1.9.4"
-    "@biomejs/cli-linux-arm64": "npm:1.9.4"
-    "@biomejs/cli-linux-arm64-musl": "npm:1.9.4"
-    "@biomejs/cli-linux-x64": "npm:1.9.4"
-    "@biomejs/cli-linux-x64-musl": "npm:1.9.4"
-    "@biomejs/cli-win32-arm64": "npm:1.9.4"
-    "@biomejs/cli-win32-x64": "npm:1.9.4"
-  dependenciesMeta:
-    "@biomejs/cli-darwin-arm64":
-      optional: true
-    "@biomejs/cli-darwin-x64":
-      optional: true
-    "@biomejs/cli-linux-arm64":
-      optional: true
-    "@biomejs/cli-linux-arm64-musl":
-      optional: true
-    "@biomejs/cli-linux-x64":
-      optional: true
-    "@biomejs/cli-linux-x64-musl":
-      optional: true
-    "@biomejs/cli-win32-arm64":
-      optional: true
-    "@biomejs/cli-win32-x64":
-      optional: true
-  bin:
-    biome: bin/biome
-  checksum: 10/bd8ff8fb4dc0581bd60a9b9ac28d0cd03ba17c6a1de2ab6228b7fda582079594ceee774f47e41aac2fc6d35de1637def2e32ef2e58fa24e22d1b24ef9ee5cefa
-  languageName: node
-  linkType: hard
-
-"@biomejs/cli-darwin-arm64@npm:1.9.4":
-  version: 1.9.4
-  resolution: "@biomejs/cli-darwin-arm64@npm:1.9.4"
-  conditions: os=darwin & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@biomejs/cli-darwin-x64@npm:1.9.4":
-  version: 1.9.4
-  resolution: "@biomejs/cli-darwin-x64@npm:1.9.4"
-  conditions: os=darwin & cpu=x64
-  languageName: node
-  linkType: hard
-
-"@biomejs/cli-linux-arm64-musl@npm:1.9.4":
-  version: 1.9.4
-  resolution: "@biomejs/cli-linux-arm64-musl@npm:1.9.4"
-  conditions: os=linux & cpu=arm64 & libc=musl
-  languageName: node
-  linkType: hard
-
-"@biomejs/cli-linux-arm64@npm:1.9.4":
-  version: 1.9.4
-  resolution: "@biomejs/cli-linux-arm64@npm:1.9.4"
-  conditions: os=linux & cpu=arm64 & libc=glibc
-  languageName: node
-  linkType: hard
-
-"@biomejs/cli-linux-x64-musl@npm:1.9.4":
-  version: 1.9.4
-  resolution: "@biomejs/cli-linux-x64-musl@npm:1.9.4"
-  conditions: os=linux & cpu=x64 & libc=musl
-  languageName: node
-  linkType: hard
-
-"@biomejs/cli-linux-x64@npm:1.9.4":
-  version: 1.9.4
-  resolution: "@biomejs/cli-linux-x64@npm:1.9.4"
-  conditions: os=linux & cpu=x64 & libc=glibc
-  languageName: node
-  linkType: hard
-
-"@biomejs/cli-win32-arm64@npm:1.9.4":
-  version: 1.9.4
-  resolution: "@biomejs/cli-win32-arm64@npm:1.9.4"
-  conditions: os=win32 & cpu=arm64
-  languageName: node
-  linkType: hard
-
-"@biomejs/cli-win32-x64@npm:1.9.4":
-  version: 1.9.4
-  resolution: "@biomejs/cli-win32-x64@npm:1.9.4"
-  conditions: os=win32 & cpu=x64
-  languageName: node
-  linkType: hard
-
 "@cspotcode/source-map-support@npm:^0.8.0":
   version: 0.8.1
   resolution: "@cspotcode/source-map-support@npm:0.8.1"
@@ -7862,25 +7771,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"e-market@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "e-market@workspace:."
-  dependencies:
-    "@babel/runtime": "npm:^7.24.6"
-    "@biomejs/biome": "npm:^1.9.3"
-    "@etm/prettier-config": "workspace:*"
-    "@turbo/gen": "npm:^2.3.1"
-    check-dependency-version-consistency: "npm:^4.1.0"
-    eslint: "npm:^9.12.0"
-    husky: "npm:^9.1.6"
-    node-gyp: "npm:^10.1.0"
-    prettier: "npm:^3.3.3"
-    turbo: "npm:^2.3.1"
-    typescript: "npm:^5.6.3"
-    vitest: "npm:^2.1.1"
-  languageName: unknown
-  linkType: soft
-
 "eastasianwidth@npm:^0.2.0":
   version: 0.2.0
   resolution: "eastasianwidth@npm:0.2.0"
@@ -8984,6 +8874,55 @@ __metadata:
   checksum: 10/63f97bc51f56a491950fb525f9ad94f1916e8a014947f8d8445d3847a665b5471b768522d659f5e865db20b6c2033d2ac10f35fcbd881a4d26407a4f6f18451a
   languageName: node
   linkType: hard
+
+"expo-app@workspace:apps/expo":
+  version: 0.0.0-use.local
+  resolution: "expo-app@workspace:apps/expo"
+  dependencies:
+    "@babel/core": "npm:^7.25.2"
+    "@etm/eslint-config": "workspace:*"
+    "@etm/prettier-config": "workspace:*"
+    "@etm/tailwind-config": "workspace:*"
+    "@etm/tsconfig": "workspace:*"
+    "@expo/vector-icons": "npm:^14.0.2"
+    "@react-navigation/bottom-tabs": "npm:^7.0.0"
+    "@react-navigation/native": "npm:^7.0.0"
+    "@types/jest": "npm:^29.5.12"
+    "@types/react": "npm:~18.3.12"
+    "@types/react-test-renderer": "npm:^18.3.0"
+    babel-plugin-module-resolver: "npm:^5.0.2"
+    eslint: "npm:^9.12.0"
+    expo: "npm:^52.0.25"
+    expo-blur: "npm:~14.0.1"
+    expo-constants: "npm:~17.0.3"
+    expo-font: "npm:~13.0.1"
+    expo-haptics: "npm:~14.0.0"
+    expo-linking: "npm:~7.0.3"
+    expo-router: "npm:^4.0.16"
+    expo-splash-screen: "npm:~0.29.13"
+    expo-status-bar: "npm:~2.0.0"
+    expo-symbols: "npm:~0.2.0"
+    expo-system-ui: "npm:~4.0.3"
+    expo-web-browser: "npm:~14.0.1"
+    jest: "npm:^29.2.1"
+    jest-expo: "npm:~52.0.2"
+    nativewind: "npm:^4.1.23"
+    prettier: "npm:^3.3.3"
+    react: "npm:18.3.1"
+    react-dom: "npm:18.3.1"
+    react-native: "npm:0.76.6"
+    react-native-gesture-handler: "npm:~2.20.2"
+    react-native-reanimated: "npm:~3.16.1"
+    react-native-safe-area-context: "npm:4.12.0"
+    react-native-screens: "npm:~4.4.0"
+    react-native-web: "npm:~0.19.13"
+    react-native-webview: "npm:13.12.5"
+    react-test-renderer: "npm:18.3.1"
+    tailwindcss: "npm:^3.4.14"
+    typescript: "npm:^5.6.3"
+    zod: "npm:^3.23.8"
+  languageName: unknown
+  linkType: soft
 
 "expo-asset@npm:~11.0.2":
   version: 11.0.2
@@ -13193,55 +13132,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nativewind@workspace:apps/expo":
-  version: 0.0.0-use.local
-  resolution: "nativewind@workspace:apps/expo"
-  dependencies:
-    "@babel/core": "npm:^7.25.2"
-    "@etm/eslint-config": "workspace:*"
-    "@etm/prettier-config": "workspace:*"
-    "@etm/tailwind-config": "workspace:*"
-    "@etm/tsconfig": "workspace:*"
-    "@expo/vector-icons": "npm:^14.0.2"
-    "@react-navigation/bottom-tabs": "npm:^7.0.0"
-    "@react-navigation/native": "npm:^7.0.0"
-    "@types/jest": "npm:^29.5.12"
-    "@types/react": "npm:~18.3.12"
-    "@types/react-test-renderer": "npm:^18.3.0"
-    babel-plugin-module-resolver: "npm:^5.0.2"
-    eslint: "npm:^9.12.0"
-    expo: "npm:^52.0.25"
-    expo-blur: "npm:~14.0.1"
-    expo-constants: "npm:~17.0.3"
-    expo-font: "npm:~13.0.1"
-    expo-haptics: "npm:~14.0.0"
-    expo-linking: "npm:~7.0.3"
-    expo-router: "npm:^4.0.16"
-    expo-splash-screen: "npm:~0.29.13"
-    expo-status-bar: "npm:~2.0.0"
-    expo-symbols: "npm:~0.2.0"
-    expo-system-ui: "npm:~4.0.3"
-    expo-web-browser: "npm:~14.0.1"
-    jest: "npm:^29.2.1"
-    jest-expo: "npm:~52.0.2"
-    nativewind: "npm:^4.1.23"
-    prettier: "npm:^3.3.3"
-    react: "npm:18.3.1"
-    react-dom: "npm:18.3.1"
-    react-native: "npm:0.76.6"
-    react-native-gesture-handler: "npm:~2.20.2"
-    react-native-reanimated: "npm:~3.16.1"
-    react-native-safe-area-context: "npm:4.12.0"
-    react-native-screens: "npm:~4.4.0"
-    react-native-web: "npm:~0.19.13"
-    react-native-webview: "npm:13.12.5"
-    react-test-renderer: "npm:18.3.1"
-    tailwindcss: "npm:^3.4.14"
-    typescript: "npm:^5.6.3"
-    zod: "npm:^3.23.8"
-  languageName: unknown
-  linkType: soft
-
 "natural-compare@npm:^1.4.0":
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
@@ -16343,12 +16233,12 @@ __metadata:
   linkType: hard
 
 "sonner@npm:^1.7.0":
-  version: 1.7.1
-  resolution: "sonner@npm:1.7.1"
+  version: 1.7.2
+  resolution: "sonner@npm:1.7.2"
   peerDependencies:
     react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
     react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
-  checksum: 10/a67279e3db9cf0ae235cc316812b22489dcbe2c9488e12313f35c5073520640ffe3c955a61ab1992ed4b4b96ca72087b6687b725305a0e3be9b1279c5a1fc735
+  checksum: 10/c17de412333bff0970a0b38375e034e2df974b1849c58ccb519ea7981aea7f8c0a4c9d8b8059c36a2d2ed9df1f4f571748e3d2037c90f13f0be8bb180eae20a0
   languageName: node
   linkType: hard
 
@@ -18754,6 +18644,24 @@ __metadata:
   checksum: 10/abb3e37678d6e38ea85485ed86ebe0d1e3464c640d7d9069805ea0da12f69d5a32df8e5625e370f9c96dd1c2dc088ab2d0a4dd32af18222ef3c4224a19471576
   languageName: node
   linkType: hard
+
+"yarn-monorepo-starter@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "yarn-monorepo-starter@workspace:."
+  dependencies:
+    "@babel/runtime": "npm:^7.24.6"
+    "@etm/prettier-config": "workspace:*"
+    "@turbo/gen": "npm:^2.3.1"
+    check-dependency-version-consistency: "npm:^4.1.0"
+    eslint: "npm:^9.12.0"
+    husky: "npm:^9.1.6"
+    node-gyp: "npm:^10.1.0"
+    prettier: "npm:^3.3.3"
+    turbo: "npm:^2.3.1"
+    typescript: "npm:^5.6.3"
+    vitest: "npm:^2.1.1"
+  languageName: unknown
+  linkType: soft
 
 "yauzl-clone@npm:^1.0.4":
   version: 1.0.4
