@@ -30,5 +30,8 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always"
   },
-  "cSpell.words": ["nativewind"]
+  "cSpell.words": ["nativewind"],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
 }
