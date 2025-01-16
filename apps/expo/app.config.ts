@@ -19,11 +19,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ["**/*"],
   ios: {
-    bundleIdentifier: "your.bundle.identifier",
+    bundleIdentifier: "com.company.firestore",
     supportsTablet: true,
   },
   android: {
-    package: "your.bundle.identifier",
+    package: "com.company.firestore",
+    googleServicesFile: "./temp-configs/google-services.json",
     adaptiveIcon: {
       foregroundImage: "./assets/images/adaptive-icon.png",
       backgroundColor: "#1F104A",
@@ -33,5 +34,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     tsconfigPaths: true,
     typedRoutes: true,
   },
-  plugins: ["expo-router"],
+  plugins: [
+    "expo-router",
+    "@react-native-firebase/app",
+    "@react-native-firebase/auth",
+    "@react-native-firebase/crashlytics",
+    [
+      "expo-build-properties",
+      {
+        ios: {
+          useFrameworks: "static",
+        },
+      },
+    ],
+  ],
 });

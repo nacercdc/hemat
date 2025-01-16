@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "39748666297",
+    "firebase_url": "https://kd-react-hooks-update-default-rtdb.firebaseio.com",
+    "project_id": "kd-react-hooks-update",
+    "storage_bucket": "kd-react-hooks-update.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:39748666297:android:20c90e20c5300b1196ec68",
+        "android_client_info": {
+          "package_name": "com.company.firestore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "39748666297-meotr2h0grvjjvjfmre1jar4634oktdo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlskiIKhSO86HgPq3741z3pEHVAjCsknc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "39748666297-meotr2h0grvjjvjfmre1jar4634oktdo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
