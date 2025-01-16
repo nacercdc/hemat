@@ -1,15 +1,18 @@
+import type { FontSource } from "expo-font";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import "../styles.css";
+import MainLayout from "~/components/layouts/MainLayout";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded] = useFonts({
-    SpaceMono: require("../../assets/fonts/SpaceMono-Regular.ttf"),
+    SpaceMono:
+      require("../../assets/fonts/SpaceMono-Regular.ttf") as FontSource,
   });
 
   useEffect(() => {
@@ -23,8 +26,8 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-    </Stack>
+    <MainLayout>
+      <Slot />
+    </MainLayout>
   );
 }
