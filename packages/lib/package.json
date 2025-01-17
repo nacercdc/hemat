@@ -15,6 +15,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
+  "dependencies": {
+    "@tanstack/react-query": "^5.59.15"
+  },
   "devDependencies": {
     "@etm/eslint-config": "workspace:*",
     "@etm/prettier-config": "workspace:*",

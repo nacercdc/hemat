@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
@@ -49,6 +50,7 @@ export function useGetInfiniteQueryDocuments<T>({
       data.pages.reduce(
         (acc, curr) => {
           acc.data = acc.data.concat(...curr.data);
+           
           acc.total = curr.total;
           return acc;
         },
