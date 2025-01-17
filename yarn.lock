@@ -1548,6 +1548,7 @@ __metadata:
     "@etm/eslint-config": "workspace:*"
     "@etm/prettier-config": "workspace:*"
     "@etm/tsconfig": "workspace:*"
+    "@tanstack/react-query": "npm:^5.59.15"
     eslint: "npm:^9.12.0"
     prettier: "npm:^3.3.3"
     typescript: "npm:^5.6.3"
@@ -4521,6 +4522,15 @@ __metadata:
     expo:
       optional: true
   checksum: 10/4fed6923fd87b6d0eb6a52d0a6e68d9418ed42526f53e738e74389af762748d8e7f877a6a672b130631c529d85df9fc88d03dd847b0a5c06121883f9b738f793
+  languageName: node
+  linkType: hard
+
+"@react-native-firebase/firestore@npm:^21.6.2":
+  version: 21.6.2
+  resolution: "@react-native-firebase/firestore@npm:21.6.2"
+  peerDependencies:
+    "@react-native-firebase/app": 21.6.2
+  checksum: 10/b196b3ddef08ff015853c0212f69df2a969e4d9826f50bcbda2a3a91a1b8182702cd94ca23a34f00d74d43953e36b288b603f25021d88b929586d8af3cee39f8
   languageName: node
   linkType: hard
 
@@ -9462,6 +9472,7 @@ __metadata:
     "@react-native-firebase/app": "npm:^21.6.2"
     "@react-native-firebase/auth": "npm:^21.6.2"
     "@react-native-firebase/crashlytics": "npm:^21.6.2"
+    "@react-native-firebase/firestore": "npm:^21.6.2"
     "@react-navigation/bottom-tabs": "npm:^7.0.0"
     "@react-navigation/native": "npm:^7.0.0"
     "@tanstack/react-query": "npm:^5.59.15"
