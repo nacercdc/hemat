@@ -1,22 +1,13 @@
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
-import type { UseMutationOptions } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import firestore from "@react-native-firebase/firestore";
-
-interface MutationRequest<P> {
-  data: P;
-  docId?: string;
-}
-
-type TanstackRQMutateOptions<T, P = T> = Omit<
-  UseMutationOptions<T, Error, MutationRequest<P>>,
-  "mutationFn"
->;
-
-interface UseMutationDocument<T, P> {
-  collectionName: string;
-  options: TanstackRQMutateOptions<T, P>;
-}
+import type {
+  FirestoreDocumentId,
+  MutationCreateRequest,
+  MutationUpdateRequest,
+  UseCreateMutationDocument,
+  UseUpdateMutationDocument,
+} from "./types/mutation.type";
 
 export const useFirestoreCreate = <
   T extends FirebaseFirestoreTypes.DocumentData,
@@ -24,8 +15,8 @@ export const useFirestoreCreate = <
 >({
   collectionName,
   options,
-}: UseMutationDocument<T, C>) => {
-  return useMutation<T, Error, MutationRequest<C>>({
+}: UseCreateMutationDocument<T, C>) => {
+  return useMutation<T, Error, MutationCreateRequest<C>>({
     mutationFn: async (request) => {
       const collectionRef = firestore().collection<T>(collectionName);
       const docId = request.docId ?? collectionRef.id;
@@ -46,19 +37,14 @@ export const useFirestoreCreate = <
   });
 };
 
-interface MutationURequest<P> {
-  data: P;
-  docId: string;
-}
-
 export const useFirestoreUpdateMutation = <
   T extends FirebaseFirestoreTypes.DocumentData,
   U = T,
 >({
   collectionName,
   options,
-}: UseMutationDocument<T, U>) => {
-  return useMutation<T, Error, MutationURequest<U>>({
+}: UseUpdateMutationDocument<T, U>) => {
+  return useMutation<T, Error, MutationUpdateRequest<U>>({
     mutationFn: async (request) => {
       const docRef = firestore()
         .collection<T>(collectionName)
@@ -75,19 +61,14 @@ export const useFirestoreUpdateMutation = <
   });
 };
 
-interface MutationURequest<P> {
-  data: P;
-  docId: string;
-}
-
 export const useFirestoreDeleteMutation = <
   T extends FirebaseFirestoreTypes.DocumentData,
   U = T,
 >({
   collectionName,
   options,
-}: UseMutationDocument<T, U>) => {
-  return useMutation<T, Error, MutationURequest<U>>({
+}: UseUpdateMutationDocument<T, U>) => {
+  return useMutation<T, Error, MutationUpdateRequest<U>>({
     mutationFn: async (request) => {
       const docRef = firestore()
         .collection<T>(collectionName)
@@ -102,9 +83,6 @@ export const useFirestoreDeleteMutation = <
   });
 };
 
-interface FirestoreDocumentId {
-  collectionName: string;
-}
 export const useFirestoreDocumentId = <
   T extends FirebaseFirestoreTypes.DocumentData,
 >({
