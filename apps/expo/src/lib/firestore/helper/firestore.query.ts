@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Query } from "./query";
 import firestore from "@react-native-firebase/firestore";
 import type { UseFirestoreQuery } from "./types/query.type";
+import { collectionReference } from "./firestore.ref";
 
 export function useFirestoreQuery<
   T extends FirebaseFirestoreTypes.DocumentData,
@@ -50,7 +51,7 @@ export function useFirestoreQueryCount<
   return useQuery<number, Error>({
     ...firestoreOptions,
     queryFn: async () => {
-      const collectionRef = firestore().collection<T>(collectionName);
+      const collectionRef = collectionReference<T>(collectionName);
       const query = new Query<T>(collectionRef);
       const snapshot = await query
         .filter(queryOptions?.filters)
