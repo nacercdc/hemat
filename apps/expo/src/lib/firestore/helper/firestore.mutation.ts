@@ -1,6 +1,5 @@
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { useMutation } from "@tanstack/react-query";
-import firestore from "@react-native-firebase/firestore";
 import type {
   FirestoreDocumentId,
   MutationCreateRequest,
@@ -8,6 +7,7 @@ import type {
   UseCreateMutationDocument,
   UseUpdateMutationDocument,
 } from "./types/mutation.type";
+import { collectionReference, documentReference } from "./firestore.ref";
 
 export const useFirestoreCreate = <
   T extends FirebaseFirestoreTypes.DocumentData,
@@ -18,7 +18,7 @@ export const useFirestoreCreate = <
 }: UseCreateMutationDocument<T, C>) => {
   return useMutation<T, Error, MutationCreateRequest<C>>({
     mutationFn: async (request) => {
-      const collectionRef = firestore().collection<T>(collectionName);
+      const collectionRef = collectionReference<T>(collectionName);
       const docId = request.docId ?? collectionRef.id;
       const docRef = await collectionRef.add({
         id: docId,
@@ -46,14 +46,10 @@ export const useFirestoreUpdateMutation = <
 }: UseUpdateMutationDocument<T, U>) => {
   return useMutation<T, Error, MutationUpdateRequest<U>>({
     mutationFn: async (request) => {
-      const docRef = firestore()
-        .collection<T>(collectionName)
-        .doc(request.docId);
-
+      const docRef = documentReference<T>(collectionName, request.docId);
       await docRef.update(
         request.data as Partial<FirebaseFirestoreTypes.SetValue<T>>
       );
-
       const updatedDoc = await docRef.get();
       return updatedDoc.data() as unknown as T;
     },
@@ -70,12 +66,8 @@ export const useFirestoreDeleteMutation = <
 }: UseUpdateMutationDocument<T, U>) => {
   return useMutation<T, Error, MutationUpdateRequest<U>>({
     mutationFn: async (request) => {
-      const docRef = firestore()
-        .collection<T>(collectionName)
-        .doc(request.docId);
-
+      const docRef = documentReference<T>(collectionName, request.docId);
       await docRef.delete();
-
       const updatedDoc = await docRef.get();
       return updatedDoc.data() as unknown as T;
     },
@@ -87,6 +79,4 @@ export const useFirestoreDocumentId = <
   T extends FirebaseFirestoreTypes.DocumentData,
 >({
   collectionName,
-}: FirestoreDocumentId) => {
-  return firestore().collection<T>(collectionName).id;
-};
+}: FirestoreDocumentId) => collectionReference<T>(collectionName).id;
