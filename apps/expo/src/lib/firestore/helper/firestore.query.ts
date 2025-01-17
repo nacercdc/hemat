@@ -5,9 +5,13 @@ import { Query } from "./query";
 import firestore from "@react-native-firebase/firestore";
 import type { UseFirestoreQuery } from "./types/query.type";
 
-export default function useFirestoreQuery<
+export function useFirestoreQuery<
   T extends FirebaseFirestoreTypes.DocumentData,
->({ firestoreOptions, collectionName, queryOptions }: UseFirestoreQuery<T>) {
+>({
+  firestoreOptions,
+  collectionName,
+  queryOptions,
+}: UseFirestoreQuery<T, T[]>) {
   return useQuery<T[], Error>({
     ...firestoreOptions,
     queryFn: async () => {
@@ -32,6 +36,29 @@ export default function useFirestoreQuery<
         }
       });
       return results;
+    },
+  });
+}
+
+export function useFirestoreQueryCount<
+  T extends FirebaseFirestoreTypes.DocumentData,
+>({
+  firestoreOptions,
+  collectionName,
+  queryOptions,
+}: UseFirestoreQuery<T, number>) {
+  return useQuery<number, Error>({
+    ...firestoreOptions,
+    queryFn: async () => {
+      const collectionRef = firestore().collection<T>(collectionName);
+      const query = new Query<T>(collectionRef);
+      const snapshot = await query
+        .filter(queryOptions?.filters)
+        .orderBy(queryOptions?.orderBy)
+        .limit(queryOptions?.limit)
+        .count()
+        .get();
+      return snapshot.data().count as number;
     },
   });
 }

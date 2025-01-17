@@ -28,8 +28,8 @@ export interface FirestoreMutationFn<T> {
   operation: MutationOpr;
   mutationOptions?: UseMutationOptions<T, Error, MutationFn<T>>;
 }
-export interface UseFirestoreQuery<T> extends QueryFn<T> {
-  firestoreOptions: Omit<UndefinedInitialDataOptions<T[], Error>, "queryFn">;
+export interface UseFirestoreQuery<Req, Res> extends QueryFn<Req> {
+  firestoreOptions: Omit<UndefinedInitialDataOptions<Res, Error>, "queryFn">;
 }
 
 export type WhereFilterOp =

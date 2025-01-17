@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
+import type {
+  AggregateField,
+  FirebaseFirestoreTypes,
+} from "@react-native-firebase/firestore";
 import type { Filter, OrderBy } from "./types/filter.type";
 import { FilterService, OrderService } from "./filter";
 
@@ -44,7 +47,9 @@ export class Query<T extends FirebaseFirestoreTypes.DocumentData> {
     return this.reference.get() as any;
   }
 
-  count() {
+  count(): FirebaseFirestoreTypes.AggregateQuery<{
+    count: AggregateField<number>;
+  }> {
     return this.reference.count();
   }
 
