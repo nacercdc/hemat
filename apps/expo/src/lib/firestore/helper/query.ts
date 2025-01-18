@@ -42,7 +42,9 @@ export class Query<T extends FirebaseFirestoreTypes.DocumentData> {
     this.reference = this.reference.limitToLast(lastLimit);
     return this;
   }
-
+  startAfter(param?: number) {
+    return this.reference.startAfter(param);
+  }
   get(): Promise<FirebaseFirestoreTypes.QuerySnapshot<T>> {
     return this.reference.get() as any;
   }

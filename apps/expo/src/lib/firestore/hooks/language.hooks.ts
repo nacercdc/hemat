@@ -23,5 +23,14 @@ interface Language {
 // }
 
 export default function useGetLanguages() {
-  return useFirestoreInfiniteQuery<Language>();
+  return useFirestoreInfiniteQuery<Language>({
+    collectionName: Collection.LANGUAGES,
+    tqOptions: {
+      enabled: true,
+      queryKey: ["useGetLanguages", "ena"],
+    },
+    queryOptions: {
+      limit: 3,
+    },
+  });
 }
