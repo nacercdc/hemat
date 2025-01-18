@@ -1,10 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
+  InfiniteData,
+  UndefinedInitialDataInfiniteOptions,
   UndefinedInitialDataOptions,
   UseMutationOptions,
 } from "@tanstack/react-query";
 import type { Filter, OrderBy } from "./filter.type";
-import type { OrderByDirection } from "@react-native-firebase/firestore";
+import type {
+  FirebaseFirestoreTypes,
+  OrderByDirection,
+} from "@react-native-firebase/firestore";
 
 interface IQueryOption<T> {
   filters?: Filter<T>;
@@ -66,4 +71,33 @@ export const QUERY_OPERATORS: Record<string, WhereFilterOp> = {
 export interface IOrderBy {
   field: string;
   direction: OrderByDirection;
+}
+
+// Infinity query types
+export type TanstackInfinityRQOptions<
+  T extends FirebaseFirestoreTypes.DocumentData,
+> = Omit<
+  UndefinedInitialDataInfiniteOptions<
+    Page<T>,
+    Error,
+    InfiniteData<T, FirebaseFirestoreTypes.QueryDocumentSnapshot<T>>,
+    string[],
+    FirebaseFirestoreTypes.QueryDocumentSnapshot<T> | undefined
+  >,
+  | "queryFn"
+  | "getNextPageParam"
+  | "getPreviousPageParam"
+  | "initialPageParam"
+  | "select"
+>;
+
+export interface UseFirestoreInfiniteQuery<
+  T extends FirebaseFirestoreTypes.DocumentData,
+> extends QueryFn<T> {
+  tqOptions: TanstackInfinityRQOptions<T>;
+}
+
+export interface Page<T extends FirebaseFirestoreTypes.DocumentData> {
+  data: T[];
+  lastDoc: FirebaseFirestoreTypes.QueryDocumentSnapshot<T>;
 }
