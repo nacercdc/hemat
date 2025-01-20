@@ -1,13 +1,19 @@
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { useMutation } from "@tanstack/react-query";
 import type {
+  BatchDocument,
   FirestoreDocumentId,
   MutationCreateRequest,
   MutationUpdateRequest,
   UseCreateMutationDocument,
+  UseMBatchMutationDocument,
   UseUpdateMutationDocument,
 } from "./types/mutation.type";
-import { collectionReference, documentReference } from "./firestore.ref";
+import {
+  batchReference,
+  collectionReference,
+  documentReference,
+} from "./firestore.ref";
 
 export const useFirestoreCreate = <
   T extends FirebaseFirestoreTypes.DocumentData,
@@ -70,6 +76,44 @@ export const useFirestoreDeleteMutation = <
       await docRef.delete();
       const updatedDoc = await docRef.get();
       return updatedDoc.data() as unknown as T;
+    },
+    ...options,
+  });
+};
+
+export const useFirestoreBatch = ({ options }: UseMBatchMutationDocument) => {
+  return useMutation<void, Error, BatchDocument[]>({
+    mutationFn: async (batchDocuments) => {
+      const batch = batchReference;
+      batchDocuments.forEach((operation) => {
+        const collectionRef = collectionReference(operation.collection);
+        switch (operation.type) {
+          case "create": {
+            if (!operation.data)
+              throw new Error("Data is required for create operation");
+            const docRef = collectionRef.doc();
+            batch.set(docRef, operation.data);
+            break;
+          }
+          case "update": {
+            if (!operation.id || !operation.data)
+              throw new Error("ID and data are required for update operation");
+            const docRef = collectionRef.doc(operation.id);
+            batch.update(docRef, operation.data);
+            break;
+          }
+          case "delete": {
+            if (!operation.id)
+              throw new Error("ID is required for delete operation");
+            const docRef = collectionRef.doc(operation.id);
+            batch.delete(docRef);
+            break;
+          }
+          default:
+            throw new Error("Invalid operation type");
+        }
+      });
+      await batch.commit();
     },
     ...options,
   });

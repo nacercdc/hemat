@@ -35,3 +35,22 @@ export interface UseUpdateMutationDocument<T, U> {
 export interface FirestoreDocumentId {
   collectionName: string;
 }
+
+// Batch mutation types
+type BatchOperationType = "create" | "update" | "delete";
+
+export interface BatchDocument {
+  type: BatchOperationType;
+  collection: string;
+  id?: string;
+  data?: Record<string, unknown>;
+}
+
+type TanstackRQBatchMutateOptions = Omit<
+  UseMutationOptions<void, Error, BatchDocument[]>,
+  "mutationFn"
+>;
+
+export interface UseMBatchMutationDocument {
+  options: TanstackRQBatchMutateOptions;
+}

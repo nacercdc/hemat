@@ -15,3 +15,5 @@ export const documentReference = <
   collectionName: string,
   id: string
 ) => collectionReference<T>(collectionName).doc(id);
+
+export const batchReference = firestore().batch();
