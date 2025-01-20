@@ -1,33 +1,75 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import type { InfiniteData } from "@tanstack/react-query";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Query } from "./query";
-import firestore from "@react-native-firebase/firestore";
 import type {
   Page,
   UseFirestoreInfiniteQuery,
   UseFirestoreQuery,
+  UseFirestoreQueryCount,
+  UseFirestoreQueryGet,
 } from "./types/query.type";
 import { collectionReference } from "./firestore.ref";
+import { useEffect } from "react";
+
+export function useFirestoreQueryRealTime<
+  T extends FirebaseFirestoreTypes.DocumentData,
+>({ tqOptions, collectionName, queryOptions }: UseFirestoreQuery<T, T[]>) {
+  const queryClient = useQueryClient();
+  const query = useQuery<T[], Error>({
+    queryFn: () => [],
+    ...tqOptions,
+  });
+
+  useEffect(() => {
+    const collectionRef = collectionReference<T>(collectionName);
+    const queryRef = new Query<T>(collectionRef);
+    const unsubscribe = queryRef
+      .filter(queryOptions?.filters)
+      .orderBy(queryOptions?.orderBy)
+      .limit(queryOptions?.limit)
+      .getQuery()
+      .onSnapshot((snapshot) => {
+        if (snapshot.empty) {
+          queryClient.setQueryData(tqOptions.queryKey, []);
+          return;
+        }
+        const results: T[] = [];
+
+        snapshot.docs.forEach((doc) => {
+          const data = serialize<T>(doc);
+          if (data) {
+            results.push(data);
+          }
+        });
+        queryClient.setQueryData(tqOptions.queryKey, results);
+      });
+
+    return () => unsubscribe();
+  }, [collectionName, queryOptions, queryClient]);
+
+  return query;
+}
 
 export function useFirestoreQuery<
   T extends FirebaseFirestoreTypes.DocumentData,
->({
-  firestoreOptions,
-  collectionName,
-  queryOptions,
-}: UseFirestoreQuery<T, T[]>) {
+>({ tqOptions, collectionName, queryOptions }: UseFirestoreQueryGet<T, T[]>) {
   return useQuery<T[], Error>({
-    ...firestoreOptions,
+    ...tqOptions,
     queryFn: async () => {
-      const collectionRef = firestore().collection<T>(collectionName);
-      const query = new Query<T>(collectionRef);
-      const collectionSnapshot = await query
+      const collectionRef = collectionReference<T>(collectionName);
+      const queryRef = new Query<T>(collectionRef);
+      const collectionSnapshot = await queryRef
         .filter(queryOptions?.filters)
         .orderBy(queryOptions?.orderBy)
         .limit(queryOptions?.limit)
-        .get();
+        .get(queryOptions?.source);
 
       if (collectionSnapshot.empty) {
         return [];
@@ -49,21 +91,25 @@ export function useFirestoreQuery<
 export function useFirestoreQueryCount<
   T extends FirebaseFirestoreTypes.DocumentData,
 >({
-  firestoreOptions,
+  tqOptions,
   collectionName,
   queryOptions,
-}: UseFirestoreQuery<T, number>) {
+}: UseFirestoreQueryCount<T, number>) {
   return useQuery<number, Error>({
-    ...firestoreOptions,
+    ...tqOptions,
     queryFn: async () => {
       const collectionRef = collectionReference<T>(collectionName);
-      const query = new Query<T>(collectionRef);
-      const snapshot = await query
+      const queryRef = new Query<T>(collectionRef);
+      let snapshot;
+      queryRef
         .filter(queryOptions?.filters)
         .orderBy(queryOptions?.orderBy)
-        .limit(queryOptions?.limit)
-        .count()
-        .get();
+        .limit(queryOptions?.limit);
+      if (queryOptions?.countFromServer) {
+        snapshot = await queryRef.countFromServer().get();
+      } else {
+        snapshot = await queryRef.count().get();
+      }
       return snapshot.data().count as number;
     },
   });
@@ -86,16 +132,16 @@ export default function useFirestoreInfiniteQuery<
     queryKey,
     queryFn: async ({ pageParam }) => {
       const collectionRef = collectionReference<T>(collectionName);
-      let query = new Query<T>(collectionRef);
+      let queryRef = new Query<T>(collectionRef);
 
-      query.filter(queryOptions?.filters).orderBy(queryOptions?.orderBy);
+      queryRef.filter(queryOptions?.filters).orderBy(queryOptions?.orderBy);
 
       if (pageParam) {
-        query = query.startAfter(pageParam);
+        queryRef = queryRef.startAfter(pageParam);
       }
-      query = query.limit(queryOptions?.limit);
+      queryRef = queryRef.limit(queryOptions?.limit);
 
-      const snapshot = await query.get();
+      const snapshot = await queryRef.get();
 
       const results = snapshot.docs.map((doc) => ({
         ...doc.data(),

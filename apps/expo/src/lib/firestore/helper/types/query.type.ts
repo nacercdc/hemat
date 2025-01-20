@@ -17,9 +17,26 @@ interface IQueryOption<T> {
   limit?: number;
 }
 
-export interface QueryFn<T> {
+interface IQueryOptionGet<T> extends IQueryOption<T> {
+  source?: FirebaseFirestoreTypes.GetOptions;
+}
+interface IQueryOptionCount<T> extends IQueryOption<T> {
+  countFromServer?: boolean;
+}
+
+interface QueryFn<T> {
   collectionName: string;
   queryOptions?: IQueryOption<T>;
+}
+
+export interface QueryFnGet<T> {
+  collectionName: string;
+  queryOptions?: IQueryOptionGet<T>;
+}
+
+export interface QueryFnCount<T> {
+  collectionName: string;
+  queryOptions?: IQueryOptionCount<T>;
 }
 
 export type MutationOpr = "add" | "update" | "delete";
@@ -33,8 +50,16 @@ export interface FirestoreMutationFn<T> {
   operation: MutationOpr;
   mutationOptions?: UseMutationOptions<T, Error, MutationFn<T>>;
 }
+
 export interface UseFirestoreQuery<Req, Res> extends QueryFn<Req> {
-  firestoreOptions: Omit<UndefinedInitialDataOptions<Res, Error>, "queryFn">;
+  tqOptions: Omit<UndefinedInitialDataOptions<Res, Error>, "queryFn">;
+}
+export interface UseFirestoreQueryGet<Req, Res> extends QueryFnGet<Req> {
+  tqOptions: Omit<UndefinedInitialDataOptions<Res, Error>, "queryFn">;
+}
+
+export interface UseFirestoreQueryCount<Req, Res> extends QueryFnCount<Req> {
+  tqOptions: Omit<UndefinedInitialDataOptions<Res, Error>, "queryFn">;
 }
 
 export type WhereFilterOp =

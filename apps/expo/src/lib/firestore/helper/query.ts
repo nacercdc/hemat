@@ -46,14 +46,23 @@ export class Query<T extends FirebaseFirestoreTypes.DocumentData> {
     this.reference = this.reference.startAfter(param);
     return this;
   }
-  get(): Promise<FirebaseFirestoreTypes.QuerySnapshot<T>> {
-    return this.reference.get() as any;
+
+  get(
+    options?: FirebaseFirestoreTypes.GetOptions
+  ): Promise<FirebaseFirestoreTypes.QuerySnapshot<T>> {
+    return this.reference.get(options) as any;
   }
 
   count(): FirebaseFirestoreTypes.AggregateQuery<{
     count: AggregateField<number>;
   }> {
     return this.reference.count();
+  }
+
+  countFromServer(): FirebaseFirestoreTypes.AggregateQuery<{
+    count: AggregateField<number>;
+  }> {
+    return this.reference.countFromServer();
   }
 
   getQuery() {
