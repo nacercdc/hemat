@@ -1,7 +1,4 @@
-import {
-  useFirestoreQuery as _,
-  useFirestoreQuery,
-} from "../helper/firestore.query";
+import { useFirestoreQuery } from "../libs/firestore.query";
 
 export enum Collection {
   LANGUAGES = "languages",

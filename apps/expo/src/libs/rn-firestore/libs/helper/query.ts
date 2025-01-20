@@ -5,7 +5,7 @@ import type {
   AggregateField,
   FirebaseFirestoreTypes,
 } from "@react-native-firebase/firestore";
-import type { Filter, OrderBy } from "./types/filter.type";
+import type { Filter, OrderBy } from "../types/filter.type";
 import { FilterService, OrderService } from "./filter";
 
 export class Query<T extends FirebaseFirestoreTypes.DocumentData> {

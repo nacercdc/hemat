@@ -7,7 +7,8 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Query } from "./query";
+import { Query } from "./helper/query";
+import { useEffect } from "react";
 import type {
   Page,
   UseFirestoreInfiniteQuery,
@@ -15,8 +16,7 @@ import type {
   UseFirestoreQueryCount,
   UseFirestoreQueryGet,
 } from "./types/query.type";
-import { collectionReference } from "./firestore.ref";
-import { useEffect } from "react";
+import { collectionReference } from "./helper/firestore.ref";
 
 export function useFirestoreQueryRealTime<
   T extends FirebaseFirestoreTypes.DocumentData,

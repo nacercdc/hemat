@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import useGetLanguages from "~/lib/firestore/hooks/example.hooks";
+import useGetLanguages from "~/libs/rn-firestore/hooks/example.hooks";
 
 export default function Index() {
   const { data, ...state } = useGetLanguages();
