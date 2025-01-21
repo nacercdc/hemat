@@ -23,6 +23,12 @@
   --input: 240 5.9% 90%;
   --ring: 240 5% 64.9%;
   --radius: 0.5rem;
+  --font-family-regular: Poppins_400Regular;
+  --font-family-light: Poppins_300Light;
+  --font-family-medium: Poppins_500Medium;
+  --font-family-bold: Poppins_700Bold;
+  --font-family-semiBold: Poppins_600SemiBold;
+  --font-family-extraBold: Poppins_800ExtraBold;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -46,5 +52,13 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+    --font-family-regular: Poppins_400Regular;
+    --font-family-thin: Poppins_100Thin;
+    --font-family-extraLight: Poppins_200ExtraLight;
+    --font-family-light: Poppins_300Light;
+    --font-family-medium: Poppins_500Medium;
+    --font-family-bold: Poppins_700Bold;
+    --font-family-semiBold: Poppins_600SemiBold;
+    --font-family-extraBold: Poppins_800ExtraBold;
   }
 }
