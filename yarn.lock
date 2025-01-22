@@ -6185,6 +6185,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"add@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "add@npm:2.0.6"
+  checksum: 10/1d2c0780a660edfc161b7784a846865b28dcd8514cc6042c8e283298f379cd3b150412b67a12603a4ac885912f05759f3e2993c27219f85d1face316ffc0b175
+  languageName: node
+  linkType: hard
+
 "agent-base@npm:6":
   version: 6.0.2
   resolution: "agent-base@npm:6.0.2"
@@ -7462,7 +7469,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"class-variance-authority@npm:^0.7.0":
+"class-variance-authority@npm:^0.7.0, class-variance-authority@npm:^0.7.1":
   version: 0.7.1
   resolution: "class-variance-authority@npm:0.7.1"
   dependencies:
@@ -9577,7 +9584,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-app@workspace:apps/expo":
+"expo-app@workspace:^, expo-app@workspace:apps/expo":
   version: 0.0.0-use.local
   resolution: "expo-app@workspace:apps/expo"
   dependencies:
@@ -17665,7 +17672,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwind-merge@npm:^2.5.4":
+"tailwind-merge@npm:^2.5.4, tailwind-merge@npm:^2.6.0":
   version: 2.6.0
   resolution: "tailwind-merge@npm:2.6.0"
   checksum: 10/a84f49d6f2cfb18ba06dc51b446b69f6b42cedcb9c9fa4e7c5f931b56e739870e513339e02b348b43f44011fa4852f02f72658a3f3e066e5101b09fc28644210
@@ -19196,6 +19203,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"workspace@npm:^0.0.1-preview.2":
+  version: 0.0.1-preview.2
+  resolution: "workspace@npm:0.0.1-preview.2"
+  checksum: 10/babec73d1f1bc619a18e40dc9865f5a9edbee8ddb1ac1dd5e650729ecb1247fa8db1d110d354faef2af409a7fc3ebae2b65225e198f57bd639e70580b8fc2f9a
+  languageName: node
+  linkType: hard
+
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0, wrap-ansi@npm:^7.0.0":
   version: 7.0.0
   resolution: "wrap-ansi@npm:7.0.0"
@@ -19442,14 +19456,19 @@ __metadata:
     "@babel/runtime": "npm:^7.24.6"
     "@etm/prettier-config": "workspace:*"
     "@turbo/gen": "npm:^2.3.1"
+    add: "npm:^2.0.6"
     check-dependency-version-consistency: "npm:^4.1.0"
+    class-variance-authority: "npm:^0.7.1"
     eslint: "npm:^9.12.0"
+    expo-app: "workspace:^"
     husky: "npm:^9.1.6"
     node-gyp: "npm:^10.1.0"
     prettier: "npm:^3.3.3"
+    tailwind-merge: "npm:^2.6.0"
     turbo: "npm:^2.3.1"
     typescript: "npm:^5.6.3"
     vitest: "npm:^2.1.1"
+    workspace: "npm:^0.0.1-preview.2"
   languageName: unknown
   linkType: soft
 
