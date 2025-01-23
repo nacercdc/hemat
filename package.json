@@ -29,6 +29,7 @@
     "ios:prebuilt": "yarn workspace expo-app ios:prebuilt",
     "lib:gen": "yarn turbo gen init",
     "ui-add": "turbo run ui-add",
+    "postinstall": "yarn workspace expo-app postinstall",
     "build:gradle:stage": "yarn workspace expo-app build:gradle:stage",
     "build:gradle:prod": "yarn workspace expo-app build:gradle:prod"
   },
