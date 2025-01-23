@@ -1,0 +1,17 @@
+import type { SpinnerProps } from "@ui-kitten/components";
+import { Spinner as RnSpinner } from "@ui-kitten/components";
+import { omit } from "~/utils/object";
+interface Props extends Omit<SpinnerProps, "className" | "style"> {
+  size?: "tiny" | "small" | "medium" | "large" | "giant";
+  status?:
+    | "basic"
+    | "primary"
+    | "success"
+    | "info"
+    | "warning"
+    | "danger"
+    | "control";
+}
+export default function Spinner(props: Props) {
+  return <RnSpinner {...omit(props as SpinnerProps, "className", "style")} />;
+}
