@@ -29,6 +29,7 @@
     "ios:prebuilt": "yarn workspace expo-app ios:prebuilt",
     "lib:gen": "yarn turbo gen init",
     "ui-add": "turbo run ui-add",
+    "postinstall": "yarn workspace expo-app postinstall",
     "build:gradle:stage": "yarn workspace expo-app build:gradle:stage",
     "build:gradle:prod": "yarn workspace expo-app build:gradle:prod"
   },
@@ -41,11 +42,16 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.24.6",
+    "add": "^2.0.6",
     "check-dependency-version-consistency": "^4.1.0",
+    "class-variance-authority": "^0.7.1",
     "eslint": "^9.12.0",
+    "expo-app": "workspace:^",
     "husky": "^9.1.6",
     "node-gyp": "^10.1.0",
-    "vitest": "^2.1.1"
+    "tailwind-merge": "^2.6.0",
+    "vitest": "^2.1.1",
+    "workspace": "^0.0.1-preview.2"
   },
   "devDependencies": {
     "@etm/prettier-config": "workspace:*",

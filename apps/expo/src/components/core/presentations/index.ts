@@ -1,2 +1,4 @@
-export const PRESENTATIONS =
-  "A custom presentational components will be created in this folder.";
+export * from "./progress";
+export * from "./spinner";
+export * from "./text";
+export * from "./view";
