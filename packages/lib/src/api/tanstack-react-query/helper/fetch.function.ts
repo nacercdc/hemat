@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
-import type { MutateFn } from "../types";
+import type { MutateFn } from "../types/tq";
+
 
 export const mutationFn = async <T, C = T>({
   url,

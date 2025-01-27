@@ -7,14 +7,9 @@ import type {
   QueryManyResponse,
   QueryOneRequest,
 } from "../../../../../../../kbi-projects/kgi/frontend/packages/lib/src/query";
-import type {
-  FetchMethod,
-  MutationRequest,
-  UseGetQueryDocument,
-  UseInfiniteQueryDocuments,
-  UseMutationDocument,
-} from "./types";
+
 import { mutationFn } from "./helper/fetch.function";
+import type { UseInfiniteQueryDocuments, UseGetQueryDocument, UseMutationDocument, FetchMethod, MutationRequest } from "./types/tq";
 
 export function useGetInfiniteQueryDocuments<T>({
   url,
