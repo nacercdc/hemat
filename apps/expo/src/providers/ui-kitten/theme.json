@@ -61,5 +61,7 @@
   "color-danger-600": "#DB0012",
   "color-danger-700": "#B7001F",
   "color-danger-800": "#930026",
-  "color-danger-900": "#7A002A"
+  "color-danger-900": "#7A002A",
+
+  "color-backdrop": "$color-basic-transparent-600"
 }
