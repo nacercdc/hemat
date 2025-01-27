@@ -11,6 +11,7 @@ interface Props extends Omit<ButtonProps, "className" | "style"> {
     | "info"
     | "warning"
     | "danger"
+    | "link"
     | "control";
 }
 export default function Button(props: Props) {

@@ -3,5 +3,48 @@
   "strict": {
     "text-font-family": "Poppins_400Regular"
   },
-  "components": {}
+  "components": {
+    "Button": {
+      "meta": {
+        "scope": "all",
+        "parameters": {},
+        "appearances": {},
+        "variantGroups": {
+          "status": {},
+          "size": {}
+        },
+        "states": {}
+      },
+      "appearances": {
+        "filled": {
+          "mapping": {},
+          "variantGroups": {
+            "status": {
+              "link": {
+                "backgroundColor": "color-basic-600",
+                "textColor": "color-danger-800",
+                "iconTintColor": "color-danger-800",
+                "state": {}
+              }
+            },
+            "size": {}
+          }
+        },
+        "ghost": {
+          "mapping": {},
+          "variantGroups": {
+            "status": {
+              "link": {
+                "backgroundColor": "transparent",
+                "textColor": "color-info-800",
+                "iconTintColor": "color-info-800",
+                "state": {}
+              }
+            },
+            "size": {}
+          }
+        }
+      }
+    }
+  }
 }
