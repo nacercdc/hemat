@@ -9,9 +9,7 @@ import {
 import { Label } from "~/components/shared/ui/Label";
 import View from "../../presentations/view/View";
 import { omit } from "~/utils/object";
-import type { SelectOption } from ".";
-
-type OptionValue = string | number;
+import type { OptionValue, SelectOption } from ".";
 
 interface Props
   extends Omit<
@@ -32,30 +30,33 @@ interface Props
   isRequired?: boolean;
   error?: string;
   options: SelectOption[];
-  value: OptionValue;
-  onChange: (value: OptionValue) => void;
+  values: OptionValue[];
+  onChange: (values: OptionValue[]) => void;
 }
 
-export default function Select({
+export default function MultiSelect({
   options,
-  value,
+  values,
   onChange,
   label,
   status,
   ...props
 }: Props) {
-  const currentIndex = options.findIndex((option) => option.value === value);
-  const selectedIndex = new IndexPath(currentIndex >= 0 ? currentIndex : 0);
+  const selectedIndices = values
+    .map((v) => new IndexPath(options.findIndex((opt) => opt.value === v)))
+    .filter((index) => index.row >= 0);
 
-  const selectedOption = options[currentIndex];
+  const displayValue = values
+    .map((v) => options.find((opt) => opt.value === v)?.label)
+    .filter(Boolean)
+    .join(", ");
 
-  const handleIndexChange = (index: IndexPath | IndexPath[]) => {
-    if (index instanceof IndexPath) {
-      const selectedOption = options[index.row];
-      if (selectedOption) {
-        onChange(selectedOption.value);
-      }
-    }
+  const handleIndexChange = (indices: IndexPath | IndexPath[]) => {
+    const indexArray = Array.isArray(indices) ? indices : [indices];
+    const selectedValues = indexArray
+      .map((idx) => options[idx.row]?.value)
+      .filter((value): value is OptionValue => value !== undefined);
+    onChange(selectedValues);
   };
 
   return (
@@ -63,9 +64,10 @@ export default function Select({
       {label && <Label text={label} isRequired={props.isRequired} />}
       <UKSelect
         status={status}
-        selectedIndex={selectedIndex}
+        selectedIndex={selectedIndices}
         onSelect={handleIndexChange}
-        value={selectedOption?.label}
+        value={displayValue}
+        multiSelect={true}
         {...props}
         {...omit(
           props as SelectProps,
