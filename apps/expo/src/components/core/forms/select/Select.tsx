@@ -1,13 +1,20 @@
 import React from "react";
-import type { SelectProps } from "@ui-kitten/components";
+import type { SelectProps, SelectItemProps } from "@ui-kitten/components";
 import { SelectItem, Select as UKSelect } from "@ui-kitten/components";
 
 import { omit } from "~/utils/object";
 import View from "../../presentations/view/View";
-export interface SelectOption {
-  value: string;
-  label: string;
-  disabled?: boolean;
+
+export interface SelectOption
+  extends Omit<SelectItemProps, "className" | "style"> {
+  status?:
+    | "basic"
+    | "primary"
+    | "success"
+    | "info"
+    | "warning"
+    | "danger"
+    | "control";
 }
 
 interface Props extends Omit<SelectProps, "className" | "style" | "textStyle"> {
@@ -19,23 +26,18 @@ interface Props extends Omit<SelectProps, "className" | "style" | "textStyle"> {
     | "info"
     | "warning"
     | "danger"
-    | "control"
-    | "link";
+    | "control";
   options: SelectOption[];
 }
 
 export default function Select({ options, ...props }: Props) {
   return (
     <View className="w-full">
-      <UKSelect
-        {...props}
-        {...omit(props as SelectProps, "className", "style")}
-      >
-        {options.map((option) => (
+      <UKSelect {...omit(props as SelectProps, "className", "style")}>
+        {options.map((option, index) => (
           <SelectItem
-            key={option.value}
-            disabled={option.disabled}
-            title={option.label}
+            key={index}
+            {...omit(option as SelectItemProps, "className", "style")}
           />
         ))}
       </UKSelect>
