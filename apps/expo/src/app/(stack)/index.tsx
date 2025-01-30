@@ -11,7 +11,7 @@ export default function Index() {
 
   return (
     <SafeAreaView>
-      <View className="flex gap-5 justify-center items-center w-full h-screen">
+      <View className="flex gap-5 px-6 justify-center items-center w-full h-screen">
         <Text>Expo starter from yarn monorepo start</Text>
 
         <Text>@ETM Software PLC.</Text>
