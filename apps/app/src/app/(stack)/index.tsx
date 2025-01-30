@@ -14,7 +14,7 @@ export default function Index() {
       <View className="flex gap-5 px-6 justify-center items-center w-full h-screen">
         <Text>Expo starter from yarn monorepo start</Text>
 
-        <Text>@ETM Software PLC.</Text>
+        <Text>@e-market Software PLC.</Text>
       </View>
     </SafeAreaView>
   );

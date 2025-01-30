@@ -1,5 +1,5 @@
 {
-  "name": "@etm/ui",
+  "name": "@e-market/ui",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -42,10 +42,10 @@
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
-    "@etm/eslint-config": "workspace:*",
-    "@etm/prettier-config": "workspace:*",
-    "@etm/tailwind-config": "workspace:*",
-    "@etm/tsconfig": "workspace:*",
+    "@e-market/eslint-config": "workspace:*",
+    "@e-market/prettier-config": "workspace:*",
+    "@e-market/tailwind-config": "workspace:*",
+    "@e-market/tsconfig": "workspace:*",
     "@types/react": "^19.0.3",
     "eslint": "^9.12.0",
     "prettier": "^3.3.3",
@@ -57,5 +57,5 @@
     "@types/react": "^19.0.3",
     "zod": "3.23.8"
   },
-  "prettier": "@etm/prettier-config"
+  "prettier": "@e-market/prettier-config"
 }

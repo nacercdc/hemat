@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import baseConfig from "@etm/tailwind-config/web";
+import baseConfig from "@e-market/tailwind-config/web";
 import { fontFamily } from "tailwindcss/defaultTheme";
 
 export default {

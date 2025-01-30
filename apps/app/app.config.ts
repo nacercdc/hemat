@@ -2,9 +2,9 @@ import type { ConfigContext, ExpoConfig } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "expo",
-  slug: "expo",
-  scheme: "expo",
+  name: "e-market",
+  slug: "e-market",
+  scheme: "e-market",
   version: "0.1.0",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
@@ -12,28 +12,29 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   splash: {
     image: "./assets/images/splash-icon.png",
     resizeMode: "contain",
-    backgroundColor: "#1F104A",
+    backgroundColor: "#FFFFFF",
   },
   updates: {
     fallbackToCacheTimeout: 0,
   },
   assetBundlePatterns: ["**/*"],
   ios: {
-    bundleIdentifier: "com.company.firestore",
+    bundleIdentifier: "com.company.e-market",
     supportsTablet: true,
   },
   android: {
-    package: "com.company.firestore",
-    googleServicesFile: "./temp-configs/google-services.json",
+    package: "com.company.e-market",
+    googleServicesFile: "./google-services.json",
     adaptiveIcon: {
       foregroundImage: "./assets/images/adaptive-icon.png",
-      backgroundColor: "#1F104A",
+      backgroundColor: "#FFFFFF",
     },
   },
   experiments: {
     tsconfigPaths: true,
     typedRoutes: true,
   },
+
   plugins: [
     "expo-router",
     "expo-font",

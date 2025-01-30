@@ -1,4 +1,4 @@
-import { Button } from "@etm/ui";
+import { Button } from "@e-market/ui";
 import { Suspense } from "react";
 
 export const runtime = "edge";

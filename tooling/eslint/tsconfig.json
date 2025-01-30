@@ -1,5 +1,5 @@
 {
-  "extends": "@etm/tsconfig/base.json",
+  "extends": "@e-market/tsconfig/base.json",
   "include": ["."],
   "exclude": ["node_modules"]
 }

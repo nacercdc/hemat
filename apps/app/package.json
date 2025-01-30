@@ -1,5 +1,5 @@
 {
-  "name": "expo-app",
+  "name": "app",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "private": true,
@@ -62,10 +62,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
-    "@etm/eslint-config": "workspace:*",
-    "@etm/prettier-config": "workspace:*",
-    "@etm/tailwind-config": "workspace:*",
-    "@etm/tsconfig": "workspace:*",
+    "@e-market/eslint-config": "workspace:*",
+    "@e-market/prettier-config": "workspace:*",
+    "@e-market/tailwind-config": "workspace:*",
+    "@e-market/tsconfig": "workspace:*",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.3.0",

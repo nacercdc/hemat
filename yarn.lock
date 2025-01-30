@@ -1194,6 +1194,127 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@e-market/api-interfaces@workspace:packages/api-interfaces":
+  version: 0.0.0-use.local
+  resolution: "@e-market/api-interfaces@workspace:packages/api-interfaces"
+  dependencies:
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    eslint: "npm:^9.12.0"
+    prettier: "npm:^3.3.3"
+    typescript: "npm:^5.6.3"
+  languageName: unknown
+  linkType: soft
+
+"@e-market/eslint-config@workspace:*, @e-market/eslint-config@workspace:tooling/eslint":
+  version: 0.0.0-use.local
+  resolution: "@e-market/eslint-config@workspace:tooling/eslint"
+  dependencies:
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    "@eslint/compat": "npm:^1.2.3"
+    "@next/eslint-plugin-next": "npm:^14.2.15"
+    "@types/eslint__js": "npm:8.42.3"
+    eslint: "npm:^9.12.0"
+    eslint-plugin-import: "npm:^2.31.0"
+    eslint-plugin-jsx-a11y: "npm:^6.10.2"
+    eslint-plugin-react: "npm:^7.37.2"
+    eslint-plugin-react-hooks: "npm:^5.0.0"
+    eslint-plugin-turbo: "npm:^2.3.1"
+    prettier: "npm:^3.3.3"
+    typescript: "npm:^5.6.3"
+    typescript-eslint: "npm:^8.15.0"
+  languageName: unknown
+  linkType: soft
+
+"@e-market/github@workspace:tooling/github":
+  version: 0.0.0-use.local
+  resolution: "@e-market/github@workspace:tooling/github"
+  languageName: unknown
+  linkType: soft
+
+"@e-market/lib@workspace:packages/lib":
+  version: 0.0.0-use.local
+  resolution: "@e-market/lib@workspace:packages/lib"
+  dependencies:
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    "@tanstack/react-query": "npm:^5.59.15"
+    eslint: "npm:^9.12.0"
+    prettier: "npm:^3.3.3"
+    typescript: "npm:^5.6.3"
+  languageName: unknown
+  linkType: soft
+
+"@e-market/prettier-config@workspace:*, @e-market/prettier-config@workspace:tooling/prettier":
+  version: 0.0.0-use.local
+  resolution: "@e-market/prettier-config@workspace:tooling/prettier"
+  dependencies:
+    "@e-market/tsconfig": "workspace:*"
+    "@ianvs/prettier-plugin-sort-imports": "npm:^4.4.0"
+    prettier: "npm:^3.3.3"
+    prettier-plugin-tailwindcss: "npm:^0.6.9"
+    typescript: "npm:^5.6.3"
+  languageName: unknown
+  linkType: soft
+
+"@e-market/tailwind-config@workspace:*, @e-market/tailwind-config@workspace:tooling/tailwind":
+  version: 0.0.0-use.local
+  resolution: "@e-market/tailwind-config@workspace:tooling/tailwind"
+  dependencies:
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    eslint: "npm:^9.12.0"
+    postcss: "npm:^8.4.49"
+    prettier: "npm:^3.3.3"
+    tailwindcss: "npm:^3.4.14"
+    tailwindcss-animate: "npm:^1.0.7"
+    typescript: "npm:^5.6.3"
+  languageName: unknown
+  linkType: soft
+
+"@e-market/tsconfig@workspace:*, @e-market/tsconfig@workspace:tooling/typescript":
+  version: 0.0.0-use.local
+  resolution: "@e-market/tsconfig@workspace:tooling/typescript"
+  languageName: unknown
+  linkType: soft
+
+"@e-market/ui@workspace:*, @e-market/ui@workspace:packages/ui":
+  version: 0.0.0-use.local
+  resolution: "@e-market/ui@workspace:packages/ui"
+  dependencies:
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tailwind-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    "@hookform/resolvers": "npm:^3.9.1"
+    "@ianvs/prettier-plugin-sort-imports": "npm:^4.4.1"
+    "@radix-ui/react-avatar": "npm:^1.1.2"
+    "@radix-ui/react-dropdown-menu": "npm:^2.1.2"
+    "@radix-ui/react-icons": "npm:^1.3.2"
+    "@radix-ui/react-label": "npm:^2.1.0"
+    "@radix-ui/react-slot": "npm:^1.1.1"
+    "@types/react": "npm:^19.0.3"
+    class-variance-authority: "npm:^0.7.0"
+    eslint: "npm:^9.12.0"
+    next-themes: "npm:^0.4.3"
+    prettier: "npm:^3.3.3"
+    prettier-plugin-tailwindcss: "npm:^0.6.11"
+    react: "npm:^19.0.0"
+    react-hook-form: "npm:^7.53.2"
+    sonner: "npm:^1.7.0"
+    tailwind-merge: "npm:^2.5.4"
+    typescript: "npm:^5.6.3"
+    zod: "npm:3.23.8"
+  peerDependencies:
+    "@types/react": ^19.0.3
+    zod: 3.23.8
+  languageName: unknown
+  linkType: soft
+
 "@edge-runtime/format@npm:2.2.1":
   version: 2.2.1
   resolution: "@edge-runtime/format@npm:2.2.1"
@@ -1500,128 +1621,6 @@ __metadata:
   checksum: 10/82d0142bc7054587bde4f75c2c517f477df7c320e4bdb47a4d5f766899a313ce65e9ce5d59428178d0be473a95292065053f69637042546b811ad89079781cbc
   languageName: node
   linkType: hard
-
-"@etm/api-interfaces@workspace:packages/api-interfaces":
-  version: 0.0.0-use.local
-  resolution: "@etm/api-interfaces@workspace:packages/api-interfaces"
-  dependencies:
-    "@etm/eslint-config": "workspace:*"
-    "@etm/prettier-config": "workspace:*"
-    "@etm/tsconfig": "workspace:*"
-    eslint: "npm:^9.12.0"
-    prettier: "npm:^3.3.3"
-    typescript: "npm:^5.6.3"
-  languageName: unknown
-  linkType: soft
-
-"@etm/eslint-config@workspace:*, @etm/eslint-config@workspace:tooling/eslint":
-  version: 0.0.0-use.local
-  resolution: "@etm/eslint-config@workspace:tooling/eslint"
-  dependencies:
-    "@eslint/compat": "npm:^1.2.3"
-    "@etm/prettier-config": "workspace:*"
-    "@etm/tsconfig": "workspace:*"
-    "@next/eslint-plugin-next": "npm:^14.2.15"
-    "@types/eslint__js": "npm:8.42.3"
-    eslint: "npm:^9.12.0"
-    eslint-plugin-import: "npm:^2.31.0"
-    eslint-plugin-jsx-a11y: "npm:^6.10.2"
-    eslint-plugin-react: "npm:^7.37.2"
-    eslint-plugin-react-hooks: "npm:^5.0.0"
-    eslint-plugin-turbo: "npm:^2.3.1"
-    prettier: "npm:^3.3.3"
-    typescript: "npm:^5.6.3"
-    typescript-eslint: "npm:^8.15.0"
-  languageName: unknown
-  linkType: soft
-
-"@etm/github@workspace:tooling/github":
-  version: 0.0.0-use.local
-  resolution: "@etm/github@workspace:tooling/github"
-  languageName: unknown
-  linkType: soft
-
-"@etm/lib@workspace:packages/lib":
-  version: 0.0.0-use.local
-  resolution: "@etm/lib@workspace:packages/lib"
-  dependencies:
-    "@etm/eslint-config": "workspace:*"
-    "@etm/prettier-config": "workspace:*"
-    "@etm/tsconfig": "workspace:*"
-    "@tanstack/react-query": "npm:^5.59.15"
-    eslint: "npm:^9.12.0"
-    prettier: "npm:^3.3.3"
-    typescript: "npm:^5.6.3"
-  languageName: unknown
-  linkType: soft
-
-"@etm/prettier-config@workspace:*, @etm/prettier-config@workspace:tooling/prettier":
-  version: 0.0.0-use.local
-  resolution: "@etm/prettier-config@workspace:tooling/prettier"
-  dependencies:
-    "@etm/tsconfig": "workspace:*"
-    "@ianvs/prettier-plugin-sort-imports": "npm:^4.4.0"
-    prettier: "npm:^3.3.3"
-    prettier-plugin-tailwindcss: "npm:^0.6.9"
-    typescript: "npm:^5.6.3"
-  languageName: unknown
-  linkType: soft
-
-"@etm/tailwind-config@workspace:*, @etm/tailwind-config@workspace:tooling/tailwind":
-  version: 0.0.0-use.local
-  resolution: "@etm/tailwind-config@workspace:tooling/tailwind"
-  dependencies:
-    "@etm/eslint-config": "workspace:*"
-    "@etm/prettier-config": "workspace:*"
-    "@etm/tsconfig": "workspace:*"
-    eslint: "npm:^9.12.0"
-    postcss: "npm:^8.4.49"
-    prettier: "npm:^3.3.3"
-    tailwindcss: "npm:^3.4.14"
-    tailwindcss-animate: "npm:^1.0.7"
-    typescript: "npm:^5.6.3"
-  languageName: unknown
-  linkType: soft
-
-"@etm/tsconfig@workspace:*, @etm/tsconfig@workspace:tooling/typescript":
-  version: 0.0.0-use.local
-  resolution: "@etm/tsconfig@workspace:tooling/typescript"
-  languageName: unknown
-  linkType: soft
-
-"@etm/ui@workspace:*, @etm/ui@workspace:packages/ui":
-  version: 0.0.0-use.local
-  resolution: "@etm/ui@workspace:packages/ui"
-  dependencies:
-    "@etm/eslint-config": "workspace:*"
-    "@etm/prettier-config": "workspace:*"
-    "@etm/tailwind-config": "workspace:*"
-    "@etm/tsconfig": "workspace:*"
-    "@hookform/resolvers": "npm:^3.9.1"
-    "@ianvs/prettier-plugin-sort-imports": "npm:^4.4.1"
-    "@radix-ui/react-alert-dialog": "npm:^1.1.5"
-    "@radix-ui/react-avatar": "npm:^1.1.2"
-    "@radix-ui/react-dropdown-menu": "npm:^2.1.2"
-    "@radix-ui/react-icons": "npm:^1.3.2"
-    "@radix-ui/react-label": "npm:^2.1.0"
-    "@radix-ui/react-slot": "npm:^1.1.1"
-    "@types/react": "npm:^19.0.3"
-    class-variance-authority: "npm:^0.7.0"
-    eslint: "npm:^9.12.0"
-    next-themes: "npm:^0.4.3"
-    prettier: "npm:^3.3.3"
-    prettier-plugin-tailwindcss: "npm:^0.6.11"
-    react: "npm:^19.0.0"
-    react-hook-form: "npm:^7.53.2"
-    sonner: "npm:^1.7.0"
-    tailwind-merge: "npm:^2.5.4"
-    typescript: "npm:^5.6.3"
-    zod: "npm:3.23.8"
-  peerDependencies:
-    "@types/react": ^19.0.3
-    zod: 3.23.8
-  languageName: unknown
-  linkType: soft
 
 "@eva-design/dss@npm:^2.2.0":
   version: 2.2.0
@@ -4025,30 +4024,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-alert-dialog@npm:^1.1.5":
-  version: 1.1.5
-  resolution: "@radix-ui/react-alert-dialog@npm:1.1.5"
-  dependencies:
-    "@radix-ui/primitive": "npm:1.1.1"
-    "@radix-ui/react-compose-refs": "npm:1.1.1"
-    "@radix-ui/react-context": "npm:1.1.1"
-    "@radix-ui/react-dialog": "npm:1.1.5"
-    "@radix-ui/react-primitive": "npm:2.0.1"
-    "@radix-ui/react-slot": "npm:1.1.1"
-  peerDependencies:
-    "@types/react": "*"
-    "@types/react-dom": "*"
-    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
-    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    "@types/react-dom":
-      optional: true
-  checksum: 10/9bfc4c967788a12669d15917f60a680be44d7725daba2c226988c8f17bdceff5c45e9bbaaaba2f0d482b73bb0704484c326faf157fb7d376cde73f663941ec53
-  languageName: node
-  linkType: hard
-
 "@radix-ui/react-arrow@npm:1.1.1":
   version: 1.1.1
   resolution: "@radix-ui/react-arrow@npm:1.1.1"
@@ -4146,38 +4121,6 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 10/f6469583bf11cc7bff3ea5c95c56b0774a959512adead00dc64b0527cca01b90b476ca39a64edfd7e18e428e17940aa0339116b1ce5b6e8eab513cfd1065d391
-  languageName: node
-  linkType: hard
-
-"@radix-ui/react-dialog@npm:1.1.5":
-  version: 1.1.5
-  resolution: "@radix-ui/react-dialog@npm:1.1.5"
-  dependencies:
-    "@radix-ui/primitive": "npm:1.1.1"
-    "@radix-ui/react-compose-refs": "npm:1.1.1"
-    "@radix-ui/react-context": "npm:1.1.1"
-    "@radix-ui/react-dismissable-layer": "npm:1.1.4"
-    "@radix-ui/react-focus-guards": "npm:1.1.1"
-    "@radix-ui/react-focus-scope": "npm:1.1.1"
-    "@radix-ui/react-id": "npm:1.1.0"
-    "@radix-ui/react-portal": "npm:1.1.3"
-    "@radix-ui/react-presence": "npm:1.1.2"
-    "@radix-ui/react-primitive": "npm:2.0.1"
-    "@radix-ui/react-slot": "npm:1.1.1"
-    "@radix-ui/react-use-controllable-state": "npm:1.1.0"
-    aria-hidden: "npm:^1.2.4"
-    react-remove-scroll: "npm:^2.6.2"
-  peerDependencies:
-    "@types/react": "*"
-    "@types/react-dom": "*"
-    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
-    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-    "@types/react-dom":
-      optional: true
-  checksum: 10/d426cedcf6c92dff722a8ba75b2e8eed1c85123d7f92c21dd372460c885cb36555f3bce14344dc00622ac5d7c42a2d3918db2d065a6232adb5efc306def5511b
   languageName: node
   linkType: hard
 
@@ -6461,6 +6404,62 @@ __metadata:
   languageName: node
   linkType: hard
 
+"app@workspace:apps/app":
+  version: 0.0.0-use.local
+  resolution: "app@workspace:apps/app"
+  dependencies:
+    "@babel/core": "npm:^7.25.2"
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tailwind-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    "@eva-design/eva": "npm:^2.2.0"
+    "@expo-google-fonts/poppins": "npm:^0.2.3"
+    "@expo/vector-icons": "npm:^14.0.2"
+    "@react-native-firebase/app": "npm:^21.6.2"
+    "@react-native-firebase/auth": "npm:^21.6.2"
+    "@react-native-firebase/crashlytics": "npm:^21.6.2"
+    "@react-native-firebase/firestore": "npm:^21.6.2"
+    "@tanstack/react-query": "npm:^5.59.15"
+    "@types/jest": "npm:^29.5.12"
+    "@types/react": "npm:~18.3.12"
+    "@types/react-test-renderer": "npm:^18.3.0"
+    "@ui-kitten/components": "npm:^5.3.1"
+    babel-plugin-module-resolver: "npm:^5.0.2"
+    eslint: "npm:^9.12.0"
+    expo: "npm:^52.0.25"
+    expo-blur: "npm:~14.0.1"
+    expo-build-properties: "npm:~0.13.2"
+    expo-constants: "npm:~17.0.5"
+    expo-font: "npm:~13.0.3"
+    expo-haptics: "npm:~14.0.0"
+    expo-linking: "npm:~7.0.5"
+    expo-router: "npm:^4.0.16"
+    expo-splash-screen: "npm:~0.29.13"
+    expo-status-bar: "npm:~2.0.0"
+    expo-symbols: "npm:~0.2.0"
+    expo-system-ui: "npm:~4.0.3"
+    jest: "npm:^29.2.1"
+    jest-expo: "npm:~52.0.2"
+    nativewind: "npm:^4.1.23"
+    prettier: "npm:^3.3.3"
+    react: "npm:18.3.1"
+    react-dom: "npm:18.3.1"
+    react-native: "npm:0.76.6"
+    react-native-gesture-handler: "npm:~2.20.2"
+    react-native-reanimated: "npm:~3.16.1"
+    react-native-safe-area-context: "npm:4.12.0"
+    react-native-screens: "npm:~4.4.0"
+    react-native-svg: "npm:15.8.0"
+    react-native-web: "npm:~0.19.13"
+    react-native-webview: "npm:13.12.5"
+    react-test-renderer: "npm:18.3.1"
+    tailwindcss: "npm:^3.4.14"
+    typescript: "npm:^5.6.3"
+    zod: "npm:^3.23.8"
+  languageName: unknown
+  linkType: soft
+
 "application-config-path@npm:^0.1.0":
   version: 0.1.1
   resolution: "application-config-path@npm:0.1.1"
@@ -8576,6 +8575,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"e-market@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "e-market@workspace:."
+  dependencies:
+    "@babel/runtime": "npm:^7.24.6"
+    "@e-market/prettier-config": "workspace:*"
+    "@turbo/gen": "npm:^2.3.1"
+    add: "npm:^2.0.6"
+    check-dependency-version-consistency: "npm:^4.1.0"
+    class-variance-authority: "npm:^0.7.1"
+    eslint: "npm:^9.12.0"
+    husky: "npm:^9.1.6"
+    node-gyp: "npm:^10.1.0"
+    prettier: "npm:^3.3.3"
+    tailwind-merge: "npm:^2.6.0"
+    turbo: "npm:^2.3.1"
+    typescript: "npm:^5.6.3"
+    vitest: "npm:^2.1.1"
+    workspace: "npm:^0.0.1-preview.2"
+  languageName: unknown
+  linkType: soft
+
 "eastasianwidth@npm:^0.2.0":
   version: 0.2.0
   resolution: "eastasianwidth@npm:0.2.0"
@@ -9680,62 +9701,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-app@workspace:^, expo-app@workspace:apps/expo":
-  version: 0.0.0-use.local
-  resolution: "expo-app@workspace:apps/expo"
-  dependencies:
-    "@babel/core": "npm:^7.25.2"
-    "@etm/eslint-config": "workspace:*"
-    "@etm/prettier-config": "workspace:*"
-    "@etm/tailwind-config": "workspace:*"
-    "@etm/tsconfig": "workspace:*"
-    "@eva-design/eva": "npm:^2.2.0"
-    "@expo-google-fonts/poppins": "npm:^0.2.3"
-    "@expo/vector-icons": "npm:^14.0.2"
-    "@react-native-firebase/app": "npm:^21.6.2"
-    "@react-native-firebase/auth": "npm:^21.6.2"
-    "@react-native-firebase/crashlytics": "npm:^21.6.2"
-    "@react-native-firebase/firestore": "npm:^21.6.2"
-    "@tanstack/react-query": "npm:^5.59.15"
-    "@types/jest": "npm:^29.5.12"
-    "@types/react": "npm:~18.3.12"
-    "@types/react-test-renderer": "npm:^18.3.0"
-    "@ui-kitten/components": "npm:^5.3.1"
-    babel-plugin-module-resolver: "npm:^5.0.2"
-    eslint: "npm:^9.12.0"
-    expo: "npm:^52.0.25"
-    expo-blur: "npm:~14.0.1"
-    expo-build-properties: "npm:~0.13.2"
-    expo-constants: "npm:~17.0.3"
-    expo-font: "npm:~13.0.3"
-    expo-haptics: "npm:~14.0.0"
-    expo-linking: "npm:~7.0.3"
-    expo-router: "npm:^4.0.16"
-    expo-splash-screen: "npm:~0.29.13"
-    expo-status-bar: "npm:~2.0.0"
-    expo-symbols: "npm:~0.2.0"
-    expo-system-ui: "npm:~4.0.3"
-    jest: "npm:^29.2.1"
-    jest-expo: "npm:~52.0.2"
-    nativewind: "npm:^4.1.23"
-    prettier: "npm:^3.3.3"
-    react: "npm:18.3.1"
-    react-dom: "npm:18.3.1"
-    react-native: "npm:0.76.6"
-    react-native-gesture-handler: "npm:~2.20.2"
-    react-native-reanimated: "npm:~3.16.1"
-    react-native-safe-area-context: "npm:4.12.0"
-    react-native-screens: "npm:~4.4.0"
-    react-native-svg: "npm:15.8.0"
-    react-native-web: "npm:~0.19.13"
-    react-native-webview: "npm:13.12.5"
-    react-test-renderer: "npm:18.3.1"
-    tailwindcss: "npm:^3.4.14"
-    typescript: "npm:^5.6.3"
-    zod: "npm:^3.23.8"
-  languageName: unknown
-  linkType: soft
-
 "expo-asset@npm:~11.0.2":
   version: 11.0.2
   resolution: "expo-asset@npm:11.0.2"
@@ -9775,7 +9740,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-constants@npm:~17.0.3, expo-constants@npm:~17.0.4":
+"expo-constants@npm:~17.0.4":
   version: 17.0.4
   resolution: "expo-constants@npm:17.0.4"
   dependencies:
@@ -9785,6 +9750,19 @@ __metadata:
     expo: "*"
     react-native: "*"
   checksum: 10/fcaa389f82cfcaecb847edae3e3f4f9c6c7cc2a14ed16b7c16b279af4a996fca7f8475afa825076c480a2b8edd574c953dd1c20967e5e5be4d8f580ae50e3893
+  languageName: node
+  linkType: hard
+
+"expo-constants@npm:~17.0.5":
+  version: 17.0.5
+  resolution: "expo-constants@npm:17.0.5"
+  dependencies:
+    "@expo/config": "npm:~10.0.8"
+    "@expo/env": "npm:~0.4.1"
+  peerDependencies:
+    expo: "*"
+    react-native: "*"
+  checksum: 10/02cbc49b10c85704804d1861c5c6b155a1b85a413232d51f4f36f5f8b4604f07f6aa371b9c7f69d39b4920fc68e823cc4c821248f4624d1b6c60fe3cf475fc4e
   languageName: node
   linkType: hard
 
@@ -9831,16 +9809,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-linking@npm:~7.0.3":
-  version: 7.0.4
-  resolution: "expo-linking@npm:7.0.4"
+"expo-linking@npm:~7.0.5":
+  version: 7.0.5
+  resolution: "expo-linking@npm:7.0.5"
   dependencies:
-    expo-constants: "npm:~17.0.4"
+    expo-constants: "npm:~17.0.5"
     invariant: "npm:^2.2.4"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10/8736dbcc9ca551d0e78083f29056648bbec3307953581928af93de61de110a3ce3ba30a0a170b5120390e48a3b7586d9d539106b7f77d934ff147a14c993a917
+  checksum: 10/0b31d62b1e16fffc527757d52c4f4a21fc3ea6079aa2b2f1a9574f9effdd929511409929d7c3eaa24fb905dbd4bd5810e8f948a8c8ae825b80ccdaabb803da56
   languageName: node
   linkType: hard
 
@@ -14131,44 +14109,6 @@ __metadata:
   checksum: 10/145fd878d99e3c93408d2571a2acc4c4542220162f8aa0495d494a5f9b38e919815eba71d15735ad2ca253404395fb03c728e28590c2aeb39133581f93da192c
   languageName: node
   linkType: hard
-
-"nextjs@workspace:apps/nextjs":
-  version: 0.0.0-use.local
-  resolution: "nextjs@workspace:apps/nextjs"
-  dependencies:
-    "@etm/eslint-config": "workspace:*"
-    "@etm/prettier-config": "workspace:*"
-    "@etm/tailwind-config": "workspace:*"
-    "@etm/tsconfig": "workspace:*"
-    "@etm/ui": "workspace:*"
-    "@t3-oss/env-nextjs": "npm:^0.11.1"
-    "@tanstack/react-query": "npm:^5.59.15"
-    "@types/node": "npm:^20.14.1"
-    "@types/react": "npm:^19.0.3"
-    "@types/react-dom": "npm:^19.0.2"
-    dotenv-cli: "npm:^7.4.4"
-    eslint: "npm:^9.12.0"
-    eslint-config-next: "npm:^14.2.3"
-    firebase: "npm:^11.1.0"
-    geist: "npm:^1.3.1"
-    jiti: "npm:^1.21.6"
-    mini-css-extract-plugin: "npm:^2.9.1"
-    next: "npm:^15.1.3"
-    next-compose-plugins: "npm:^2.2.1"
-    next-transpile-modules: "npm:^10.0.1"
-    prettier: "npm:^3.3.3"
-    raf: "npm:^3.4.1"
-    react: "npm:^19.0.0"
-    react-dom: "npm:^19.0.0"
-    superjson: "npm:2.2.1"
-    tailwindcss: "npm:^3.4.14"
-    tree-kill: "npm:^1.2.2"
-    typescript: "npm:^5.6.3"
-    vercel: "npm:latest"
-    vitest: "npm:^2.1.1"
-    zod: "npm:3.23.8"
-  languageName: unknown
-  linkType: soft
 
 "nice-try@npm:^1.0.4":
   version: 1.0.5
@@ -19128,6 +19068,44 @@ __metadata:
   languageName: node
   linkType: hard
 
+"web@workspace:apps/web":
+  version: 0.0.0-use.local
+  resolution: "web@workspace:apps/web"
+  dependencies:
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tailwind-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    "@e-market/ui": "workspace:*"
+    "@t3-oss/env-nextjs": "npm:^0.11.1"
+    "@tanstack/react-query": "npm:^5.59.15"
+    "@types/node": "npm:^20.14.1"
+    "@types/react": "npm:^19.0.3"
+    "@types/react-dom": "npm:^19.0.2"
+    dotenv-cli: "npm:^7.4.4"
+    eslint: "npm:^9.12.0"
+    eslint-config-next: "npm:^14.2.3"
+    firebase: "npm:^11.1.0"
+    geist: "npm:^1.3.1"
+    jiti: "npm:^1.21.6"
+    mini-css-extract-plugin: "npm:^2.9.1"
+    next: "npm:^15.1.3"
+    next-compose-plugins: "npm:^2.2.1"
+    next-transpile-modules: "npm:^10.0.1"
+    prettier: "npm:^3.3.3"
+    raf: "npm:^3.4.1"
+    react: "npm:^19.0.0"
+    react-dom: "npm:^19.0.0"
+    superjson: "npm:2.2.1"
+    tailwindcss: "npm:^3.4.14"
+    tree-kill: "npm:^1.2.2"
+    typescript: "npm:^5.6.3"
+    vercel: "npm:latest"
+    vitest: "npm:^2.1.1"
+    zod: "npm:3.23.8"
+  languageName: unknown
+  linkType: soft
+
 "webidl-conversions@npm:^3.0.0":
   version: 3.0.1
   resolution: "webidl-conversions@npm:3.0.1"
@@ -19603,30 +19581,6 @@ __metadata:
   checksum: 10/abb3e37678d6e38ea85485ed86ebe0d1e3464c640d7d9069805ea0da12f69d5a32df8e5625e370f9c96dd1c2dc088ab2d0a4dd32af18222ef3c4224a19471576
   languageName: node
   linkType: hard
-
-"yarn-monorepo-starter@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "yarn-monorepo-starter@workspace:."
-  dependencies:
-    "@babel/runtime": "npm:^7.24.6"
-    "@etm/prettier-config": "workspace:*"
-    "@ianvs/prettier-plugin-sort-imports": "npm:^4.4.1"
-    "@turbo/gen": "npm:^2.3.1"
-    add: "npm:^2.0.6"
-    check-dependency-version-consistency: "npm:^4.1.0"
-    class-variance-authority: "npm:^0.7.1"
-    eslint: "npm:^9.12.0"
-    expo-app: "workspace:^"
-    husky: "npm:^9.1.6"
-    node-gyp: "npm:^10.1.0"
-    prettier: "npm:^3.3.3"
-    tailwind-merge: "npm:^2.6.0"
-    turbo: "npm:^2.3.1"
-    typescript: "npm:^5.6.3"
-    vitest: "npm:^2.1.1"
-    workspace: "npm:^0.0.1-preview.2"
-  languageName: unknown
-  linkType: soft
 
 "yauzl-clone@npm:^1.0.4":
   version: 1.0.4

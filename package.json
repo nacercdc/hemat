@@ -1,6 +1,6 @@
 {
-  "name": "yarn-monorepo-starter",
-  "description": "A starter template for monorepo projects with Yarn Workspaces, maintained by ETM Software PLC.",
+  "name": "e-market",
+  "description": "A unified E-market monorepo designed to manage the backend, web, and mobile applications efficiently.",
   "private": true,
   "workspaces": [
     "./apps/*",
@@ -12,7 +12,7 @@
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean",
     "dev": "turbo watch dev --continue",
-    "dev:nextjs": "turbo watch dev -F nextjs...",
+    "dev:web": "turbo watch dev -F web...",
     "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
     "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
     "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
@@ -21,17 +21,17 @@
     "prepare": "husky",
     "test": "vitest run",
     "test:watch": "vitest",
-    "android": "yarn workspace expo-app android",
-    "dev:android": "yarn workspace expo-app dev:android",
-    "android:prebuilt": "yarn workspace expo-app android:prebuilt",
-    "ios": "yarn workspace expo-app ios",
-    "dev:ios": "yarn workspace expo-app dev:ios",
-    "ios:prebuilt": "yarn workspace expo-app ios:prebuilt",
+    "android": "yarn workspace app android",
+    "dev:android": "yarn workspace app dev:android",
+    "android:prebuilt": "yarn workspace app android:prebuilt",
+    "ios": "yarn workspace app ios",
+    "dev:ios": "yarn workspace app dev:ios",
+    "ios:prebuilt": "yarn workspace app ios:prebuilt",
     "lib:gen": "yarn turbo gen init",
     "ui-add": "turbo run ui-add",
-    "postinstall": "yarn workspace expo-app postinstall",
-    "build:gradle:stage": "yarn workspace expo-app build:gradle:stage",
-    "build:gradle:prod": "yarn workspace expo-app build:gradle:prod"
+    "postinstall": "yarn workspace app postinstall",
+    "build:gradle:stage": "yarn workspace app build:gradle:stage",
+    "build:gradle:prod": "yarn workspace app build:gradle:prod"
   },
   "resolutions": {
     "react": "^18.3.1",
@@ -42,12 +42,10 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.24.6",
-    "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
     "add": "^2.0.6",
     "check-dependency-version-consistency": "^4.1.0",
     "class-variance-authority": "^0.7.1",
     "eslint": "^9.12.0",
-    "expo-app": "workspace:^",
     "husky": "^9.1.6",
     "node-gyp": "^10.1.0",
     "tailwind-merge": "^2.6.0",
@@ -55,7 +53,7 @@
     "workspace": "^0.0.1-preview.2"
   },
   "devDependencies": {
-    "@etm/prettier-config": "workspace:*",
+    "@e-market/prettier-config": "workspace:*",
     "@turbo/gen": "^2.3.1",
     "prettier": "^3.3.3",
     "turbo": "^2.3.1",
