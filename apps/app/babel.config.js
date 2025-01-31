@@ -12,7 +12,7 @@ module.exports = function (api) {
         {
           envName: "APP_ENV",
           moduleName: "@env",
-          path: ".env",
+          path: `.env.${process.env.APP_ENV || "development"}`,
           allowUndefined: false,
         },
       ],
