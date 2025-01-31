@@ -19,11 +19,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   assetBundlePatterns: ["**/*"],
   ios: {
-    bundleIdentifier: "com.company.e-market",
+    bundleIdentifier: "com.company.firestore",
     supportsTablet: true,
   },
   android: {
-    package: "com.company.e-market",
+    package: "com.company.firestore",
     googleServicesFile: "./google-services.json",
     adaptiveIcon: {
       foregroundImage: "./assets/images/adaptive-icon.png",
