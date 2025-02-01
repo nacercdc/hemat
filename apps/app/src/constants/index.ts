@@ -1,1 +1,3 @@
-export const CONSTANTS = "A constants will be created in this folder.";
+import { MMKV } from "react-native-mmkv";
+
+export const MMKV_STORAGE = new MMKV();

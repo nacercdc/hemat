@@ -99,9 +99,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 };
 
 // Dynamically configure the app based on the environment.
-export const getDynamicAppConfig = (
-  environment: "development" | "preview" | "production"
-) => {
+export const getDynamicAppConfig = (environment: EnvironnementType) => {
   if (environment === "production") {
     return {
       name: APP_NAME,
