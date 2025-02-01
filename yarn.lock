@@ -1269,6 +1269,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@e-market/rn-firebase@workspace:*, @e-market/rn-firebase@workspace:packages/rn-firebase":
+  version: 0.0.0-use.local
+  resolution: "@e-market/rn-firebase@workspace:packages/rn-firebase"
+  dependencies:
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    "@react-native-firebase/firestore": "npm:^21.7.1"
+    "@tanstack/react-query": "npm:^5.66.0"
+    "@types/react": "npm:~18.3.12"
+    eslint: "npm:^9.12.0"
+    prettier: "npm:^3.3.3"
+    react: "npm:18.3.1"
+    typescript: "npm:^5.6.3"
+  languageName: unknown
+  linkType: soft
+
 "@e-market/tailwind-config@workspace:*, @e-market/tailwind-config@workspace:tooling/tailwind":
   version: 0.0.0-use.local
   resolution: "@e-market/tailwind-config@workspace:tooling/tailwind"
@@ -4587,7 +4604,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-firebase/firestore@npm:^21.6.2":
+"@react-native-firebase/firestore@npm:^21.6.2, @react-native-firebase/firestore@npm:^21.7.1":
   version: 21.7.1
   resolution: "@react-native-firebase/firestore@npm:21.7.1"
   peerDependencies:
@@ -5242,6 +5259,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:5.66.0":
+  version: 5.66.0
+  resolution: "@tanstack/query-core@npm:5.66.0"
+  checksum: 10/ba8623c0272e36d3ce616afa024d43e07e6b69170219b32eb4f60156fee9ac4ffa74d2fbb999739b6dea757b75966e76129271f4224f06c59deee24a72944da4
+  languageName: node
+  linkType: hard
+
 "@tanstack/react-query@npm:^5.59.15":
   version: 5.64.2
   resolution: "@tanstack/react-query@npm:5.64.2"
@@ -5250,6 +5274,17 @@ __metadata:
   peerDependencies:
     react: ^18 || ^19
   checksum: 10/c7ca9c81fd03cdd7434b3954edfeedcc3c0c5d647c9b2f1d65729f9a0535b006abeb34179f0be1df70ebe689a5c0265b6316505a1f8b4d37bee7947577eb76f2
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.66.0":
+  version: 5.66.0
+  resolution: "@tanstack/react-query@npm:5.66.0"
+  dependencies:
+    "@tanstack/query-core": "npm:5.66.0"
+  peerDependencies:
+    react: ^18 || ^19
+  checksum: 10/482decc02664e756c66c9ff46279b5eb3f0fb29fcdcb51b96319e8487a2b2e8b151319d6a5d9ef1180523a1792d6449cec2e9bfa87f37a4f755fc9d95534585d
   languageName: node
   linkType: hard
 
@@ -6420,6 +6455,7 @@ __metadata:
     "@babel/core": "npm:^7.25.2"
     "@e-market/eslint-config": "workspace:*"
     "@e-market/prettier-config": "workspace:*"
+    "@e-market/rn-firebase": "workspace:*"
     "@e-market/tailwind-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
     "@eva-design/eva": "npm:^2.2.0"

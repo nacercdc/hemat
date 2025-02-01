@@ -35,6 +35,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@e-market/rn-firebase": "workspace:*",
     "@eva-design/eva": "^2.2.0",
     "@expo-google-fonts/poppins": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",

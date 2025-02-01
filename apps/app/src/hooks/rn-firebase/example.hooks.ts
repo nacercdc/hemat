@@ -1,5 +1,4 @@
-import { useFirestoreQuery } from "../libs/firestore.query";
-
+import { useFirestoreQuery } from "@e-market/rn-firebase";
 export enum Collection {
   LANGUAGES = "languages",
 }

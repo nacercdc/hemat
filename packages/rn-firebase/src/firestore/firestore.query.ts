@@ -1,5 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import type { InfiniteData } from "@tanstack/react-query";
 import {
