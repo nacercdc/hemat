@@ -1276,7 +1276,7 @@ __metadata:
     "@e-market/eslint-config": "workspace:*"
     "@e-market/prettier-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
-    "@react-native-firebase/firestore": "npm:^21.7.1"
+    "@react-native-firebase/firestore": "npm:^21.6.2"
     "@tanstack/react-query": "npm:^5.66.0"
     "@types/react": "npm:~18.3.12"
     eslint: "npm:^9.12.0"
@@ -4604,7 +4604,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native-firebase/firestore@npm:^21.6.2, @react-native-firebase/firestore@npm:^21.7.1":
+"@react-native-firebase/firestore@npm:^21.6.2":
   version: 21.7.1
   resolution: "@react-native-firebase/firestore@npm:21.7.1"
   peerDependencies:

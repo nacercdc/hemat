@@ -12,8 +12,8 @@ const ICON = "./assets/images/icon.png";
 const ADAPTIVE_ICON = "./assets/images/adaptive-icon.png";
 const SPLASH_IMAGE = "./assets/images/splash-icon.png";
 const SCHEME = "app-scheme";
-const GOOGLE_SERVICE_FILE_ANDROID = `../configs/google-services.json`;
-const GOOGLE_SERVICE_FILE_IOS = `../configs/GoogleService-Info.plist`;
+const GOOGLE_SERVICE_FILE_ANDROID = `./configs/google-services.json`;
+const GOOGLE_SERVICE_FILE_IOS = `./configs/GoogleService-Info.plist`;
 export default ({ config }: ConfigContext): ExpoConfig => {
   console.log("⚙️ Building app for environment:", process.env.APP_ENV);
   const {

@@ -12,10 +12,7 @@ export default function useGetLanguages() {
     collectionName: Collection.LANGUAGES,
     tqOptions: {
       enabled: true,
-      queryKey: ["useGetLanguages", "en"],
-    },
-    queryOptions: {
-      filters: { code: { eq: "en" } },
+      queryKey: ["useGetLanguages"],
     },
   });
 }
