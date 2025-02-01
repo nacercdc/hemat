@@ -2,14 +2,9 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
-import type {
-  QueryManyRequest,
-  QueryManyResponse,
-  QueryOneRequest,
-} from "../../../../../../../kbi-projects/kgi/frontend/packages/lib/src/query";
-
 import { mutationFn } from "./helper/fetch.function";
 import type { UseInfiniteQueryDocuments, UseGetQueryDocument, UseMutationDocument, FetchMethod, MutationRequest } from "./types/tq";
+import type { QueryManyResponse, QueryManyRequest, QueryOneRequest } from "./types/query";
 
 export function useGetInfiniteQueryDocuments<T>({
   url,
