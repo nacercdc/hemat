@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React from "react";
-import * as eva from "@eva-design/eva";
-import { ApplicationProvider } from "@ui-kitten/components";
+import {
+  defaultEvaConfig,
+  UKApplicationProvider,
+} from "@e-market/rn-ui-components";
 import { default as theme } from "./theme.json";
 import { default as mapping } from "./mapping.json";
 interface Props {
@@ -9,12 +11,12 @@ interface Props {
 }
 export default function UIKittenProvider({ children }: Props) {
   return (
-    <ApplicationProvider
-      {...eva}
-      theme={{ ...eva.light, ...theme }}
+    <UKApplicationProvider
+      {...defaultEvaConfig}
+      theme={{ ...defaultEvaConfig.light, ...theme }}
       customMapping={mapping}
     >
       {children}
-    </ApplicationProvider>
+    </UKApplicationProvider>
   );
 }

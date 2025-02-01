@@ -1,0 +1,38 @@
+{
+  "name": "@e-market/rn-ui-components",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "react-native": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "dev": "tsc",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@e-market/utilities": "workspace:*",
+    "@eva-design/eva": "^2.2.0",
+    "@ui-kitten/components": "^5.3.1",
+    "nativewind": "^4.1.23",
+    "react": "18.3.1",
+    "react-native": "0.76.6",
+    "react-native-reanimated": "~3.16.1"
+  },
+  "devDependencies": {
+    "@e-market/eslint-config": "workspace:*",
+    "@e-market/prettier-config": "workspace:*",
+    "@e-market/tsconfig": "workspace:*",
+    "@types/react": "~18.3.12",
+    "eslint": "^9.12.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  },
+  "prettier": "@e-market/prettier-config"
+}

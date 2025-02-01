@@ -1,0 +1,32 @@
+{
+  "name": "@e-market/utilities",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "react-native": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "dev": "tsc",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "devDependencies": {
+    "@e-market/eslint-config": "workspace:*",
+    "@e-market/prettier-config": "workspace:*",
+    "@e-market/tsconfig": "workspace:*",
+    "eslint": "^9.12.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  },
+  "prettier": "@e-market/prettier-config",
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "tailwind-merge": "^3.0.1"
+  }
+}
