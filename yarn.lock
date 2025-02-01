@@ -1329,9 +1329,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@e-market/ui@workspace:*, @e-market/ui@workspace:packages/ui":
+"@e-market/utilities@workspace:*, @e-market/utilities@workspace:packages/utilities":
   version: 0.0.0-use.local
-  resolution: "@e-market/ui@workspace:packages/ui"
+  resolution: "@e-market/utilities@workspace:packages/utilities"
+  dependencies:
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    class-variance-authority: "npm:^0.7.1"
+    eslint: "npm:^9.12.0"
+    prettier: "npm:^3.3.3"
+    tailwind-merge: "npm:^3.0.1"
+    typescript: "npm:^5.6.3"
+  languageName: unknown
+  linkType: soft
+
+"@e-market/web-ui-components@workspace:*, @e-market/web-ui-components@workspace:packages/web-ui-components":
+  version: 0.0.0-use.local
+  resolution: "@e-market/web-ui-components@workspace:packages/web-ui-components"
   dependencies:
     "@e-market/eslint-config": "workspace:*"
     "@e-market/prettier-config": "workspace:*"
@@ -1359,21 +1374,6 @@ __metadata:
   peerDependencies:
     "@types/react": ^19.0.3
     zod: 3.23.8
-  languageName: unknown
-  linkType: soft
-
-"@e-market/utilities@workspace:*, @e-market/utilities@workspace:packages/utilities":
-  version: 0.0.0-use.local
-  resolution: "@e-market/utilities@workspace:packages/utilities"
-  dependencies:
-    "@e-market/eslint-config": "workspace:*"
-    "@e-market/prettier-config": "workspace:*"
-    "@e-market/tsconfig": "workspace:*"
-    class-variance-authority: "npm:^0.7.1"
-    eslint: "npm:^9.12.0"
-    prettier: "npm:^3.3.3"
-    tailwind-merge: "npm:^3.0.1"
-    typescript: "npm:^5.6.3"
   languageName: unknown
   linkType: soft
 
@@ -19233,7 +19233,7 @@ __metadata:
     "@e-market/prettier-config": "workspace:*"
     "@e-market/tailwind-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
-    "@e-market/ui": "workspace:*"
+    "@e-market/web-ui-components": "workspace:*"
     "@t3-oss/env-nextjs": "npm:^0.11.1"
     "@tanstack/react-query": "npm:^5.59.15"
     "@types/node": "npm:^20.14.1"
