@@ -12,6 +12,6 @@ interface Props extends Omit<ToggleProps, "className" | "style"> {
     | "danger"
     | "control";
 }
-export default function Toggle(props: Props) {
+export const Toggle=(props: Props) =>{
   return <UKToggle {...omit(props as ToggleProps, "className", "style")} />;
 }

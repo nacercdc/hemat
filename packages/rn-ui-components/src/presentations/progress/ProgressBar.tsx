@@ -17,7 +17,7 @@ interface Props
     | "danger"
     | "control";
 }
-export default function ProgressBar(props: Props) {
+export const ProgressBar=(props: Props) =>{
   return (
     <UKProgressBar
       {...omit(

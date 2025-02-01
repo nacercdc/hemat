@@ -13,6 +13,6 @@ interface Props extends Omit<SpinnerProps, "className" | "style"> {
     | "danger"
     | "control";
 }
-export default function Spinner(props: Props) {
+export const Spinner=(props: Props) =>{
   return <RnSpinner {...omit(props as SpinnerProps, "className", "style")} />;
 }

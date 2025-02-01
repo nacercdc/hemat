@@ -14,7 +14,7 @@ interface Props extends Omit<InputProps, "className" | "style" | "textStyle"> {
     | "danger"
     | "control";
 }
-export default function Input(props: Props) {
+export const Input=(props: Props) =>{
   return (
     <UKInput
       {...omit(props as InputProps, "className", "style", "textStyle")}

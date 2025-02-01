@@ -27,6 +27,6 @@ interface Props extends Omit<TextProps, "className" | "style"> {
     | "danger"
     | "control";
 }
-export default function Text(props: Props) {
+export const Text=(props: Props) =>{
   return <UKText {...omit(props as TextProps, "className", "style")} />;
 }

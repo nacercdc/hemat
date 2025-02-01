@@ -30,7 +30,7 @@ interface Props
     | "bottom start"
     | "bottom end";
 }
-export default function DatePicker(props: Props) {
+export const DatePicker=(props: Props)=> {
   return (
     <Layout style={{ width: "100%" }}>
       <UKDatePicker

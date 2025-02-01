@@ -7,7 +7,7 @@ import type {
 } from "@ui-kitten/components";
 import { SelectItem, Select as UKSelect } from "@ui-kitten/components";
 
-import View from "../../presentations/view/View";
+import {View} from "../../presentations/view/View";
 import type { SelectOption } from "./types";
 import { omit } from "@e-market/utilities";
 
@@ -39,13 +39,13 @@ interface Props<Entity>
   onSelectItem: (entity: Entity) => void;
 }
 
-export default function Select<Entity extends object>({
+export const Select=<Entity extends object>({
   options,
   displayText,
   selectedItem,
   onSelectItem,
   ...props
-}: Props<Entity>) {
+}: Props<Entity>)=> {
   const [selectedIndex, setSelectedIndex] = useState<IndexPath | IndexPath[]>();
 
   const getValues = (index: IndexPath | IndexPath[]) => {

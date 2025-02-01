@@ -7,7 +7,7 @@ import {
 import { omit } from "@e-market/utilities";
 
 type Props = Omit<ModalProps, "className" | "style" | "backdropStyle">;
-export default function Modal(props: Props) {
+export const Modal=(props: Props) =>{
   const { backdrop } = useStyle();
   return (
     <UKModal

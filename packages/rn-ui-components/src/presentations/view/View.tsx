@@ -3,6 +3,6 @@ import type { ViewProps } from "react-native";
 import { View as RnView } from "react-native";
 
 type Props = ViewProps;
-export default function View(props: Props) {
+export const View=(props: Props)=> {
   return <RnView {...props} />;
 }

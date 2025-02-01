@@ -13,7 +13,7 @@ interface Props extends Omit<ProgressBarProps, "className" | "style"> {
     | "danger"
     | "control";
 }
-export default function CircularProgressBar(props: Props) {
+export const CircularProgressBar=(props: Props) =>{
   return (
     <UKCircularProgressBar
       {...omit(props as ProgressBarProps, "className", "style")}

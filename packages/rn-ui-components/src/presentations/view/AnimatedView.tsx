@@ -9,7 +9,7 @@ interface Props {
   className?: string;
   style?: StyleProp<AnimatedStyle<StyleProp<ViewStyle>>>;
 }
-export default function AnimatedView({ children, className, style }: Props) {
+export const AnimatedView=({ children, className, style }: Props)=> {
   return (
     <Animated.View
       entering={FadeInUp}

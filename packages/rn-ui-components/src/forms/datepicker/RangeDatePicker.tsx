@@ -20,7 +20,7 @@ interface Props
     | "control";
   size?: "small" | "medium" | "large";
 }
-export default function RangeDatepicker(props: Props) {
+export const RangeDatepicker=(props: Props)=> {
   return (
     <Layout style={{ width: "100%" }}>
       <UKRangeDatepicker

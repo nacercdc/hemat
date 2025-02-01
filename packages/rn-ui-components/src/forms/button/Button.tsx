@@ -14,6 +14,6 @@ interface Props extends Omit<ButtonProps, "className" | "style"> {
     | "link"
     | "control";
 }
-export default function Button(props: Props) {
+export const Button =(props: Props) =>{
   return <UKButton {...omit(props as ButtonProps, "className", "style")} />;
 }
