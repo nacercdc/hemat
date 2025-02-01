@@ -12,6 +12,8 @@ const ICON = "./assets/images/icon.png";
 const ADAPTIVE_ICON = "./assets/images/adaptive-icon.png";
 const SPLASH_IMAGE = "./assets/images/splash-icon.png";
 const SCHEME = "app-scheme";
+const GOOGLE_SERVICE_FILE_ANDROID = "./configs/google-services.json";
+const GOOGLE_SERVICE_FILE_IOS = "./configs/GoogleService-Info.plist";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   console.log("⚙️ Building app for environment:", process.env.APP_ENV);
@@ -23,6 +25,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     splashImage,
     packageName,
     scheme,
+    googleServicesFileAndroid,
+    googleServicesFileIOS,
   } = getDynamicAppConfig(
     (process.env.APP_ENV as EnvironnementType) || "development"
   );
@@ -46,10 +50,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       bundleIdentifier: bundleIdentifier,
       supportsTablet: true,
+      googleServicesFile: googleServicesFileIOS,
     },
     android: {
       package: packageName,
-      googleServicesFile: "./google-services.json",
+      googleServicesFile: googleServicesFileAndroid,
       adaptiveIcon: {
         foregroundImage: adaptiveIcon,
         backgroundColor: "#FFFFFF",
@@ -109,6 +114,8 @@ export const getDynamicAppConfig = (environment: EnvironnementType) => {
       icon: ICON,
       adaptiveIcon: ADAPTIVE_ICON,
       scheme: SCHEME,
+      googleServicesFileAndroid: GOOGLE_SERVICE_FILE_ANDROID,
+      googleServicesFileIOS: GOOGLE_SERVICE_FILE_IOS,
     };
   }
 
@@ -121,6 +128,8 @@ export const getDynamicAppConfig = (environment: EnvironnementType) => {
       icon: "./assets/images/icon.png",
       adaptiveIcon: "./assets/images/adaptive-icon.png",
       scheme: `${SCHEME}-prev`,
+      googleServicesFileAndroid: "./configs/google-services.json",
+      googleServicesFileIOS: "./configs/GoogleService-Info.plist",
     };
   }
 
@@ -132,5 +141,7 @@ export const getDynamicAppConfig = (environment: EnvironnementType) => {
     icon: "./assets/images/icon.png",
     adaptiveIcon: "./assets/images/adaptive-icon.png",
     scheme: `${SCHEME}-dev`,
+    googleServicesFileAndroid: "./configs/google-services.json",
+    googleServicesFileIOS: "./configs/GoogleService-Info.plist",
   };
 };
