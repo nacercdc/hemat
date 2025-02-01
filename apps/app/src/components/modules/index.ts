@@ -1,1 +1,1 @@
-export const SCREENS = "A screens module will be created in this folder.";
+export const SCREENS = "Modules will be created in this folder.";

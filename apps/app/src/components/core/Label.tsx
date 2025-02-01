@@ -1,7 +1,5 @@
+import { Text, View } from "@e-market/rn-ui-components";
 import React from "react";
-
-import View from "~/components/core/presentations/view/View";
-import Text from "~/components/core/presentations/text/Text";
 
 interface Props {
   text: string;
