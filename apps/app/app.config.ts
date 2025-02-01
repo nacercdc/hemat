@@ -1,53 +1,138 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
-export default ({ config }: ConfigContext): ExpoConfig => ({
-  ...config,
-  name: "e-market",
-  slug: "e-market",
-  scheme: "e-market",
-  version: "0.1.0",
-  orientation: "portrait",
-  icon: "./assets/images/icon.png",
-  userInterfaceStyle: "automatic",
-  splash: {
-    image: "./assets/images/splash-icon.png",
-    resizeMode: "contain",
-    backgroundColor: "#FFFFFF",
-  },
-  updates: {
-    fallbackToCacheTimeout: 0,
-  },
-  assetBundlePatterns: ["**/*"],
-  ios: {
-    bundleIdentifier: "com.company.firestore",
-    supportsTablet: true,
-  },
-  android: {
-    package: "com.company.firestore",
-    googleServicesFile: "./google-services.json",
-    adaptiveIcon: {
-      foregroundImage: "./assets/images/adaptive-icon.png",
+const EAS_PROJECT_ID = "f7a7ba65-93a4-4758-bee3-35f8c8481d30";
+const PROJECT_SLUG = "e-market";
+const OWNER = "etmsoftwareplc";
+
+// App production config
+const APP_NAME = "E-Market";
+const BUNDLE_IDENTIFIER = "com.company.emarket";
+const PACKAGE_NAME = "com.company.emarket";
+const ICON = "./assets/images/icon.png";
+const ADAPTIVE_ICON = "./assets/images/adaptive-icon.png";
+const SPLASH_IMAGE = "./assets/images/splash-icon.png";
+const SCHEME = "app-scheme";
+
+export default ({ config }: ConfigContext): ExpoConfig => {
+  console.log("⚙️ Building app for environment:", process.env.APP_ENV);
+  const {
+    name,
+    bundleIdentifier,
+    icon,
+    adaptiveIcon,
+    splashImage,
+    packageName,
+    scheme,
+  } = getDynamicAppConfig(
+    (process.env.APP_ENV as EnvironnementType) || "development"
+  );
+
+  return {
+    ...config,
+    name: name,
+    slug: PROJECT_SLUG,
+    owner: OWNER,
+    scheme,
+    version: "0.1.0",
+    orientation: "portrait",
+    icon,
+    userInterfaceStyle: "automatic",
+    splash: {
+      image: splashImage,
+      resizeMode: "contain",
       backgroundColor: "#FFFFFF",
     },
-  },
-  experiments: {
-    tsconfigPaths: true,
-    typedRoutes: true,
-  },
-
-  plugins: [
-    "expo-router",
-    "expo-font",
-    "@react-native-firebase/app",
-    "@react-native-firebase/auth",
-    "@react-native-firebase/crashlytics",
-    [
-      "expo-build-properties",
-      {
-        ios: {
-          useFrameworks: "static",
-        },
+    assetBundlePatterns: ["**/*"],
+    ios: {
+      bundleIdentifier: bundleIdentifier,
+      supportsTablet: true,
+    },
+    android: {
+      package: packageName,
+      googleServicesFile: "./google-services.json",
+      adaptiveIcon: {
+        foregroundImage: adaptiveIcon,
+        backgroundColor: "#FFFFFF",
       },
+    },
+    updates: {
+      url: ` {EAS_PROJECT_ID}`,
+      fallbackToCacheTimeout: 0,
+    },
+    runtimeVersion: {
+      policy: "appVersion",
+    },
+    extra: {
+      eas: {
+        projectId: EAS_PROJECT_ID,
+      },
+    },
+    experiments: {
+      tsconfigPaths: true,
+      typedRoutes: true,
+    },
+    plugins: [
+      "expo-router",
+      "expo-font",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/crashlytics",
+      [
+        "expo-build-properties",
+        {
+          ios: {
+            useFrameworks: "static",
+          },
+        },
+      ],
+      [
+        "expo-splash-screen",
+        {
+          image: splashImage,
+          imageWidth: 200,
+          resizeMode: "contain",
+          backgroundColor: "#ffffff",
+        },
+      ],
     ],
-  ],
-});
+  };
+};
+
+// Dynamically configure the app based on the environment.
+export const getDynamicAppConfig = (
+  environment: "development" | "preview" | "production"
+) => {
+  if (environment === "production") {
+    return {
+      name: APP_NAME,
+      bundleIdentifier: BUNDLE_IDENTIFIER,
+      packageName: PACKAGE_NAME,
+      splashImage: SPLASH_IMAGE,
+      icon: ICON,
+      adaptiveIcon: ADAPTIVE_ICON,
+      scheme: SCHEME,
+    };
+  }
+
+  if (environment === "preview") {
+    return {
+      name: `${APP_NAME} Preview`,
+      bundleIdentifier: `${BUNDLE_IDENTIFIER}.preview`,
+      packageName: `${PACKAGE_NAME}.preview`,
+      splashImage: "./assets/images/splash-icon.png",
+      icon: "./assets/images/icon.png",
+      adaptiveIcon: "./assets/images/adaptive-icon.png",
+      scheme: `${SCHEME}-prev`,
+    };
+  }
+
+  return {
+    name: `${APP_NAME} Development`,
+    bundleIdentifier: `${BUNDLE_IDENTIFIER}.dev`,
+    packageName: `${PACKAGE_NAME}.dev`,
+    splashImage: "./assets/images/splash-icon.png",
+    icon: "./assets/images/icon.png",
+    adaptiveIcon: "./assets/images/adaptive-icon.png",
+    scheme: `${SCHEME}-dev`,
+  };
+};

@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:39748666297:android:20c90e20c5300b1196ec68",
+        "mobilesdk_app_id": "1:39748666297:android:98a3548f84fe564396ec68",
         "android_client_info": {
-          "package_name": "com.company.firestore"
+          "package_name": "com.company.emarket.dev"
         }
       },
       "oauth_client": [
