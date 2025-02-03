@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-
 export const runtime = "edge";
 
 export default function HomePage() {
@@ -9,6 +8,7 @@ export default function HomePage() {
         <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
           Welcome <span className="text-primary">to</span> yarn monorepo starter
         </h1>
+
 
         <div className="w-full max-w-2xl overflow-y-scroll">
           <Suspense
