@@ -4,47 +4,84 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 327 66% 69%;
-    --primary-foreground: 337 65.5% 17.1%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 72.22% 50.59%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5% 64.9%;
+    /* Web css variable */
+    --color-basic-100: 0, 0%, 100%; /* hsl(0, 0%, 100%) */
+    --color-basic-200: 0, 0%, 96.1%; /* hsl(0, 0%, 96.1%) */
+    --color-basic-300: 240, 5.9%, 90%; /* hsl(240 5.9% 90%) */
+    --color-basic-400: 0, 0%, 83.1%; /* hsl(0, 0%, 83.1%) */
+    --color-basic-500: 0, 0%, 70.2%; /* hsl(0, 0%, 70.2%) */
+    --color-basic-600: 0, 0%, 50.2%; /* hsl(0, 0%, 50.2%) */
+    --color-basic-700: 0, 0%, 29%; /* hsl(0, 0%, 29%) */
+    --color-basic-800: 0, 0%, 22%; /* hsl(0, 0%, 22%) */
+    --color-basic-900: 0, 0%, 16.1%; /* hsl(0, 0%, 16.1%) */
+    --color-basic-1000: 0, 0%, 12.2%; /* hsl(0, 0%, 12.2%) */
+    --color-basic-1100: 0, 0%, 7.8%; /* hsl(0, 0%, 7.8%) */
+    --color-primary-100: 358.8, 78.1%, 87.5%; /* hsl(358.8, 78.1%, 87.5%) */
+    --color-primary-200: 352.6, 78.9%, 75.9%; /* hsl(352.6, 78.9%, 75.9%) */
+    --color-primary-300: 346.6, 62.5%, 59.2%; /* hsl(346.6, 62.5%, 59.2%) */
+    --color-primary-400: 340.6, 60.2%, 43.3%; /* hsl(340.6, 60.2%, 43.3%) */
+    --color-primary-500: 334.8, 100%, 24.7%; /* hsl(334.8, 100%, 24.7%) */
+    --color-primary-600: 328.9, 100%, 21.2%; /* hsl(328.9, 100%, 21.2%) */
+    --color-primary-700: 322.7, 100%, 17.6%; /* hsl(322.7, 100%, 17.6%) */
+    --color-primary-800: 317.3, 100%, 14.3%; /* hsl(317.3, 100%, 14.3%) */
+    --color-primary-900: 311, 100%, 11.8%; /* hsl(311, 100%, 11.8%) */
+    --color-success-100: 92.5, 82.8%, 88.6%; /* hsl(92.5, 82.8%, 88.6%) */
+    --color-success-200: 96.4, 82.5%, 77.6%; /* hsl(96.4, 82.5%, 77.6%) */
+    --color-success-300: 100.9, 70.2%, 63.1%; /* hsl(100.9, 70.2%, 63.1%) */
+    --color-success-400: 105.4, 56.7%, 49.8%; /* hsl(105.4, 56.7%, 49.8%) */
+    --color-success-500: 110, 92.9%, 32.9%; /* hsl(110, 92.9%, 32.9%) */
+    --color-success-600: 114.7, 94.4%, 28%; /* hsl(114.7, 94.4%, 28%) */
+    --color-success-700: 119.5, 95%, 23.3%; /* hsl(119.5, 95%, 23.3%) */
+    --color-success-800: 123.9, 97.9%, 18.4%; /* hsl(123.9, 97.9%, 18.4%) */
+    --color-success-900: 127.9, 97.4%, 15.3%; /* hsl(127.9, 97.4%, 15.3%) */
+    --color-info-100: 212.6, 95.8%, 90.6%; /* hsl(212.6, 95.8%, 90.6%) */
+    --color-info-200: 213.9, 95.8%, 81.2%; /* hsl(213.9, 95.8%, 81.2%) */
+    --color-info-300: 215.9, 94.5%, 71.6%; /* hsl(215.9, 94.5%, 71.6%) */
+    --color-info-400: 217.8, 92.4%, 63.9%; /* hsl(217.8, 92.4%, 63.9%) */
+    --color-info-500: 220, 91%, 52.2%; /* hsl(220, 91%, 52.2%) */
+    --color-info-600: 222, 85.8%, 44.1%; /* hsl(222, 85.8%, 44.1%) */
+    --color-info-700: 224.3, 88.2%, 36.5%; /* hsl(224.3, 88.2%, 36.5%) */
+    --color-info-800: 226.1, 90.5%, 29%; /* hsl(226.1, 90.5%, 29%) */
+    --color-info-900: 228.3, 93.4%, 23.7%; /* hsl(228.3, 93.4%, 23.7%) */
+    --color-warning-100: 49.4, 96.2%, 89.6%; /* hsl(49.4, 96.2%, 89.6%) */
+    --color-warning-200: 47.1, 98.1%, 79.6%; /* hsl(47.1, 98.1%, 79.6%) */
+    --color-warning-300: 44.7, 98.7%, 69.6%; /* hsl(44.7, 98.7%, 69.6%) */
+    --color-warning-400: 42.9, 97.9%, 62%; /* hsl(42.9, 97.9%, 62%) */
+    --color-warning-500: 41, 100%, 49.4%; /* hsl(41, 100%, 49.4%) */
+    --color-warning-600: 38.9, 100%, 42.4%; /* hsl(38.9, 100%, 42.4%) */
+    --color-warning-700: 36.8, 100%, 35.5%; /* hsl(36.8, 100%, 35.5%) */
+    --color-warning-800: 34.9, 100%, 28.6%; /* hsl(34.9, 100%, 28.6%) */
+    --color-warning-900: 33, 100%, 23.5%; /* hsl(33, 100%, 23.5%) */
+    --color-destructive-100: 20, 100%, 90%; /* hsl(20, 100%, 90%) */
+    --color-destructive-200: 15.3, 100%, 80%; /* hsl(15.3, 100%, 80%) */
+    --color-destructive-300: 10.2, 100%, 70%; /* hsl(10.2, 100%, 70%) */
+    --color-destructive-400: 5.3, 100%, 62.4%; /* hsl(5.3, 100%, 62.4%) */
+    --color-destructive-500: 0, 100%, 50%; /* hsl(0, 100%, 50%) */
+    --color-destructive-600: 355.1, 100%, 42.9%; /* hsl(355.1, 100%, 42.9%) */
+    --color-destructive-700: 349.8, 100%, 35.9%; /* hsl(349.8, 100%, 35.9%) */
+    --color-destructive-800: 344.5, 100%, 28.8%; /* hsl(344.5, 100%, 28.8%) */
+    --color-destructive-900: 339.3, 100%, 23.9%; /* hsl(339.3, 100%, 23.9%) */
+    /* Shadcn css variables */
+    --background: var(--color-basic-100);
+    --foreground: var(--color-basic-1100);
+    --card: var(--color-basic-100);
+    --card-foreground: var(--color-basic-1100);
+    --popover: var(--color-basic-100);
+    --popover-foreground: var(--color-basic-1100);
+    --primary: var(--color-primary-900);
+    --primary-foreground: var(--color-basic-100);
+    --secondary:var(--color-basic-300);
+    --secondary-foreground: var(--color-basic-800);
+    --muted:var(--color-basic-300);
+    --muted-foreground: var(--color-basic-600);
+    --accent:var(--color-basic-300);
+    --accent-foreground: var(--color-basic-800);
+    --destructive: var(--color-destructive-900);
+    --destructive-foreground:var(--color-basic-100);
+    --border:var(--color-basic-300);
+    --input: var(--color-basic-300);
+    --ring: var(--color-basic-600);
     --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 327 66% 69%;
-    --primary-foreground: 337 65.5% 17.1%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.3%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --font-family:var(--font-poppins)
   }
 }

@@ -1,26 +1,25 @@
 import type { Metadata } from "next";
-import { Nunito } from "next/font/google";
+import { Poppins } from "next/font/google";
 
 import "~/app/styles.css";
+import { cn } from "~/utils/cn.util";
 
-import { cn } from "@e-market/ui/shadcn-ui/utils/cn";
 
-const nunito = Nunito({ subsets: ["latin"], weight: ["700", "600"] });
+const poppins = Poppins({ 
+    subsets: ["latin"], 
+    weight: ["900","800","700", "600", "500", "400", "300", "200", "100"], 
+    variable: "--font-poppins", 
+  });
 
 export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
-  title: "Yarn monorepo starter",
-  description: "Simple monorepo backend and web & mobile apps",
+  title: "E-market",
+  description: "E-market dashboard",
   openGraph: {
-    title: "Yarn monorepo starter",
-    description: "Simple monorepo backend and web & mobile apps",
+    title: "E-market",
+    description: "E-market dashboard",
     url: "https://etmsoftwareplc.com",
-    siteName: "Yarn monorepo starter",
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@jullerino",
-    creator: "@jullerino",
+    siteName: "E-market",
   },
 };
 
@@ -29,8 +28,8 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen bg-card text-primary-foreground antialiased",
-          nunito.className,
+          "min-h-screen antialiased",
+          poppins.className,
         )}
         suppressHydrationWarning
       >
