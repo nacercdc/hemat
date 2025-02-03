@@ -1280,9 +1280,7 @@ __metadata:
     "@e-market/prettier-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
     "@e-market/utilities": "workspace:*"
-    "@eva-design/eva": "npm:^2.2.0"
     "@types/react": "npm:~18.3.12"
-    "@ui-kitten/components": "npm:^5.3.1"
     eslint: "npm:^9.12.0"
     nativewind: "npm:^4.1.23"
     prettier: "npm:^3.3.3"
@@ -1679,27 +1677,6 @@ __metadata:
     "@eslint/core": "npm:^0.10.0"
     levn: "npm:^0.4.1"
   checksum: 10/82d0142bc7054587bde4f75c2c517f477df7c320e4bdb47a4d5f766899a313ce65e9ce5d59428178d0be473a95292065053f69637042546b811ad89079781cbc
-  languageName: node
-  linkType: hard
-
-"@eva-design/dss@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "@eva-design/dss@npm:2.2.0"
-  checksum: 10/ba6a9a5669d057e8588b9f22682b3e925be34bc1c21d79ea08d5d556e11227c96d5f81f00859b1a65364fc06b5f9e6453786b19962a44b9af7ce4d5f370b717d
-  languageName: node
-  linkType: hard
-
-"@eva-design/eva@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "@eva-design/eva@npm:2.2.0"
-  checksum: 10/03b1b785aa9674ae99e2a3966040f8f29b6ee29b3528f658ea62232e96b81a741c5b6cb40c712e09e599287f48b30ce32ec8f5f320e529c4586d402637c71e97
-  languageName: node
-  linkType: hard
-
-"@eva-design/processor@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "@eva-design/processor@npm:2.2.0"
-  checksum: 10/86bf31ddc5a6e0da44528bcb713f9ac01e5df59e91aef2b15b99b2f961c16358918fe170cb64511ece13553dbeccb141d8c8ad7795705fb0e10c093fb77ad196
   languageName: node
   linkType: hard
 
@@ -5835,21 +5812,6 @@ __metadata:
     "@typescript-eslint/types": "npm:8.21.0"
     eslint-visitor-keys: "npm:^4.2.0"
   checksum: 10/781cafa354177de4e864511435dbe61d896a7d1331bca76dd0a151295cc27b9677412444d47e1d5c6d2e7de5fee29b7bef0489d76c494fa59139e421f860506a
-  languageName: node
-  linkType: hard
-
-"@ui-kitten/components@npm:^5.3.1":
-  version: 5.3.1
-  resolution: "@ui-kitten/components@npm:5.3.1"
-  dependencies:
-    "@eva-design/dss": "npm:^2.2.0"
-    "@eva-design/processor": "npm:^2.2.0"
-    fecha: "npm:3.0.3"
-    hoist-non-react-statics: "npm:^3.2.1"
-    lodash.merge: "npm:^4.6.1"
-  peerDependencies:
-    react-native-svg: "*"
-  checksum: 10/ea08dd60f8ed0fde93ef4710b475d4c93dd2efba0289984271bd4e06b50c553e641522f524c11d3d22ca92effdf320990341bdea01cf0433d8df96f3e2f2567e
   languageName: node
   linkType: hard
 
@@ -10191,13 +10153,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fecha@npm:3.0.3":
-  version: 3.0.3
-  resolution: "fecha@npm:3.0.3"
-  checksum: 10/2e27cfbf96802fd67ba71b44d926db74834a131859ca2bc980c25a507423eeca24a0b1e76084a724f71b172bf04a3e715274d81d74d14c45bcb3059c787da395
-  languageName: node
-  linkType: hard
-
 "fetch-retry@npm:^4.1.1":
   version: 4.1.1
   resolution: "fetch-retry@npm:4.1.1"
@@ -11081,7 +11036,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hoist-non-react-statics@npm:^3.2.1, hoist-non-react-statics@npm:^3.3.0":
+"hoist-non-react-statics@npm:^3.3.0":
   version: 3.3.2
   resolution: "hoist-non-react-statics@npm:3.3.2"
   dependencies:
@@ -13210,7 +13165,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.merge@npm:^4.6.1, lodash.merge@npm:^4.6.2":
+"lodash.merge@npm:^4.6.2":
   version: 4.6.2
   resolution: "lodash.merge@npm:4.6.2"
   checksum: 10/d0ea2dd0097e6201be083865d50c3fb54fbfbdb247d9cc5950e086c991f448b7ab0cdab0d57eacccb43473d3f2acd21e134db39f22dac2d6c9ba6bf26978e3d6
