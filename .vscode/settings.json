@@ -36,9 +36,12 @@
     "Lngs",
     "MMKV",
     "nativewind",
+    "nativewindui",
     "pluralrules",
+    "quarternary",
     "rgba",
-    "shadcn"
+    "shadcn",
+    "uitextview"
   ],
   "files.associations": {
     "*.css": "tailwindcss"

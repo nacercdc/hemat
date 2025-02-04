@@ -13,6 +13,7 @@ const workspaceRoot = path.resolve(projectRoot, "../..");
 const config = withNativeWind(getDefaultConfig(projectRoot), {
   input: "./src/styles.css",
   configPath: "./tailwind.config.ts",
+  inlineRem: 16,
 });
 
 // 1. Watch all files within the monorepo
