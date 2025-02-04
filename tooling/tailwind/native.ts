@@ -1,96 +1,144 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import type { Config } from "tailwindcss";
-
+// @ts-expect-error - no types
+import nativewind from "nativewind/preset";
 import base from "./base";
+
+const { hairlineWidth, platformSelect } = require("nativewind/theme");
 
 export default {
   content: base.content,
-  presets: [base],
+  presets: [base, nativewind],
   theme: {
-    extend:{
-      colors:{
-        basic:{
-          DEFAULT:"hsl(var(--color-basic-1100))",
-          1000:"hsl(var(--color-basic-1000))",
-          900:"hsl(var(--color-basic-900))",
-          800:"hsl(var(--color-basic-800))",
-          700:"hsl(var(--color-basic-700))",
-          600:"hsl(var(--color-basic-600))",
-          500:"hsl(var(--color-basic-500))",
-          400:"hsl(var(--color-basic-400))",
-          300:"hsl(var(--color-basic-300))",
-          200:"hsl(var(--color-basic-200))",
-          100:"hsl(var(--color-basic-100))",
+    extend: {
+      colors: {
+        border: withOSDependentOpacity("border"),
+        input: withOSDependentOpacity("input"),
+        ring: withOSDependentOpacity("ring"),
+        background: withOSDependentOpacity("background"),
+        foreground: withOSDependentOpacity("foreground"),
+        primary: {
+          DEFAULT: withOSDependentOpacity("primary"),
+          foreground: withOSDependentOpacity("primary-foreground"),
+          800: withOSIndependentOpacity("color-primary-800"),
+          700: withOSIndependentOpacity("color-primary-700"),
+          600: withOSIndependentOpacity("color-primary-600"),
+          500: withOSIndependentOpacity("color-primary-500"),
+          400: withOSIndependentOpacity("color-primary-400"),
+          300: withOSIndependentOpacity("color-primary-300"),
+          200: withOSIndependentOpacity("color-primary-200"),
+          100: withOSIndependentOpacity("color-primary-100"),
         },
-        primary:{
-          DEFAULT:"hsl(var(--color-primary-900))",
-          800:"hsl(var(--color-primary-800))",
-          700:"hsl(var(--color-primary-700))",
-          600:"hsl(var(--color-primary-600))",
-          500:"hsl(var(--color-primary-500))",
-          400:"hsl(var(--color-primary-400))",
-          300:"hsl(var(--color-primary-300))",
-          200:"hsl(var(--color-primary-200))",
-          100:"hsl(var(--color-primary-100))",
+        secondary: {
+          DEFAULT: withOSDependentOpacity("secondary"),
+          foreground: withOSDependentOpacity("secondary-foreground"),
         },
-        success:{
-          DEFAULT:"hsl(var(--color-success-900))",
-          800:"hsl(var(--color-success-800))",
-          700:"hsl(var(--color-success-700))",
-          600:"hsl(var(--color-success-600))",
-          500:"hsl(var(--color-success-500))",
-          400:"hsl(var(--color-success-400))",
-          300:"hsl(var(--color-success-300))",
-          200:"hsl(var(--color-success-200))",
-          100:"hsl(var(--color-success-100))",
+        destructive: {
+          DEFAULT: withOSDependentOpacity("destructive"),
+          foreground: withOSDependentOpacity("destructive-foreground"),
+          800: withOSIndependentOpacity("color-danger-800"),
+          700: withOSIndependentOpacity("color-danger-700"),
+          600: withOSIndependentOpacity("color-danger-600"),
+          500: withOSIndependentOpacity("color-danger-500"),
+          400: withOSIndependentOpacity("color-danger-400"),
+          300: withOSIndependentOpacity("color-danger-300"),
+          200: withOSIndependentOpacity("color-danger-200"),
+          100: withOSIndependentOpacity("color-danger-100"),
         },
-        info:{
-          DEFAULT:"hsl(var(--color-info-900))",
-          800:"hsl(var(--color-info-800))",
-          700:"hsl(var(--color-info-700))",
-          600:"hsl(var(--color-info-600))",
-          500:"hsl(var(--color-info-500))",
-          400:"hsl(var(--color-info-400))",
-          300:"hsl(var(--color-info-300))",
-          200:"hsl(var(--color-info-200))",
-          100:"hsl(var(--color-info-100))",
+        muted: {
+          DEFAULT: withOSDependentOpacity("muted"),
+          foreground: withOSDependentOpacity("muted-foreground"),
         },
-        warning:{
-          DEFAULT:"hsl(var(--color-warning-900))",
-          800:"hsl(var(--color-warning-800))",
-          700:"hsl(var(--color-warning-700))",
-          600:"hsl(var(--color-warning-600))",
-          500:"hsl(var(--color-warning-500))",
-          400:"hsl(var(--color-warning-400))",
-          300:"hsl(var(--color-warning-300))",
-          200:"hsl(var(--color-warning-200))",
-          100:"hsl(var(--color-warning-100))",
-        },  danger:{
-          DEFAULT:"hsl(var(--color-danger-900))",
-          800:"hsl(var(--color-danger-800))",
-          700:"hsl(var(--color-danger-700))",
-          600:"hsl(var(--color-danger-600))",
-          500:"hsl(var(--color-danger-500))",
-          400:"hsl(var(--color-danger-400))",
-          300:"hsl(var(--color-danger-300))",
-          200:"hsl(var(--color-danger-200))",
-          100:"hsl(var(--color-danger-100))",
-        }
-      }, 
-      fontFamily:{
-        regular: "var(--font-family-regular)",
-        thin: "var(--font-family-thin)",
-        extraLight: "var(--font-family-extraLight)",
-        light: "var(--font-family-light)",
-        medium: "var(--font-family-medium)",
-        bold: "var(--font-family-bold)",
-        semiBold: "var(--font-family-semiBold)",
-        extraBold: "var(--font-family-extraBold)"
-      }
-    }
+        accent: {
+          DEFAULT: withOSDependentOpacity("accent"),
+          foreground: withOSDependentOpacity("accent-foreground"),
+        },
+        popover: {
+          DEFAULT: withOSDependentOpacity("popover"),
+          foreground: withOSDependentOpacity("popover-foreground"),
+        },
+        card: {
+          DEFAULT: withOSDependentOpacity("card"),
+          foreground: withOSDependentOpacity("card-foreground"),
+        },
+
+        basic: {
+          DEFAULT: withOSIndependentOpacity("color-basic-1100"),
+          1000: withOSIndependentOpacity("color-basic-1000"),
+          900: withOSIndependentOpacity("color-basic-900"),
+          800: withOSIndependentOpacity("color-basic-800"),
+          700: withOSIndependentOpacity("color-basic-700"),
+          600: withOSIndependentOpacity("color-basic-600"),
+          500: withOSIndependentOpacity("color-basic-500"),
+          400: withOSIndependentOpacity("color-basic-400"),
+          300: withOSIndependentOpacity("color-basic-300"),
+          200: withOSIndependentOpacity("color-basic-200"),
+          100: withOSIndependentOpacity("color-basic-100"),
+        },
+        success: {
+          DEFAULT: withOSIndependentOpacity("color-success-900"),
+          800: withOSIndependentOpacity("color-success-800"),
+          700: withOSIndependentOpacity("color-success-700"),
+          600: withOSIndependentOpacity("color-success-600"),
+          500: withOSIndependentOpacity("color-success-500"),
+          400: withOSIndependentOpacity("color-success-400"),
+          300: withOSIndependentOpacity("color-success-300"),
+          200: withOSIndependentOpacity("color-success-200"),
+          100: withOSIndependentOpacity("color-success-100"),
+        },
+        info: {
+          DEFAULT: withOSIndependentOpacity("color-info-900"),
+          800: withOSIndependentOpacity("color-info-800"),
+          700: withOSIndependentOpacity("color-info-700"),
+          600: withOSIndependentOpacity("color-info-600"),
+          500: withOSIndependentOpacity("color-info-500"),
+          400: withOSIndependentOpacity("color-info-400"),
+          300: withOSIndependentOpacity("color-info-300"),
+          200: withOSIndependentOpacity("color-info-200"),
+          100: withOSIndependentOpacity("color-info-100"),
+        },
+        warning: {
+          DEFAULT: withOSIndependentOpacity("color-warning-900"),
+          800: withOSIndependentOpacity("color-warning-800"),
+          700: withOSIndependentOpacity("color-warning-700"),
+          600: withOSIndependentOpacity("color-warning-600"),
+          500: withOSIndependentOpacity("color-warning-500"),
+          400: withOSIndependentOpacity("color-warning-400"),
+          300: withOSIndependentOpacity("color-warning-300"),
+          200: withOSIndependentOpacity("color-warning-200"),
+          100: withOSIndependentOpacity("color-warning-100"),
+        },
+      },
+      borderWidth: hairlineWidth(),
+    },
   },
 } satisfies Config;
 
+interface WithOpacityCallback {
+  opacityValue?: number;
+}
+function withOSDependentOpacity(variableName: string) {
+  const callback = ({ opacityValue }: WithOpacityCallback) => {
+    if (opacityValue !== undefined) {
+      return platformSelect({
+        ios: `rgb(var(--${variableName}) / ${opacityValue})`,
+        android: `rgb(var(--android-${variableName}) / ${opacityValue})`,
+      }) as string;
+    }
+    return platformSelect({
+      ios: `rgb(var(--${variableName}))`,
+      android: `rgb(var(--android-${variableName}))`,
+    }) as string;
+  };
+  return callback as unknown as string;
+}
 
-
-
-
+function withOSIndependentOpacity(variableName: string) {
+  const callback = ({ opacityValue }: WithOpacityCallback) => {
+    if (opacityValue !== undefined) {
+      return `rgb(var(--${variableName}) / ${opacityValue})`;
+    }
+  };
+  return callback as unknown as string;
+}

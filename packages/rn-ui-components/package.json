@@ -27,10 +27,12 @@
   "devDependencies": {
     "@e-market/eslint-config": "workspace:*",
     "@e-market/prettier-config": "workspace:*",
+    "@e-market/tailwind-config": "workspace:*",
     "@e-market/tsconfig": "workspace:*",
     "@types/react": "~18.3.12",
     "eslint": "^9.12.0",
     "prettier": "^3.3.3",
+    "tailwindcss": "^3.4.14",
     "typescript": "^5.6.3"
   },
   "prettier": "@e-market/prettier-config"

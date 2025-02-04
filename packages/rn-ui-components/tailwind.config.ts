@@ -7,7 +7,6 @@ import baseConfig from "@e-market/tailwind-config/native";
 export default {
   content: [
     ...baseConfig.content,
-    "../../packages/rn-ui-components/src/**/*.{ts,tsx}",
   ],
   presets: [baseConfig, nativewind],
 } satisfies Config;
