@@ -38,7 +38,6 @@
     "app:env:pull:production": "yarn workspace app env:pull:production",
     "lib:gen": "yarn turbo gen init",
     "ui-add": "turbo run ui-add",
-    "postinstall": "yarn workspace app postinstall",
     "build:gradle": "yarn workspace app build:gradle",
     "build:gradle:production": "yarn workspace app build:gradle:production"
   },

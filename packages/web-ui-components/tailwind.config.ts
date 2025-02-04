@@ -1,9 +1,8 @@
 import type { Config } from "tailwindcss";
+
 import baseConfig from "@e-market/tailwind-config/web";
-import { fontFamily } from "tailwindcss/defaultTheme";
 
 export default {
-  content: [...baseConfig.content, "../../packages/web-ui-components/src/**/*.{ts,tsx}"],
+  content: [...baseConfig.content],
   presets: [baseConfig],
- 
 } satisfies Config;
