@@ -37,14 +37,14 @@ export default {
         destructive: {
           DEFAULT: withOSDependentOpacity("destructive"),
           foreground: withOSDependentOpacity("destructive-foreground"),
-          800: withOSIndependentOpacity("color-danger-800"),
-          700: withOSIndependentOpacity("color-danger-700"),
-          600: withOSIndependentOpacity("color-danger-600"),
-          500: withOSIndependentOpacity("color-danger-500"),
-          400: withOSIndependentOpacity("color-danger-400"),
-          300: withOSIndependentOpacity("color-danger-300"),
-          200: withOSIndependentOpacity("color-danger-200"),
-          100: withOSIndependentOpacity("color-danger-100"),
+          800: withOSIndependentOpacity("color-destructive-800"),
+          700: withOSIndependentOpacity("color-destructive-700"),
+          600: withOSIndependentOpacity("color-destructive-600"),
+          500: withOSIndependentOpacity("color-destructive-500"),
+          400: withOSIndependentOpacity("color-destructive-400"),
+          300: withOSIndependentOpacity("color-destructive-300"),
+          200: withOSIndependentOpacity("color-destructive-200"),
+          100: withOSIndependentOpacity("color-destructive-100"),
         },
         muted: {
           DEFAULT: withOSDependentOpacity("muted"),
@@ -138,6 +138,8 @@ function withOSIndependentOpacity(variableName: string) {
   const callback = ({ opacityValue }: WithOpacityCallback) => {
     if (opacityValue !== undefined) {
       return `rgb(var(--${variableName}) / ${opacityValue})`;
+    }else{
+      return `rgb(var(--${variableName}))`
     }
   };
   return callback as unknown as string;

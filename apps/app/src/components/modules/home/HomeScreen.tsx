@@ -1,5 +1,6 @@
-import { View, Text, SafeAreaView } from "react-native";
+import { SafeAreaView } from "react-native";
 import React from "react";
+import { View, Text } from "@e-market/rn-ui-components";
 
 export default function HomeScreen() {
   return (
