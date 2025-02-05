@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/unbound-method */
-import { COLORS } from '@e-market/nativewindui-theme-config/colors';
 import * as NavigationBar from 'expo-navigation-bar';
 import { useColorScheme as useNativewindColorScheme } from 'nativewind';
 import * as React from 'react';
 import { Platform } from 'react-native';
+import { COLORS } from '../theme/colors';
 
 
 function useColorScheme() {
