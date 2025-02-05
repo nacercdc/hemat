@@ -2,8 +2,6 @@ import * as React from "react";
 import { Icon } from "@iconify/react";
 import get from "lodash.get";
 
-import type { DeepKeyOf } from "@e-market/utilities";
-
 import type { Props as SelectProps } from "../select";
 import {
   Button,
@@ -20,7 +18,8 @@ import {
 import { cn } from "../../shadcn-ui/utils/cn";
 import { FormControl } from "../form-control";
 
-interface Props<T> extends Omit<SelectProps<T>, "defaultValue" | "onSelect"> {
+export interface Props<T>
+  extends Omit<SelectProps<T>, "defaultValue" | "onSelect"> {
   defaultValue?: T[] | undefined;
   onSelect: (value: T[] | undefined) => void;
 }
