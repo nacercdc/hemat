@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@e-market/nativewindui-theme-config": "workspace:*",
     "@e-market/utilities": "workspace:*",
     "expo-navigation-bar": "^4.0.7",
     "nativewind": "^4.1.23",

@@ -34,6 +34,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@e-market/nativewindui-theme-config": "workspace:*",
     "@e-market/rn-firebase": "workspace:*",
     "@e-market/rn-ui-components": "workspace:*",
     "@e-market/tanstack-query-api": "workspace:*",
