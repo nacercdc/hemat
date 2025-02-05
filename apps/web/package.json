@@ -36,6 +36,7 @@
     "@e-market/prettier-config": "workspace:*",
     "@e-market/tailwind-config": "workspace:*",
     "@e-market/tsconfig": "workspace:*",
+    "@iconify/react": "^5.2.0",
     "@types/node": "^20.14.1",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",

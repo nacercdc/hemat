@@ -9,3 +9,9 @@ export function pick<T extends Record<string, unknown>, K extends keyof T>(obj: 
     keys.filter((key) => key in obj).map((key) => [key, obj[key]])
   ) as Pick<T, K>;
 }
+
+export type DeepKeyOf<T> = T extends object
+  ? {
+      [K in Exclude<keyof T, symbol>]: K | (T[K] extends object ? `${K}.${DeepKeyOf<T[K]>}` : never)
+    }[Exclude<keyof T, symbol>]
+  : never
