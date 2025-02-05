@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { UseMutationOptions } from "@tanstack/react-query";
 import type { Firestore, FirestoreError } from "firebase/firestore";
 import { useMutation } from "@tanstack/react-query";
