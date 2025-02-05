@@ -19,6 +19,8 @@
   "dependencies": {
     "@e-market/nativewindui-theme-config": "workspace:*",
     "@e-market/utilities": "workspace:*",
+    "@rn-primitives/hooks": "^1.1.0",
+    "@roninoss/icons": "^0.0.4",
     "expo-navigation-bar": "^4.0.7",
     "nativewind": "^4.1.23",
     "react": "18.3.1",
