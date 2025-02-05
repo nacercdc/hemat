@@ -1,3 +1,3 @@
-import { COLORS as NU_COLORS  } from "@e-market/nativewindui-theme-config/colors";
+import { COLORS  } from "@e-market/nativewindui-theme-config/colors";
 
-export const COLORS = NU_COLORS
+export  { COLORS } 
