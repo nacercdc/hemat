@@ -1243,6 +1243,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@e-market/nativewindui-theme-config@workspace:*, @e-market/nativewindui-theme-config@workspace:tooling/nativewindui-theme":
+  version: 0.0.0-use.local
+  resolution: "@e-market/nativewindui-theme-config@workspace:tooling/nativewindui-theme"
+  dependencies:
+    "@e-market/eslint-config": "workspace:*"
+    "@e-market/prettier-config": "workspace:*"
+    "@e-market/tsconfig": "workspace:*"
+    eslint: "npm:^9.12.0"
+    prettier: "npm:^3.3.3"
+    react-native: "npm:0.76.6"
+    typescript: "npm:^5.6.3"
+  languageName: unknown
+  linkType: soft
+
 "@e-market/prettier-config@workspace:*, @e-market/prettier-config@workspace:tooling/prettier":
   version: 0.0.0-use.local
   resolution: "@e-market/prettier-config@workspace:tooling/prettier"
@@ -1277,9 +1291,13 @@ __metadata:
   resolution: "@e-market/rn-ui-components@workspace:packages/rn-ui-components"
   dependencies:
     "@e-market/eslint-config": "workspace:*"
+    "@e-market/nativewindui-theme-config": "workspace:*"
     "@e-market/prettier-config": "workspace:*"
     "@e-market/tailwind-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
+    "@e-market/utilities": "workspace:*"
+    "@rn-primitives/hooks": "npm:^1.1.0"
+    "@roninoss/icons": "npm:^0.0.4"
     "@types/react": "npm:~18.3.12"
     eslint: "npm:^9.12.0"
     expo-navigation-bar: "npm:^4.0.7"
@@ -1331,7 +1349,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@e-market/utilities@workspace:packages/utilities":
+"@e-market/utilities@workspace:*, @e-market/utilities@workspace:packages/utilities":
   version: 0.0.0-use.local
   resolution: "@e-market/utilities@workspace:packages/utilities"
   dependencies:
@@ -2059,6 +2077,13 @@ __metadata:
   dependencies:
     cross-spawn: "npm:^7.0.3"
   checksum: 10/009816d1722fc02603cfb4c348a609a80f41fba726d0d20208cd0d2d8a532f511a924a6681501251c851453499c4c13380a93209027a00bacc1b5282a4324cf8
+  languageName: node
+  linkType: hard
+
+"@expo/vector-icons@npm:^13.0.0":
+  version: 13.0.0
+  resolution: "@expo/vector-icons@npm:13.0.0"
+  checksum: 10/88e8a77f14eea19c675a3b95c9805f1df76662ea62d2e0022f5a8f5e85293ce2e02e7286678243c56772f7e5d7abfd23b3475df05ce59378353178e1c2b23f6e
   languageName: node
   linkType: hard
 
@@ -5019,6 +5044,40 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rn-primitives/hooks@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@rn-primitives/hooks@npm:1.1.0"
+  dependencies:
+    "@rn-primitives/types": "npm:1.1.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 10/20b1234170914401d9460a5a981439737dc18b7e91859c622dc04be8c8d8c00ec1a8969716b26fdc31f18a4f30b55b52774bd094e170f96114286d61f7ea5fd2
+  languageName: node
+  linkType: hard
+
+"@rn-primitives/types@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@rn-primitives/types@npm:1.1.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 10/4b311518ccc010e45fcc00bcc606b9aa7203fd1e52cf043dd5dffbfdd64a8c1c7e288e1009a926ecd2ca9500a061188c5d075be33e203fe4f346ad2734e5858e
+  languageName: node
+  linkType: hard
+
 "@rollup/pluginutils@npm:^5.1.3":
   version: 5.1.4
   resolution: "@rollup/pluginutils@npm:5.1.4"
@@ -5165,6 +5224,19 @@ __metadata:
   version: 4.31.0
   resolution: "@rollup/rollup-win32-x64-msvc@npm:4.31.0"
   conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@roninoss/icons@npm:^0.0.4":
+  version: 0.0.4
+  resolution: "@roninoss/icons@npm:0.0.4"
+  dependencies:
+    "@expo/vector-icons": "npm:^13.0.0"
+    sweet-sfsymbols: "npm:^0.7.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10/dbece136cd95cdc1d080f1d115b7de30f852fff0af7c3be6f7a80549dc38897577cee698191991804f148a1162ec6eb46a553a67103960fe0c3eeb2d73cadc15
   languageName: node
   linkType: hard
 
@@ -6455,6 +6527,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.25.2"
     "@e-market/eslint-config": "workspace:*"
+    "@e-market/nativewindui-theme-config": "workspace:*"
     "@e-market/prettier-config": "workspace:*"
     "@e-market/rn-firebase": "workspace:*"
     "@e-market/rn-ui-components": "workspace:*"
@@ -6467,6 +6540,8 @@ __metadata:
     "@react-native-firebase/auth": "npm:^21.6.2"
     "@react-native-firebase/crashlytics": "npm:^21.6.2"
     "@react-native-firebase/firestore": "npm:^21.6.2"
+    "@rn-primitives/hooks": "npm:^1.1.0"
+    "@roninoss/icons": "npm:^0.0.4"
     "@tanstack/react-query": "npm:^5.59.15"
     "@types/jest": "npm:^29.5.12"
     "@types/react": "npm:~18.3.12"
@@ -6480,6 +6555,7 @@ __metadata:
     expo-font: "npm:~13.0.3"
     expo-haptics: "npm:~14.0.0"
     expo-linking: "npm:~7.0.5"
+    expo-navigation-bar: "npm:^4.0.7"
     expo-router: "npm:^4.0.16"
     expo-splash-screen: "npm:~0.29.13"
     expo-status-bar: "npm:~2.0.0"
@@ -17870,6 +17946,17 @@ __metadata:
     lower-case: "npm:^1.1.1"
     upper-case: "npm:^1.1.1"
   checksum: 10/37b0c4988e12520fba54018f7fe259d62902e97349366209d2af9b1d5e741692c8f17da9d5e780c7bd1a56864bbb51d53eaf1a101a11afdfcae157912a3691d8
+  languageName: node
+  linkType: hard
+
+"sweet-sfsymbols@npm:^0.7.0":
+  version: 0.7.2
+  resolution: "sweet-sfsymbols@npm:0.7.2"
+  peerDependencies:
+    expo: "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10/ce20096e8efe4d80890692ce9053fab698d527e427230e56f342b2a7c5b0d1dafeee7476a5b49965cdc242c04282db202b7c032149713c4e9487c03a14e0c270
   languageName: node
   linkType: hard
 

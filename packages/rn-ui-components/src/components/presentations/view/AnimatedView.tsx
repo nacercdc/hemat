@@ -2,7 +2,7 @@ import type { StyleProp, ViewStyle } from "react-native";
 import type { AnimatedStyle } from "react-native-reanimated";
 import React from "react";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
-import { cn } from "../../../utils/cn.util";
+import { cn } from "../../../nativewindui/lib/cn.util";
 
 interface Props {
   children: React.ReactNode;
