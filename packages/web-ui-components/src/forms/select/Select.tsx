@@ -58,7 +58,7 @@ export interface Props<T>
   placeholder?: string;
   searchPlaceholder?: string;
   emptyText?: string;
-  onSelect: (value: T | undefined) => void;
+  onSelect: (value?: T) => void;
   defaultValue?: T;
   error?: string;
 }

@@ -20,8 +20,8 @@ import { FormControl } from "../form-control";
 
 export interface Props<T>
   extends Omit<SelectProps<T>, "defaultValue" | "onSelect"> {
-  defaultValue?: T[] | undefined;
-  onSelect: (value: T[] | undefined) => void;
+  defaultValue?: T[];
+  onSelect: (value?: T[]) => void;
 }
 
 export function MultiSelect<T>({

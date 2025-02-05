@@ -20,7 +20,7 @@ export const FormControl = ({
   children,
 }: Props) => {
   return (
-    <div className="flex flex-col space-y-1">
+    <div className="flex w-full flex-col space-y-1">
       {label && (
         <Label htmlFor={name} className="text-sm font-medium">
           {label} {required && <span className="text-destructive-500">*</span>}
