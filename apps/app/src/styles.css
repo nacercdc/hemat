@@ -28,7 +28,7 @@
     --android-foreground: 0 0 0; /* rgb(0, 0, 0) */
     --android-card: 255 255 255; /* rgb(255, 255, 255) */
     --android-card-foreground: 24 28 35; /* rgb(24, 28, 35) */
-    --android-popover: 215 217 228; /* rgb(24, 28, 35) */
+    --android-popover: 215 217 228; /* rgb(215 217 228) */
     --android-popover-foreground: 0 0 0; /* rgb(0, 0, 0) */
     --android-primary: 126 0 53; /* rgb(126, 0, 53) */
     --android-primary-foreground: 255 255 255; /* rgb(255, 255, 255) */
@@ -40,9 +40,9 @@
     --android-accent-foreground: 255 255 255; /* rgb(255, 255, 255) */
     --android-destructive: 186 26 26; /* rgb(186, 26, 26) */
     --android-destructive-foreground: 255 255 255; /* rgb(255, 255, 255) */
-    --android-border: 215 217 228; /* rgb(24, 28, 35) */
+    --android-border: 215 217 228; /* rgb(215 217 228) */
     --android-input: 210 210 215; /* rgb(210, 210, 215) */
-    --android-ring: 215 217 228; /* rgb(24, 28, 35) */
+    --android-ring: 215 217 228; /* rgb(215 217 228) */
     --font-family-regular: Poppins_400Regular;
     --font-family-light: Poppins_300Light;
     --font-family-medium: Poppins_500Medium;

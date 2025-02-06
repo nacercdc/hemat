@@ -1,38 +1,42 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import type { UseQueryOptions } from "@tanstack/react-query";
 import type {
+  AggregateField,
   AggregateQuerySnapshot,
-  AggregateSpec,
   DocumentData,
   FirestoreError,
   Query,
 } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
-import { getAggregateFromServer } from "firebase/firestore";
+import { getCountFromServer } from "firebase/firestore";
 
 type FirestoreUseQueryOptions<TData = unknown, TError = Error> = Omit<
   UseQueryOptions<TData, TError>,
   "queryFn"
 >;
 
-export function useGetAggregateFromServerQuery<
-  T extends AggregateSpec,
+export function useGetCountFromServerQuery<
   AppModelType = DocumentData,
   DbModelType extends DocumentData = DocumentData,
 >(
   query: Query<AppModelType, DbModelType>,
-  aggregateSpec: T,
   options: FirestoreUseQueryOptions<
-    AggregateQuerySnapshot<T, AppModelType, DbModelType>,
+    AggregateQuerySnapshot<
+      { count: AggregateField<number> },
+      AppModelType,
+      DbModelType
+    >,
     FirestoreError
   >,
 ) {
   return useQuery<
-    AggregateQuerySnapshot<T, AppModelType, DbModelType>,
+    AggregateQuerySnapshot<
+      { count: AggregateField<number> },
+      AppModelType,
+      DbModelType
+    >,
     FirestoreError
   >({
     ...options,
-    queryFn: () => getAggregateFromServer(query, aggregateSpec),
+    queryFn: () => getCountFromServer(query),
   });
 }

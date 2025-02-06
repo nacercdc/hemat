@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 
 import "~/app/styles.css";
+import TanstackQueryProvider from "~/providers/tanstack-query/TanstackQueryProvider";
 import { cn } from "~/utils/cn.util";
 
-
-const poppins = Poppins({ 
-    subsets: ["latin"], 
-    weight: ["900","800","700", "600", "500", "400", "300", "200", "100"], 
-    variable: "--font-poppins", 
-  });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["900", "800", "700", "600", "500", "400", "300", "200", "100"],
+  variable: "--font-poppins",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
@@ -27,13 +27,10 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body
-        className={cn(
-          "min-h-screen antialiased",
-          poppins.className,
-        )}
+        className={cn("min-h-screen antialiased", poppins.className)}
         suppressHydrationWarning
       >
-        {props.children}
+        <TanstackQueryProvider>{props.children}</TanstackQueryProvider>
       </body>
     </html>
   );
