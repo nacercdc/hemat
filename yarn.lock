@@ -1295,7 +1295,7 @@ __metadata:
     "@e-market/prettier-config": "workspace:*"
     "@e-market/tailwind-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
-    "@e-market/utilities": "workspace:*"
+    "@e-market/utilities": "workspace:^"
     "@rn-primitives/hooks": "npm:^1.1.0"
     "@roninoss/icons": "npm:^0.0.4"
     "@types/react": "npm:~18.3.12"
@@ -1349,7 +1349,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@e-market/utilities@workspace:*, @e-market/utilities@workspace:packages/utilities":
+"@e-market/utilities@workspace:*, @e-market/utilities@workspace:^, @e-market/utilities@workspace:packages/utilities":
   version: 0.0.0-use.local
   resolution: "@e-market/utilities@workspace:packages/utilities"
   dependencies:
@@ -6928,6 +6928,7 @@ __metadata:
     "@e-market/tailwind-config": "workspace:*"
     "@e-market/tanstack-query-api": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
+    "@e-market/utilities": "workspace:^"
     "@expo-google-fonts/poppins": "npm:^0.2.3"
     "@expo/vector-icons": "npm:^14.0.2"
     "@react-native-firebase/app": "npm:^21.6.2"
