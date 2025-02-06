@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 
 import "~/app/styles.css";
+import TanstackQueryProvider from "~/providers/tanstack-query/TanstackQueryProvider";
 import { cn } from "~/utils/cn.util";
 
 
@@ -33,7 +34,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         )}
         suppressHydrationWarning
       >
+        <TanstackQueryProvider>
         {props.children}
+        </TanstackQueryProvider>
       </body>
     </html>
   );
