@@ -12,6 +12,7 @@ export const TextField = ({...props }: Props) => {
 return(
     <View>
     <NWTextField 
+    containerClassName='border-transparent'
       {...omit(props as ComponentPropsWithoutRef<typeof NWTextField>, "className", "style", "labelClassName", "containerClassName", "placeholderClassName")}
     />
      {props.errorMessage && (
