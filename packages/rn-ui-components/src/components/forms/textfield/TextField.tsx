@@ -2,18 +2,21 @@ import type { ComponentPropsWithoutRef } from 'react';
 import React from 'react';
 import { TextField as NWTextField } from '../../../nativewindui/components/textfield';
 import {omit} from "@e-market/utilities"
-import { FormContainer } from '../helpers/FormContainer';
+import { FormController } from '../helper/FormController';
 
 
-type Props = Omit<ComponentPropsWithoutRef<typeof NWTextField>,"className"|"style"|"labelClassName"|"containerClassName"|"placeholderClassName" > 
 
-export const TextField = ({...props }: Props) => {
+interface Props extends Omit<ComponentPropsWithoutRef<typeof NWTextField>,"className"|"style"|"labelClassName"|"containerClassName"|"placeholderClassName" > {
+  caption?: string;
+}
+
+export const TextField = ({caption,...props }: Props) => {
 return(
-<FormContainer errorMessage={props.errorMessage}>
+<FormController errorMessage={props.errorMessage} caption={caption}>
   <NWTextField 
     {...omit(props as ComponentPropsWithoutRef<typeof NWTextField>, "className", "style", "labelClassName", "containerClassName", "placeholderClassName")}
   />
-</FormContainer>
+</FormController>
 
 ) 
   };
