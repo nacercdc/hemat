@@ -1295,7 +1295,8 @@ __metadata:
     "@e-market/prettier-config": "workspace:*"
     "@e-market/tailwind-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
-    "@e-market/utilities": "workspace:^"
+    "@e-market/utilities": "workspace:*"
+    "@rn-primitives/checkbox": "npm:^1.1.0"
     "@rn-primitives/hooks": "npm:^1.1.0"
     "@roninoss/icons": "npm:^0.0.4"
     "@types/react": "npm:~18.3.12"
@@ -4190,6 +4191,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-checkbox@npm:^1.1.1":
+  version: 1.1.4
+  resolution: "@radix-ui/react-checkbox@npm:1.1.4"
+  dependencies:
+    "@radix-ui/primitive": "npm:1.1.1"
+    "@radix-ui/react-compose-refs": "npm:1.1.1"
+    "@radix-ui/react-context": "npm:1.1.1"
+    "@radix-ui/react-presence": "npm:1.1.2"
+    "@radix-ui/react-primitive": "npm:2.0.2"
+    "@radix-ui/react-use-controllable-state": "npm:1.1.0"
+    "@radix-ui/react-use-previous": "npm:1.1.0"
+    "@radix-ui/react-use-size": "npm:1.1.0"
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: 10/d7f7af0bb1fad38886cc4716048283617461d7131c899be5bddaf8b048eb04fe846e59d2306fd28496bcc197558a523029498498de4fe9f23cdffc321acb202f
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-collection@npm:1.1.1":
   version: 1.1.1
   resolution: "@radix-ui/react-collection@npm:1.1.1"
@@ -5597,7 +5624,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rn-primitives/hooks@npm:^1.1.0":
+"@rn-primitives/checkbox@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@rn-primitives/checkbox@npm:1.1.0"
+  dependencies:
+    "@radix-ui/react-checkbox": "npm:^1.1.1"
+    "@rn-primitives/hooks": "npm:1.1.0"
+    "@rn-primitives/slot": "npm:1.1.0"
+    "@rn-primitives/types": "npm:1.1.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 10/0c218607d9c3a44dc1746e215006ce5650c17ae0cc6f66d2c41febeafcf75dad148224bfa73d83046774672ec2b4879d29e358129d7c0026d1220c5f73979a1b
+  languageName: node
+  linkType: hard
+
+"@rn-primitives/hooks@npm:1.1.0, @rn-primitives/hooks@npm:^1.1.0":
   version: 1.1.0
   resolution: "@rn-primitives/hooks@npm:1.1.0"
   dependencies:
@@ -5612,6 +5660,22 @@ __metadata:
     react-native-web:
       optional: true
   checksum: 10/20b1234170914401d9460a5a981439737dc18b7e91859c622dc04be8c8d8c00ec1a8969716b26fdc31f18a4f30b55b52774bd094e170f96114286d61f7ea5fd2
+  languageName: node
+  linkType: hard
+
+"@rn-primitives/slot@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@rn-primitives/slot@npm:1.1.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-web: "*"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+    react-native-web:
+      optional: true
+  checksum: 10/707c9d7b202b2a1e17b9b413d08703470576aced61ed3d7403b3d37c30d5bfb3e0c6731c120a831bfdba6707c6fd2259326edc19b47c1a8bb1a93496ee3241c0
   languageName: node
   linkType: hard
 
@@ -7110,6 +7174,7 @@ __metadata:
     "@react-native-firebase/auth": "npm:^21.6.2"
     "@react-native-firebase/crashlytics": "npm:^21.6.2"
     "@react-native-firebase/firestore": "npm:^21.6.2"
+    "@rn-primitives/checkbox": "npm:^1.1.0"
     "@rn-primitives/hooks": "npm:^1.1.0"
     "@roninoss/icons": "npm:^0.0.4"
     "@tanstack/react-query": "npm:^5.59.15"
