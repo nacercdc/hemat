@@ -5,7 +5,6 @@ import { Suspense } from "react";
 export const runtime = "edge";
 
 export default function HomePage() {
-
   return (
     <main className=" h-screen py-16 w-full">
       <div className="flex flex-col items-center justify-center gap-4">

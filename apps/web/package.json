@@ -4,15 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "yarn with-env next build",
-    "dev": "yarn with-env next dev",
-    "start": "yarn with-env next start",
+    "build": "yarn next build",
+    "dev": "yarn next dev",
+    "start": "yarn next start",
     "test": "vitest",
     "clean": "git clean -xdf .cache .next .turbo node_modules",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
-    "with-env": "dotenv -e ../../.env --"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@e-market/web-ui-components": "workspace:*",
@@ -40,7 +39,6 @@
     "@types/node": "^20.14.1",
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
-    "dotenv-cli": "^7.4.4",
     "eslint": "^9.12.0",
     "eslint-config-next": "^14.2.3",
     "jiti": "^1.21.6",
@@ -51,6 +49,5 @@
     "tree-kill": "^1.2.2",
     "typescript": "^5.6.3",
     "vitest": "^2.1.1"
-  },
-  "prettier": "@e-market/prettier-config"
+  }
 }
