@@ -8,3 +8,4 @@ export * from "./scroll-area";
 export * from "./textarea";
 export * from "./radio-group";
 export * from "./dropdown-menu";
+export * from "./alert-dialog";

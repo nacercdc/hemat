@@ -72,7 +72,7 @@ export function RadioGroup<T>({
         defaultValue={String(get(defaultValue, valueKey))}
         onValueChange={(value) => {
           const selectedValue = options.find(
-            (option) => String(get(option, valueKey)) === value
+            (option) => String(get(option, valueKey)) === value,
           )!;
           onValueChange(selectedValue);
         }}
@@ -84,7 +84,7 @@ export function RadioGroup<T>({
               className={cn(
                 "flex items-center justify-center",
                 variantClasses[variant],
-                sizesClasses[size]
+                sizesClasses[size],
               )}
               value={String(get(option, valueKey))}
               id={`radio-${index}`}
@@ -94,7 +94,7 @@ export function RadioGroup<T>({
                 `text-${variant}`,
                 variant === "default" && "text-basic",
                 variant === "secondary" && "text-info",
-                `text-${size}`
+                `text-${size}`,
               )}
               htmlFor={`radio-${index}`}
             >
