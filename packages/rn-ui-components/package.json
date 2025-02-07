@@ -21,6 +21,7 @@
     "@e-market/utilities": "workspace:*",
     "@rn-primitives/checkbox": "^1.1.0",
     "@rn-primitives/hooks": "^1.1.0",
+    "@rn-primitives/slot": "^1.1.0",
     "@roninoss/icons": "^0.0.4",
     "expo-navigation-bar": "^4.0.7",
     "lodash.get": "^4.4.2",
