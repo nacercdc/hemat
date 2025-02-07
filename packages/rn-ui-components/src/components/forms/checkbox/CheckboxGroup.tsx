@@ -1,44 +1,61 @@
 import type { ComponentPropsWithoutRef } from "react";
 import { View } from "react-native";
-import { Checkbox as NWCheckbox } from "../../../nativewindui/components/checkbox/Checkbox";
+import type { Checkbox as NWCheckbox } from "../../../nativewindui/components/checkbox/Checkbox";
 import { FormController } from "../helper/FormController";
-import { TouchableOpacity } from "react-native";
-import { omit } from "@e-market/utilities";
+import type { DeepKeyOf } from "@e-market/utilities";
 import { Text } from "../../presentations/text/Text";
+import { cn } from "../../../nativewindui/lib/cn.util";
+import { get } from "lodash";
+import type { CheckboxGroupOption } from "./types";
+import { CheckboxGroupItem } from "./CheckboxGroupItem";
 
-interface Option {
-  label: string;
-  value: string;
-}
+type CheckboxBaseProps = Omit<
+  ComponentPropsWithoutRef<typeof NWCheckbox>,
+  "onCheckedChange" | "className" | "style"
+>;
 
-interface Props
-  extends Omit<
-    ComponentPropsWithoutRef<typeof NWCheckbox>,
-    "onCheckedChange" | "className" | "style"
-  > {
+interface CheckboxGroupProps<T> extends CheckboxBaseProps {
   caption?: string;
   errorMessage?: string;
   label?: string;
-  options: Option[];
-  selectedValues: string[];
-  onChange: (values: string[]) => void;
+  options: CheckboxGroupOption<T>[];
+  displayText?: DeepKeyOf<T>;
+  selectedValues: T[];
+  onChange: (values: T[]) => void;
   layout?: "col" | "row";
 }
 
-export const CheckboxGroup = ({
+const getValueFromPath = <T,>(entity: T, path: DeepKeyOf<T>): string => {
+  return get(entity, path) as string;
+};
+
+export const CheckboxGroup = <T,>({
   caption,
   errorMessage,
   label,
   options,
+  displayText,
   selectedValues,
   onChange,
   layout = "col",
-  ...props
-}: Props) => {
-  const handleToggle = (value: string) => {
-    const newValues = selectedValues.includes(value)
-      ? selectedValues.filter((v) => v !== value)
+}: CheckboxGroupProps<T>) => {
+  const handleToggle = (value: T) => {
+    const isSelected = selectedValues.some((v) =>
+      typeof value === "object" && displayText
+        ? getValueFromPath(v, displayText) ===
+          getValueFromPath(value as T, displayText)
+        : v === value
+    );
+
+    const newValues = isSelected
+      ? selectedValues.filter((v) =>
+          typeof value === "object" && displayText
+            ? getValueFromPath(v, displayText) !==
+              getValueFromPath(value as T, displayText)
+            : v !== value
+        )
       : [...selectedValues, value];
+
     onChange(newValues);
   };
 
@@ -48,27 +65,20 @@ export const CheckboxGroup = ({
         <Text className="text-sm font-medium text-foreground">{label}</Text>
       )}
       <View
-        className={`flex ${layout === "col" ? "flex-col gap-3" : "flex-row flex-wrap gap-4"}`}
+        className={cn("flex", {
+          "flex-col gap-3": layout === "col",
+          "flex-row flex-wrap gap-4": layout === "row",
+        })}
       >
-        {options.map((option) => (
-          <TouchableOpacity
-            key={option.value}
-            onPress={() => handleToggle(option.value)}
-            activeOpacity={1}
-            className="flex flex-row items-center gap-2"
-          >
-            <NWCheckbox
-              checked={selectedValues.includes(option.value)}
-              onCheckedChange={() => handleToggle(option.value)}
-              {...omit(
-                props as ComponentPropsWithoutRef<typeof NWCheckbox>,
-                "onCheckedChange",
-                "className",
-                "style"
-              )}
-            />
-            <Text className="text-sm text-foreground">{option.label}</Text>
-          </TouchableOpacity>
+        {options.map((option, index) => (
+          <CheckboxGroupItem
+            key={index}
+            option={option}
+            index={index}
+            selectedValues={selectedValues}
+            displayText={displayText}
+            onToggle={handleToggle}
+          />
         ))}
       </View>
     </FormController>
