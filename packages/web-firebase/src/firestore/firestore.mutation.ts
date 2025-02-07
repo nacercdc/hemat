@@ -2,6 +2,7 @@ import type { Firestore } from "firebase/firestore";
 import { useAddDocumentMutation } from "./helper/hooks/useAddDocumentMutation";
 import { useSetDocumentMutation } from "./helper/hooks/useSetDocumentMutation";
 import { useUpdateDocumentMutation } from "./helper/hooks/useUpdateDocumentMutation";
+import { useDeleteDocumentMutation } from "./helper/hooks/useDeleteDocumentMutation";
 interface Language {
   id: string;
   name: string;
@@ -28,4 +29,8 @@ export const useFirestoreSetDocument = (firestore: Firestore) => {
 
 export const useFirestoreUpdateDocument = (firestore: Firestore) => {
   return useUpdateDocumentMutation<Language>(firestore, Collection.LANGUAGES);
+};
+
+export const useFirestoreDeleteDocument = (firestore: Firestore) => {
+  return useDeleteDocumentMutation(firestore, Collection.LANGUAGES);
 };
