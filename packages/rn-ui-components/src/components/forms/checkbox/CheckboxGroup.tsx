@@ -45,9 +45,7 @@ export const CheckboxGroup = ({
   return (
     <FormController errorMessage={errorMessage} caption={caption}>
       {label && (
-        <Text className="text-sm font-medium text-foreground mb-1">
-          {label}
-        </Text>
+        <Text className="text-sm font-medium text-foreground">{label}</Text>
       )}
       <View
         className={`flex ${layout === "col" ? "flex-col gap-3" : "flex-row flex-wrap gap-4"}`}
