@@ -61,6 +61,7 @@ export interface Props<T>
   onSelect: (value?: T) => void;
   defaultValue?: T;
   error?: string;
+  inModal?: boolean;
 }
 
 export function Select<T>({
@@ -78,22 +79,23 @@ export function Select<T>({
   size,
   variant,
   error,
+  inModal = false,
 }: Props<T>) {
   const [open, setOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState<T | undefined>(
-    defaultValue,
+    defaultValue
   );
   const [searchValue, setSearchValue] = useState("");
 
   const filteredOptions = options.filter((option) =>
     String(get(option, labelKey))
       .toLowerCase()
-      .includes(String(searchValue).toLowerCase()),
+      .includes(String(searchValue).toLowerCase())
   );
 
   const selectedOption = options.find(
     (option) =>
-      String(get(option, valueKey)) === String(get(selectedValue, valueKey)),
+      String(get(option, valueKey)) === String(get(selectedValue, valueKey))
   );
 
   return (
@@ -103,7 +105,7 @@ export function Select<T>({
       error={error}
       description={displayDescription}
     >
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={setOpen} modal={inModal}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -111,7 +113,7 @@ export function Select<T>({
             aria-expanded={open}
             className={cn(
               selectVariants({ variant, size }),
-              "w-[200px] justify-between",
+              "w-[200px] justify-between"
             )}
           >
             {selectedOption ? (
@@ -143,12 +145,12 @@ export function Select<T>({
                         setSelectedValue(
                           get(option, valueKey) === get(selectedValue, valueKey)
                             ? undefined
-                            : option,
+                            : option
                         );
                         onSelect(
                           get(option, valueKey) === get(selectedValue, valueKey)
                             ? undefined
-                            : option,
+                            : option
                         );
                         setOpen(false);
                         setSearchValue("");
