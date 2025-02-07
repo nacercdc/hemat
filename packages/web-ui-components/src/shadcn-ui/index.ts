@@ -7,3 +7,4 @@ export * from "./dialog";
 export * from "./scroll-area";
 export * from "./textarea";
 export * from "./radio-group";
+export * from "./dropdown-menu";
