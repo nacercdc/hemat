@@ -1298,6 +1298,7 @@ __metadata:
     "@e-market/utilities": "workspace:*"
     "@rn-primitives/checkbox": "npm:^1.1.0"
     "@rn-primitives/hooks": "npm:^1.1.0"
+    "@rn-primitives/slot": "npm:^1.1.0"
     "@roninoss/icons": "npm:^0.0.4"
     "@types/react": "npm:~18.3.12"
     eslint: "npm:^9.12.0"
@@ -5663,7 +5664,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rn-primitives/slot@npm:1.1.0":
+"@rn-primitives/slot@npm:^1.1.0":
   version: 1.1.0
   resolution: "@rn-primitives/slot@npm:1.1.0"
   peerDependencies:
