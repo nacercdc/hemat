@@ -3,5 +3,5 @@ import type { Checkbox } from "../../../nativewindui/components/checkbox/Checkbo
 
 export interface CheckboxGroupOption<Entity>
   extends Pick<ComponentPropsWithoutRef<typeof Checkbox>, "disabled"> {
-  entity: Entity | string | boolean;
+  entity: Entity;
 }

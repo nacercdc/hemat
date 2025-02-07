@@ -25,7 +25,8 @@ export const Checkbox = ({
   return (
     <FormController errorMessage={errorMessage} caption={caption}>
       <TouchableOpacity
-        onPress={() => !props.disabled && onCheckedChange?.(!checked)}
+        disabled={props.disabled}
+        onPress={() => onCheckedChange?.(!checked)}
         activeOpacity={1}
         className="flex flex-row items-center gap-2"
       >

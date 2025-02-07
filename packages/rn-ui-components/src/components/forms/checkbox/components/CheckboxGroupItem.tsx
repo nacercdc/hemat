@@ -1,11 +1,11 @@
 import type { ComponentPropsWithoutRef } from "react";
 import { TouchableOpacity } from "react-native";
-import { Checkbox as NWCheckbox } from "../../../nativewindui/components/checkbox/Checkbox";
+import { Checkbox as NWCheckbox } from "../../../../nativewindui/components/checkbox/Checkbox";
 import type { DeepKeyOf } from "@e-market/utilities";
-import { Text } from "../../presentations/text/Text";
-import { cn } from "../../../nativewindui/lib/cn.util";
+import { Text } from "../../../presentations/text/Text";
+import { cn } from "../../../../nativewindui/lib/cn.util";
 import { get } from "lodash";
-import type { CheckboxGroupOption } from "./types";
+import type { CheckboxGroupOption } from "../types";
 
 type CheckboxBaseProps = Omit<
   ComponentPropsWithoutRef<typeof NWCheckbox>,
@@ -24,11 +24,11 @@ const getValueFromPath = <T,>(entity: T, path: DeepKeyOf<T>): string => {
   return get(entity, path) as string;
 };
 
-const getDisplayText = <T,>(option: T, displayText?: DeepKeyOf<T>): string => {
-  if (typeof option === "object" && displayText) {
-    return getValueFromPath(option, displayText);
+const getDisplayText = <T,>(entity: T, displayText?: DeepKeyOf<T>): string => {
+  if (typeof entity === "object" && displayText) {
+    return getValueFromPath(entity, displayText);
   }
-  return String(option);
+  return String(entity);
 };
 
 export const CheckboxGroupItem = <T,>({
@@ -43,18 +43,19 @@ export const CheckboxGroupItem = <T,>({
   return (
     <TouchableOpacity
       key={index}
-      onPress={() => !rest.disabled && onToggle(entity as T)}
+      disabled={rest.disabled}
+      onPress={() => onToggle(entity)}
       activeOpacity={1}
       className="flex flex-row items-center gap-2"
     >
       <NWCheckbox
         checked={selectedValues.some((v) =>
-          typeof option === "object" && displayText
+          typeof entity === "object" && displayText
             ? getValueFromPath(v, displayText) ===
-              getValueFromPath(entity as T, displayText)
-            : v === option
+              getValueFromPath(entity, displayText)
+            : v === entity
         )}
-        onCheckedChange={() => onToggle(entity as T)}
+        onCheckedChange={() => onToggle(entity)}
         {...(rest as CheckboxBaseProps)}
       />
       <Text
@@ -62,7 +63,7 @@ export const CheckboxGroupItem = <T,>({
           "text-muted-foreground": rest.disabled,
         })}
       >
-        {getDisplayText(entity as T, displayText)}
+        {getDisplayText(entity, displayText)}
       </Text>
     </TouchableOpacity>
   );

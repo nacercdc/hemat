@@ -7,7 +7,7 @@ import { Text } from "../../presentations/text/Text";
 import { cn } from "../../../nativewindui/lib/cn.util";
 import { get } from "lodash";
 import type { CheckboxGroupOption } from "./types";
-import { CheckboxGroupItem } from "./CheckboxGroupItem";
+import { CheckboxGroupItem } from "./components/CheckboxGroupItem";
 
 type CheckboxBaseProps = Omit<
   ComponentPropsWithoutRef<typeof NWCheckbox>,
@@ -19,6 +19,7 @@ interface CheckboxGroupProps<T> extends CheckboxBaseProps {
   errorMessage?: string;
   label?: string;
   options: CheckboxGroupOption<T>[];
+  key?: DeepKeyOf<T>;
   displayText?: DeepKeyOf<T>;
   selectedValues: T[];
   onChange: (values: T[]) => void;
@@ -34,6 +35,7 @@ export const CheckboxGroup = <T,>({
   errorMessage,
   label,
   options,
+  key,
   displayText,
   selectedValues,
   onChange,
@@ -41,17 +43,15 @@ export const CheckboxGroup = <T,>({
 }: CheckboxGroupProps<T>) => {
   const handleToggle = (value: T) => {
     const isSelected = selectedValues.some((v) =>
-      typeof value === "object" && displayText
-        ? getValueFromPath(v, displayText) ===
-          getValueFromPath(value as T, displayText)
+      typeof value === "object" && key
+        ? getValueFromPath(v, key) === getValueFromPath(value, key)
         : v === value
     );
 
     const newValues = isSelected
       ? selectedValues.filter((v) =>
-          typeof value === "object" && displayText
-            ? getValueFromPath(v, displayText) !==
-              getValueFromPath(value as T, displayText)
+          typeof value === "object" && key
+            ? getValueFromPath(v, key) !== getValueFromPath(value, key)
             : v !== value
         )
       : [...selectedValues, value];
