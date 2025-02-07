@@ -6,7 +6,10 @@ import { TouchableOpacity } from "react-native";
 import { omit } from "@e-market/utilities";
 
 interface Props
-  extends Omit<ComponentPropsWithoutRef<typeof NWCheckbox>, "onCheckedChange"> {
+  extends Omit<
+    ComponentPropsWithoutRef<typeof NWCheckbox>,
+    "onCheckedChange" | "className" | "style"
+  > {
   caption?: string;
   errorMessage?: string;
   label?: string;
@@ -37,7 +40,9 @@ export const Checkbox = ({
           onCheckedChange={handlePress}
           {...omit(
             props as ComponentPropsWithoutRef<typeof NWCheckbox>,
-            "onCheckedChange"
+            "onCheckedChange",
+            "className",
+            "style"
           )}
         />
         {label && (
