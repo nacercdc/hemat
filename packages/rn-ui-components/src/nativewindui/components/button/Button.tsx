@@ -1,5 +1,4 @@
 import * as Slot from "@rn-primitives/slot";
-
 import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
 import * as React from "react";
@@ -7,8 +6,8 @@ import type { PressableProps, ViewStyle } from "react-native";
 import { Platform, Pressable, View } from "react-native";
 import { COLORS } from "../../theme/colors";
 import { useColorScheme } from "../../lib/useColorScheme";
-import { TextClassContext } from "../text/Text";
 import { cn } from "../../lib/cn.util";
+import { TextClassContext } from "../text/Text";
 
 const buttonVariants = cva("flex-row items-center justify-center gap-2", {
   variants: {
