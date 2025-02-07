@@ -1,27 +1,41 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 import { useMutation } from "@tanstack/react-query";
 import type { UseMutationOptions } from "@tanstack/react-query";
-import { setDoc } from "firebase/firestore";
+import { serverTimestamp, setDoc } from "firebase/firestore";
 import type {
-  DocumentReference,
   FirestoreError,
   WithFieldValue,
   DocumentData,
+  Firestore,
 } from "firebase/firestore";
+import { documentReference } from "../references";
 
-type FirestoreUseMutationOptions<TData = unknown, TError = Error> = Omit<
-  UseMutationOptions<TData, TError, void>,
-  "mutationFn"
->;
+type FirestoreUseMutationOptions<
+  TData = unknown,
+  TError = Error,
+  TVariables = void,
+> = Omit<UseMutationOptions<TData, TError, TVariables>, "mutationFn">;
 export function useSetDocumentMutation<
   AppModelType extends DocumentData = DocumentData,
   DbModelType extends DocumentData = DocumentData,
 >(
-  documentRef: DocumentReference<AppModelType, DbModelType>,
-  data: WithFieldValue<AppModelType>,
-  options?: FirestoreUseMutationOptions<void, FirestoreError>
+  firestore: Firestore,
+  collectionName: string,
+  options?: FirestoreUseMutationOptions<
+    void,
+    FirestoreError,
+    WithFieldValue<DbModelType>
+  >
 ) {
-  return useMutation<void, FirestoreError>({
+  return useMutation<void, FirestoreError, WithFieldValue<DbModelType>>({
     ...options,
-    mutationFn: () => setDoc(documentRef, data),
+    mutationFn: async (data) => {
+      const documentRef = documentReference(firestore, collectionName, data.id);
+      await setDoc(documentRef, {
+        ...data,
+        updatedAt: serverTimestamp(),
+      } as WithFieldValue<AppModelType>);
+    },
   });
 }

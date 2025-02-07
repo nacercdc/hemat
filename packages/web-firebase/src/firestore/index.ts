@@ -1,1 +1,1 @@
-export { useFirestoreAddDocument } from "./firestore.mutation";
+export * from "./firestore.mutation";
