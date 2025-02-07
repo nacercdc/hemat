@@ -1,6 +1,7 @@
 import type { Firestore } from "firebase/firestore";
 import { useAddDocumentMutation } from "./helper/hooks/useAddDocumentMutation";
 import { useSetDocumentMutation } from "./helper/hooks/useSetDocumentMutation";
+import { useUpdateDocumentMutation } from "./helper/hooks/useUpdateDocumentMutation";
 interface Language {
   id: string;
   name: string;
@@ -23,4 +24,8 @@ export const useFirestoreAddDocument = (firestore: Firestore) => {
 
 export const useFirestoreSetDocument = (firestore: Firestore) => {
   return useSetDocumentMutation<Language>(firestore, Collection.LANGUAGES);
+};
+
+export const useFirestoreUpdateDocument = (firestore: Firestore) => {
+  return useUpdateDocumentMutation<Language>(firestore, Collection.LANGUAGES);
 };
