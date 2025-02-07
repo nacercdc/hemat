@@ -8,11 +8,17 @@ import type {
 import { collection, doc, query } from "firebase/firestore";
 import { converter } from "./converter";
 
-export const collectionReference = <T = DocumentData>(
+export const collectionReference = <
+  AppModelType = DocumentData,
+  DbModelType extends DocumentData = DocumentData,
+>(
   firestore: Firestore,
   collectionName: string
 ) => {
-  return collection(firestore, collectionName) as CollectionReference<T>;
+  return collection(firestore, collectionName) as CollectionReference<
+    AppModelType,
+    DbModelType
+  >;
 };
 
 export const documentReference = <T = DocumentData>(

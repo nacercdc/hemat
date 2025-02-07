@@ -1,1 +1,1 @@
-export const name = 'web-firebase';
+export * from "./firestore";

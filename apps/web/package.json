@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@e-market/web-firebase": "workspace:*",
     "@e-market/web-ui-components": "workspace:*",
     "@hookform/resolvers": "^3.10.0",
     "@t3-oss/env-nextjs": "^0.11.1",
