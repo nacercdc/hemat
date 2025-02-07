@@ -45,9 +45,7 @@ export const Checkbox = ({
             "style"
           )}
         />
-        {label && (
-          <Text className="text-sm text-primary-foreground">{label}</Text>
-        )}
+        {label && <Text className="text-sm text-foreground">{label}</Text>}
       </TouchableOpacity>
     </FormController>
   );
