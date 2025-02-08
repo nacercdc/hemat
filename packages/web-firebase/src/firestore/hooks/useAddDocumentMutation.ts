@@ -9,8 +9,8 @@ import type {
   DocumentData,
   Firestore,
 } from "firebase/firestore";
-import { getDocId } from "../../doc-id";
-import { collectionReference } from "../references";
+import { collectionReference } from "../helper/references";
+import { getDocId } from "../helper/doc-id";
 
 type FirestoreUseMutationOptions<
   TData = unknown,

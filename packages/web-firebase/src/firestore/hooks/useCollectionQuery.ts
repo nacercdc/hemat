@@ -1,4 +1,3 @@
-import type { UseQueryOptions } from "@tanstack/react-query";
 import type {
   DocumentData,
   FirestoreError,
@@ -16,47 +15,49 @@ import {
   getDocsFromServer,
   onSnapshot,
 } from "firebase/firestore";
-
-type FirestoreUseQueryOptions<TData = unknown, TError = Error> = Omit<
-  UseQueryOptions<TData, TError>,
-  "queryFn"
-> & {
-  firestore?: {
-    source?: SnapshotListenOptions["source"] | "server";
-    subscribe?: boolean;
-  };
-};
+import { QueryConstraint } from "../helper/query-builder/query";
+import { queryReference } from "../helper/references";
+import type { QueryFirestoreOption } from "./types/query.type";
 
 export function useCollectionQuery<
   FromFirestore extends DocumentData = DocumentData,
   ToFirestore extends DocumentData = DocumentData,
->(
-  query: Query<FromFirestore, ToFirestore>,
-  options: FirestoreUseQueryOptions<FromFirestore[], FirestoreError>
-) {
+>(options: QueryFirestoreOption<FromFirestore>) {
   const queryClient = useQueryClient();
-  const { firestore, ...queryOptions } = options;
+  const constraints = new QueryConstraint<FromFirestore>([])
+    .filter(options?.queryOptions?.filters)
+    .orderBy(options?.queryOptions?.orderBy)
+    .limit(options?.queryOptions?.limit)
+    .getQueryConstraint();
+  const queryRef = queryReference<FromFirestore>(
+    options.firestore,
+    options.collectionName,
+    constraints
+  );
 
   return useQuery<FromFirestore[], FirestoreError>({
-    ...queryOptions,
+    ...options.tqQueryOptions,
     queryFn: async (context) => {
-      if (firestore?.source === "server") {
+      if (options.firestoreOptions?.source === "server") {
         return serializeQuerySnapshot<FromFirestore>(
-          await getDocsFromServer(query)
+          await getDocsFromServer(queryRef)
         );
       }
 
-      if (firestore?.source === "cache" && !firestore.subscribe) {
+      if (
+        options.firestoreOptions?.source === "cache" &&
+        !options.firestoreOptions.subscribe
+      ) {
         return serializeQuerySnapshot<FromFirestore>(
-          await getDocsFromCache(query)
+          await getDocsFromCache(queryRef)
         );
       }
 
-      if (firestore?.subscribe) {
+      if (options.firestoreOptions?.subscribe) {
         return new Promise((resolve, reject) => {
           const snapshotListenOptions: SnapshotListenOptions | undefined =
-            firestore.source
-              ? { source: firestore.source as ListenSource }
+            options?.firestoreOptions?.source
+              ? { source: options.firestoreOptions.source as ListenSource }
               : { source: "default" };
 
           const onNext = (
@@ -73,7 +74,7 @@ export function useCollectionQuery<
           const onError = (error: FirestoreError) => reject(error);
 
           const unsubscribe = onSnapshot(
-            query,
+            queryRef as Query<FromFirestore, ToFirestore>,
             snapshotListenOptions,
             onNext,
             onError
@@ -83,7 +84,7 @@ export function useCollectionQuery<
         });
       }
 
-      return serializeQuerySnapshot<FromFirestore>(await getDocs(query));
+      return serializeQuerySnapshot<FromFirestore>(await getDocs(queryRef));
     },
   });
 }

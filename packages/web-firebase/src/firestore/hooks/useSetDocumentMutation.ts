@@ -9,7 +9,7 @@ import type {
   DocumentData,
   Firestore,
 } from "firebase/firestore";
-import { documentReference } from "../references";
+import { documentReference } from "../helper/references";
 
 type FirestoreUseMutationOptions<
   TData = unknown,

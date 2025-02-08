@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import type { UseMutationOptions } from "@tanstack/react-query";
 import { deleteDoc } from "firebase/firestore";
 import type { FirestoreError, Firestore } from "firebase/firestore";
-import { documentReference } from "../references";
+import { documentReference } from "../helper/references";
 
 type FirestoreUseMutationOptions<
   TData = unknown,
