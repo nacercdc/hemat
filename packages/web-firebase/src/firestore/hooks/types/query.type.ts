@@ -5,11 +5,15 @@ import type {
   SnapshotListenOptions,
 } from "firebase/firestore";
 import type { IQueryOption } from "../../helper/query-builder/types/query.type";
-
-interface FirestoreOption {
-  source?: SnapshotListenOptions["source"] | "server";
+interface FirestoreOptionServer {
+  source: "server";
+}
+interface FirestoreListenOption {
+  source: SnapshotListenOptions["source"];
   subscribe?: boolean;
 }
+type FirestoreOption = FirestoreOptionServer | FirestoreListenOption;
+
 type UseQueryOption<TData = unknown, TError = Error> = Omit<
   UseQueryOptions<TData, TError>,
   "queryFn"
