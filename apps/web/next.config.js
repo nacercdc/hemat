@@ -12,7 +12,7 @@ const config = {
   transpilePackages: [
     "@e-market/web-ui-components",
     "@e-market/utilities",
-    "@e-market/web-firebase",
+    "@e-market/web-tanstack-firebase-query",
     "@e-market/api-interfaces",
     "@e-market/tanstack-api-query",
   ],

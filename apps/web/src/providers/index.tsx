@@ -1,6 +1,6 @@
 "use client";
 
-import { FirestoreProvider } from "@e-market/web-firebase";
+import { FirestoreProvider } from "@e-market/web-tanstack-firebase-query";
 import { firestore } from "~/configs/firebase.config";
 import TanstackQueryProvider from "./tanstack-query/TanstackQueryProvider";
 
