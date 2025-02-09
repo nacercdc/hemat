@@ -1,48 +1,82 @@
-import type { UseQueryOptions } from "@tanstack/react-query";
 import type {
   DocumentData,
   DocumentReference,
   DocumentSnapshot,
   FirestoreError,
+  ListenSource,
+  SnapshotListenOptions,
 } from "firebase/firestore";
 import { useQuery } from "@tanstack/react-query";
-import { getDoc, getDocFromCache, getDocFromServer } from "firebase/firestore";
-
-type FirestoreUseQueryOptions<TData = unknown, TError = Error> = Omit<
-  UseQueryOptions<TData, TError>,
-  "queryFn"
-> & {
-  firestore?: {
-    source?: "server" | "cache";
-  };
-};
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  getDoc,
+  getDocFromCache,
+  getDocFromServer,
+  onSnapshot,
+} from "firebase/firestore";
+import { useFirestore } from "../providers/firestore/useFirestore";
+import type { DocumentFirestoreOption } from "./types/query.type";
+import { documentReference } from "../helper/references";
 
 export function useDocumentQuery<
   FromFirestore extends DocumentData = DocumentData,
   ToFirestore extends DocumentData = DocumentData,
->(
-  documentRef: DocumentReference<FromFirestore, ToFirestore>,
-  options: FirestoreUseQueryOptions<
-    DocumentSnapshot<FromFirestore, ToFirestore>,
-    FirestoreError
-  >,
-) {
-  const { firestore, ...queryOptions } = options;
+>(options: DocumentFirestoreOption<FromFirestore>) {
+  const { firestore } = useFirestore();
+  const queryClient = useQueryClient();
 
-  return useQuery<DocumentSnapshot<FromFirestore, ToFirestore>, FirestoreError>(
-    {
-      ...queryOptions,
-      queryFn: async () => {
-        if (firestore?.source === "server") {
-          return await getDocFromServer(documentRef);
-        }
+  const docRef = documentReference<FromFirestore>(
+    firestore,
+    options.collectionName,
+    options.id
+  ) as DocumentReference<FromFirestore, ToFirestore>;
 
-        if (firestore?.source === "cache") {
-          return await getDocFromCache(documentRef);
-        }
+  return useQuery<FromFirestore | null, FirestoreError>({
+    ...options.tqQueryOptions,
+    queryKey: [options.collectionName, options.id],
+    queryFn: async (context) => {
+      if (options.firestoreOptions?.source === "server") {
+        return serializeDocumentSnapshot(await getDocFromServer(docRef));
+      }
 
-        return await getDoc(documentRef);
-      },
+      if (
+        options.firestoreOptions?.source === "cache" &&
+        !options.firestoreOptions.subscribe
+      ) {
+        return serializeDocumentSnapshot(await getDocFromCache(docRef));
+      }
+
+      if (options.firestoreOptions?.subscribe) {
+        return new Promise((resolve, reject) => {
+          const snapshotListenOptions: SnapshotListenOptions | undefined =
+            options?.firestoreOptions?.source
+              ? { source: options.firestoreOptions.source as ListenSource }
+              : { source: "default" };
+
+          const unsubscribe = onSnapshot(
+            docRef,
+            snapshotListenOptions,
+            (snapshot: DocumentSnapshot<FromFirestore, ToFirestore>) => {
+              const data = serializeDocumentSnapshot<FromFirestore>(snapshot);
+              if (!context.signal.aborted) {
+                resolve(data);
+              }
+              queryClient.setQueryData(context.queryKey, data);
+            },
+            (error) => reject(error)
+          );
+
+          context.signal.addEventListener("abort", unsubscribe);
+        });
+      }
+
+      return serializeDocumentSnapshot(await getDoc(docRef));
     },
-  );
+  });
+}
+
+function serializeDocumentSnapshot<T extends DocumentData>(
+  snapshot: DocumentSnapshot<T>
+): T | null {
+  return snapshot.exists() ? snapshot.data() : null;
 }

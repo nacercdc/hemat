@@ -1,5 +1,8 @@
 "use client";
-import { useCollectionQuery } from "@e-market/web-tanstack-firebase-query";
+import {
+  useCollectionQuery,
+  useDocumentQuery,
+} from "@e-market/web-tanstack-firebase-query";
 interface Language {
   id: string;
   name: string;
@@ -15,5 +18,13 @@ export const useGetLanguages = () => {
     queryOptions: { filters: { code: { eq: "en" } } },
     tqQueryOptions: { queryKey: ["useGetLanguages"] },
     firestoreOptions: { source: "server" },
+  });
+};
+
+export const useGetLanguageById = (id: string) => {
+  return useDocumentQuery<Language>({
+    collectionName: Collection.LANGUAGES,
+    id,
+    firestoreOptions: { subscribe: true, source: "default" },
   });
 };

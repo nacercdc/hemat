@@ -21,3 +21,13 @@ export interface QueryFirestoreOption<FromFirestore> {
   queryOptions?: IQueryOption<FromFirestore>;
   firestoreOptions?: FirestoreOption;
 }
+
+export interface DocumentFirestoreOption<FromFirestore> {
+  collectionName: string;
+  id: string;
+  tqQueryOptions?: Omit<
+    UseQueryOption<FromFirestore | null, FirestoreError>,
+    "queryKey"
+  >;
+  firestoreOptions?: FirestoreOption;
+}
