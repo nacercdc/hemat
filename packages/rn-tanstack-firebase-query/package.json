@@ -1,5 +1,5 @@
 {
-  "name": "@e-market/rn-firebase",
+  "name": "@e-market/rn-tanstack-firebase-query",
   "private": true,
   "version": "0.1.0",
   "type": "module",
