@@ -2,14 +2,9 @@
 
 import { Suspense } from "react";
 
-import { useGetLanguages } from "~/hooks/firestore/example.hooks";
-
 export const runtime = "edge";
 
 export default function HomePage() {
-  const { data: languages, ...languagesState } = useGetLanguages();
-  console.log(languages, languagesState);
-
   return (
     <main className=" h-screen py-16 w-full">
       <div className="flex flex-col items-center justify-center gap-4">

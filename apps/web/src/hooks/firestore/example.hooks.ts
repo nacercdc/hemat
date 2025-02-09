@@ -1,5 +1,5 @@
+"use client";
 import { useCollectionQuery } from "@e-market/web-firebase";
-import { firestore } from "~/config/firebase.config";
 interface Language {
   id: string;
   name: string;
@@ -12,7 +12,6 @@ enum Collection {
 export const useGetLanguages = () => {
   return useCollectionQuery<Language>({
     collectionName: Collection.LANGUAGES,
-    firestore,
     queryOptions: {
       filters: {
         code: {
@@ -25,7 +24,6 @@ export const useGetLanguages = () => {
     },
     firestoreOptions: {
       source: "server",
-      subscribe: false,
     },
   });
 };

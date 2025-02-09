@@ -7,10 +7,10 @@ import type {
   FirestoreError,
   WithFieldValue,
   DocumentData,
-  Firestore,
 } from "firebase/firestore";
 import { collectionReference } from "../helper/references";
 import { getDocId } from "../helper/doc-id";
+import { useFirestore } from "../providers/firestore/useFirestore";
 
 type FirestoreUseMutationOptions<
   TData = unknown,
@@ -21,7 +21,6 @@ export function useAddDocumentMutation<
   AppModelType extends DocumentData = DocumentData,
   DbModelType extends DocumentData = DocumentData,
 >(
-  firestore: Firestore,
   collectionName: string,
   options?: FirestoreUseMutationOptions<
     DocumentReference<AppModelType, DbModelType>,
@@ -29,6 +28,8 @@ export function useAddDocumentMutation<
     WithFieldValue<DbModelType>
   >
 ) {
+  const { firestore } = useFirestore();
+
   const collectionRef = collectionReference<AppModelType, DbModelType>(
     firestore,
     collectionName

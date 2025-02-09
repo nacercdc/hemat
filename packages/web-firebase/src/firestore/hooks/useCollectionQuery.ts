@@ -18,11 +18,13 @@ import {
 import { QueryConstraint } from "../helper/query-builder/query";
 import { queryReference } from "../helper/references";
 import type { QueryFirestoreOption } from "./types/query.type";
+import { useFirestore } from "../providers/firestore/useFirestore";
 
 export function useCollectionQuery<
   FromFirestore extends DocumentData = DocumentData,
   ToFirestore extends DocumentData = DocumentData,
 >(options: QueryFirestoreOption<FromFirestore>) {
+  const { firestore } = useFirestore();
   const queryClient = useQueryClient();
   const constraints = new QueryConstraint<FromFirestore>([])
     .filter(options?.queryOptions?.filters)
@@ -30,7 +32,7 @@ export function useCollectionQuery<
     .limit(options?.queryOptions?.limit)
     .getQueryConstraint();
   const queryRef = queryReference<FromFirestore>(
-    options.firestore,
+    firestore,
     options.collectionName,
     constraints
   );
