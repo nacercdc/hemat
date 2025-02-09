@@ -1,5 +1,5 @@
 {
-  "name": "@e-market/tanstack-query-api",
+  "name": "@e-market/tanstack-api-query",
   "private": true,
   "version": "0.1.0",
   "type": "module",

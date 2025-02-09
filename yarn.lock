@@ -1321,9 +1321,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@e-market/tanstack-query-api@workspace:*, @e-market/tanstack-query-api@workspace:packages/tanstack-query-api":
+"@e-market/tanstack-api-query@workspace:*, @e-market/tanstack-api-query@workspace:packages/tanstack-api-query":
   version: 0.0.0-use.local
-  resolution: "@e-market/tanstack-query-api@workspace:packages/tanstack-query-api"
+  resolution: "@e-market/tanstack-api-query@workspace:packages/tanstack-api-query"
   dependencies:
     "@e-market/eslint-config": "workspace:*"
     "@e-market/prettier-config": "workspace:*"
@@ -6902,7 +6902,7 @@ __metadata:
     "@e-market/rn-firebase": "workspace:*"
     "@e-market/rn-ui-components": "workspace:*"
     "@e-market/tailwind-config": "workspace:*"
-    "@e-market/tanstack-query-api": "workspace:*"
+    "@e-market/tanstack-api-query": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
     "@e-market/utilities": "workspace:^"
     "@expo-google-fonts/poppins": "npm:^0.2.3"

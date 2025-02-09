@@ -14,7 +14,7 @@ const config = {
     "@e-market/utilities",
     "@e-market/web-firebase",
     "@e-market/api-interfaces",
-    "@e-market/tanstack-query-api",
+    "@e-market/tanstack-api-query",
   ],
 
   /** We already do linting and typechecking as separate tasks in CI */
