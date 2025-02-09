@@ -17,7 +17,7 @@ export const useGetLanguages = () => {
     collectionName: Collection.LANGUAGES,
     queryOptions: { filters: { code: { eq: "en" } } },
     tqQueryOptions: { queryKey: ["useGetLanguages"] },
-    firestoreOptions: { source: "server" },
+    firestoreOptions: { subscribe: true },
   });
 };
 

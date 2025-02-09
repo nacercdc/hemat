@@ -5,7 +5,7 @@ interface FirestoreOptionServer {
   source: "server";
 }
 interface FirestoreListenOption {
-  source: SnapshotListenOptions["source"];
+  source?: SnapshotListenOptions["source"];
   subscribe?: boolean;
 }
 type FirestoreOption = FirestoreOptionServer | FirestoreListenOption;
