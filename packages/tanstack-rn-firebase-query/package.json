@@ -1,5 +1,5 @@
 {
-  "name": "@e-market/web-tanstack-firebase-query",
+  "name": "@e-market/tanstack-rn-firebase-query",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -16,14 +16,16 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
-  "peerDependencies": {
-    "@tanstack/react-query": "^5.59.15",
-    "firebase": "^11.1.0"
+  "dependencies": {
+    "@react-native-firebase/firestore": "^21.6.2",
+    "@tanstack/react-query": "^5.66.0",
+    "react": "18.3.1"
   },
   "devDependencies": {
     "@e-market/eslint-config": "workspace:*",
     "@e-market/prettier-config": "workspace:*",
     "@e-market/tsconfig": "workspace:*",
+    "@types/react": "~18.3.12",
     "eslint": "^9.12.0",
     "prettier": "^3.3.3",
     "typescript": "^5.6.3"
