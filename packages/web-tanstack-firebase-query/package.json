@@ -1,5 +1,5 @@
 {
-  "name": "@e-market/web-firebase",
+  "name": "@e-market/web-tanstack-firebase-query",
   "private": true,
   "version": "0.1.0",
   "type": "module",
