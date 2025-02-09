@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 
 import type { OrderByDirection } from "@react-native-firebase/firestore";
 import { QUERY_OPERATORS } from "../types/query.type";
