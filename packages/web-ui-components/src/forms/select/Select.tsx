@@ -47,56 +47,60 @@ const selectVariants = cva("w-full", {
 export interface Props<T>
   extends Omit<
       React.SelectHTMLAttributes<HTMLSelectElement>,
-      "size" | "className" | "style" | "defaultValue" | "onSelect"
+      "size" | "className" | "style" | "defaultValue" | "onSelect" | "value"
     >,
     VariantProps<typeof selectVariants> {
   options: T[];
+  value?: T;
   displayLabel?: string;
-  displayDescription?: string;
   valueKey: DeepKeyOf<T>;
   labelKey: DeepKeyOf<T>;
+  displayDescription?: string;
   placeholder?: string;
   searchPlaceholder?: string;
   emptyText?: string;
-  onSelect: (value?: T) => void;
-  defaultValue?: T;
   error?: string;
   inModal?: boolean;
+  onSelect: (value?: T) => void;
 }
 
 export function Select<T>({
   name,
+  options,
+  value,
   displayLabel,
   displayDescription,
-  options,
   valueKey,
   labelKey,
   placeholder = "Select an option",
   searchPlaceholder = "Search...",
   emptyText = "No results found.",
   onSelect,
-  defaultValue,
   size,
   variant,
   error,
   inModal = false,
 }: Props<T>) {
   const [open, setOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState<T | undefined>(
-    defaultValue,
-  );
   const [searchValue, setSearchValue] = useState("");
 
   const filteredOptions = options.filter((option) =>
     String(get(option, labelKey))
       .toLowerCase()
-      .includes(String(searchValue).toLowerCase()),
+      .includes(String(searchValue).toLowerCase())
   );
 
   const selectedOption = options.find(
-    (option) =>
-      String(get(option, valueKey)) === String(get(selectedValue, valueKey)),
+    (option) => String(get(option, valueKey)) === String(get(value, valueKey))
   );
+
+  const onSelectHandler = (option: T) => {
+    const newValue =
+      get(option, valueKey) === get(value, valueKey) ? undefined : option;
+    onSelect(newValue);
+    setOpen(false);
+    setSearchValue("");
+  };
 
   return (
     <FormControl
@@ -113,7 +117,7 @@ export function Select<T>({
             aria-expanded={open}
             className={cn(
               selectVariants({ variant, size }),
-              "w-[200px] justify-between",
+              "w-[200px] justify-between"
             )}
           >
             {selectedOption ? (
@@ -141,25 +145,12 @@ export function Select<T>({
                     <CommandItem
                       key={index}
                       value={String(get(option, labelKey))}
-                      onSelect={() => {
-                        setSelectedValue(
-                          get(option, valueKey) === get(selectedValue, valueKey)
-                            ? undefined
-                            : option,
-                        );
-                        onSelect(
-                          get(option, valueKey) === get(selectedValue, valueKey)
-                            ? undefined
-                            : option,
-                        );
-                        setOpen(false);
-                        setSearchValue("");
-                      }}
+                      onSelect={() => onSelectHandler(option)}
                     >
                       <Icon
                         icon="lucide:check"
                         className={`mr-2 h-4 w-4 text-basic ${
-                          String(get(selectedValue, valueKey)) ===
+                          String(get(value, valueKey)) ===
                           String(get(option, valueKey))
                             ? "opacity-100"
                             : "opacity-0"
