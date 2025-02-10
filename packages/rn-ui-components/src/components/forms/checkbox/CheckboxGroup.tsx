@@ -9,12 +9,14 @@ import { cn } from "../../../nativewindui/lib/cn.util";
 import type { CheckboxGroupOption } from "./types";
 import { CheckboxGroupItem } from "./components/CheckboxGroupItem";
 
+type CheckboxGroupLayout = "row" | "col";
+
 type CheckboxBaseProps = Omit<
   ComponentPropsWithoutRef<typeof NWCheckbox>,
   "onCheckedChange" | "className" | "style"
 >;
 
-interface CheckboxGroupProps<T> extends CheckboxBaseProps {
+interface Props<T> extends CheckboxBaseProps {
   caption?: string;
   errorMessage?: string;
   label?: string;
@@ -23,7 +25,7 @@ interface CheckboxGroupProps<T> extends CheckboxBaseProps {
   displayText?: DeepKeyOf<T>;
   selectedValues: T[];
   onChange: (values: T[]) => void;
-  layout?: "col" | "row";
+  layout?: CheckboxGroupLayout;
 }
 
 export const CheckboxGroup = <T,>({
@@ -36,7 +38,7 @@ export const CheckboxGroup = <T,>({
   selectedValues,
   onChange,
   layout = "col",
-}: CheckboxGroupProps<T>) => {
+}: Props<T>) => {
   const handleToggle = (value: T) => {
     const isSelected = selectedValues.some((v) =>
       typeof value === "object" && key

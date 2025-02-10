@@ -1,10 +1,10 @@
 import type { ComponentPropsWithoutRef } from "react";
 import { TouchableOpacity } from "react-native";
 import { Checkbox as NWCheckbox } from "../../../../nativewindui/components/checkbox/Checkbox";
+import { getValueFromPath } from "@e-market/utilities";
 import type { DeepKeyOf } from "@e-market/utilities";
 import { Text } from "../../../presentations/text/Text";
 import { cn } from "../../../../nativewindui/lib/cn.util";
-import { get } from "lodash";
 import type { CheckboxGroupOption } from "../types";
 
 type CheckboxBaseProps = Omit<
@@ -12,17 +12,13 @@ type CheckboxBaseProps = Omit<
   "onCheckedChange" | "className" | "style"
 >;
 
-interface CheckboxItemProps<T> {
+interface Props<T> {
   option: CheckboxGroupOption<T>;
   index: number;
   selectedValues: T[];
   displayText?: DeepKeyOf<T>;
   onToggle: (value: T) => void;
 }
-
-const getValueFromPath = <T,>(entity: T, path: DeepKeyOf<T>): string => {
-  return get(entity, path) as string;
-};
 
 const getDisplayText = <T,>(entity: T, displayText?: DeepKeyOf<T>): string => {
   if (typeof entity === "object" && displayText) {
@@ -37,7 +33,7 @@ export const CheckboxGroupItem = <T,>({
   selectedValues,
   displayText,
   onToggle,
-}: CheckboxItemProps<T>) => {
+}: Props<T>) => {
   const { entity, ...rest } = option;
 
   return (
