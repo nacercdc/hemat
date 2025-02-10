@@ -6,7 +6,7 @@ import type { Props as SelectProps } from "./Select";
 import { Select } from "./Select";
 
 interface Props<K, T extends FieldValues>
-  extends Omit<SelectProps<K>, "defaultValue"> {
+  extends Omit<SelectProps<K>, "defaultValue" | "onSelect" | "value"> {
   name: Path<T>;
   control: Control<T>;
 }
@@ -27,7 +27,7 @@ export function SelectRHF<K, T extends FieldValues>({
           id={name}
           error={error?.message}
           onSelect={field.onChange}
-          defaultValue={field.value}
+          value={field.value}
         />
       )}
     />
