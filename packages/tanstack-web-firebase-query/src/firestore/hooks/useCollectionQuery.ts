@@ -3,7 +3,6 @@ import type {
   FirestoreError,
   ListenSource,
   Query,
-  QueryDocumentSnapshot,
   QuerySnapshot,
   SnapshotListenOptions,
 } from "firebase/firestore";
@@ -15,10 +14,11 @@ import {
   getDocsFromServer,
   onSnapshot,
 } from "firebase/firestore";
-import { QueryConstraint } from "../helper/query-builder/query";
-import { queryReference } from "../helper/references";
+import { QueryConstraint } from "../helpers/query-builder/query";
+import { queryReference } from "../helpers/references";
 import type { QueryFirestoreOption } from "./types/query.type";
 import { useFirestore } from "../providers/firestore/useFirestore";
+import { serializeQuerySnapshot } from "../helpers/serialize-snapshot";
 
 export function useCollectionQuery<
   FromFirestore extends DocumentData = DocumentData,
@@ -89,26 +89,4 @@ export function useCollectionQuery<
       return serializeQuerySnapshot<FromFirestore>(await getDocs(queryRef));
     },
   });
-}
-
-function serializeQuerySnapshot<T extends DocumentData>(
-  querySnapshot: QuerySnapshot<T>
-) {
-  const results: T[] = [];
-  querySnapshot.docs.forEach((doc) => {
-    const data = serializeDocumentSnapshot<T>(doc);
-    if (data) {
-      results.push(data);
-    }
-  });
-  return results;
-}
-
-function serializeDocumentSnapshot<T extends DocumentData>(
-  document: QueryDocumentSnapshot<T>
-) {
-  const data = document.data();
-
-  if (!data) return;
-  return data;
 }

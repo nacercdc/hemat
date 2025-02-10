@@ -8,8 +8,8 @@ import type {
   WithFieldValue,
   DocumentData,
 } from "firebase/firestore";
-import { collectionReference } from "../helper/references";
-import { getDocId } from "../helper/doc-id";
+import { collectionReference } from "../helpers/references";
+import { getDocId } from "../helpers/doc-id";
 import { useFirestore } from "../providers/firestore/useFirestore";
 
 type FirestoreUseMutationOptions<

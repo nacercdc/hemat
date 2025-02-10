@@ -16,7 +16,7 @@ import {
 } from "firebase/firestore";
 import { useFirestore } from "../providers/firestore/useFirestore";
 import type { DocumentFirestoreOption } from "./types/query.type";
-import { documentReference } from "../helper/references";
+import { documentReference } from "../helpers/references";
 
 export function useDocumentQuery<
   FromFirestore extends DocumentData = DocumentData,
