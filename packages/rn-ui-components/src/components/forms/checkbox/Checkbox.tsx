@@ -4,43 +4,50 @@ import { FormController } from "../helper/FormController";
 import { Text } from "../../../nativewindui/components/text/Text";
 import { TouchableOpacity } from "react-native";
 import { omit } from "@e-market/utilities";
-
+import { cn } from "../../../nativewindui/lib/cn.util";
 interface Props
-  extends Omit<ComponentPropsWithoutRef<typeof NWCheckbox>, "onCheckedChange"> {
+  extends Omit<
+    ComponentPropsWithoutRef<typeof NWCheckbox>,
+    "className" | "style"
+  > {
   caption?: string;
   errorMessage?: string;
   label?: string;
-  onChange?: (checked: boolean) => void;
 }
-
 export const Checkbox = ({
   caption,
   errorMessage,
   label,
-  checked = false,
-  onChange,
+  checked,
+  onCheckedChange,
   ...props
 }: Props) => {
-  const handlePress = () => {
-    onChange?.(!checked);
-  };
-
   return (
     <FormController errorMessage={errorMessage} caption={caption}>
       <TouchableOpacity
-        onPress={handlePress}
+        disabled={props.disabled}
+        onPress={() => onCheckedChange?.(!checked)}
         activeOpacity={1}
         className="flex flex-row items-center gap-2"
       >
         <NWCheckbox
           checked={checked}
-          onCheckedChange={handlePress}
+          onCheckedChange={() => onCheckedChange?.(!checked)}
           {...omit(
             props as ComponentPropsWithoutRef<typeof NWCheckbox>,
-            "onCheckedChange"
+            "className",
+            "style"
           )}
         />
-        {label && <Text className="text-sm text-foreground">{label}</Text>}
+        {label && (
+          <Text
+            className={cn("text-sm text-foreground", {
+              "text-muted-foreground": props.disabled,
+            })}
+          >
+            {label}
+          </Text>
+        )}
       </TouchableOpacity>
     </FormController>
   );
