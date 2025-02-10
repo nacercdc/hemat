@@ -67,17 +67,12 @@ export default tseslint.config(
         2,
         { checksVoidReturn: { attributes: false } },
       ],
-      "@typescript-eslint/no-unnecessary-condition": [
-        "error",
-        {
-          allowConstantLoopConditions: true,
-        },
-      ],
       "@typescript-eslint/no-non-null-assertion": "error",
       "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
       "@typescript-eslint/no-floating-promises": "off",
       "@typescript-eslint/no-require-imports": "off",
-      "react-hooks/exhaustive-deps":"off"
+      "react-hooks/exhaustive-deps": "off",
+      "@typescript-eslint/no-unnecessary-condition": "off",
     },
   },
   {

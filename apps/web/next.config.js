@@ -12,9 +12,9 @@ const config = {
   transpilePackages: [
     "@e-market/web-ui-components",
     "@e-market/utilities",
-    "@e-market/web-firebase",
+    "@e-market/tanstack-web-firebase-query",
     "@e-market/api-interfaces",
-    "@e-market/tanstack-query-api",
+    "@e-market/tanstack-api-query",
   ],
 
   /** We already do linting and typechecking as separate tasks in CI */

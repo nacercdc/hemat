@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 
 import "~/app/styles.css";
-import TanstackQueryProvider from "~/providers/tanstack-query/TanstackQueryProvider";
+import { Providers } from "~/providers";
 import { cn } from "~/utils/cn.util";
 
 const poppins = Poppins({
@@ -30,7 +30,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         className={cn("min-h-screen antialiased", poppins.className)}
         suppressHydrationWarning
       >
-        <TanstackQueryProvider>{props.children}</TanstackQueryProvider>
+        <Providers>{props.children}</Providers>
       </body>
     </html>
   );

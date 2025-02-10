@@ -35,9 +35,9 @@
   },
   "dependencies": {
     "@e-market/nativewindui-theme-config": "workspace:*",
-    "@e-market/rn-firebase": "workspace:*",
     "@e-market/rn-ui-components": "workspace:*",
-    "@e-market/tanstack-query-api": "workspace:*",
+    "@e-market/tanstack-api-query": "workspace:*",
+    "@e-market/tanstack-rn-firebase-query": "workspace:*",
     "@e-market/utilities": "workspace:^",
     "@expo-google-fonts/poppins": "^0.2.3",
     "@expo/vector-icons": "^14.0.2",
