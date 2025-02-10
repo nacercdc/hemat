@@ -1,7 +1,6 @@
 import type { VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import { cn } from "../../shadcn-ui/utils/cn";
 import { FormControl } from "../form-control";
@@ -50,7 +49,6 @@ export interface Props
   label?: string;
   error?: string;
   description?: string;
-  asChild?: boolean;
   loading?: boolean;
 }
 
@@ -62,24 +60,9 @@ export const Button = ({
   children,
   error,
   description,
-  asChild,
   loading,
   ...props
 }: Props) => {
-  if (asChild) {
-    return (
-      <Slot id={name} {...props}>
-        <>
-          {React.Children.map(
-            children as React.ReactElement,
-            (child: React.ReactElement) => {
-              return React.cloneElement(child, {});
-            }
-          )}
-        </>
-      </Slot>
-    );
-  }
   return (
     <FormControl
       name={name}
