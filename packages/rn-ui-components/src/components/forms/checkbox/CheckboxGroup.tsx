@@ -2,10 +2,10 @@ import type { ComponentPropsWithoutRef } from "react";
 import { View } from "react-native";
 import type { Checkbox as NWCheckbox } from "../../../nativewindui/components/checkbox/Checkbox";
 import { FormController } from "../helper/FormController";
+import { getValueFromPath } from "@e-market/utilities";
 import type { DeepKeyOf } from "@e-market/utilities";
 import { Text } from "../../presentations/text/Text";
 import { cn } from "../../../nativewindui/lib/cn.util";
-import { get } from "lodash";
 import type { CheckboxGroupOption } from "./types";
 import { CheckboxGroupItem } from "./components/CheckboxGroupItem";
 
@@ -25,10 +25,6 @@ interface CheckboxGroupProps<T> extends CheckboxBaseProps {
   onChange: (values: T[]) => void;
   layout?: "col" | "row";
 }
-
-const getValueFromPath = <T,>(entity: T, path: DeepKeyOf<T>): string => {
-  return get(entity, path) as string;
-};
 
 export const CheckboxGroup = <T,>({
   caption,

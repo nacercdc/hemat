@@ -20,8 +20,12 @@
     "@e-market/eslint-config": "workspace:*",
     "@e-market/prettier-config": "workspace:*",
     "@e-market/tsconfig": "workspace:*",
+    "@types/lodash.get": "^4",
     "eslint": "^9.12.0",
     "prettier": "^3.3.3",
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "lodash.get": "^4.4.2"
   }
 }
