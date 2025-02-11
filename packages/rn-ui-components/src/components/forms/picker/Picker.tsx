@@ -5,18 +5,18 @@ import {
 } from "../../../nativewindui/components/picker/Picker";
 
 import { FormController } from "../helper/FormController";
-import { getValueFromPath, pick } from "@e-market/utilities";
+import { getValueFromPath } from "@e-market/utilities";
 import type { DeepKeyOf } from "@e-market/utilities";
 
 import type { PickerOption } from "./types";
 
-type PickerBaseProps = Omit<
+type PickerBaseProps = Pick<
   ComponentPropsWithoutRef<typeof NWPicker>,
-  "className"
+  "enabled"
 >;
-type PickerItemBaseProps = Omit<
+type PickerItemBaseProps = Pick<
   ComponentPropsWithoutRef<typeof NWPickerItem>,
-  "className" | "style"
+  "enabled"
 >;
 
 interface Props<T> extends PickerBaseProps {
@@ -24,7 +24,6 @@ interface Props<T> extends PickerBaseProps {
   errorMessage?: string;
   label?: string;
   options: PickerOption<T>[];
-  key?: DeepKeyOf<T>;
   displayText?: DeepKeyOf<T>;
   selectedValue?: T;
   onChange: (value: T) => void;
@@ -35,18 +34,9 @@ export const Picker = <T,>({
   errorMessage,
   options,
   displayText,
-  key,
   selectedValue,
   onChange,
 }: Props<T>) => {
-  const isSelected = (value: T) => {
-    return selectedValue
-      ? typeof value === "object" && key
-        ? getValueFromPath(value, key) === getValueFromPath(selectedValue, key)
-        : value === selectedValue
-      : false;
-  };
-
   const getDisplayText = <T,>(
     entity: T,
     displayText?: DeepKeyOf<T>
@@ -58,34 +48,16 @@ export const Picker = <T,>({
   };
   return (
     <FormController errorMessage={errorMessage} caption={caption}>
-      <NWPicker
-        selectedValue={selectedValue}
-        onValueChange={onChange}
-        enabled
-        selectionColor={"green"}
-        className="flex border-2 border-red-500 rounded-md"
-      >
+      <NWPicker selectedValue={selectedValue} onValueChange={onChange} enabled>
         {options.map((option, index) => {
           const { entity, ...rest } = option;
-          console.log(
-            selectedValue
-              ? typeof entity === "object" && key
-                ? getValueFromPath(entity, key) ===
-                  getValueFromPath(selectedValue, key)
-                : entity === selectedValue
-              : false
-          );
           return (
             <NWPickerItem
               key={index}
               value={option}
               label={getDisplayText(entity, displayText)}
               enabled={option.enabled}
-              style={{
-                color: "black",
-                backgroundColor: "green",
-              }}
-              {...pick(rest as PickerItemBaseProps, "enabled")}
+              {...(rest as PickerItemBaseProps)}
             />
           );
         })}
