@@ -10,3 +10,6 @@ export * from "./radio-group";
 export * from "./dropdown-menu";
 export * from "./alert-dialog";
 export * from "./accordion";
+export * from "./drawer";
+export * from "./sheet";
+export * from "./alert";
