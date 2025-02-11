@@ -20,7 +20,7 @@ import { FormControl } from "../form-control";
 
 export interface Props<T>
   extends Omit<SelectProps<T>, "defaultValue" | "onSelect"> {
-  defaultValue?: T[];
+  values?: T[];
   onSelect: (value?: T[]) => void;
 }
 
@@ -32,14 +32,19 @@ export function MultiSelect<T>({
   valueKey,
   labelKey,
   searchPlaceholder,
-  defaultValue,
+  values,
   error,
   onSelect,
 }: Props<T>) {
-  const [selectedValues, setSelectedValues] = React.useState<T[] | undefined>(
-    defaultValue,
-  );
+  const onSelectHandler = (isSelected: boolean | undefined, item: T) => {
+    const newValue = isSelected
+      ? values?.filter(
+          (selected: T) => get(selected, valueKey) !== get(item, valueKey)
+        )
+      : [...(values ?? []), item];
 
+    onSelect(newValue);
+  };
   return (
     <FormControl
       name={name}
@@ -55,17 +60,17 @@ export function MultiSelect<T>({
               "relative flex w-[300px] flex-wrap overflow-hidden border",
               error
                 ? "border-destructive-500 focus:ring-destructive-500"
-                : "border-basic-300",
+                : "border-basic-300"
             )}
           >
             <div
               className={cn(
                 "mr-1 flex flex-1 self-start overflow-hidden",
-                selectedValues?.length === 0 && "text-gray-400",
+                values?.length === 0 && "text-gray-400"
               )}
             >
-              {Array.isArray(selectedValues) && selectedValues.length > 0
-                ? selectedValues
+              {Array.isArray(values) && values.length > 0
+                ? values
                     .map((item: T) => String(get(item, labelKey)))
                     .join(", ")
                 : "Select options"}
@@ -84,32 +89,21 @@ export function MultiSelect<T>({
               <CommandList>
                 <CommandGroup>
                   {options.map((item) => {
-                    const isSelected = selectedValues?.some(
+                    const isSelected = values?.some(
                       (selected: T) =>
-                        get(selected, valueKey) === get(item, valueKey),
+                        get(selected, valueKey) === get(item, valueKey)
                     );
 
                     return (
                       <CommandItem
                         key={String(get(item, valueKey))}
-                        onSelect={() => {
-                          const newValue = isSelected
-                            ? selectedValues?.filter(
-                                (selected: T) =>
-                                  get(selected, valueKey) !==
-                                  get(item, valueKey),
-                              )
-                            : [...(selectedValues ?? []), item];
-
-                          setSelectedValues(newValue);
-                          onSelect(newValue);
-                        }}
+                        onSelect={() => onSelectHandler(isSelected, item)}
                       >
                         <Icon
                           icon="lucide:check"
                           className={cn(
                             "mr-2 h-4 w-4 text-basic",
-                            isSelected ? "opacity-100" : "opacity-0",
+                            isSelected ? "opacity-100" : "opacity-0"
                           )}
                         />
                         {String(get(item, labelKey))}
