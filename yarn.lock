@@ -1345,12 +1345,11 @@ __metadata:
     "@e-market/eslint-config": "workspace:*"
     "@e-market/prettier-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
+    "@tanstack/react-query": "npm:^5.59.15"
     eslint: "npm:^9.12.0"
+    firebase: "npm:^11.1.0"
     prettier: "npm:^3.3.3"
     typescript: "npm:^5.6.3"
-  peerDependencies:
-    "@tanstack/react-query": ^5.59.15
-    firebase: ^11.1.0
   languageName: unknown
   linkType: soft
 
@@ -4775,7 +4774,7 @@ __metadata:
       optional: true
     "@types/react-dom":
       optional: true
-  checksum: 10c0/34334eb835097de9474137bea41a68a5299ab3a2db7f88f4c9007c85ef19b8798f25771a726aed83a76c4f33ce4592b0a84d870d9754e0c2a9e23022fec9721a
+  checksum: 10/92ea80eab75d26cf7c2f2b0fb824e1fab58fdb5252ca81f641095fe5f212e05279629a82a4c67c93c26d72d1afb47a6ae27a83b8a0b014cb6118ed7aca36124e
   languageName: node
   linkType: hard
 
@@ -4955,7 +4954,7 @@ __metadata:
       optional: true
     "@types/react-dom":
       optional: true
-  checksum: 10c0/ea6dc8ec284b32bca6f24809db257394802e14af7c95e4a237af51009fa222c42e3b7a55b3bfc94d753f509086636555058ae8e535be25956c46529abf41b448
+  checksum: 10/87dc45ffb32b652bde629bb5c3b216adb82fd1ec68c484fec260980b31508cbc515a73327798d0f47d558dd22245b25f51bb06296b1762693af9f27e23c1cb1f
   languageName: node
   linkType: hard
 
@@ -10994,11 +10993,11 @@ __metadata:
   linkType: hard
 
 "for-each@npm:^0.3.3":
-  version: 0.3.4
-  resolution: "for-each@npm:0.3.4"
+  version: 0.3.5
+  resolution: "for-each@npm:0.3.5"
   dependencies:
     is-callable: "npm:^1.2.7"
-  checksum: 10/c3bc4ebe8bd51655919dd9132c7ad0703c267bd0d737093e8424f46feea2eeaa73ecc54237346435258548d07aaeac643deb47de9b872c359e0c37cf0507a7f1
+  checksum: 10/330cc2439f85c94f4609de3ee1d32c5693ae15cdd7fe3d112c4fd9efd4ce7143f2c64ef6c2c9e0cfdb0058437f33ef05b5bdae5b98fcc903fb2143fbaf0fea0f
   languageName: node
   linkType: hard
 
@@ -18505,8 +18504,8 @@ __metadata:
   linkType: hard
 
 "terser@npm:^5.15.0":
-  version: 5.38.1
-  resolution: "terser@npm:5.38.1"
+  version: 5.38.2
+  resolution: "terser@npm:5.38.2"
   dependencies:
     "@jridgewell/source-map": "npm:^0.3.3"
     acorn: "npm:^8.8.2"
@@ -18514,7 +18513,7 @@ __metadata:
     source-map-support: "npm:~0.5.20"
   bin:
     terser: bin/terser
-  checksum: 10/5c32213210e6e07fef2100c231aadf4a7f7be7903cc65daa3edc886075444b940f65991acf30f8b271e13a2f395b81bba1fa248409cc57160315339a40be3e2a
+  checksum: 10/5c463d6803e7dc929b947a86f2a39df8e4604db29d4f8119028efe7892d901c82d6c58f2ed5609be78f3467c84e749dbb995f791a23c47f6404f21136425d7d1
   languageName: node
   linkType: hard
 
@@ -19452,7 +19451,7 @@ __metadata:
   peerDependencies:
     react: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
     react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
-  checksum: 10c0/a6da539eb5576c0004a6b17e3673ea1db2c34e80355860131183abf53279ce025bbd016d542c345d1cc8464ad12f9dc9860949c751055d8a84961e8472a53707
+  checksum: 10/9d34f7f9aae1994450233f7803fcd47dca7680bc621ee24717b8e78b72fda9c5156e1ff2c8af6c2705993224fd8d3725ed89d84ba5bd1d411124dd91cde2b2e5
   languageName: node
   linkType: hard
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { TextAreaRHF } from "@e-market/web-ui-components";
 import { Suspense } from "react";
 
 export const runtime = "edge";
