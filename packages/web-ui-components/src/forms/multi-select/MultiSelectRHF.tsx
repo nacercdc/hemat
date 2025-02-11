@@ -6,7 +6,7 @@ import type { Props as MultiSelectProps } from "./MultiSelect";
 import { MultiSelect } from "./MultiSelect";
 
 interface Props<K, T extends FieldValues>
-  extends Omit<MultiSelectProps<K>, "defaultValue" | "onSelect"> {
+  extends Omit<MultiSelectProps<K>, "defaultValue" | "onSelect" | "values"> {
   name: Path<T>;
   control: Control<T>;
 }
@@ -27,7 +27,7 @@ export function MultiSelectRHF<K, T extends FieldValues>({
           id={name}
           error={error?.message}
           onSelect={field.onChange}
-          defaultValue={field.value}
+          values={field.value}
         />
       )}
     />
