@@ -36,8 +36,13 @@ export function MultiSelect<T>({
   error,
   onSelect,
 }: Props<T>) {
-  const onSelectHandler = (isSelected: boolean | undefined, item: T) => {
-    const newValue = isSelected
+  const isItemSelected = (item: T) =>
+    values?.some(
+      (selected: T) => get(selected, valueKey) === get(item, valueKey)
+    );
+
+  const onSelectHandler = (item: T) => {
+    const newValue = isItemSelected(item)
       ? values?.filter(
           (selected: T) => get(selected, valueKey) !== get(item, valueKey)
         )
@@ -45,6 +50,7 @@ export function MultiSelect<T>({
 
     onSelect(newValue);
   };
+
   return (
     <FormControl
       name={name}
@@ -89,21 +95,16 @@ export function MultiSelect<T>({
               <CommandList>
                 <CommandGroup>
                   {options.map((item) => {
-                    const isSelected = values?.some(
-                      (selected: T) =>
-                        get(selected, valueKey) === get(item, valueKey)
-                    );
-
                     return (
                       <CommandItem
                         key={String(get(item, valueKey))}
-                        onSelect={() => onSelectHandler(isSelected, item)}
+                        onSelect={() => onSelectHandler(item)}
                       >
                         <Icon
                           icon="lucide:check"
                           className={cn(
                             "mr-2 h-4 w-4 text-basic",
-                            isSelected ? "opacity-100" : "opacity-0"
+                            isItemSelected(item) ? "opacity-100" : "opacity-0"
                           )}
                         />
                         {String(get(item, labelKey))}
