@@ -1,5 +1,7 @@
 export * from "./useCollectionQuery";
 export * from "./useDocumentQuery";
+export * from "./useCollectionInfiniteQuery";
+export * from "./useDocumentCountQuery";
 export * from "./useAddDocumentMutation";
 export * from "./useUpdateDocumentMutation";
 export * from "./useDeleteDocumentMutation";

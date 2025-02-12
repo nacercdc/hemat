@@ -5,6 +5,7 @@ import type {
 import type {
   InfiniteData,
   UndefinedInitialDataInfiniteOptions,
+  UndefinedInitialDataOptions,
   UseQueryOptions,
 } from "@tanstack/react-query";
 import type { Filter, OrderBy } from "../../types/filter.type";
@@ -68,4 +69,13 @@ export interface InfiniteQueryFirestoreOption<
 export interface Page<T extends FirebaseFirestoreTypes.DocumentData> {
   data: T[];
   lastDoc: FirebaseFirestoreTypes.QueryDocumentSnapshot<T>;
+}
+
+export interface UseDocumentCountQuery<T, N> {
+  collectionName: string;
+  queryOptions?: QueryOption<T>;
+  firestoreOptions?: {
+    countFromServer?: boolean;
+  };
+  tqOptions: Omit<UndefinedInitialDataOptions<N, Error>, "queryFn">;
 }
