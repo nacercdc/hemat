@@ -1,42 +1,38 @@
 import type { UseMutationOptions } from "@tanstack/react-query";
-// Create mutation types
-export interface MutationCreateRequest<C> {
+
+export interface AddDocumentRequest<C> {
   data: C;
-  docId?: string;
+  id?: string;
 }
 
 type TanstackRQCreateMutateOptions<T, C = T> = Omit<
-  UseMutationOptions<T, Error, MutationCreateRequest<C>>,
+  UseMutationOptions<T, Error, AddDocumentRequest<C>>,
   "mutationFn"
 >;
 
-export interface UseCreateMutationDocument<T, C> {
+export interface UseAddDocumentMutation<T, C> {
   collectionName: string;
   options: TanstackRQCreateMutateOptions<T, C>;
 }
 
-// Update mutation types
-export interface MutationUpdateRequest<U> {
+export interface UpdateDocumentRequest<U> {
   data: U;
-  docId: string;
+  id: string;
 }
 
 type TanstackRQUpdateMutateOptions<T, U = T> = Omit<
-  UseMutationOptions<T, Error, MutationUpdateRequest<U>>,
+  UseMutationOptions<T, Error, UpdateDocumentRequest<U>>,
   "mutationFn"
 >;
 
-export interface UseUpdateMutationDocument<T, U> {
+export interface UseUpdateDocumentMutation<T, U> {
   collectionName: string;
   options: TanstackRQUpdateMutateOptions<T, U>;
 }
 
-// Generate id type
-export interface FirestoreDocumentId {
-  collectionName: string;
-}
+export type UseDeleteDocumentMutation<T, D> = UseUpdateDocumentMutation<T, D>;
+export type DeleteDocumentRequest<D> = UpdateDocumentRequest<D>;
 
-// Batch mutation types
 type BatchOperationType = "create" | "update" | "delete";
 
 export interface BatchDocument {
@@ -51,6 +47,10 @@ type TanstackRQBatchMutateOptions = Omit<
   "mutationFn"
 >;
 
-export interface UseMBatchMutationDocument {
+export interface UseMBatchMutation {
   options: TanstackRQBatchMutateOptions;
+}
+
+export interface DocumentId {
+  collectionName: string;
 }
