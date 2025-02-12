@@ -73,20 +73,34 @@ const ButtonDemo = () => {
         <div className="flex flex-wrap gap-4">
           <Button
             color="default"
-            leftNode={<Icon icon="arrow-left" className="mr-2 h-4 w-4" />}
+            leftNode={
+              <Icon icon="mingcute:left-fill" className="mr-2 h-4 w-4" />
+            }
           >
             Back
           </Button>
           <Button
             color="success"
-            rightNode={<Icon icon="arrow-right" className="ml-2 h-4 w-4" />}
+            rightNode={
+              <Icon icon="mingcute:right-fill" className="ml-2 h-4 w-4" />
+            }
           >
             Next
           </Button>
           <Button
             color="destructive"
-            leftNode={<Icon icon="download" className="mr-2 h-4 w-4" />}
-            rightNode={<Icon icon="external-link" className="ml-2 h-4 w-4" />}
+            leftNode={
+              <Icon
+                icon="material-symbols:download-rounded"
+                className="mr-2 h-4 w-4"
+              />
+            }
+            rightNode={
+              <Icon
+                icon="material-symbols:link-rounded"
+                className="ml-2 h-4 w-4"
+              />
+            }
           >
             Download
           </Button>
