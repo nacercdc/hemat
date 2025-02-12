@@ -1,9 +1,7 @@
-import type { VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../shadcn-ui/utils/cn";
-import { FormControl } from "../form-control";
 import { Button as ShadcnButton } from "../../shadcn-ui";
 
 const buttonVariants = cva(
@@ -17,7 +15,7 @@ const buttonVariants = cva(
         link: "p-0 h-auto underline hover:no-underline",
         primary: "shadow-sm",
       },
-      statusColor: {
+      color: {
         primary: "bg-blue-500 hover:bg-blue-600 text-white border-blue-500",
         secondary:
           "bg-purple-500 hover:bg-purple-600 text-white border-purple-500",
@@ -35,156 +33,149 @@ const buttonVariants = cva(
     compoundVariants: [
       {
         variant: "outline",
-        statusColor: "primary",
+        color: "primary",
         className:
           "bg-transparent text-blue-500 hover:bg-blue-50 border-blue-500",
       },
       {
         variant: "outline",
-        statusColor: "secondary",
+        color: "secondary",
         className:
           "bg-transparent text-purple-500 hover:bg-purple-50 border-purple-500",
       },
       {
         variant: "outline",
-        statusColor: "success",
+        color: "success",
         className:
           "bg-transparent text-green-500 hover:bg-green-50 border-green-500",
       },
       {
         variant: "outline",
-        statusColor: "failed",
+        color: "failed",
         className: "bg-transparent text-red-500 hover:bg-red-50 border-red-500",
       },
       {
         variant: "outline",
-        statusColor: "warning",
+        color: "warning",
         className:
           "bg-transparent text-yellow-500 hover:bg-yellow-50 border-yellow-500",
       },
       {
         variant: "ghost",
-        statusColor: "primary",
+        color: "primary",
         className: "bg-transparent text-blue-500 hover:bg-blue-50 border-none",
       },
       {
         variant: "ghost",
-        statusColor: "secondary",
+        color: "secondary",
         className:
           "bg-transparent text-purple-500 hover:bg-purple-50 border-none",
       },
       {
         variant: "ghost",
-        statusColor: "success",
+        color: "success",
         className:
           "bg-transparent text-green-500 hover:bg-green-50 border-none",
       },
       {
         variant: "ghost",
-        statusColor: "failed",
+        color: "failed",
         className: "bg-transparent text-red-500 hover:bg-red-50 border-none",
       },
       {
         variant: "ghost",
-        statusColor: "warning",
+        color: "warning",
         className:
           "bg-transparent text-yellow-500 hover:bg-yellow-50 border-none",
       },
       {
         variant: "link",
-        statusColor: "primary",
+        color: "primary",
         className:
           "bg-transparent hover:bg-transparent text-blue-600 hover:text-blue-800 border-none shadow-none",
       },
       {
         variant: "link",
-        statusColor: "secondary",
+        color: "secondary",
         className:
           "bg-transparent hover:bg-transparent text-purple-600 hover:text-purple-800 border-none shadow-none",
       },
       {
         variant: "link",
-        statusColor: "success",
+        color: "success",
         className:
           "bg-transparent hover:bg-transparent text-green-600 hover:text-green-800 border-none shadow-none",
       },
       {
         variant: "link",
-        statusColor: "failed",
+        color: "failed",
         className:
           "bg-transparent hover:bg-transparent text-red-600 hover:text-red-800 border-none shadow-none",
       },
       {
         variant: "link",
-        statusColor: "warning",
+        color: "warning",
         className:
           "bg-transparent hover:bg-transparent text-yellow-600 hover:text-yellow-800 border-none shadow-none",
       },
     ],
     defaultVariants: {
       variant: "default",
-      statusColor: "primary",
+      color: "primary",
       size: "md",
     },
-  },
+  }
 );
 
-export interface Props
-  extends Omit<
-      React.ButtonHTMLAttributes<HTMLButtonElement>,
-      "size" | "className" | "style"
-    >,
-    VariantProps<typeof buttonVariants> {
+type ButtonVariants = VariantProps<typeof buttonVariants>;
+
+type ShadcnButtonPropsWithoutColor = Omit<
+  React.ComponentProps<typeof ShadcnButton>,
+  "className" | "style" | "variant" | "size" | "color"
+>;
+
+interface Props extends ShadcnButtonPropsWithoutColor {
   leftNode?: React.ReactNode;
   rightNode?: React.ReactNode;
-  children?: React.ReactNode;
-  name?: string;
-  label?: string;
-  error?: string;
-  description?: string;
   loading?: boolean;
+  variant?: ButtonVariants["variant"];
+  size?: ButtonVariants["size"];
+  color?: ButtonVariants["color"];
 }
 
 export const Button = ({
   name,
-  label,
   variant,
   color,
   size,
   children,
-  error,
-  description,
   loading,
   leftNode,
   rightNode,
   ...props
 }: Props) => {
+  const shadcnVariant = variant === "primary" ? "default" : variant;
+
   return (
-    <FormControl
-      name={name}
-      label={label}
-      error={error}
-      description={description}
+    <ShadcnButton
+      className={cn(
+        buttonVariants({ variant, size, color }),
+        variant === "link" && "h-auto px-0"
+      )}
+      variant={shadcnVariant}
+      disabled={loading}
+      id={name}
+      {...props}
     >
-      <ShadcnButton
-        className={cn(
-          buttonVariants({ variant, size }),
-          variant === "link" && "h-auto px-0",
-        )}
-        disabled={loading}
-        id={name}
-        {...props}
-      >
-        {leftNode}
-        {loading && (
-          <Icon
-            icon="bx:loader-alt"
-            className={cn("h-5 w-5 animate-spin", children && "mx-2")}
-          />
-        )}
-        {children}
-        {rightNode}
-      </ShadcnButton>
-    </FormControl>
+      {leftNode}
+      {loading && (
+        <Icon
+          icon="bx:loader-alt"
+          className={cn("h-5 w-5 animate-spin", children && "mx-2")}
+        />
+      )}
+      {children}
+      {rightNode}
+    </ShadcnButton>
   );
 };
