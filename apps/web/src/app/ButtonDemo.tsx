@@ -6,23 +6,24 @@ const ButtonDemo = () => {
   const variants = ["default", "outline", "ghost", "link", "default"] as const;
   const colors = [
     "default",
-    "secondary",
+    "destructive",
     "success",
-    "failed",
+    "info",
     "warning",
+    "dark",
   ] as const;
 
   return (
     <div className="p-8 space-y-8">
-      {variants.map((variant) => (
-        <div key={variant} className="space-y-4">
+      {variants.map((variant, variantIndex) => (
+        <div key={`${variant}-${variantIndex}`} className="space-y-4">
           <h2 className="text-xl font-semibold capitalize">
             {variant} Variant
           </h2>
           <div className="flex flex-wrap gap-4">
-            {colors.map((color) => (
+            {colors.map((color, colorIndex) => (
               <Button
-                key={`${variant}-${color}`}
+                key={`${variant}-${color}-${colorIndex}`}
                 variant={variant}
                 color={color}
                 leftNode={<Icon icon="check" className="mr-2 h-4 w-4" />}
@@ -54,8 +55,12 @@ const ButtonDemo = () => {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Loading State</h2>
         <div className="flex flex-wrap gap-4">
-          {colors.map((color) => (
-            <Button key={`loading-${color}`} color={color} loading={true}>
+          {colors.map((color, colorIndex) => (
+            <Button
+              key={`loading-${color}-${colorIndex}`}
+              color={color}
+              loading={true}
+            >
               Loading
             </Button>
           ))}
@@ -79,7 +84,7 @@ const ButtonDemo = () => {
             Next
           </Button>
           <Button
-            color="secondary"
+            color="destructive"
             leftNode={<Icon icon="download" className="mr-2 h-4 w-4" />}
             rightNode={<Icon icon="external-link" className="ml-2 h-4 w-4" />}
           >
@@ -92,9 +97,9 @@ const ButtonDemo = () => {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Disabled State</h2>
         <div className="flex flex-wrap gap-4">
-          {variants.map((variant) => (
+          {variants.map((variant, variantIndex) => (
             <Button
-              key={`disabled-${variant}`}
+              key={`disabled-${variant}-${variantIndex}`}
               variant={variant}
               color="default"
               disabled

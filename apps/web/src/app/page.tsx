@@ -1,8 +1,6 @@
 "use client";
 
 import { Suspense } from "react";
-import { Button } from "../../../../packages/web-ui-components/src/forms/button/Button";
-import { Icon } from "@iconify/react/dist/iconify.js";
 import ButtonDemo from "./ButtonDemo";
 
 export const runtime = "edge";

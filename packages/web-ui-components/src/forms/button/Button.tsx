@@ -15,13 +15,16 @@ const buttonVariants = cva(
         link: "p-0 h-auto underline hover:no-underline",
       },
       color: {
-        default: "bg-blue-500 hover:bg-blue-600 text-white border-blue-500",
-        secondary:
-          "bg-purple-500 hover:bg-purple-600 text-white border-purple-500",
-        success: "bg-green-500 hover:bg-green-600 text-white border-green-500",
-        failed: "bg-red-500 hover:bg-red-600 text-white border-red-500",
+        default:
+          "bg-primary-500 hover:bg-primary-600 text-white border-primary-500",
+        destructive:
+          "bg-destructive-500 hover:bg-destructive-600 text-white border-destructive-500",
+        success:
+          "bg-success-500 hover:bg-success-600 text-white border-success-500",
+        dark: "bg-basic-500 hover:bg-basic-600 text-white border-basic-500",
+        info: "bg-info-500 hover:bg-info-600 text-white border-info-500",
         warning:
-          "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500",
+          "bg-warning-500 hover:bg-warning-600 text-white border-warning-500",
       },
       size: {
         sm: "px-2 py-1 !text-sm",
@@ -34,88 +37,108 @@ const buttonVariants = cva(
         variant: "outline",
         color: "default",
         className:
-          "bg-transparent text-blue-500 hover:bg-blue-50 border-blue-500",
+          "bg-transparent text-primary-500 hover:bg-primary-50 border-primary-500",
       },
       {
         variant: "outline",
-        color: "secondary",
+        color: "destructive",
         className:
-          "bg-transparent text-purple-500 hover:bg-purple-50 border-purple-500",
+          "bg-transparent text-destructive-500 hover:bg-destructive-50 border-destructive-500",
       },
       {
         variant: "outline",
         color: "success",
         className:
-          "bg-transparent text-green-500 hover:bg-green-50 border-green-500",
+          "bg-transparent text-success-500 hover:bg-success-50 border-success-500",
       },
       {
         variant: "outline",
-        color: "failed",
-        className: "bg-transparent text-red-500 hover:bg-red-50 border-red-500",
+        color: "info",
+        className:
+          "bg-transparent text-info-500 hover:bg-info-50 border-info-500",
       },
       {
         variant: "outline",
         color: "warning",
         className:
-          "bg-transparent text-yellow-500 hover:bg-yellow-50 border-yellow-500",
+          "bg-transparent text-warning-500 hover:bg-warning-50 border-warning-500",
+      },
+      {
+        variant: "outline",
+        color: "dark",
+        className:
+          "bg-transparent text-basic-500 hover:bg-basic-50 border-basic-500",
       },
       {
         variant: "ghost",
         color: "default",
-        className: "bg-transparent text-blue-500 hover:bg-blue-50 border-none",
+        className:
+          "bg-transparent text-primary-500 hover:bg-primary-50 border-none",
       },
       {
         variant: "ghost",
-        color: "secondary",
+        color: "destructive",
         className:
-          "bg-transparent text-purple-500 hover:bg-purple-50 border-none",
+          "bg-transparent text-destructive-500 hover:bg-destructive-50 border-none",
       },
       {
         variant: "ghost",
         color: "success",
         className:
-          "bg-transparent text-green-500 hover:bg-green-50 border-none",
+          "bg-transparent text-success-500 hover:bg-success-50 border-none",
       },
       {
         variant: "ghost",
-        color: "failed",
-        className: "bg-transparent text-red-500 hover:bg-red-50 border-none",
+        color: "info",
+        className: "bg-transparent text-info-500 hover:bg-info-50 border-none",
       },
       {
         variant: "ghost",
         color: "warning",
         className:
-          "bg-transparent text-yellow-500 hover:bg-yellow-50 border-none",
+          "bg-transparent text-warning-500 hover:bg-warning-50 border-none",
+      },
+      {
+        variant: "ghost",
+        color: "dark",
+        className:
+          "bg-transparent text-basic-500 hover:bg-basic-50 border-none",
       },
       {
         variant: "link",
         color: "default",
         className:
-          "bg-transparent hover:bg-transparent text-blue-600 hover:text-blue-800 border-none shadow-none",
+          "bg-transparent hover:bg-transparent text-primary-600 hover:text-primary-800 border-none shadow-none",
       },
       {
         variant: "link",
-        color: "secondary",
+        color: "destructive",
         className:
-          "bg-transparent hover:bg-transparent text-purple-600 hover:text-purple-800 border-none shadow-none",
+          "bg-transparent hover:bg-transparent text-destructive-600 hover:text-destructive-800 border-none shadow-none",
       },
       {
         variant: "link",
         color: "success",
         className:
-          "bg-transparent hover:bg-transparent text-green-600 hover:text-green-800 border-none shadow-none",
+          "bg-transparent hover:bg-transparent text-success-600 hover:text-success-800 border-none shadow-none",
       },
       {
         variant: "link",
-        color: "failed",
+        color: "info",
         className:
-          "bg-transparent hover:bg-transparent text-red-600 hover:text-red-800 border-none shadow-none",
+          "bg-transparent hover:bg-transparent text-info-600 hover:text-info-800 border-none shadow-none",
       },
       {
         variant: "link",
         color: "warning",
         className:
-          "bg-transparent hover:bg-transparent text-yellow-600 hover:text-yellow-800 border-none shadow-none",
+          "bg-transparent hover:bg-transparent text-warning-600 hover:text-warning-800 border-none shadow-none",
+      },
+      {
+        variant: "link",
+        color: "dark",
+        className:
+          "bg-transparent hover:bg-transparent text-basic-600 hover:text-basic-800 border-none shadow-none",
       },
     ],
     defaultVariants: {
