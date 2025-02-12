@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
@@ -10,7 +10,9 @@ export const collectionReference = <
 >(
   collectionName: string
 ) => {
-  return firestore().collection<T>(collectionName);
+  return firestore().collection<T>(
+    collectionName
+  ) as FirebaseFirestoreTypes.CollectionReference<T>;
 };
 
 export const documentReference = <

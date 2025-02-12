@@ -1,4 +1,7 @@
-import { useFirestoreQuery } from "@e-market/tanstack-rn-firebase-query";
+import {
+  useCollectionQuery,
+  useDocumentQuery,
+} from "@e-market/tanstack-rn-firebase-query";
 export enum Collection {
   LANGUAGES = "languages",
 }
@@ -7,12 +10,24 @@ interface Language {
   name: string;
   code: string;
 }
-export default function useGetLanguages() {
-  return useFirestoreQuery<Language>({
+export function useGetLanguages() {
+  return useCollectionQuery<Language>({
     collectionName: Collection.LANGUAGES,
-    tqOptions: {
-      enabled: true,
+    tqQueryOptions: {
       queryKey: ["useGetLanguages"],
+    },
+    firestoreOptions: {
+      subscribe: true,
+    },
+  });
+}
+
+export function useGetLanguage() {
+  return useDocumentQuery<Language>({
+    collectionName: Collection.LANGUAGES,
+    id: "k9OoD2tLotxFZAdpjeCY",
+    firestoreOptions: {
+      subscribe: false,
     },
   });
 }
