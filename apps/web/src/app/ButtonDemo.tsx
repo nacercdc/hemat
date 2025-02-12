@@ -3,9 +3,9 @@ import { Button } from "../../../../packages/web-ui-components/src/forms/button"
 import { Icon } from "@iconify/react/dist/iconify.js";
 
 const ButtonDemo = () => {
-  const variants = ["default", "outline", "ghost", "link", "primary"] as const;
+  const variants = ["default", "outline", "ghost", "link", "default"] as const;
   const colors = [
-    "primary",
+    "default",
     "secondary",
     "success",
     "failed",
@@ -38,13 +38,13 @@ const ButtonDemo = () => {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Size Variations</h2>
         <div className="flex flex-wrap items-center gap-4">
-          <Button size="sm" color="primary">
+          <Button size="sm" color="default">
             Small
           </Button>
-          <Button size="md" color="primary">
+          <Button size="md" color="default">
             Medium
           </Button>
-          <Button size="lg" color="primary">
+          <Button size="lg" color="default">
             Large
           </Button>
         </div>
@@ -67,7 +67,7 @@ const ButtonDemo = () => {
         <h2 className="text-xl font-semibold">With Icons</h2>
         <div className="flex flex-wrap gap-4">
           <Button
-            color="primary"
+            color="default"
             leftNode={<Icon icon="arrow-left" className="mr-2 h-4 w-4" />}
           >
             Back
@@ -96,7 +96,7 @@ const ButtonDemo = () => {
             <Button
               key={`disabled-${variant}`}
               variant={variant}
-              color="primary"
+              color="default"
               disabled
             >
               Disabled {variant}

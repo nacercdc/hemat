@@ -13,10 +13,9 @@ const buttonVariants = cva(
         outline: "border-2",
         ghost: "",
         link: "p-0 h-auto underline hover:no-underline",
-        primary: "shadow-sm",
       },
       color: {
-        primary: "bg-blue-500 hover:bg-blue-600 text-white border-blue-500",
+        default: "bg-blue-500 hover:bg-blue-600 text-white border-blue-500",
         secondary:
           "bg-purple-500 hover:bg-purple-600 text-white border-purple-500",
         success: "bg-green-500 hover:bg-green-600 text-white border-green-500",
@@ -25,15 +24,15 @@ const buttonVariants = cva(
           "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500",
       },
       size: {
-        sm: "h-9 rounded-md px-3",
-        md: "h-10 px-4 py-2",
-        lg: "h-11 rounded-md px-8",
+        sm: "px-2 py-1 !text-sm",
+        md: "px-3 py-2 !text-base",
+        lg: "px-4 py-3 !text-xl",
       },
     },
     compoundVariants: [
       {
         variant: "outline",
-        color: "primary",
+        color: "default",
         className:
           "bg-transparent text-blue-500 hover:bg-blue-50 border-blue-500",
       },
@@ -62,7 +61,7 @@ const buttonVariants = cva(
       },
       {
         variant: "ghost",
-        color: "primary",
+        color: "default",
         className: "bg-transparent text-blue-500 hover:bg-blue-50 border-none",
       },
       {
@@ -90,7 +89,7 @@ const buttonVariants = cva(
       },
       {
         variant: "link",
-        color: "primary",
+        color: "default",
         className:
           "bg-transparent hover:bg-transparent text-blue-600 hover:text-blue-800 border-none shadow-none",
       },
@@ -121,7 +120,7 @@ const buttonVariants = cva(
     ],
     defaultVariants: {
       variant: "default",
-      color: "primary",
+      color: "default",
       size: "md",
     },
   }
@@ -154,18 +153,16 @@ export const Button = ({
   rightNode,
   ...props
 }: Props) => {
-  const shadcnVariant = variant === "primary" ? "default" : variant;
-
   return (
     <ShadcnButton
+      {...props}
       className={cn(
         buttonVariants({ variant, size, color }),
         variant === "link" && "h-auto px-0"
       )}
-      variant={shadcnVariant}
+      variant={variant}
       disabled={loading}
       id={name}
-      {...props}
     >
       {leftNode}
       {loading && (
