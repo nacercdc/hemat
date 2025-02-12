@@ -31,10 +31,12 @@
     "source.fixAll.eslint": "always"
   },
   "cSpell.words": [
+    "cmdk",
     "emarket",
     "firebaseapp",
     "firebasestorage",
     "gradlew",
+    "ianvs",
     "Lngs",
     "MMKV",
     "nativewind",
@@ -42,8 +44,11 @@
     "pluralrules",
     "quarternary",
     "rgba",
+    "roninoss",
     "shadcn",
-    "uitextview"
+    "sonner",
+    "uitextview",
+    "vaul"
   ],
   "files.associations": {
     "*.css": "tailwindcss"

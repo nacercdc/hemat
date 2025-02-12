@@ -1,4 +1,4 @@
-import { useFirestoreQuery } from "@e-market/rn-firebase";
+import { useFirestoreQuery } from "@e-market/tanstack-rn-firebase-query";
 export enum Collection {
   LANGUAGES = "languages",
 }
