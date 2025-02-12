@@ -3,7 +3,7 @@ import type {
   DeleteDocumentRequest,
   UseDeleteDocumentMutation,
 } from "./types/mutation.type";
-import { documentReference } from "../helper/firestore.ref";
+import { documentReference } from "../helpers/firestore.ref";
 import { useMutation } from "@tanstack/react-query";
 
 export const useDeleteDocumentMutation = <

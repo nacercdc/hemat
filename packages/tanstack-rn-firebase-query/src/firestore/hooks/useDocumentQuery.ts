@@ -3,7 +3,7 @@ import type {
   FirestoreError,
 } from "@react-native-firebase/firestore";
 import type { DocumentFirestoreOption } from "./types/query.type";
-import { documentReference } from "../helper/firestore.ref";
+import { documentReference } from "../helpers/firestore.ref";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 export function useDocumentQuery<
   T extends FirebaseFirestoreTypes.DocumentData,

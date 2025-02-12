@@ -1,8 +1,8 @@
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import type { UseDocumentCountQuery } from "./types/query.type";
 import { useQuery } from "@tanstack/react-query";
-import { collectionReference } from "../helper/firestore.ref";
-import { Query } from "../helper/query";
+import { collectionReference } from "../helpers/firestore.ref";
+import { Query } from "../helpers/query";
 
 export function useDocumentCountQuery<
   T extends FirebaseFirestoreTypes.DocumentData,

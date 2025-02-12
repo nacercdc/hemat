@@ -1,7 +1,7 @@
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 
 import { useMutation } from "@tanstack/react-query";
-import { collectionReference } from "../helper/firestore.ref";
+import { collectionReference } from "../helpers/firestore.ref";
 import type {
   AddDocumentRequest,
   UseAddDocumentMutation,

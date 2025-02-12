@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useMutation } from "@tanstack/react-query";
 import type { BatchDocument, UseMBatchMutation } from "./types/mutation.type";
-import { batchReference, collectionReference } from "../helper/firestore.ref";
+import { batchReference, collectionReference } from "../helpers/firestore.ref";
 
 export const useBatchMutation = ({ options }: UseMBatchMutation) => {
   return useMutation<void, Error, BatchDocument[]>({

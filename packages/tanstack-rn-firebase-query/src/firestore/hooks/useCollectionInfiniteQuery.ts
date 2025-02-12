@@ -2,8 +2,8 @@ import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import type { InfiniteQueryFirestoreOption, Page } from "./types/query.type";
 import type { InfiniteData } from "@tanstack/react-query";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { collectionReference } from "../helper/firestore.ref";
-import { Query } from "../helper/query";
+import { collectionReference } from "../helpers/firestore.ref";
+import { Query } from "../helpers/query";
 
 export default function useCollectionInfiniteQuery<
   T extends FirebaseFirestoreTypes.DocumentData,
