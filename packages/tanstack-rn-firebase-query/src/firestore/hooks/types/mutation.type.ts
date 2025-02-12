@@ -32,3 +32,25 @@ export interface UseUpdateDocumentMutation<T, U> {
 
 export type UseDeleteDocumentMutation<T, D> = UseUpdateDocumentMutation<T, D>;
 export type DeleteDocumentRequest<D> = UpdateDocumentRequest<D>;
+
+type BatchOperationType = "create" | "update" | "delete";
+
+export interface BatchDocument {
+  type: BatchOperationType;
+  collection: string;
+  id?: string;
+  data?: Record<string, unknown>;
+}
+
+type TanstackRQBatchMutateOptions = Omit<
+  UseMutationOptions<void, Error, BatchDocument[]>,
+  "mutationFn"
+>;
+
+export interface UseMBatchMutation {
+  options: TanstackRQBatchMutateOptions;
+}
+
+export interface DocumentId {
+  collectionName: string;
+}
