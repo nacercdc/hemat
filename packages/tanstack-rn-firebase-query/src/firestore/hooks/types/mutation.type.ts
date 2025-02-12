@@ -29,3 +29,6 @@ export interface UseUpdateDocumentMutation<T, U> {
   collectionName: string;
   options: TanstackRQUpdateMutateOptions<T, U>;
 }
+
+export type UseDeleteDocumentMutation<T, D> = UseUpdateDocumentMutation<T, D>;
+export type DeleteDocumentRequest<D> = UpdateDocumentRequest<D>;
