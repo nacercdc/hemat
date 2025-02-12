@@ -1,10 +1,11 @@
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
-import type {
-  MutationCreateRequest,
-  UseCreateMutationDocument,
-} from "../types/mutation.type";
+
 import { useMutation } from "@tanstack/react-query";
 import { collectionReference } from "../helper/firestore.ref";
+import type {
+  AddDocumentRequest,
+  UseAddDocumentMutation,
+} from "./types/mutation.type";
 
 export const useAddDocumentMutation = <
   T extends FirebaseFirestoreTypes.DocumentData,
@@ -12,13 +13,13 @@ export const useAddDocumentMutation = <
 >({
   collectionName,
   options,
-}: UseCreateMutationDocument<T, C>) => {
-  return useMutation<T, Error, MutationCreateRequest<C>>({
+}: UseAddDocumentMutation<T, C>) => {
+  return useMutation<T, Error, AddDocumentRequest<C>>({
     mutationFn: async (request) => {
       const collectionRef = collectionReference<T>(collectionName);
-      const docId = request.docId ?? collectionRef.id;
+      const id = request.id ?? collectionRef.id;
       const docRef = await collectionRef.add({
-        id: docId,
+        id,
         ...request.data,
       } as unknown as T);
       const docSnapshot = await docRef.get();
