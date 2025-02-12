@@ -19,6 +19,7 @@
   "dependencies": {
     "@e-market/nativewindui-theme-config": "workspace:*",
     "@e-market/utilities": "workspace:*",
+    "@react-native-picker/picker": "^2.11.0",
     "@rn-primitives/checkbox": "^1.1.0",
     "@rn-primitives/hooks": "^1.1.0",
     "@roninoss/icons": "^0.0.4",

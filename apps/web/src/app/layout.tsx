@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google";
 import "~/app/styles.css";
 import { Providers } from "~/providers";
 import { cn } from "~/utils/cn.util";
+import { Toaster } from "@e-market/web-ui-components";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -31,6 +32,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         suppressHydrationWarning
       >
         <Providers>{props.children}</Providers>
+        <Toaster />
       </body>
     </html>
   );

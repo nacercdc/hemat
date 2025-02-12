@@ -56,7 +56,7 @@ export const CheckboxGroupItem = <T,>({
       />
       <Text
         className={cn("text-sm text-foreground", {
-          "text-muted-foreground": rest.disabled,
+          "text-muted-foreground": disabled,
         })}
       >
         {getDisplayText(entity, displayText)}

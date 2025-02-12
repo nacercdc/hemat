@@ -13,14 +13,14 @@ __metadata:
   peerDependenciesMeta:
     graphql:
       optional: true
-  checksum: 10/c392d9ff60b11ea8bb11f7ba456331ec074f6a5f8fb53aae0cb1d962e19c8b89e669b024958b2054c4113cdbed1198b0e21e3a4f7f46d7141354e4a7d609e0f8
+  checksum: 10c0/0dc3baf94bec4a45a2ea6ccc07feea5e371198f3625df0616ef25c2b0aca3b6af6d2ebc742cc93e88e343f75367568229e88db31656f983662a70148a46a49ce
   languageName: node
   linkType: hard
 
 "@alloc/quick-lru@npm:^5.2.0":
   version: 5.2.0
   resolution: "@alloc/quick-lru@npm:5.2.0"
-  checksum: 10/bdc35758b552bcf045733ac047fb7f9a07c4678b944c641adfbd41f798b4b91fffd0fdc0df2578d9b0afc7b4d636aa6e110ead5d6281a2adc1ab90efd7f057f8
+  checksum: 10c0/7b878c48b9d25277d0e1a9b8b2f2312a314af806b4129dc902f2bc29ab09b58236e53964689feec187b28c80d2203aff03829754773a707a8a5987f1b7682d92
   languageName: node
   linkType: hard
 
@@ -30,7 +30,7 @@ __metadata:
   dependencies:
     "@jridgewell/gen-mapping": "npm:^0.3.5"
     "@jridgewell/trace-mapping": "npm:^0.3.24"
-  checksum: 10/f3451525379c68a73eb0a1e65247fbf28c0cccd126d93af21c75fceff77773d43c0d4a2d51978fb131aff25b5f2cb41a9fe48cc296e61ae65e679c4f6918b0ab
+  checksum: 10c0/81d63cca5443e0f0c72ae18b544cc28c7c0ec2cea46e7cb888bb0e0f411a1191d0d6b7af798d54e30777d8d1488b2ec0732aac2be342d3d7d3ffd271c6f489ed
   languageName: node
   linkType: hard
 
@@ -1271,6 +1271,7 @@ __metadata:
     "@e-market/tailwind-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
     "@e-market/utilities": "workspace:*"
+    "@react-native-picker/picker": "npm:^2.11.0"
     "@rn-primitives/checkbox": "npm:^1.1.0"
     "@rn-primitives/hooks": "npm:^1.1.0"
     "@roninoss/icons": "npm:^0.0.4"
@@ -1347,12 +1348,10 @@ __metadata:
     "@e-market/tsconfig": "workspace:*"
     "@types/react": "npm:^19.0.3"
     eslint: "npm:^9.12.0"
+    firebase: "npm:^11.1.0"
     prettier: "npm:^3.3.3"
     react: "npm:^19.0.0"
     typescript: "npm:^5.6.3"
-  peerDependencies:
-    "@tanstack/react-query": ^5.59.15
-    firebase: ^11.1.0
   languageName: unknown
   linkType: soft
 
@@ -1400,6 +1399,7 @@ __metadata:
     "@radix-ui/react-radio-group": "npm:^1.2.3"
     "@radix-ui/react-scroll-area": "npm:^1.2.2"
     "@radix-ui/react-slot": "npm:^1.1.2"
+    "@radix-ui/react-toast": "npm:^1.2.6"
     "@types/lodash.get": "npm:^4"
     "@types/react": "npm:^19.0.3"
     "@types/react-dom": "npm:^19.0.2"
@@ -6845,6 +6845,7 @@ __metadata:
     "@react-native-firebase/auth": "npm:^21.6.2"
     "@react-native-firebase/crashlytics": "npm:^21.6.2"
     "@react-native-firebase/firestore": "npm:^21.6.2"
+    "@react-native-picker/picker": "npm:^2.11.0"
     "@rn-primitives/checkbox": "npm:^1.1.0"
     "@rn-primitives/hooks": "npm:^1.1.0"
     "@roninoss/icons": "npm:^0.0.4"
