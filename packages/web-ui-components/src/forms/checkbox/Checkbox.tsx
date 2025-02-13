@@ -36,7 +36,7 @@ const checkboxVariants = cva(
   }
 );
 
-export interface Props extends VariantProps<typeof checkboxVariants> {
+export interface CheckboxProps extends VariantProps<typeof checkboxVariants> {
   name: string;
   label?: string;
   error?: string;
@@ -62,7 +62,7 @@ export const Checkbox = ({
   disabled,
   required,
   className,
-}: Props) => {
+}: CheckboxProps) => {
   return (
     <FormControl
       name={name}
