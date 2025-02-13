@@ -16,15 +16,15 @@ const buttonVariants = cva(
       },
       color: {
         default:
-          "bg-primary-500 hover:bg-primary-600 text-white border-primary-500",
+          "bg-primary-500 hover:bg-primary-600 text-background border-primary-500",
         destructive:
-          "bg-destructive-500 hover:bg-destructive-600 text-white border-destructive-500",
+          "bg-destructive-500 hover:bg-destructive-600 text-background border-destructive-500",
         success:
-          "bg-success-500 hover:bg-success-600 text-white border-success-500",
-        dark: "bg-basic-800 hover:bg-basic-1100 text-white border-basic-500",
-        info: "bg-info-500 hover:bg-info-600 text-white border-info-500",
+          "bg-success-500 hover:bg-success-600 text-background border-success-500",
+        dark: "bg-basic hover:bg-basic-800 text-background border-basic-800",
+        info: "bg-info-500 hover:bg-info-600 text-background border-info-500",
         warning:
-          "bg-warning-500 hover:bg-warning-600 text-white border-warning-500",
+          "bg-warning-500 hover:bg-warning-600 text-background border-warning-500",
       },
       size: {
         sm: "px-2 py-1 !text-sm",
