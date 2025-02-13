@@ -27,9 +27,9 @@ const buttonVariants = cva(
           "bg-warning-500 hover:bg-warning-600 text-background border-warning-500",
       },
       size: {
-        sm: "px-2 py-1 !text-sm",
-        md: "px-3 py-2 !text-base",
-        lg: "px-4 py-3 !text-xl",
+        sm: "px-2 h-8 !text-sm",
+        md: "px-3 h-9 !text-base",
+        lg: "px-4 h-10 !text-xl",
       },
     },
     compoundVariants: [
