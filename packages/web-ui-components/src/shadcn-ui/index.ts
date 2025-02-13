@@ -16,3 +16,4 @@ export * from "./alert";
 export * from "./toast";
 export * from "./toaster";
 export * from "./badge";
+export * from "./avatar";
