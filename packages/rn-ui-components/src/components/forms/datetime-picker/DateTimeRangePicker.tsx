@@ -1,14 +1,14 @@
 import { COLORS } from "@e-market/nativewindui-theme-config/colors";
 import { omit } from "@e-market/utilities";
 import DTPDateTimePicker from "react-native-ui-datepicker";
-import type { DatePickerSingleProps } from "react-native-ui-datepicker/lib/typescript/DateTimePicker";
+import type { DatePickerRangeProps } from "react-native-ui-datepicker/lib/typescript/DateTimePicker";
 import { View } from "../../presentations/view/View";
 import { useState } from "react";
 import { Modal } from "../../popups/modal/Modal";
 import { TextField } from "../textfield";
 interface Props
   extends Omit<
-    DatePickerSingleProps,
+    DatePickerRangeProps,
     "selectedItemColor" | "headerButtonColor" | "mode"
   > {
   fontFamily: string;
@@ -22,7 +22,7 @@ interface Props
   editable?: boolean;
   onClearText?: () => void;
 }
-export const DateTimeSinglePicker = ({
+export const DateTimeRangePicker = ({
   fontFamily,
   calendarTextStyle,
   headerTextStyle,
@@ -51,7 +51,7 @@ export const DateTimeSinglePicker = ({
     <>
       <TextField
         label={label}
-        value={date?.toString() ?? ""}
+        value={date?.toLocaleString()}
         editable={editable}
         placeholder={placeholder}
         rightView={rightView}
@@ -76,7 +76,7 @@ export const DateTimeSinglePicker = ({
               "headerButtonColor",
               "mode"
             )}
-            mode="single"
+            mode="range"
             date={date}
             onChange={(v) => {
               onChange?.(v);

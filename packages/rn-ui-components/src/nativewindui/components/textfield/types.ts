@@ -1,4 +1,4 @@
-import type { TextInput, TextInputProps } from 'react-native';
+import type { TextInput, TextInputProps } from "react-native";
 
 type TextFieldProps = TextInputProps & {
   children?: React.ReactNode;
@@ -18,9 +18,10 @@ type TextFieldProps = TextInputProps & {
    * @default outlined
    * Material variant for the input.
    */
-  materialVariant?: 'outlined' | 'filled';
+  materialVariant?: "outlined" | "filled";
   materialRingColor?: string;
   materialHideActionIcons?: boolean;
+  onClearText?: () => void;
 };
 
 type TextFieldRef = TextInput;
