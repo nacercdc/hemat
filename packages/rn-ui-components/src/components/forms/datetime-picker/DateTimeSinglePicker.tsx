@@ -4,7 +4,7 @@ import DTPDateTimePicker from "react-native-ui-datepicker";
 import type { DatePickerSingleProps } from "react-native-ui-datepicker/lib/typescript/DateTimePicker";
 import { View } from "../../presentations/view/View";
 import { useState } from "react";
-import { Modal } from "../../presentations";
+import { Modal } from "../../popups/modal/Modal";
 import { TextField } from "../textfield";
 interface Props
   extends Omit<
