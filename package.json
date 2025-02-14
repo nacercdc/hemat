@@ -60,6 +60,7 @@
     "firebase": "^11.1.0",
     "husky": "^9.1.6",
     "node-gyp": "^10.1.0",
+    "react-native-ui-datepicker": "^2.0.11",
     "tailwind-merge": "^2.6.0",
     "vitest": "^2.1.1",
     "workspace": "^0.0.1-preview.2"

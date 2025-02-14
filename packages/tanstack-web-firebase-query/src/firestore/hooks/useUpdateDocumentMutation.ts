@@ -9,7 +9,7 @@ import type {
   DocumentData,
 } from "firebase/firestore";
 import { documentReference } from "../helpers/references";
-import { useFirestore } from "../providers/firestore/useFirestore";
+import { useFirebase } from "../../providers/firebase/useFirebase";
 
 type FirestoreUseMutationOptions<
   TData = unknown,
@@ -27,7 +27,7 @@ export function useUpdateDocumentMutation<
     WithFieldValue<DbModelType>
   >
 ) {
-  const { firestore } = useFirestore();
+  const { firestore } = useFirebase();
 
   return useMutation<void, FirestoreError, WithFieldValue<DbModelType>>({
     ...options,

@@ -1,31 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useAugmentedRef, useControllableState } from '@rn-primitives/hooks';
-import { Icon } from '@roninoss/icons';
-import { cva } from 'class-variance-authority';
-import * as React from 'react';
+import { useAugmentedRef, useControllableState } from "@rn-primitives/hooks";
+import { Icon } from "@roninoss/icons";
+import { cva } from "class-variance-authority";
+import * as React from "react";
+import type { ViewProps, ViewStyle } from "react-native";
+import { Pressable, TextInput, View } from "react-native";
 import type {
-  ViewProps,
-  ViewStyle} from 'react-native';
-import {
-  Pressable,
-  TextInput,
-  View
-  
-  
-} from 'react-native';
-import type {NativeSyntheticEvent, TextInputFocusEventData} from 'react-native';
+  NativeSyntheticEvent,
+  TextInputFocusEventData,
+} from "react-native";
 import Animated, {
   FadeIn,
   FadeOut,
   useAnimatedStyle,
   useDerivedValue,
   withTiming,
-} from 'react-native-reanimated';
-import type { TextFieldProps, TextFieldRef } from './types';
-import { cn } from '../../lib/cn.util';
-import { useColorScheme } from '../../lib/useColorScheme';
-
-
+} from "react-native-reanimated";
+import type { TextFieldProps, TextFieldRef } from "./types";
+import { cn } from "../../lib/cn.util";
+import { useColorScheme } from "../../lib/useColorScheme";
 
 const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
   (
@@ -46,9 +39,10 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
       containerClassName,
       accessibilityHint,
       errorMessage,
-      materialVariant = 'outlined',
+      materialVariant = "outlined",
       materialRingColor,
       materialHideActionIcons,
+      onClearText,
       ...props
     },
     ref
@@ -56,9 +50,9 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
     const inputRef = useAugmentedRef({ ref, methods: { focus, blur, clear } });
     const [isFocused, setIsFocused] = React.useState(false);
 
-    const [value = '', onChangeText] = useControllableState({
+    const [value = "", onChangeText] = useControllableState({
       prop: valueProp,
-      defaultProp: defaultValueProp ?? valueProp ?? '',
+      defaultProp: defaultValueProp ?? valueProp ?? "",
       onChange: onChangeTextProp,
     });
 
@@ -71,7 +65,8 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
     }
 
     function clear() {
-      onChangeText('');
+      onChangeText("");
+      onClearText?.();
     }
 
     function onFocus(e: NativeSyntheticEvent<TextInputFocusEventData>) {
@@ -84,7 +79,8 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
       onBlurProp?.(e);
     }
 
-    const InputWrapper = materialVariant === 'filled' ? FilledWrapper : FilledWrapper;
+    const InputWrapper =
+      materialVariant === "filled" ? FilledWrapper : FilledWrapper;
 
     return (
       <Pressable
@@ -97,9 +93,12 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
           }),
           className: containerClassName,
         })}
-        style={materialRingColor ? { borderColor: materialRingColor } : undefined}
+        style={
+          materialRingColor ? { borderColor: materialRingColor } : undefined
+        }
         disabled={editable === false}
-        onPress={focus}>
+        onPress={focus}
+      >
         <View
           className={innerRootVariants({
             variant: materialVariant,
@@ -109,7 +108,12 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
               editable,
             }),
           })}
-          style={materialRingColor && isFocused ? { borderColor: materialRingColor } : undefined}>
+          style={
+            materialRingColor && isFocused
+              ? { borderColor: materialRingColor }
+              : undefined
+          }
+        >
           {leftView}
           <InputWrapper>
             {!!label && (
@@ -127,11 +131,11 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
               ref={inputRef}
               editable={editable}
               className={cn(
-                'text-foreground flex-1 rounded py-3 pl-2.5 text-[17px] dark:placeholder:text-white/30',
-                materialVariant === 'filled' && !!label && 'pb-2 pt-5',
+                "text-foreground flex-1 rounded py-3 pl-2.5 text-[17px] dark:placeholder:text-white/30",
+                materialVariant === "filled" && !!label && "pb-2 pt-5",
                 className
               )}
-              placeholder={isFocused || !label ? placeholder : ''}
+              placeholder={isFocused || !label ? placeholder : ""}
               onFocus={onFocus}
               onBlur={onBlur}
               onChangeText={onChangeText}
@@ -145,7 +149,10 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
               {errorMessage ? (
                 <MaterialErrorIcon />
               ) : (
-                !!value && isFocused && <MaterialClearIcon clearText={clear} editable={editable} />
+                !!value &&
+                isFocused && (
+                  <MaterialClearIcon clearText={clear} editable={editable} />
+                )
               )}
             </>
           )}
@@ -156,11 +163,11 @@ const TextField = React.forwardRef<TextFieldRef, TextFieldProps>(
   }
 );
 
-TextField.displayName = 'TextField';
+TextField.displayName = "TextField";
 
 export { TextField };
 
-type InputState = 'idle' | 'focused' | 'error' | 'errorAndFocused' | 'disabled';
+type InputState = "idle" | "focused" | "error" | "errorAndFocused" | "disabled";
 
 interface GetInputArgs {
   isFocused: boolean;
@@ -169,49 +176,49 @@ interface GetInputArgs {
 }
 
 function getInputState(args: GetInputArgs): InputState {
-  if (args.editable === false) return 'disabled';
-  if (args.hasError && args.isFocused) return 'errorAndFocused';
-  if (args.isFocused) return 'focused';
-  return 'idle';
+  if (args.editable === false) return "disabled";
+  if (args.hasError && args.isFocused) return "errorAndFocused";
+  if (args.isFocused) return "focused";
+  return "idle";
 }
 
-const rootVariants = cva('relative rounded-[5px]', {
+const rootVariants = cva("relative rounded-[5px]", {
   variants: {
     variant: {
-      outlined: 'border',
-      filled: 'border-b rounded-b-none',
+      outlined: "border",
+      filled: "border-b rounded-b-none",
     },
     state: {
-      idle: 'border-transparent',
-      error: 'border-transparent',
-      focused: 'border-primary',
-      errorAndFocused: 'border-destructive',
-      disabled: 'opacity-50',
+      idle: "border-transparent",
+      error: "border-transparent",
+      focused: "border-primary",
+      errorAndFocused: "border-destructive",
+      disabled: "opacity-50",
     },
   },
   defaultVariants: {
-    variant: 'outlined',
-    state: 'idle',
+    variant: "outlined",
+    state: "idle",
   },
 });
 
-const innerRootVariants = cva('flex-row rounded', {
+const innerRootVariants = cva("flex-row rounded", {
   variants: {
     variant: {
-      outlined: 'border border-border',
-      filled: 'border-b bg-border/70 rounded-b-none ',
+      outlined: "border border-border",
+      filled: "border-b bg-border/70 rounded-b-none ",
     },
     state: {
-      idle: 'border-foreground/30',
-      error: 'border-destructive',
-      focused: 'border-primary',
-      errorAndFocused: 'border-destructive',
-      disabled: 'border-foreground/30',
+      idle: "border-foreground/30",
+      error: "border-destructive",
+      focused: "border-primary",
+      errorAndFocused: "border-destructive",
+      disabled: "border-foreground/30",
     },
   },
   defaultVariants: {
-    variant: 'outlined',
-    state: 'idle',
+    variant: "outlined",
+    state: "idle",
   },
 });
 
@@ -226,7 +233,7 @@ interface MaterialLabelProps {
   hasLeftView: boolean;
   hasError?: boolean;
   className?: string;
-  materialVariant: 'outlined' | 'filled';
+  materialVariant: "outlined" | "filled";
 }
 
 const DEFAULT_TEXT_FIELD_HEIGHT = 56;
@@ -238,33 +245,45 @@ function MaterialLabel(props: MaterialLabelProps) {
   const variantDerived = useDerivedValue(() => props.materialVariant);
   const animatedRootStyle = useAnimatedStyle(() => {
     const style: ViewStyle = {
-      position: 'absolute',
-      alignSelf: 'center',
+      position: "absolute",
+      alignSelf: "center",
     };
-    if (variantDerived.value === 'outlined') {
-      style.paddingLeft = withTiming(hasLeftViewDerived.value && isLiftedDerived.value ? 0 : 12, {
-        duration: 200,
-      });
+    if (variantDerived.value === "outlined") {
+      style.paddingLeft = withTiming(
+        hasLeftViewDerived.value && isLiftedDerived.value ? 0 : 12,
+        {
+          duration: 200,
+        }
+      );
       style.transform = [
         {
-          translateY: withTiming(isLiftedDerived.value ? -DEFAULT_TEXT_FIELD_HEIGHT / 2 : 0, {
-            duration: 200,
-          }),
+          translateY: withTiming(
+            isLiftedDerived.value ? -DEFAULT_TEXT_FIELD_HEIGHT / 2 : 0,
+            {
+              duration: 200,
+            }
+          ),
         },
         {
-          translateX: withTiming(hasLeftViewDerived.value && isLiftedDerived.value ? -12 : 0, {
-            duration: 200,
-          }),
+          translateX: withTiming(
+            hasLeftViewDerived.value && isLiftedDerived.value ? -12 : 0,
+            {
+              duration: 200,
+            }
+          ),
         },
       ];
     }
-    if (variantDerived.value === 'filled') {
+    if (variantDerived.value === "filled") {
       style.paddingLeft = 8;
       style.transform = [
         {
-          translateY: withTiming(isLiftedDerived.value ? -DEFAULT_TEXT_FIELD_HEIGHT / 4 : 0, {
-            duration: 200,
-          }),
+          translateY: withTiming(
+            isLiftedDerived.value ? -DEFAULT_TEXT_FIELD_HEIGHT / 4 : 0,
+            {
+              duration: 200,
+            }
+          ),
         },
         {
           translateX: 0,
@@ -282,14 +301,15 @@ function MaterialLabel(props: MaterialLabelProps) {
     <Animated.View style={animatedRootStyle} pointerEvents="none">
       <Animated.Text
         className={cn(
-          'bg-card/0 text-foreground/70 rounded',
-          isLifted && 'px-0.5',
-          isLifted && props.materialVariant === 'outlined' && 'bg-background',
-          props.isFocused && 'text-primary/60 dark:text-primary',
-          props.hasError && 'text-destructive dark:text-destructive',
+          "bg-card/0 text-foreground/70 rounded",
+          isLifted && "px-0.5",
+          isLifted && props.materialVariant === "outlined" && "bg-background",
+          props.isFocused && "text-primary/60 dark:text-primary",
+          props.hasError && "text-destructive dark:text-destructive",
           props.className
         )}
-        style={animatedTextStyle}>
+        style={animatedTextStyle}
+      >
         {props.materialLabel}
       </Animated.Text>
     </Animated.View>
@@ -304,11 +324,15 @@ interface MaterialClearIconProps {
 function MaterialClearIcon(props: MaterialClearIconProps) {
   const { colors } = useColorScheme();
   return (
-    <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)}>
+    <Animated.View
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(200)}
+    >
       <Pressable
         disabled={props.editable === false}
         className="flex-1 justify-center px-2 active:opacity-65"
-        onPress={props.clearText}>
+        onPress={props.clearText}
+      >
         <Icon color={colors.grey2} name="close-circle-outline" size={24} />
       </Pressable>
     </Animated.View>
@@ -322,13 +346,14 @@ function MaterialErrorIcon() {
       pointerEvents="none"
       entering={FadeIn.duration(200)}
       exiting={FadeOut.duration(200)}
-      className="justify-center pr-2">
+      className="justify-center pr-2"
+    >
       <Icon
         color={colors.destructive}
         name="close-circle-outline"
         materialIcon={{
-          name: 'alert-circle',
-          type: 'MaterialCommunityIcons',
+          name: "alert-circle",
+          type: "MaterialCommunityIcons",
         }}
         size={24}
       />
