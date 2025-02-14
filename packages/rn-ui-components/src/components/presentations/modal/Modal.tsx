@@ -42,56 +42,54 @@ export const Modal = ({
   ...props
 }: Props) => {
   return (
-    <View className="rounded-lg p-6">
-      <RNModal
-        {...omit(
-          props as Record<string, unknown>,
-          "backdropColor",
-          "backdropOpacity",
-          "backdropTransitionOutTiming",
-          "coverScreen",
-          "deviceHeight",
-          "deviceWidth",
-          "supportedOrientations",
-          "customBackdrop",
-          "hideModalContentWhileAnimating",
-          "scrollHorizontal",
-          "useNativeDriver",
-          "propagateSwipe",
-          "statusBarTranslucent"
-        )}
-        animationIn={animationIn ?? "fadeIn"}
-        animationInTiming={animationInTiming ?? 300}
-        animationOut={animationOut ?? "fadeOut"}
-        animationOutTiming={animationOutTiming ?? 300}
-        avoidKeyboard={avoidKeyboard ?? false}
-        backdropColor={COLORS.light.grey2}
-        backdropOpacity={0.5}
-        backdropTransitionInTiming={300}
-        backdropTransitionOutTiming={0}
-        coverScreen
-        deviceHeight={null}
-        deviceWidth={null}
-        supportedOrientations={["portrait", "landscape"]}
-        customBackdrop={null}
-        hasBackdrop
-        hideModalContentWhileAnimating
-        scrollHorizontal={false}
-        statusBarTranslucent={false}
-        useNativeDriver={false}
-        propagateSwipe={false}
-        swipeThreshold={swipeThreshold ?? 100}
-        scrollTo={scrollTo ?? null}
-        scrollOffset={swipeThreshold ?? 0}
-        scrollOffsetMax={scrollOffsetMax ?? 0}
-        panResponderThreshold={panResponderThreshold ?? 4}
-        onModalHide={onModalHide ?? (() => null)}
-        onModalShow={onModalShow ?? (() => null)}
-        onModalWillHide={onModalWillHide ?? (() => null)}
-        onModalWillShow={onModalWillShow ?? (() => null)}
-      >
-        {children}
-      </RNModal>
-    </View>
+    <RNModal
+      {...omit(
+        props as Record<string, unknown>,
+        "backdropColor",
+        "backdropOpacity",
+        "backdropTransitionOutTiming",
+        "coverScreen",
+        "deviceHeight",
+        "deviceWidth",
+        "supportedOrientations",
+        "customBackdrop",
+        "hideModalContentWhileAnimating",
+        "scrollHorizontal",
+        "useNativeDriver",
+        "propagateSwipe",
+        "statusBarTranslucent"
+      )}
+      animationIn={animationIn ?? "fadeIn"}
+      animationInTiming={animationInTiming ?? 300}
+      animationOut={animationOut ?? "fadeOut"}
+      animationOutTiming={animationOutTiming ?? 300}
+      avoidKeyboard={avoidKeyboard ?? false}
+      backdropColor={COLORS.light.grey2}
+      backdropOpacity={0.5}
+      backdropTransitionInTiming={300}
+      backdropTransitionOutTiming={0}
+      coverScreen
+      deviceHeight={null}
+      deviceWidth={null}
+      supportedOrientations={["portrait", "landscape"]}
+      customBackdrop={null}
+      hasBackdrop
+      hideModalContentWhileAnimating
+      scrollHorizontal={false}
+      statusBarTranslucent={false}
+      useNativeDriver={false}
+      propagateSwipe={false}
+      swipeThreshold={swipeThreshold ?? 100}
+      scrollTo={scrollTo ?? null}
+      scrollOffset={swipeThreshold ?? 0}
+      scrollOffsetMax={scrollOffsetMax ?? 0}
+      panResponderThreshold={panResponderThreshold ?? 4}
+      onModalHide={onModalHide ?? (() => null)}
+      onModalShow={onModalShow ?? (() => null)}
+      onModalWillHide={onModalWillHide ?? (() => null)}
+      onModalWillShow={onModalWillShow ?? (() => null)}
+    >
+      <View className="rounded-lg py-6">{children}</View>
+    </RNModal>
   );
 };
