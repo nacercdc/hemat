@@ -22,16 +22,16 @@ const inputVariants = cva(
           "border-warning-500 focus:border-warning-600 focus-visible:ring-warning-500",
       },
       size: {
-        sm: "px-2 py-1 text-sm",
-        md: "px-3 py-2 text-base",
-        lg: "px-4 py-3 text-lg",
+        sm: "px-2 h-8 text-sm",
+        md: "px-3 h-9 text-base",
+        lg: "px-4 h-10 text-lg",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "md",
     },
-  },
+  }
 );
 
 export interface Props
@@ -78,7 +78,7 @@ export const Input = ({
           className={cn(
             inputVariants({ variant, size }),
             "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            error && "border-destructive-500",
+            error && "border-destructive-500"
           )}
           aria-invalid={error ? "true" : "false"}
         />
