@@ -3,7 +3,7 @@ import type { UseMutationOptions } from "@tanstack/react-query";
 import { deleteDoc } from "firebase/firestore";
 import type { FirestoreError } from "firebase/firestore";
 import { documentReference } from "../helpers/references";
-import { useFirestore } from "../providers/firestore/useFirestore";
+import { useFirebase } from "../../providers/firebase/useFirebase";
 
 type FirestoreUseMutationOptions<
   TData = unknown,
@@ -15,7 +15,7 @@ export function useDeleteDocumentMutation(
   collectionName: string,
   options?: FirestoreUseMutationOptions<void, FirestoreError, string>
 ) {
-  const { firestore } = useFirestore();
+  const { firestore } = useFirebase();
 
   return useMutation<void, FirestoreError, string>({
     ...options,

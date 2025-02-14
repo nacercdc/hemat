@@ -17,14 +17,15 @@ import {
 import { QueryConstraint } from "../helpers/query-builder/query";
 import { queryReference } from "../helpers/references";
 import type { QueryFirestoreOption } from "./types/query.type";
-import { useFirestore } from "../providers/firestore/useFirestore";
 import { serializeQuerySnapshot } from "../helpers/serialize-snapshot";
+import { useFirebase } from "../../providers/firebase/useFirebase";
 
 export function useCollectionQuery<
   FromFirestore extends DocumentData = DocumentData,
   ToFirestore extends DocumentData = DocumentData,
 >(options: QueryFirestoreOption<FromFirestore>) {
-  const { firestore } = useFirestore();
+  const { firestore } = useFirebase();
+
   const queryClient = useQueryClient();
   const constraints = new QueryConstraint<FromFirestore>([])
     .filter(options?.queryOptions?.filters)

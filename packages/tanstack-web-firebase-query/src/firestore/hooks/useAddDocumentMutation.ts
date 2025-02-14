@@ -10,7 +10,7 @@ import type {
 } from "firebase/firestore";
 import { collectionReference } from "../helpers/references";
 import { getDocId } from "../helpers/doc-id";
-import { useFirestore } from "../providers/firestore/useFirestore";
+import { useFirebase } from "../../providers/firebase/useFirebase";
 
 type FirestoreUseMutationOptions<
   TData = unknown,
@@ -28,7 +28,7 @@ export function useAddDocumentMutation<
     WithFieldValue<DbModelType>
   >
 ) {
-  const { firestore } = useFirestore();
+  const { firestore } = useFirebase();
 
   const collectionRef = collectionReference<AppModelType, DbModelType>(
     firestore,
