@@ -14,15 +14,16 @@ import {
   getDocFromServer,
   onSnapshot,
 } from "firebase/firestore";
-import { useFirestore } from "../providers/firestore/useFirestore";
 import type { DocumentFirestoreOption } from "./types/query.type";
 import { documentReference } from "../helpers/references";
+import { useFirebase } from "../../providers/firebase/useFirebase";
 
 export function useDocumentQuery<
   FromFirestore extends DocumentData = DocumentData,
   ToFirestore extends DocumentData = DocumentData,
 >(options: DocumentFirestoreOption<FromFirestore>) {
-  const { firestore } = useFirestore();
+  const { firestore } = useFirebase();
+
   const queryClient = useQueryClient();
 
   const docRef = documentReference<FromFirestore>(
