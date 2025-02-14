@@ -24,9 +24,9 @@ const checkboxVariants = cva(
           "border-warning-500 data-[state=checked]:bg-warning-500 data-[state=checked]:border-warning-500 focus-visible:ring-warning-500",
       },
       size: {
-        sm: "h-3 w-3 [&-svg]:h-3 [&-svg]:w-3",
-        md: "h-4 w-4 [&-svg]:h-4 [&-svg]:w-4",
-        lg: "h-5 w-5 [&-svg]:h-5 [&-svg]:w-5",
+        sm: "h-3 w-3",
+        md: "h-4 w-4",
+        lg: "h-5 w-5",
       },
     },
     defaultVariants: {
@@ -36,7 +36,7 @@ const checkboxVariants = cva(
   }
 );
 
-type CheckboxVariants = VariantProps<typeof checkboxVariants>;
+export type CheckboxVariants = VariantProps<typeof checkboxVariants>;
 
 type ShadcnCheckboxPropsWithoutColor = Omit<
   React.ComponentProps<typeof ShadcnCheckbox>,
@@ -75,6 +75,7 @@ export const Checkbox = ({
       <div className="flex items-center space-x-2">
         <ShadcnCheckbox
           {...props}
+          id={name}
           checked={checked}
           defaultChecked={defaultChecked}
           onCheckedChange={onCheckedChange}
