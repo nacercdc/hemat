@@ -24,9 +24,9 @@ const checkboxVariants = cva(
           "border-warning-500 data-[state=checked]:bg-warning-500 data-[state=checked]:border-warning-500 focus-visible:ring-warning-500",
       },
       size: {
-        sm: "h-3 w-3",
-        md: "h-4 w-4",
-        lg: "h-5 w-5",
+        sm: "h-3 w-3 [&-svg]:h-3 [&-svg]:w-3",
+        md: "h-4 w-4 [&-svg]:h-4 [&-svg]:w-4",
+        lg: "h-5 w-5 [&-svg]:h-5 [&-svg]:w-5",
       },
     },
     defaultVariants: {
@@ -36,24 +36,26 @@ const checkboxVariants = cva(
   }
 );
 
-export interface CheckboxProps extends VariantProps<typeof checkboxVariants> {
-  name: string;
+type CheckboxVariants = VariantProps<typeof checkboxVariants>;
+
+type ShadcnCheckboxPropsWithoutColor = Omit<
+  React.ComponentProps<typeof ShadcnCheckbox>,
+  "className" | "style" | "variant" | "size" | "color"
+>;
+
+export interface Props extends ShadcnCheckboxPropsWithoutColor {
   label?: string;
   error?: string;
   description?: string;
-  checked?: boolean;
-  defaultChecked?: boolean;
-  onCheckedChange?: (checked: boolean) => void;
-  disabled?: boolean;
-  required?: boolean;
-  className?: string;
+  variant?: CheckboxVariants["variant"];
+  size?: CheckboxVariants["size"];
 }
 
 export const Checkbox = ({
-  name,
-  label,
   variant,
   size,
+  name,
+  label,
   error,
   description,
   checked,
@@ -61,8 +63,8 @@ export const Checkbox = ({
   onCheckedChange,
   disabled,
   required,
-  className,
-}: CheckboxProps) => {
+  ...props
+}: Props) => {
   return (
     <FormControl
       name={name}
@@ -72,7 +74,7 @@ export const Checkbox = ({
     >
       <div className="flex items-center space-x-2">
         <ShadcnCheckbox
-          id={name}
+          {...props}
           checked={checked}
           defaultChecked={defaultChecked}
           onCheckedChange={onCheckedChange}
@@ -80,8 +82,7 @@ export const Checkbox = ({
           required={required}
           className={cn(
             checkboxVariants({ variant, size }),
-            error && "border-destructive-500",
-            className
+            error && "border-destructive-500"
           )}
         />
         {label && (
