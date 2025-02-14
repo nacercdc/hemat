@@ -70,18 +70,27 @@
     --popover-foreground: var(--color-basic-1100);
     --primary: var(--color-primary-900);
     --primary-foreground: var(--color-basic-100);
-    --secondary:var(--color-basic-300);
+    --secondary: var(--color-basic-300);
     --secondary-foreground: var(--color-basic-800);
-    --muted:var(--color-basic-300);
+    --muted: var(--color-basic-300);
     --muted-foreground: var(--color-basic-600);
-    --accent:var(--color-basic-300);
+    --accent: var(--color-basic-300);
     --accent-foreground: var(--color-basic-800);
     --destructive: var(--color-destructive-900);
-    --destructive-foreground:var(--color-basic-100);
-    --border:var(--color-basic-300);
+    --destructive-foreground: var(--color-basic-100);
+    --border: var(--color-basic-300);
     --input: var(--color-basic-300);
     --ring: var(--color-basic-600);
     --radius: 0.5rem;
-    --font-family:var(--font-poppins)
+    --font-family: var(--font-poppins);
+    /* Shadcn Sidebar variables */
+    --sidebar-background: 0 0% 98%; /* hsl(0 0% 98%) */
+    --sidebar-foreground: 240 5.3% 26.1%; /* hsl(240 5.3% 26.1) */
+    --sidebar-primary: 240 5.9% 10%; /* hsl( 240 5.9% 10%) */
+    --sidebar-primary-foreground: 0 0% 98%; /* hsl( 0 0% 98%) */
+    --sidebar-accent: 240 4.8% 95.9%; /* hsl( 240 4.8% 95.9%) */
+    --sidebar-accent-foreground: 240 5.9% 10%; /* hsl( 240 5.9% 10%) */
+    --sidebar-border: 220 13% 91%; /* hsl( 220 13% 91%) */
+    --sidebar-ring: 217.2 91.2% 59.8%; /* hsl( 217.2 91.2% 59.8%) */
   }
 }
