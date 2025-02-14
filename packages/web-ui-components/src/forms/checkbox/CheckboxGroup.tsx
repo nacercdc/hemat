@@ -3,15 +3,17 @@ import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
 import get from "lodash.get";
 import type { DeepKeyOf } from "@e-market/utilities";
-import { Checkbox } from "../../../../web-ui-components/src/forms/checkbox";
-
+import {
+  Checkbox,
+  CheckboxVariants,
+} from "../../../../web-ui-components/src/forms/checkbox";
 import { FormControl } from "../form-control";
 import { cn } from "../../shadcn-ui/utils/cn";
 
 const checkboxGroupVariants = cva("flex", {
   variants: {
     layout: {
-      horizontal: "flex-row gap-4 flex-wrap",
+      horizontal: "flex-row gap-4",
       vertical: "flex-col gap-2",
     },
     size: {
@@ -26,19 +28,22 @@ const checkboxGroupVariants = cva("flex", {
   },
 });
 
+type CheckboxGroupVariants = VariantProps<typeof checkboxGroupVariants>;
+
+type ShadcnCheckboxGroupPropsWithoutColor = Omit<
+  React.ComponentProps<typeof Checkbox>,
+  "className" | "style" | "variant" | "size" | "color"
+>;
+
 export interface CheckboxGroupProps<T>
-  extends VariantProps<typeof checkboxGroupVariants> {
-  name: string;
+  extends ShadcnCheckboxGroupPropsWithoutColor {
   options: T[];
   values?: T[];
   valueKey: DeepKeyOf<T>;
   labelKey: DeepKeyOf<T>;
-  label?: string;
-  description?: string;
-  error?: string;
-  disabled?: boolean;
-  required?: boolean;
-  variant?: "default" | "destructive" | "success" | "info" | "warning";
+  layout?: CheckboxGroupVariants["layout"];
+  variant?: CheckboxVariants["variant"];
+  size?: CheckboxVariants["size"];
   onValuesChange: (values: T[]) => void;
 }
 
@@ -53,21 +58,28 @@ export function CheckboxGroup<T>({
   error,
   disabled,
   required,
-  variant = "default",
   size = "md",
   layout = "vertical",
+  variant = "default",
   onValuesChange,
 }: CheckboxGroupProps<T>) {
   const isOptionSelected = (option: T) =>
     values.some((value) => get(value, valueKey) === get(option, valueKey));
 
-  const handleCheckboxChange = (option: T, checked: boolean) => {
-    if (checked) {
-      onValuesChange([...values, option]);
-    } else {
-      onValuesChange(
-        values.filter((value) => get(value, valueKey) !== get(option, valueKey))
-      );
+  const handleCheckboxChange = (
+    option: T,
+    checked: boolean | "indeterminate"
+  ) => {
+    if (typeof checked === "boolean") {
+      if (checked) {
+        onValuesChange([...values, option]);
+      } else {
+        onValuesChange(
+          values.filter(
+            (value) => get(value, valueKey) !== get(option, valueKey)
+          )
+        );
+      }
     }
   };
 
