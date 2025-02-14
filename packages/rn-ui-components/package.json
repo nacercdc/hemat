@@ -20,6 +20,7 @@
     "@e-market/nativewindui-theme-config": "workspace:*",
     "@e-market/utilities": "workspace:*",
     "@react-native-picker/picker": "^2.11.0",
+    "@rn-primitives/alert-dialog": "^1.1.0",
     "@rn-primitives/checkbox": "^1.1.0",
     "@rn-primitives/hooks": "^1.1.0",
     "@roninoss/icons": "^0.0.4",
@@ -27,7 +28,10 @@
     "nativewind": "^4.1.23",
     "react": "18.3.1",
     "react-native": "0.76.6",
+    "react-native-keyboard-controller": "^1.16.3",
+    "react-native-modal": "^13.0.1",
     "react-native-reanimated": "~3.16.1",
+    "react-native-ui-datepicker": "^2.0.11",
     "react-native-uitextview": "^1.4.0"
   },
   "devDependencies": {
