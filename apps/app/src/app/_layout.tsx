@@ -15,7 +15,9 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import "../styles.css";
 import MainLayout from "~/components/layouts/MainLayout";
-
+export const unstable_settings = {
+  initialRouteName: "Home",
+};
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
