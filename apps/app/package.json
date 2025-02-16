@@ -84,7 +84,8 @@
     "react-native-ui-datepicker": "^2.0.11",
     "react-native-uitextview": "^1.4.0",
     "react-native-web": "~0.19.13",
-    "react-native-webview": "13.12.5"
+    "react-native-webview": "13.12.5",
+    "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
