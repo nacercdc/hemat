@@ -17,3 +17,6 @@ export * from "./toast";
 export * from "./toaster";
 export * from "./badge";
 export * from "./avatar";
+export * from "./sidebar";
+export * from "./collapsible";
+export * from "./skeleton";
