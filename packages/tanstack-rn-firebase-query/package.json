@@ -16,6 +16,10 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
+  "dependencies": {
+    "@react-native-firebase/firestore": "^21.6.2",
+    "@react-native-firebase/storage": "^21.6.2"
+  },
   "peerDependencies": {
     "@tanstack/react-query": "^5.66.0"
   },

@@ -43,26 +43,18 @@
   },
   "resolutions": {
     "@tanstack/react-query": "^5.59.15",
-    "@tanstack/query-core": "5.66.0",
-    "firebase": "^11.1.0",
-    "@react-native-firebase/firestore": "^21.6.2",
-    "@react-native-firebase/storage": "^21.6.2"
+    "@tanstack/query-core": "5.66.0"
   },
   "dependencies": {
     "@babel/runtime": "^7.24.6",
-    "@react-native-firebase/firestore": "^21.6.2",
-    "@react-native-firebase/storage": "^21.6.2",
     "@tanstack/query-core": "5.66.0",
     "@tanstack/react-query": "^5.59.15",
     "add": "^2.0.6",
     "check-dependency-version-consistency": "^4.1.0",
     "class-variance-authority": "^0.7.1",
     "eslint": "^9.12.0",
-    "expo": "^52.0.32",
-    "firebase": "^11.1.0",
     "husky": "^9.1.6",
     "node-gyp": "^10.1.0",
-    "react-native-ui-datepicker": "^2.0.11",
     "tailwind-merge": "^2.6.0",
     "vitest": "^2.1.1",
     "workspace": "^0.0.1-preview.2"
