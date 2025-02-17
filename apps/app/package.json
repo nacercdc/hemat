@@ -34,6 +34,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@babel/runtime": "^7.24.6",
     "@e-market/nativewindui-theme-config": "workspace:*",
     "@e-market/rn-ui-components": "workspace:*",
     "@e-market/tanstack-api-query": "workspace:*",
