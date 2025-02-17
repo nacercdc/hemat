@@ -21,4 +21,5 @@ export * from "./avatar";
 export * from "./sidebar";
 export * from "./collapsible";
 export * from "./skeleton";
+export * from "./switch";
 
