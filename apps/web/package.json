@@ -14,10 +14,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@e-market/tanstack-api-query": "workspace:*",
     "@e-market/tanstack-web-firebase-query": "workspace:*",
     "@e-market/web-ui-components": "workspace:*",
     "@hookform/resolvers": "^3.10.0",
     "@t3-oss/env-nextjs": "^0.11.1",
+    "@tanstack/react-query": "5.66.0",
     "geist": "^1.3.1",
     "mini-css-extract-plugin": "^2.9.1",
     "next": "^15.1.3",

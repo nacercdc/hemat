@@ -1,13 +1,40 @@
+import { TanstackQueryProvider as TanstackQueryRNFirebaseProvider } from "@e-market/tanstack-rn-firebase-query";
+import { TanstackQueryProvider as TanstackQueryAPIProvider } from "@e-market/tanstack-api-query";
 import React from "react";
 import LanguageProvider from "~/providers/language/LanguageProvider";
-import TanstackQueryProvider from "~/providers/tanstack-query/TanstackQueryProvider";
 interface Props {
   children: React.ReactNode;
 }
 export default function MainLayout({ children }: Props) {
   return (
-    <TanstackQueryProvider>
-      <LanguageProvider>{children}</LanguageProvider>
-    </TanstackQueryProvider>
+    <TanstackQueryRNFirebaseProvider
+      queryClientConfig={{
+        defaultOptions: {
+          queries: {
+            experimental_prefetchInRender: true,
+            refetchOnMount: false,
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
+            staleTime: Infinity,
+          },
+        },
+      }}
+    >
+      <TanstackQueryAPIProvider
+        queryClientConfig={{
+          defaultOptions: {
+            queries: {
+              experimental_prefetchInRender: true,
+              refetchOnMount: false,
+              refetchOnWindowFocus: false,
+              refetchOnReconnect: false,
+              staleTime: Infinity,
+            },
+          },
+        }}
+      >
+        <LanguageProvider>{children}</LanguageProvider>
+      </TanstackQueryAPIProvider>
+    </TanstackQueryRNFirebaseProvider>
   );
 }
