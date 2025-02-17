@@ -73,6 +73,7 @@ export default tseslint.config(
       "@typescript-eslint/no-require-imports": "off",
       "react-hooks/exhaustive-deps": "off",
       "@typescript-eslint/no-unnecessary-condition": "off",
+      "@typescript-eslint/prefer-nullish-coalescing":"off"
     },
   },
   {

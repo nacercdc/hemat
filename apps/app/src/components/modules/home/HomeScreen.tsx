@@ -1,14 +1,10 @@
-import { SafeAreaView } from "react-native";
 import React from "react";
 import { View, Text } from "@e-market/rn-ui-components";
 
 export default function HomeScreen() {
   return (
-    <SafeAreaView>
-      <View className="flex gap-5 px-6 w-full h-screen">
-        <Text>Expo starter from yarn monorepo start</Text>
-        <Text>@e-market Software PLC.</Text>
-      </View>
-    </SafeAreaView>
+    <View>
+      <Text>HomeScreen</Text>
+    </View>
   );
 }
