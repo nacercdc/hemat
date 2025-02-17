@@ -16,8 +16,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
-  "peerDependencies": {
-    "@tanstack/react-query": "^5.59.15",
+  "dependencies": {
+    "@tanstack/react-query": "5.66.0",
     "firebase": "^11.1.0"
   },
   "devDependencies": {
