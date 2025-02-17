@@ -2,6 +2,7 @@ import type {
   FirebaseFirestoreTypes,
   FirestoreError,
 } from "@react-native-firebase/firestore";
+import { onSnapshot } from "@react-native-firebase/firestore";
 import type { QueryFirestoreOption } from "./types/query.type";
 import { collectionReference } from "../helpers/firestore.ref";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -29,7 +30,7 @@ export function useCollectionQuery<
         .limit(queryOptions?.limit);
       if (firestoreOptions?.subscribe) {
         return new Promise<T[]>((resolve, reject) => {
-          const unsubscribe = query.getQuery().onSnapshot({
+          const unsubscribe = onSnapshot(query.getQuery(), {
             next: (snapshot) => {
               const data = serializeQuerySnapshot<T>(snapshot);
               queryClient.setQueryData(context.queryKey, data);
