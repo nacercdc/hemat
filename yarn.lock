@@ -7340,6 +7340,7 @@ __metadata:
     "@react-native-firebase/auth": "npm:^21.6.2"
     "@react-native-firebase/crashlytics": "npm:^21.6.2"
     "@react-native-firebase/firestore": "npm:^21.6.2"
+    "@react-native-firebase/storage": "npm:^21.6.2"
     "@react-native-picker/picker": "npm:^2.11.0"
     "@rn-primitives/alert-dialog": "npm:^1.1.0"
     "@rn-primitives/checkbox": "npm:^1.1.0"
