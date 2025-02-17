@@ -19,7 +19,7 @@ export function useCollectionQuery<
 
   return useQuery<T[], FirestoreError>({
     ...tqQueryOptions,
-    queryKey: tqQueryOptions?.queryKey ?? [collectionName], // Ensure a default queryKey
+    queryKey: tqQueryOptions?.queryKey ?? [collectionName],
     queryFn: async (context) => {
       const collectionRef = collectionReference<T>(collectionName);
       const queryRef = new Query<T>(collectionRef);
