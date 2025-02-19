@@ -47,6 +47,7 @@
     "@react-native-firebase/crashlytics": "^21.6.2",
     "@react-native-firebase/firestore": "^21.6.2",
     "@react-native-firebase/storage": "^21.6.2",
+    "@react-native-google-signin/google-signin": "^13.2.0",
     "@react-native-picker/picker": "^2.11.0",
     "@rn-primitives/alert-dialog": "^1.1.0",
     "@rn-primitives/checkbox": "^1.1.0",

@@ -1438,8 +1438,10 @@ __metadata:
     "@e-market/eslint-config": "workspace:*"
     "@e-market/prettier-config": "workspace:*"
     "@e-market/tsconfig": "workspace:*"
+    "@react-native-firebase/auth": "npm:^21.6.2"
     "@react-native-firebase/firestore": "npm:^21.6.2"
     "@react-native-firebase/storage": "npm:^21.6.2"
+    "@react-native-google-signin/google-signin": "npm:^13.2.0"
     "@tanstack/react-query": "npm:5.66.0"
     "@types/react": "npm:~18.3.12"
     eslint: "npm:^9.12.0"
@@ -5018,6 +5020,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-google-signin/google-signin@npm:^13.2.0":
+  version: 13.2.0
+  resolution: "@react-native-google-signin/google-signin@npm:13.2.0"
+  peerDependencies:
+    expo: ">=50.0.0"
+    react: "*"
+    react-dom: "*"
+    react-native: "*"
+  peerDependenciesMeta:
+    expo:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 10/7b6fa57689cf19b34a4084a220e99f2fc73d5d1eac8c91c908a30a80a47529192600e676648d2766eab81a33c3ca5f200b3939ae0a50b9d4b0752d7aad936137
+  languageName: node
+  linkType: hard
+
 "@react-native-picker/picker@npm:^2.11.0":
   version: 2.11.0
   resolution: "@react-native-picker/picker@npm:2.11.0"
@@ -7345,6 +7364,7 @@ __metadata:
     "@react-native-firebase/crashlytics": "npm:^21.6.2"
     "@react-native-firebase/firestore": "npm:^21.6.2"
     "@react-native-firebase/storage": "npm:^21.6.2"
+    "@react-native-google-signin/google-signin": "npm:^13.2.0"
     "@react-native-picker/picker": "npm:^2.11.0"
     "@rn-primitives/alert-dialog": "npm:^1.1.0"
     "@rn-primitives/checkbox": "npm:^1.1.0"
