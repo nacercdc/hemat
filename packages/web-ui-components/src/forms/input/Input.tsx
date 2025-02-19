@@ -78,7 +78,8 @@ export const Input = ({
           className={cn(
             inputVariants({ variant, size }),
             "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            error && "border-destructive-500"
+            error && "border-destructive-500",
+            leftNode && "pl-10"
           )}
           aria-invalid={error ? "true" : "false"}
         />

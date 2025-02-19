@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
 import React from "react";
 import {
-  Button,
-  DropdownMenu,
+  DropdownMenu as ShadcnDropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -12,33 +11,36 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "../../shadcn-ui";
+import { Button } from "../../forms/button";
 
-type Variant = "default" | "secondary" | "warning" | "destructive" | "success";
+type Variant = "default" | "dark" | "warning" | "destructive" | "success";
 type Size = "sm" | "md" | "lg";
 
-export interface DropDownMenuOption {
+export interface DropdownMenuOption {
   value: string;
   label: string;
   leftNode?: ReactNode;
   separator?: boolean;
   onClick?: () => void;
-  submenu?: DropDownMenuOption[];
+  submenu?: DropdownMenuOption[];
 }
 interface Props {
   label?: string;
-  options: DropDownMenuOption[];
+  options: DropdownMenuOption[];
   variant?: Variant;
   size?: Size;
   placeholder?: string;
+  trigger?: React.ReactNode;
 }
-export function DropDownMenu({
+export function DropdownMenu({
   label,
   options,
   variant = "default",
   size = "md",
   placeholder = "Select an option",
+  trigger,
 }: Props) {
-  const renderMenuItems = (items: DropDownMenuOption[]) => {
+  const renderMenuItems = (items: DropdownMenuOption[]) => {
     return items.map((item) => {
       if (item.submenu) {
         return (
@@ -69,18 +71,26 @@ export function DropDownMenu({
     });
   };
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild className="w-[250px]">
-        {/** This Button will be replaced by our own, and will have dynamic variances */}
-        <Button variant={"outline"} size={"lg"}>
-          {placeholder}
-        </Button>
-      </DropdownMenuTrigger>
+    <ShadcnDropdownMenu>
+      {trigger && (
+        <DropdownMenuTrigger asChild className="cursor-pointer">
+          {trigger && (
+            <div className="w-12 h-12 flex items-center">{trigger}</div>
+          )}
+        </DropdownMenuTrigger>
+      )}
+      {!trigger && (
+        <DropdownMenuTrigger asChild className="w-[250px] cursor-pointer">
+          <Button variant={"outline"} color={variant} size={size}>
+            {placeholder}
+          </Button>
+        </DropdownMenuTrigger>
+      )}
       <DropdownMenuContent className="w-[250px] space-y-1">
-        {label && <DropdownMenuLabel>My Account</DropdownMenuLabel>}
+        {label && <DropdownMenuLabel>{label}</DropdownMenuLabel>}
         {label && <DropdownMenuSeparator />}
         {renderMenuItems(options)}
       </DropdownMenuContent>
-    </DropdownMenu>
+    </ShadcnDropdownMenu>
   );
 }
