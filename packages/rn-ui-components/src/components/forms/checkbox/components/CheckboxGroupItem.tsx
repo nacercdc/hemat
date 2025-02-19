@@ -1,8 +1,8 @@
 import type { ComponentPropsWithoutRef } from "react";
 import { TouchableOpacity } from "react-native";
 import { Checkbox as NWCheckbox } from "../../../../nativewindui/components/checkbox/Checkbox";
-import { getValueFromPath } from "@e-market/utilities";
-import type { DeepKeyOf } from "@e-market/utilities";
+import { getValueFromPath } from "@etm/utilities";
+import type { DeepKeyOf } from "@etm/utilities";
 import { Text } from "../../../presentations/text/Text";
 import { cn } from "../../../../nativewindui/lib/cn.util";
 import type { CheckboxGroupOption } from "../types";

@@ -1,7 +1,7 @@
 import {
   useCollectionQuery,
   useDocumentQuery,
-} from "@e-market/tanstack-rn-firebase-query";
+} from "@etm/tanstack-rn-firebase-query";
 export enum Collection {
   LANGUAGES = "languages",
 }

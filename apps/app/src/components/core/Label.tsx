@@ -1,4 +1,4 @@
-import { Text, View } from "@e-market/rn-ui-components";
+import { Text, View } from "@etm/rn-ui-components";
 import React from "react";
 
 interface Props {

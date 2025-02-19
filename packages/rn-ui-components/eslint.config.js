@@ -1,6 +1,6 @@
 // @ts-nocheck
-import baseConfig from "@e-market/eslint-config/base";
-import reactConfig from "@e-market/eslint-config/react";
+import baseConfig from "@etm/eslint-config/base";
+import reactConfig from "@etm/eslint-config/react";
 
 /** @type {import('typescript-eslint').Config} */
 export default [

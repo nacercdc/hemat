@@ -2,7 +2,7 @@
 import {
   useCollectionQuery,
   useDocumentQuery,
-} from "@e-market/tanstack-web-firebase-query";
+} from "@etm/tanstack-web-firebase-query";
 interface Language {
   id: string;
   name: string;

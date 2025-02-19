@@ -1,5 +1,5 @@
 {
-  "extends": "@e-market/tsconfig/internal-package.json",
+  "extends": "@etm/tsconfig/internal-package.json",
   "compilerOptions": {
     "lib": ["ES2022"],
     "jsx": "preserve",

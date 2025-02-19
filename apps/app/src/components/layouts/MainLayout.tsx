@@ -1,5 +1,5 @@
-import { TanstackQueryProvider as TanstackQueryRNFirebaseProvider } from "@e-market/tanstack-rn-firebase-query";
-import { TanstackQueryProvider as TanstackQueryAPIProvider } from "@e-market/tanstack-api-query";
+import { TanstackQueryProvider as TanstackQueryRNFirebaseProvider } from "@etm/tanstack-rn-firebase-query";
+import { TanstackQueryProvider as TanstackQueryAPIProvider } from "@etm/tanstack-api-query";
 import React from "react";
 import LanguageProvider from "~/providers/language/LanguageProvider";
 interface Props {

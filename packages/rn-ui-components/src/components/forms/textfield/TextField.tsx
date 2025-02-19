@@ -1,7 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 import React from "react";
 import { TextField as NWTextField } from "../../../nativewindui/components/textfield";
-import { omit } from "@e-market/utilities";
+import { omit } from "@etm/utilities";
 import { FormController } from "../helper/FormController";
 
 interface Props

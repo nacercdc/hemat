@@ -2,8 +2,8 @@ import React from "react";
 import type { ModalProps } from "react-native-modal";
 import RNModal from "react-native-modal";
 import { View } from "../../presentations/view";
-import { COLORS } from "@e-market/nativewindui-theme-config/colors";
-import { omit } from "@e-market/utilities";
+import { COLORS } from "@etm/nativewindui-theme-config/colors";
+import { omit } from "@etm/utilities";
 type Props = Omit<
   Partial<ModalProps>,
   | "backdropColor"

@@ -1,5 +1,5 @@
 {
-  "name": "@e-market/tanstack-web-firebase-query",
+  "name": "@etm/tanstack-web-firebase-query",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -21,9 +21,9 @@
     "firebase": "^11.1.0"
   },
   "devDependencies": {
-    "@e-market/eslint-config": "workspace:*",
-    "@e-market/prettier-config": "workspace:*",
-    "@e-market/tsconfig": "workspace:*",
+    "@etm/eslint-config": "workspace:*",
+    "@etm/prettier-config": "workspace:*",
+    "@etm/tsconfig": "workspace:*",
     "@types/react": "^19.0.3",
     "eslint": "^9.12.0",
     "prettier": "^3.3.3",

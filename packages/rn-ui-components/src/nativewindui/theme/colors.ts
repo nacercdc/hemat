@@ -1,3 +1,3 @@
-import { COLORS  } from "@e-market/nativewindui-theme-config/colors";
+import { COLORS  } from "@etm/nativewindui-theme-config/colors";
 
 export  { COLORS } 

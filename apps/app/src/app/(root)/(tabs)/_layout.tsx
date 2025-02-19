@@ -1,4 +1,4 @@
-import { cn, Text, useColorScheme } from "@e-market/rn-ui-components";
+import { cn, Text, useColorScheme } from "@etm/rn-ui-components";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import type { IconProps } from "@roninoss/icons";
 import { Icon } from "@roninoss/icons";

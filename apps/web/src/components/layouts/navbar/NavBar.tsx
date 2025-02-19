@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import type { DropdownMenuOption } from "@e-market/web-ui-components";
-import { DropdownMenu, Input } from "@e-market/web-ui-components";
+import type { DropdownMenuOption } from "@etm/web-ui-components";
+import { DropdownMenu, Input } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react";
 
 interface Props {

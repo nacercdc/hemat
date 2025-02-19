@@ -2,11 +2,11 @@
 import {
   FirebaseProvider,
   initFirebaseApp,
-} from "@e-market/tanstack-web-firebase-query";
-import { SidebarProvider } from "@e-market/web-ui-components";
+} from "@etm/tanstack-web-firebase-query";
+import { SidebarProvider } from "@etm/web-ui-components";
 import { env } from "~/env";
-import { TanstackQueryProvider as TanstackQueryWebFirebaseProvider } from "@e-market/tanstack-web-firebase-query";
-import { TanstackQueryProvider as TanstackQueryAPIProvider } from "@e-market/tanstack-api-query";
+import { TanstackQueryProvider as TanstackQueryWebFirebaseProvider } from "@etm/tanstack-web-firebase-query";
+import { TanstackQueryProvider as TanstackQueryAPIProvider } from "@etm/tanstack-api-query";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <TanstackQueryWebFirebaseProvider

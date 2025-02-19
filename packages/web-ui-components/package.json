@@ -1,5 +1,5 @@
 {
-  "name": "@e-market/web-ui-components",
+  "name": "@etm/web-ui-components",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -27,7 +27,7 @@
     "ui-add": "npx shadcn@latest add && prettier src --write --list-different"
   },
   "dependencies": {
-    "@e-market/utilities": "workspace:*",
+    "@etm/utilities": "workspace:*",
     "@hookform/resolvers": "^3.9.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -56,10 +56,10 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
-    "@e-market/eslint-config": "workspace:*",
-    "@e-market/prettier-config": "workspace:*",
-    "@e-market/tailwind-config": "workspace:*",
-    "@e-market/tsconfig": "workspace:*",
+    "@etm/eslint-config": "workspace:*",
+    "@etm/prettier-config": "workspace:*",
+    "@etm/tailwind-config": "workspace:*",
+    "@etm/tsconfig": "workspace:*",
     "@iconify/react": "^5.2.0",
     "@types/lodash.get": "^4",
     "@types/react": "^19.0.3",

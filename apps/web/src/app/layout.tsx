@@ -4,7 +4,7 @@ import { Poppins } from "next/font/google";
 import "~/app/styles.css";
 import { Providers } from "~/providers";
 import { cn } from "~/utils/cn.util";
-import { Toaster } from "@e-market/web-ui-components";
+import { Toaster } from "@etm/web-ui-components";
 
 const poppins = Poppins({
   subsets: ["latin"],

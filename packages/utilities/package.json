@@ -1,5 +1,5 @@
 {
-  "name": "@e-market/utilities",
+  "name": "@etm/utilities",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -17,9 +17,9 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "devDependencies": {
-    "@e-market/eslint-config": "workspace:*",
-    "@e-market/prettier-config": "workspace:*",
-    "@e-market/tsconfig": "workspace:*",
+    "@etm/eslint-config": "workspace:*",
+    "@etm/prettier-config": "workspace:*",
+    "@etm/tsconfig": "workspace:*",
     "@types/lodash.get": "^4",
     "eslint": "^9.12.0",
     "prettier": "^3.3.3",

@@ -42,7 +42,7 @@
     "build:gradle:production": "yarn workspace app build:gradle:production"
   },
   "devDependencies": {
-    "@e-market/prettier-config": "workspace:*",
+    "@etm/prettier-config": "workspace:*",
     "@turbo/gen": "^2.3.1",
     "eslint": "^9.12.0",
     "husky": "^9.1.6",

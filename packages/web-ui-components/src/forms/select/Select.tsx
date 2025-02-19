@@ -7,7 +7,7 @@ import { Icon } from "@iconify/react";
 import { cva } from "class-variance-authority";
 import get from "lodash.get";
 
-import type { DeepKeyOf } from "@e-market/utilities";
+import type { DeepKeyOf } from "@etm/utilities";
 
 import {
   Button,

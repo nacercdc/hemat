@@ -1,7 +1,7 @@
 import type { ComponentPropsWithoutRef } from "react";
 import React from "react";
 import { Button as NWButton } from "../../../nativewindui/components/button/Button";
-import { omit } from "@e-market/utilities";
+import { omit } from "@etm/utilities";
 
 type Props = Omit<
   ComponentPropsWithoutRef<typeof NWButton>,

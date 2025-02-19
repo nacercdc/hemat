@@ -5,7 +5,7 @@ import { cn } from "../../shadcn-ui/utils/cn";
 import { FormControl } from "../form-control";
 import { buttonVariants } from "../button";
 import { Input as ShadcnInput } from "../../shadcn-ui";
-import { omit } from "@e-market/utilities";
+import { omit } from "@etm/utilities";
 
 interface PreviewFile {
   url: string;

@@ -14,9 +14,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@e-market/tanstack-api-query": "workspace:*",
-    "@e-market/tanstack-web-firebase-query": "workspace:*",
-    "@e-market/web-ui-components": "workspace:*",
+    "@etm/tanstack-api-query": "workspace:*",
+    "@etm/tanstack-web-firebase-query": "workspace:*",
+    "@etm/web-ui-components": "workspace:*",
     "@hookform/resolvers": "^3.10.0",
     "@t3-oss/env-nextjs": "^0.11.1",
     "@tanstack/react-query": "5.66.0",
@@ -32,10 +32,10 @@
     "zod": "3.23.8"
   },
   "devDependencies": {
-    "@e-market/eslint-config": "workspace:*",
-    "@e-market/prettier-config": "workspace:*",
-    "@e-market/tailwind-config": "workspace:*",
-    "@e-market/tsconfig": "workspace:*",
+    "@etm/eslint-config": "workspace:*",
+    "@etm/prettier-config": "workspace:*",
+    "@etm/tailwind-config": "workspace:*",
+    "@etm/tsconfig": "workspace:*",
     "@iconify/react": "^5.2.0",
     "@types/node": "^20.14.1",
     "@types/react": "^19.0.3",

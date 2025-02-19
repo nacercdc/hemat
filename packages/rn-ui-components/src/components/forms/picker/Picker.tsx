@@ -5,8 +5,8 @@ import {
 } from "../../../nativewindui/components/picker/Picker";
 
 import { FormController } from "../helper/FormController";
-import { getValueFromPath } from "@e-market/utilities";
-import type { DeepKeyOf } from "@e-market/utilities";
+import { getValueFromPath } from "@etm/utilities";
+import type { DeepKeyOf } from "@etm/utilities";
 
 import type { PickerOption } from "./types";
 

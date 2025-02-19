@@ -8,7 +8,7 @@ import {
   Label,
 } from "../../shadcn-ui";
 import get from "lodash.get";
-import type { DeepKeyOf } from "@e-market/utilities";
+import type { DeepKeyOf } from "@etm/utilities";
 import { cn } from "../../shadcn-ui/utils/cn";
 import { FormControl } from "../form-control";
 

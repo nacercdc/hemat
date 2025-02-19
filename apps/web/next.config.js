@@ -10,11 +10,11 @@ const config = {
 
   /** Enables hot reloading for local packages without a build step */
   transpilePackages: [
-    "@e-market/web-ui-components",
-    "@e-market/utilities",
-    "@e-market/tanstack-web-firebase-query",
-    "@e-market/api-interfaces",
-    "@e-market/tanstack-api-query",
+    "@etm/web-ui-components",
+    "@etm/utilities",
+    "@etm/tanstack-web-firebase-query",
+    "@etm/api-interfaces",
+    "@etm/tanstack-api-query",
   ],
 
   /** We already do linting and typechecking as separate tasks in CI */

@@ -3,7 +3,7 @@ import { Checkbox as NWCheckbox } from "../../../nativewindui/components/checkbo
 import { FormController } from "../helper/FormController";
 import { Text } from "../../../nativewindui/components/text/Text";
 import { TouchableOpacity } from "react-native";
-import { omit } from "@e-market/utilities";
+import { omit } from "@etm/utilities";
 import { cn } from "../../../nativewindui/lib/cn.util";
 interface Props
   extends Omit<
