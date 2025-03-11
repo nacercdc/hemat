@@ -1,10 +1,13 @@
+"use client";
+
 import type { VariantProps } from "class-variance-authority";
-import React, { ComponentPropsWithoutRef, useState } from "react";
+import type { ComponentPropsWithoutRef } from "react";
+import React, { useState } from "react";
 import { cva } from "class-variance-authority";
 import { cn } from "../../shadcn-ui/utils/cn";
 import { FormControl } from "../form-control";
 import { buttonVariants } from "../button";
-import { Input as ShadcnInput } from "../../shadcn-ui";
+import type { Input as ShadcnInput } from "../../shadcn-ui";
 import { omit } from "@etm/utilities";
 
 interface PreviewFile {
@@ -37,7 +40,7 @@ const fileInputVariants = cva(
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 type fileInputVariants = VariantProps<typeof fileInputVariants>;
@@ -82,7 +85,7 @@ export const FileInput = ({
       setFileNames(
         Array.from(files)
           .map((f) => f.name)
-          .join(", ")
+          .join(", "),
       );
 
       preview.forEach(({ url }) => URL.revokeObjectURL(url));
@@ -90,7 +93,7 @@ export const FileInput = ({
       const newPreviews = Array.from(files)
         .filter(
           (file) =>
-            file.type.startsWith("image/") || file.type.startsWith("video/")
+            file.type.startsWith("image/") || file.type.startsWith("video/"),
         )
         .map((file) => ({
           url: URL.createObjectURL(file),
@@ -119,7 +122,7 @@ export const FileInput = ({
         <div
           className={cn(
             fileInputVariants({ variant, size }),
-            "flex items-center"
+            "flex items-center",
           )}
         >
           {leftNode && (
@@ -136,7 +139,7 @@ export const FileInput = ({
                   color: variant === "default" ? "default" : variant,
                   size,
                 }),
-                "rounded-l-md border-r cursor-pointer flex items-center "
+                "rounded-l-md border-r cursor-pointer flex items-center ",
               )}
             >
               Choose File
@@ -148,7 +151,7 @@ export const FileInput = ({
                 "className",
                 "style",
                 "color",
-                "size"
+                "size",
               )}
               id={name}
               type="file"
