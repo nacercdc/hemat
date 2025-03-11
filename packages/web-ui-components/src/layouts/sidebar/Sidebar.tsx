@@ -3,10 +3,8 @@
 import React, { useState } from "react";
 import {
   Sidebar as ShadcnSidebar,
-  SidebarHeader,
   SidebarContent,
   SidebarGroup,
-  SidebarFooter,
   SidebarMenu,
   SidebarGroupContent,
   SidebarMenuItem,
@@ -18,13 +16,16 @@ import {
   SidebarGroupLabel,
   SidebarSeparator,
   SidebarRail,
+  useSidebar,
 } from "../../shadcn-ui";
 import { Icon } from "@iconify/react";
+import { cn } from "../../shadcn-ui/utils/cn";
 
 interface MenuItem {
   id: string;
   label: string;
-  icon?: React.ReactNode;
+  inactiveIcon?: React.ReactNode;
+  activeIcon?: React.ReactNode;
   path?: string;
   children?: MenuItem[];
   permission?: string;
@@ -39,24 +40,34 @@ interface Group {
 interface Props {
   groups: Group[];
   userPermissions: string[];
-  header: React.ReactNode;
-  footer?: React.ReactNode;
+  headerOnOpen: React.ReactNode;
+  headerOnCollapse: React.ReactNode;
+  footerOnOpen?: React.ReactNode;
+  footerOnCollapse?: React.ReactNode;
+  backgroundImagePath?: string;
   isLoading?: boolean;
   loadingIndicator?: React.ReactNode;
+  isActivePath: (itemPath: string) => boolean;
+  onNavigate: (path: string | undefined) => void;
 }
 
 export function Sidebar({
   groups,
   userPermissions,
-  header,
-  footer,
+  headerOnOpen,
+  headerOnCollapse,
+  footerOnOpen,
+  footerOnCollapse,
+  isActivePath,
+  backgroundImagePath,
   isLoading,
   loadingIndicator,
+  onNavigate,
 }: Props) {
-  const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [openCollapsibles, setOpenCollapsibles] = useState<
     Record<string, boolean>
   >({});
+  const { toggleSidebar, open } = useSidebar();
 
   const toggleCollapsible = (id: string) => {
     setOpenCollapsibles((prev) => ({
@@ -65,8 +76,8 @@ export function Sidebar({
     }));
   };
 
-  const isItemActive = (itemId: string) => {
-    return itemId === activeItemId;
+  const isItemActive = (itemId: string, itemPath?: string) => {
+    return itemPath ? isActivePath(itemPath) : false;
   };
 
   const hasPermission = (item: MenuItem) => {
@@ -97,7 +108,7 @@ export function Sidebar({
             )}
             <CollapsibleContent>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="gap-3 mt-3">
                   {menuItems.map((item) => renderMenuItem(item))}
                 </SidebarMenu>
               </SidebarGroupContent>
@@ -120,7 +131,7 @@ export function Sidebar({
                 tooltip={item.label}
                 onClick={() => toggleCollapsible(item.id)}
               >
-                {item.icon && <span>{item.icon}</span>}
+                {item.inactiveIcon && <span>{item.inactiveIcon}</span>}
                 <span>{item.label}</span>
                 {openCollapsibles[item.id] ? (
                   <Icon
@@ -150,13 +161,36 @@ export function Sidebar({
         <SidebarMenuButton
           asChild
           tooltip={item.label}
-          isActive={isItemActive(item.id)}
-          onClick={() => setActiveItemId(item.id)}
+          isActive={isItemActive(item.id, item.path)}
+          onClick={(e) => {
+            e.preventDefault();
+            onNavigate(item.path);
+          }}
+          className={cn("font-semibold", open && "px-6")}
         >
-          <a href={item.path}>
-            {item.icon && <span>{item.icon}</span>}
-            <span>{item.label}</span>
-          </a>
+          <span className={cn("cursor-pointer")}>
+            {(item.activeIcon || item.inactiveIcon) && (
+              <span
+                className={cn(
+                  isItemActive(item.id, item.path) && "text-info-800 font-bold"
+                )}
+              >
+                {item.activeIcon &&
+                  isItemActive(item.id, item.path) &&
+                  item.activeIcon}
+                {item.inactiveIcon &&
+                  !isItemActive(item.id, item.path) &&
+                  item.inactiveIcon}
+              </span>
+            )}
+            <span
+              className={cn(
+                isItemActive(item.id, item.path) && "text-info-800 font-bold"
+              )}
+            >
+              {item.label}
+            </span>
+          </span>
         </SidebarMenuButton>
       </SidebarMenuItem>
     );
@@ -169,26 +203,34 @@ export function Sidebar({
 
   return (
     <ShadcnSidebar collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>{header}</SidebarMenuButton>
+      <SidebarContent
+        className={cn(backgroundImagePath && "bg-cover bg-no-repeat")}
+        style={{ backgroundImage: `url(${backgroundImagePath})` }}
+      >
+        <SidebarMenu className="flex flex-col h-full overflow-hidden">
+          <SidebarMenuItem
+            className={cn(
+              "mb-6 mt-9",
+              open && "px-7",
+              !open && "pl-3.5",
+              "cursor-pointer"
+            )}
+            onClick={toggleSidebar}
+          >
+            {open && headerOnOpen}
+            {!open && headerOnCollapse}
           </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
-        {groups.map((group, index) => renderGroups(group, index))}
-      </SidebarContent>
-      {footer && <SidebarSeparator />}
-      {footer && (
-        <SidebarFooter>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>{footer}</SidebarMenuButton>
+          <div className="flex-1 overflow-auto">
+            {groups.map((group, index) => renderGroups(group, index))}
+          </div>
+          {open && (
+            <SidebarMenuItem className="self-center my-3">
+              <div>{footerOnOpen}</div>
             </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      )}
+          )}
+          {!open && <div>{footerOnCollapse}</div>}
+        </SidebarMenu>
+      </SidebarContent>
       <SidebarRail />
     </ShadcnSidebar>
   );
