@@ -1,3 +1,4 @@
 export * from "./accordion";
 export * from "./badge";
 export * from "./avatar";
+export * from "./password-strength-indicator";
