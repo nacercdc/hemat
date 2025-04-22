@@ -9,7 +9,7 @@ import { cn } from "./utils/cn";
 import { Button } from "./button";
 import { Input } from "./input";
 import { Separator } from "./separator";
-import { Sheet, SheetContent } from "./sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "./sheet";
 import { Skeleton } from "./skeleton";
 import {
   Tooltip,
@@ -195,9 +195,12 @@ const Sidebar = React.forwardRef<
     if (isMobile) {
       return (
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+          <SheetTitle className="hidden"></SheetTitle>
+          <SheetDescription className="hidden"></SheetDescription>
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
+            aria-describedby=""
             className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
             style={
               {
