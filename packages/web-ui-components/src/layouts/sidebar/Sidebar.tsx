@@ -71,13 +71,13 @@ export function Sidebar({
   isActivePath,
   onNavigate,
 }: Props) {
-  const [openCollapsibles, setOpenCollapsibles] = useState<
+  const [openCollapsible, setOpenCollapsible] = useState<
     Record<string, boolean>
   >({});
   const { toggleSidebar, open } = useSidebar();
 
   const toggleCollapsible = (id: string) => {
-    setOpenCollapsibles((prev) => ({
+    setOpenCollapsible((prev) => ({
       ...prev,
       [id]: !prev[id],
     }));
@@ -116,7 +116,7 @@ export function Sidebar({
           <span className={cn("text-xl", !open && "text-lg")}>{item.icon}</span>
         )}
         <span>{item.label}</span>
-        {openCollapsibles[item.id] ? (
+        {openCollapsible[item.id] ? (
           <Icon icon={"lucide:chevron-down"} className="ml-auto w-4 h-4" />
         ) : (
           <Icon icon={"lucide:chevron-right"} className="ml-auto w-4 h-4" />

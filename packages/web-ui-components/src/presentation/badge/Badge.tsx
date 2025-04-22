@@ -7,7 +7,7 @@ const badgeVariants = cva("text-sm", {
   variants: {
     variant: {
       outlined:
-        "border-dark-light bg-transpacent text-dark-light hover:bg-dark-lighter",
+        "border-dark-light bg-transparent text-dark-light hover:bg-dark-lighter",
       destructive:
         "border-destructive-400 bg-destructive-100 text-destructive hover:bg-destructive-200",
       success:

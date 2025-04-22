@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { DropdownMenu } from "../../navigations";
+import { DropdownMenu } from "../../navigation";
 import { cn } from "../../shadcn-ui/utils/cn";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { CheckboxGroup } from "../checkbox/CheckboxGroup";
