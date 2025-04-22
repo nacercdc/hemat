@@ -3,30 +3,30 @@
 import type { Control, FieldValues, Path } from "react-hook-form";
 import React from "react";
 import { Controller } from "react-hook-form";
+import type { DateTimePickerProps } from "./DateTimeInput";
+import { DateTimePicker } from "./DateTimeInput";
 
-import type { Props as TextAreaProps } from "./TextArea";
-import { TextArea } from "./TextArea";
-
-interface Props<T extends FieldValues> extends TextAreaProps {
+interface DateTimePickerRHFProps<T extends FieldValues>
+  extends Omit<DateTimePickerProps, "value" | "onChange"> {
   name: Path<T>;
   control: Control<T>;
 }
 
-export const TextAreaRHF = <T extends FieldValues>({
+export const DateTimePickerRHF = <T extends FieldValues>({
   name,
   control,
   ...props
-}: Props<T>) => {
+}: DateTimePickerRHFProps<T>) => {
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => (
-        <TextArea
-          {...field}
+        <DateTimePicker
           {...props}
           name={name as string}
-          id={name}
+          value={field.value}
+          onChange={field.onChange}
           error={error?.message}
         />
       )}

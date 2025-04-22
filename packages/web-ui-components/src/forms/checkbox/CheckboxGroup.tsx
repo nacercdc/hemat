@@ -3,10 +3,8 @@ import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
 import get from "lodash.get";
 import type { DeepKeyOf } from "@etm/utilities";
-import {
-  Checkbox,
-  CheckboxVariants,
-} from "../../../../web-ui-components/src/forms/checkbox";
+import type { CheckboxVariants } from "../../../../web-ui-components/src/forms/checkbox";
+import { Checkbox } from "../../../../web-ui-components/src/forms/checkbox";
 import { FormControl } from "../form-control";
 import { cn } from "../../shadcn-ui/utils/cn";
 
@@ -68,7 +66,7 @@ export function CheckboxGroup<T>({
 
   const handleCheckboxChange = (
     option: T,
-    checked: boolean | "indeterminate"
+    checked: boolean | "indeterminate",
   ) => {
     if (typeof checked === "boolean") {
       if (checked) {
@@ -76,8 +74,8 @@ export function CheckboxGroup<T>({
       } else {
         onValuesChange(
           values.filter(
-            (value) => get(value, valueKey) !== get(option, valueKey)
-          )
+            (value) => get(value, valueKey) !== get(option, valueKey),
+          ),
         );
       }
     }
