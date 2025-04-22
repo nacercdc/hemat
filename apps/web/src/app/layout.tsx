@@ -5,6 +5,7 @@ import "~/app/styles.css";
 import { Providers } from "~/providers";
 import { cn } from "~/utils/cn.util";
 import { Toaster } from "@etm/web-ui-components";
+import { constructMetadata } from "~/utils/metadata.util";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -12,17 +13,13 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("http://localhost:3000"),
-  title: "E-market",
-  description: "E-market dashboard",
-  openGraph: {
-    title: "E-market",
-    description: "E-market dashboard",
-    url: "https://etmsoftwareplc.com",
-    siteName: "E-market",
-  },
-};
+export function generateMetadata(): Metadata {
+  return constructMetadata({
+    title: "Yarn monorepo starter",
+    description: "Yarn monorepo starter",
+    path: `/`,
+  });
+}
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
