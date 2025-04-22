@@ -11,12 +11,11 @@ type ToastPosition = "top-left" | "top-right" | "bottom-left" | "bottom-right";
 const toastVariants = cva("flex", {
   variants: {
     variant: {
-      default: "border-basic text-basic",
-      destructive:
-        "border-destructive-500 bg-destructive-500 text-destructive-100",
-      success: "border-success-500 bg-success-500 text-success-100",
-      info: "border-info-500 bg-info-500 text-info-100",
-      warning: "border-warning-500 bg-warning-500 text-warning-100",
+      default: "border-dark-light text-dark",
+      destructive: "border-destructive-200 text-dark",
+      success: "border-success-200 text-dark",
+      info: "border-primary-200 text-dark",
+      warning: "border-warning-200 text-dark",
     },
     position: {
       "top-left":
@@ -36,7 +35,7 @@ const toastVariants = cva("flex", {
 
 interface Props {
   title?: string;
-  message: string;
+  message: React.ReactNode;
   variant?: ToastVariant;
   duration?: number;
   position?: ToastPosition;
@@ -46,10 +45,14 @@ interface Props {
 
 const iconMap: Record<ToastVariant, React.ReactNode> = {
   default: null,
-  destructive: <Icon icon="lucide:circle-x" className="h-6 w-6" />,
-  warning: <Icon icon="lucide:triangle-alert" className="h-6 w-6" />,
-  success: <Icon icon="lucide:circle-check" className="h-6 w-6" />,
-  info: <Icon icon="lucide:info" className="h-6 w-6" />,
+  destructive: (
+    <Icon icon="lucide:circle-x" className="h-6 w-6 text-destructive" />
+  ),
+  warning: (
+    <Icon icon="lucide:triangle-alert" className="h-6 w-6 text-warning-500" />
+  ),
+  success: <Icon icon="lucide:circle-check" className="h-6 w-6 text-success" />,
+  info: <Icon icon="lucide:info" className="h-6 w-6 text-primary" />,
 };
 
 export function useToast() {
@@ -60,7 +63,7 @@ export function useToast() {
       message,
       variant = "info",
       duration = 3000,
-      position = "bottom-right",
+      position = "top-right",
       actionText,
       onAction,
     }: Props) =>
@@ -68,7 +71,7 @@ export function useToast() {
         description: (
           <div
             className={cn(
-              "flex gap-2 w-[420px] rounded-md border px-3 py-2",
+              "flex gap-4 w-[420px] rounded-md border px-3 py-2",
               toastVariants({ variant })
             )}
           >
@@ -82,7 +85,7 @@ export function useToast() {
                 variant="outline"
                 onClick={onAction}
                 size="sm"
-                className={`text-${variant}-500 right-12 absolute`}
+                className={`text-basic border-${variant}-200 right-12 absolute`}
               >
                 {actionText}
               </Button>
@@ -91,7 +94,7 @@ export function useToast() {
         ),
         className: cn(
           toastVariants({ position }),
-          `w-[420px] flex fixed p-0 border-none text-${variant}-100`
+          `w-[420px] flex fixed p-0 border-none text-${variant}-500`
         ),
         duration,
       }),
