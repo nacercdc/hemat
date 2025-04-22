@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
 } from "../../shadcn-ui";
 import { Button } from "../../forms/button";
+import { cn } from "../../shadcn-ui/utils/cn";
 
 type Variant = "default" | "dark" | "warning" | "destructive" | "success";
 type Size = "sm" | "md" | "lg";
@@ -25,8 +26,8 @@ export interface DropdownMenuOption {
   submenu?: DropdownMenuOption[];
 }
 interface Props {
-  label?: string;
-  options: DropdownMenuOption[];
+  label?: React.ReactNode;
+  options?: DropdownMenuOption[];
   variant?: Variant;
   size?: Size;
   placeholder?: string;
@@ -34,7 +35,7 @@ interface Props {
 }
 export function DropdownMenu({
   label,
-  options,
+  options = [],
   variant = "default",
   size = "md",
   placeholder = "Select an option",
@@ -86,7 +87,7 @@ export function DropdownMenu({
           </Button>
         </DropdownMenuTrigger>
       )}
-      <DropdownMenuContent className="w-[250px] space-y-1">
+      <DropdownMenuContent className={cn(!trigger && "w-[250px]", "space-y-1")}>
         {label && <DropdownMenuLabel>{label}</DropdownMenuLabel>}
         {label && <DropdownMenuSeparator />}
         {renderMenuItems(options)}
