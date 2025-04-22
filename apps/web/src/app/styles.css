@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 50px white inset;
+}
+
 @layer base {
   :root {
     /* Web css variable */
@@ -16,24 +20,39 @@
     --color-basic-900: 0, 0%, 16.1%; /* hsl(0, 0%, 16.1%) */
     --color-basic-1000: 0, 0%, 12.2%; /* hsl(0, 0%, 12.2%) */
     --color-basic-1100: 0, 0%, 7.8%; /* hsl(0, 0%, 7.8%) */
-    --color-primary-100: 358.8, 78.1%, 87.5%; /* hsl(358.8, 78.1%, 87.5%) */
-    --color-primary-200: 352.6, 78.9%, 75.9%; /* hsl(352.6, 78.9%, 75.9%) */
-    --color-primary-300: 346.6, 62.5%, 59.2%; /* hsl(346.6, 62.5%, 59.2%) */
-    --color-primary-400: 340.6, 60.2%, 43.3%; /* hsl(340.6, 60.2%, 43.3%) */
-    --color-primary-500: 334.8, 100%, 24.7%; /* hsl(334.8, 100%, 24.7%) */
-    --color-primary-600: 328.9, 100%, 21.2%; /* hsl(328.9, 100%, 21.2%) */
-    --color-primary-700: 322.7, 100%, 17.6%; /* hsl(322.7, 100%, 17.6%) */
-    --color-primary-800: 317.3, 100%, 14.3%; /* hsl(317.3, 100%, 14.3%) */
-    --color-primary-900: 311, 100%, 11.8%; /* hsl(311, 100%, 11.8%) */
-    --color-success-100: 92.5, 82.8%, 88.6%; /* hsl(92.5, 82.8%, 88.6%) */
-    --color-success-200: 96.4, 82.5%, 77.6%; /* hsl(96.4, 82.5%, 77.6%) */
-    --color-success-300: 100.9, 70.2%, 63.1%; /* hsl(100.9, 70.2%, 63.1%) */
-    --color-success-400: 105.4, 56.7%, 49.8%; /* hsl(105.4, 56.7%, 49.8%) */
-    --color-success-500: 110, 92.9%, 32.9%; /* hsl(110, 92.9%, 32.9%) */
-    --color-success-600: 114.7, 94.4%, 28%; /* hsl(114.7, 94.4%, 28%) */
-    --color-success-700: 119.5, 95%, 23.3%; /* hsl(119.5, 95%, 23.3%) */
-    --color-success-800: 123.9, 97.9%, 18.4%; /* hsl(123.9, 97.9%, 18.4%) */
-    --color-success-900: 127.9, 97.4%, 15.3%; /* hsl(127.9, 97.4%, 15.3%) */
+    --color-primary-50: 189, 100%, 96%; /* hsl(189, 100%, 96%) */
+    --color-primary-100: 193, 100%, 92%; /* hsl(193, 100%, 92%) */
+    --color-primary-200: 190, 100%, 85%; /* hsl(190, 100%, 85%) */
+    --color-primary-300: 189, 100%, 75%; /* hsl(189, 100%, 75%) */
+    --color-primary-400: 191, 100%, 63%; /* hsl(191, 100%, 63%) */
+    --color-primary-500: 196, 100%, 54%; /* hsl(196, 100%, 54%) */
+    --color-primary-600: 202, 100%, 50%; /* hsl(202, 100%, 50%) */
+    --color-primary-700: 208, 100%, 50%; /* hsl(208, 100%, 50%) */
+    --color-primary-800: 208, 100%, 44%; /* hsl(208, 100%, 44%) */
+    --color-primary-900: 206, 90%, 33%; /* hsl(206, 90%, 33%) */
+    --color-primary-950: 208, 81%, 21%; /* hsl(208, 81%, 21%) */
+    --color-secondary-50: 231, 100%, 97%; /* hsl(231, 100%, 97%) */
+    --color-secondary-100: 230, 100%, 95%; /* hsl(230, 100%, 95%) */
+    --color-secondary-200: 230, 100%, 91%; /* hsl(230, 100%, 91%) */
+    --color-secondary-300: 231, 100%, 84%; /* hsl(231, 100%, 84%) */
+    --color-secondary-400: 235, 100%, 74%; /* hsl(235, 100%, 74%) */
+    --color-secondary-500: 238, 100%, 64%; /* hsl(238, 100%, 64%) */
+    --color-secondary-600: 241, 100%, 56%; /* hsl(241, 100%, 56%) */
+    --color-secondary-700: 242, 91%, 50%; /* hsl(242, 91%, 50%) */
+    --color-secondary-800: 242, 90%, 42%; /* 	hsl(242, 90%, 42%) */
+    --color-secondary-900: 242, 87%, 35%; /* 	hsl(242, 87%, 35%) */
+    --color-secondary-950: 239, 94%, 19%; /* hsl(239, 94%, 19%) */
+    --color-success-50: 143, 100%, 96%; /* hsl(143, 100%, 96%) */
+    --color-success-100: 145, 100%, 92%; /* hsl(145, 100%, 92%) */
+    --color-success-200: 146, 100%, 84%; /* hsl(146, 100%, 84%) */
+    --color-success-300: 146, 100%, 72%; /* hsl(146, 100%, 72%) */
+    --color-success-400: 145, 96%, 58%; /* hsl(145, 96%, 58%) */
+    --color-success-500: 146, 98%, 45%; /* hsl(146, 98%, 45%) */
+    --color-success-600: 145, 100%, 37%; /* hsl(145, 100%, 37%) */
+    --color-success-700: 146, 100%, 32%; /* hsl(146, 100%, 32%) */
+    --color-success-800: 146, 90%, 24%; /* hsl(146, 90%, 24%) */
+    --color-success-900: 147, 84%, 20%; /* hsl(147, 84%, 20%) */
+    --color-success-950: 147, 100%, 11%; /* hsl(147, 100%, 11%) */
     --color-info-100: 212.6, 95.8%, 90.6%; /* hsl(212.6, 95.8%, 90.6%) */
     --color-info-200: 213.9, 95.8%, 81.2%; /* hsl(213.9, 95.8%, 81.2%) */
     --color-info-300: 215.9, 94.5%, 71.6%; /* hsl(215.9, 94.5%, 71.6%) */
@@ -52,17 +71,27 @@
     --color-warning-700: 36.8, 100%, 35.5%; /* hsl(36.8, 100%, 35.5%) */
     --color-warning-800: 34.9, 100%, 28.6%; /* hsl(34.9, 100%, 28.6%) */
     --color-warning-900: 33, 100%, 23.5%; /* hsl(33, 100%, 23.5%) */
-    --color-destructive-100: 20, 100%, 90%; /* hsl(20, 100%, 90%) */
-    --color-destructive-200: 15.3, 100%, 80%; /* hsl(15.3, 100%, 80%) */
-    --color-destructive-300: 10.2, 100%, 70%; /* hsl(10.2, 100%, 70%) */
-    --color-destructive-400: 5.3, 100%, 62.4%; /* hsl(5.3, 100%, 62.4%) */
-    --color-destructive-500: 0, 100%, 50%; /* hsl(0, 100%, 50%) */
-    --color-destructive-600: 355.1, 100%, 42.9%; /* hsl(355.1, 100%, 42.9%) */
-    --color-destructive-700: 349.8, 100%, 35.9%; /* hsl(349.8, 100%, 35.9%) */
-    --color-destructive-800: 344.5, 100%, 28.8%; /* hsl(344.5, 100%, 28.8%) */
-    --color-destructive-900: 339.3, 100%, 23.9%; /* hsl(339.3, 100%, 23.9%) */
+    --color-destructive-50: 0, 86%, 97%; /* hsl(0, 86%, 97%) */
+    --color-destructive-100: 0, 87%, 94%; /* hsl(0, 87%, 94%) */
+    --color-destructive-200: 0, 93%, 89%; /* hsl(0, 93%, 89%) */
+    --color-destructive-300: 0, 89%, 82%; /* hsl(0, 89%, 82%) */
+    --color-destructive-400: 0, 87%, 71%; /* hsl(0, 87%, 71%) */
+    --color-destructive-500: 0, 80%, 60%; /* hsl(0, 100%, 50%) */
+    --color-destructive-600: 0, 69%, 50%; /* hsl(0, 69%, 50%) */
+    --color-destructive-700: 0, 70%, 42%; /* hsl(0, 70%, 42%) */
+    --color-destructive-800: 0, 67%, 35%; /* hsl(0, 67%, 35%) */
+    --color-destructive-900: 0, 59%, 31%; /* hsl(0, 59%, 31%) */
+    --color-destructive-950: 0, 70%, 15%; /* hsl(0, 70%, 15%) */
+    --color-background: 240 47% 96%; /* hsl(240, 48%, 96%) */
+    --color-dark: 240, 27%, 12%; /* hsl(240, 27%, 12%) */
+    --color-dark-light: 0, 0%, 50%; /* 	hsl(0, 0%, 50%) */
+    --color-dark-lighter: 0, 0%, 68%; /* hsl(0, 0%, 68%) */
+    --color-layout-bg: 240, 22%, 92%; /* hsl(240, 22%, 92%) */
+    --color-tbsidebar-accent: 218, 98%, 33%; /* hsl(218, 98%, 33%) */
+    --color--accent: 252, 29%, 97%; /* hsl(252, 29%, 97%) */
+
     /* Shadcn css variables */
-    --background: var(--color-basic-100);
+    --background: var(--color-background);
     --foreground: var(--color-basic-1100);
     --card: var(--color-basic-100);
     --card-foreground: var(--color-basic-1100);

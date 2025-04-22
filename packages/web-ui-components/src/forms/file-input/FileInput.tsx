@@ -1,10 +1,12 @@
+"use client";
 import type { VariantProps } from "class-variance-authority";
-import React, { ComponentPropsWithoutRef, useState } from "react";
+import type { ComponentPropsWithoutRef } from "react";
+import React, { useState } from "react";
 import { cva } from "class-variance-authority";
 import { cn } from "../../shadcn-ui/utils/cn";
 import { FormControl } from "../form-control";
 import { buttonVariants } from "../button";
-import { Input as ShadcnInput } from "../../shadcn-ui";
+import type { Input as ShadcnInput } from "../../shadcn-ui";
 import { omit } from "@etm/utilities";
 
 interface PreviewFile {

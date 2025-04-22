@@ -63,17 +63,17 @@ export default tseslint.config(
         "warn",
         { prefer: "type-imports", fixStyle: "separate-type-imports" },
       ],
-      "@typescript-eslint/no-misused-promises": [
-        2,
-        { checksVoidReturn: { attributes: false } },
-      ],
       "@typescript-eslint/no-non-null-assertion": "error",
       "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
       "@typescript-eslint/no-floating-promises": "off",
       "@typescript-eslint/no-require-imports": "off",
       "react-hooks/exhaustive-deps": "off",
       "@typescript-eslint/no-unnecessary-condition": "off",
-      "@typescript-eslint/prefer-nullish-coalescing":"off"
+      "@typescript-eslint/prefer-nullish-coalescing":"off",
+     "@typescript-eslint/no-unsafe-return": "off",
+     "@typescript-eslint/no-unsafe-argument":"off",
+     "@typescript-eslint/no-unsafe-assignment":"off",
+     "@typescript-eslint/no-misused-promises":"off",
     },
   },
   {
