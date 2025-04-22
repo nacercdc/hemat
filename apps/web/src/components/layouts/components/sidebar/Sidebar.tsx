@@ -8,10 +8,8 @@ import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import useUserAbility from "~/providers/ability/casl/useUserAbility";
 import { groups } from "./constants";
-import { useFetchMe } from "~/providers/fetch-me/useFetchMe";
 
-export function Sidebar() {
-  const { isLoading, data } = useFetchMe();
+export default function Sidebar() {
   const router = useRouter();
   const pathName = usePathname();
   const ability = useUserAbility();
@@ -65,10 +63,10 @@ export function Sidebar() {
         }
         bgColor="secondary"
         isActivePath={isActivePath}
-        groups={groups(ability, !data || isLoading)}
+        groups={groups(ability, false)}
         separatorBetweenGroups={false}
         onNavigate={onNavigate}
-        isLoading={isLoading}
+        isLoading={false}
       />
     </div>
   );

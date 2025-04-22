@@ -1,14 +1,10 @@
 import type { AppAbilityType } from "~/providers/ability/casl/ability";
 import { Icon } from "@iconify/react";
-import {
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from "~/providers/ability/casl/types";
 import type { Group } from "@etm/web-ui-components";
 
 // TODO: Remove isLoading as soon as we have all permission actions and subjects
 export const groups = (
-  ability: AppAbilityType,
+  _ability: AppAbilityType,
   isLoading: boolean
 ): Group[] => [
   {
@@ -25,36 +21,21 @@ export const groups = (
         id: "sales",
         label: "Sales",
         icon: <Icon icon="basil:invoice-outline" />,
-        permission: [
-          ability.can(
-            PermissionActionEnum.VIEW,
-            PermissionSubjectEnum.Customers
-          ),
-          ability.can(
-            PermissionActionEnum.VIEW,
-            PermissionSubjectEnum.Invoices
-          ),
-        ].some(Boolean),
+        permission: [true].some(Boolean),
         depth: 0,
         children: [
           {
             id: "customers",
             label: "Customers",
             path: "/customers",
-            permission: ability.can(
-              PermissionActionEnum.VIEW,
-              PermissionSubjectEnum.Customers
-            ),
+            permission: true,
             depth: 1,
           },
           {
             id: "invoice",
             label: "Invoice",
             path: "/invoices",
-            permission: ability.can(
-              PermissionActionEnum.VIEW,
-              PermissionSubjectEnum.Invoices
-            ),
+            permission: true,
             depth: 1,
           },
         ],
@@ -63,47 +44,28 @@ export const groups = (
         id: "expenses",
         label: "Expenses",
         icon: <Icon icon="iconamoon:invoice" />,
-        permission: [
-          ability.can(
-            PermissionActionEnum.VIEW,
-            PermissionSubjectEnum.Suppliers
-          ),
-          ability.can(PermissionActionEnum.VIEW, PermissionSubjectEnum.Bills),
-          ability.can(
-            PermissionActionEnum.VIEW,
-            PermissionSubjectEnum.Expenses
-          ),
-        ].some(Boolean),
+        permission: [true].some(Boolean),
         depth: 0,
         children: [
           {
             id: "supplier",
             label: "Suppliers",
             path: "/suppliers",
-            permission: ability.can(
-              PermissionActionEnum.VIEW,
-              PermissionSubjectEnum.Suppliers
-            ),
+            permission: true,
             depth: 1,
           },
           {
             id: "bill",
             label: "Bills",
             path: "/bills",
-            permission: ability.can(
-              PermissionActionEnum.VIEW,
-              PermissionSubjectEnum.Bills
-            ),
+            permission: true,
             depth: 1,
           },
           {
             id: "expense",
             label: "Expense",
             path: "/expenses",
-            permission: ability.can(
-              PermissionActionEnum.VIEW,
-              PermissionSubjectEnum.Expenses
-            ),
+            permission: true,
             depth: 1,
           },
         ],
@@ -121,10 +83,7 @@ export const groups = (
         label: "Accounts",
         icon: <Icon icon="mdi:chart-box-outline" />,
         path: "/accounts",
-        permission: ability.can(
-          PermissionActionEnum.VIEW,
-          PermissionSubjectEnum.Accounts
-        ),
+        permission: true,
         depth: 0,
       },
       {
@@ -132,10 +91,7 @@ export const groups = (
         label: "Employees",
         icon: <Icon icon="ci:users-group" />,
         path: "/employees",
-        permission: ability.can(
-          PermissionActionEnum.VIEW,
-          PermissionSubjectEnum.Employees
-        ),
+        permission: true,
         depth: 0,
       },
       {
@@ -159,10 +115,7 @@ export const groups = (
         label: "Taxes",
         icon: <Icon icon="tabler:tax" />,
         path: "/taxes",
-        permission: ability.can(
-          PermissionActionEnum.VIEW,
-          PermissionSubjectEnum.Taxes
-        ),
+        permission: true,
         depth: 0,
       },
       {
@@ -170,10 +123,7 @@ export const groups = (
         label: "Settings",
         icon: <Icon icon="solar:settings-linear" />,
         path: "/settings",
-        permission: ability.can(
-          PermissionActionEnum.VIEW,
-          PermissionSubjectEnum.Settings
-        ),
+        permission: true,
         depth: 0,
       },
       {
@@ -188,10 +138,7 @@ export const groups = (
             id: "users",
             label: "Users",
             path: "/users",
-            permission: ability.can(
-              PermissionActionEnum.VIEW,
-              PermissionSubjectEnum.Users
-            ),
+            permission: true,
             depth: 1,
           },
           {

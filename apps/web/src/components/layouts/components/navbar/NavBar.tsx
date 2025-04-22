@@ -4,55 +4,19 @@ import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Avatar, DropdownMenu, Input } from "@etm/web-ui-components";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAddMutation as useLogoutFromServer } from "~/libs/tanstack-api-query/hooks/useAddMutation";
-import { signOut } from "next-auth/react";
-import { useFetchMe } from "~/providers/fetch-me/useFetchMe";
-import ProfileSkeleton from "~/components/modules/components/profile-avatar/skeletons/ProfileSkeleton";
-import AvatarSkeleton from "~/components/modules/components/profile-avatar/skeletons/AvatarSkeleton";
-import ProfileAvatar from "~/components/modules/components/profile-avatar/ProfileAvatar";
 import { getInitials } from "~/utils/string.util";
 
 export function NavBar() {
   const [searchValue, setSearchValue] = useState<string>("");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: currentUser, ...currentUserState } = useFetchMe();
-
-  const { mutate: logoutFormServer, ...logoutFormServerState } =
-    useLogoutFromServer("/logout");
-
-  const userAvatarLabelComponent = () => {
-    return (
-      <>
-        {currentUserState.isLoading && (
-          <div className="min-w-52">
-            <ProfileSkeleton />
-          </div>
-        )}
-        {currentUserState.isSuccess && currentUser?.data && (
-          <ProfileAvatar
-            name={currentUser.data.name}
-            id={currentUser.data.id}
-            contact={currentUser.data.email}
-          />
-        )}
-      </>
-    );
-  };
 
   const onNotificationClickHandler = () => {
     //  TODO: handle notification click
   };
 
   const onLogoutHandler = () => {
-    logoutFormServer(
-      {},
-      {
-        onSuccess: async () => {
-          await signOut({ redirect: true, callbackUrl: "/login" });
-        },
-      }
-    );
+    //TODO: handle logout
   };
 
   const onProfileDetailClickHandler = () => {
@@ -94,17 +58,19 @@ export function NavBar() {
         <DropdownMenu
           align="end"
           trigger={
-            currentUserState.isLoading ? (
-              <AvatarSkeleton />
-            ) : (
-              <Avatar
-                src={"http://path-that-goes-no-where.com"}
-                alt="user_profile_image"
-                fallback={getInitials(currentUser?.data.name)}
-              />
-            )
+            <Avatar
+              src={"http://path-that-goes-no-where.com"}
+              alt="user_profile_image"
+              fallback={getInitials("ETM")}
+            />
           }
-          label={userAvatarLabelComponent()}
+          label={
+            <Avatar
+              src={"http://path-that-goes-no-where.com"}
+              alt="user_profile_image"
+              fallback={getInitials("ETM")}
+            />
+          }
           options={[
             {
               value: "profile_setting",
@@ -116,7 +82,7 @@ export function NavBar() {
             },
             {
               value: "logout",
-              label: logoutFormServerState.isPending ? "Loading..." : "Logout",
+              label: "Logout",
               leftNode: <Icon icon="material-symbols:logout" />,
               onClick: onLogoutHandler,
             },
