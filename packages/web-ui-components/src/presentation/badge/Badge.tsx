@@ -3,35 +3,47 @@ import { cva } from "class-variance-authority";
 import { Badge as ShadcnBadge } from "../../shadcn-ui";
 import { cn } from "../../shadcn-ui/utils/cn";
 
-const badgeVariants = cva("text-sm rounded-full", {
+const badgeVariants = cva("text-sm", {
   variants: {
     variant: {
       outlined:
-        "border-basic bg-transpacent text-basic hover:border-basic-800 hover:bg-basic-100",
+        "border-dark-light bg-transpacent text-dark-light hover:bg-dark-lighter",
       destructive:
-        "border-destructive-500 bg-destructive-500 text-destructive-100 hover:bg-destructive-400 hover:border-destructive-400",
+        "border-destructive-400 bg-destructive-100 text-destructive hover:bg-destructive-200",
       success:
-        "border-success-500 bg-success-500 text-success-100 hover:bg-success-400 hover:border-success-400",
-      info: "border-info-500 bg-info-500 text-info-100 hover:bg-info-400 hover:border-info-400",
+        "border-success-400 bg-success-100 text-success hover:bg-success-200",
+      info: "border-info-400 bg-info-100 text-info hover:bg-info-200",
       warning:
-        "border-warning-500 bg-warning-500 text-warning-100 hover:bg-warning-400 hover:border-warning-400",
+        "border-warning-400 bg-warning-100 text-warning hover:bg-warning-200",
+      dark: "border-dark-lighter bg-dark-lighter text-dark-light",
+    },
+    shape: {
+      rectangular: "rounded-sm",
+      circular: "rounded-full",
     },
   },
   defaultVariants: {
     variant: "outlined",
+    shape: "rectangular",
   },
 });
 
-interface Props extends VariantProps<typeof badgeVariants> {
+export type BadgeVariants = VariantProps<typeof badgeVariants>;
+
+interface Props extends BadgeVariants {
   text: string;
   icon?: React.ReactNode;
   onAction?: () => void;
 }
 
-export function Badge({ text, icon, onAction, variant }: Props) {
+export function Badge({ text, icon, onAction, variant, shape }: Props) {
   return (
     <ShadcnBadge
-      className={cn(badgeVariants({ variant }), "flex items-center gap-1")}
+      className={cn(
+        badgeVariants({ variant, shape }),
+        "flex items-center gap-1 max-h-7 w-fit",
+        !onAction && "justify-center"
+      )}
     >
       {text}
       {icon && onAction && (

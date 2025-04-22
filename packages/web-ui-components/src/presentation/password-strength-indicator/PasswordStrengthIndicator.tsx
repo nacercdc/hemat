@@ -10,7 +10,7 @@ export type PasswordIncludeType =
 export const checkPasswordStrength = (
   password: string,
   minLength = 8,
-  mustIncludeTypes: PasswordIncludeType[] = []
+  mustIncludeTypes: PasswordIncludeType[] = [],
 ) => {
   let score = 0;
 
@@ -19,7 +19,7 @@ export const checkPasswordStrength = (
   const hasLowercase = /[a-z]/.test(password);
   const hasNumbers = /[0-9]/.test(password);
   const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
-    password
+    password,
   );
 
   if (hasMinimumLength) score += 1;
@@ -54,7 +54,7 @@ export function PasswordStrengthIndicator({
             index + 1 <=
               checkPasswordStrength(password, minLength, mustIncludeTypes)
               ? "bg-success-400"
-              : "bg-white"
+              : "bg-white",
           )}
         ></div>
       ))}
