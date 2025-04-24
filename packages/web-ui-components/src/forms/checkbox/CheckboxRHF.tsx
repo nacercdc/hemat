@@ -1,14 +1,14 @@
 "use client";
 
 import type { Control, FieldValues, Path } from "react-hook-form";
+import type { ComponentProps } from "react";
 import React from "react";
 import { Controller } from "react-hook-form";
 
-import type { CheckboxProps } from "./Checkbox";
 import { Checkbox } from "./Checkbox";
 
 interface CheckboxRHFProps<T extends FieldValues>
-  extends Omit<CheckboxProps, "checked" | "onCheckedChange"> {
+  extends Omit<ComponentProps<typeof Checkbox>, "checked" | "onCheckedChange"> {
   name: Path<T>;
   control: Control<T>;
 }

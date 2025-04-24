@@ -1,5 +1,6 @@
 import React from "react";
-import { cva, VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import { Switch as ShadcnSwitch } from "../../shadcn-ui";
 import { cn } from "../../shadcn-ui/utils/cn";
 import { FormControl } from "../form-control";

@@ -19,28 +19,36 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_FIREBASE_API_KEY: z.string({
-      message: "Firebase API key in the environment variables is required.",
+      message:
+        "NEXT_PUBLIC_FIREBASE_API_KEY in the environment variables is required.",
     }),
     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string({
-      message: "Firebase auth domain in the environment variables is required.",
+      message:
+        "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN in the environment variables is required.",
     }),
     NEXT_PUBLIC_FIREBASE_DATABASE_URL: z.string({
       message:
-        "Firebase database url in the environment variables is required.",
+        "NEXT_PUBLIC_FIREBASE_DATABASE_URL url in the environment variables is required.",
     }),
     NEXT_PUBLIC_FIREBASE_PROJECT_ID: z.string({
-      message: "Firebase project id in the environment variables is required.",
+      message:
+        "NEXT_PUBLIC_FIREBASE_PROJECT_ID in the environment variables is required.",
     }),
     NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string({
       message:
-        "Firebase storage bucket in the environment variables is required.",
+        "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET in the environment variables is required.",
     }),
     NEXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID: z.string({
       message:
-        "Firebase message sender ID in the environment variables is required.",
+        "NEXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID in the environment variables is required.",
     }),
     NEXT_PUBLIC_FIREBASE_APP_ID: z.string({
-      message: "Firebase app ID in the environment variables is required.",
+      message:
+        "NEXT_PUBLIC_FIREBASE_APP_ID in the environment variables is required.",
+    }),
+
+    NEXT_PUBLIC_HOST_URL: z.string({
+      message: "NEXT_PUBLIC_HOST_URL in the environment variables is required.",
     }),
   },
   /**
@@ -60,6 +68,7 @@ export const env = createEnv({
     NEXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID:
       process.env.NEXT_PUBLIC_FIREBASE_MESSAGE_SENDER_ID,
     NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    NEXT_PUBLIC_HOST_URL: process.env.NEXT_PUBLIC_HOST_URL,
   },
   skipValidation:
     !!process.env.CI || process.env.npm_lifecycle_event === "lint",

@@ -1,18 +1,29 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use client";
 
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import { Icon } from "@iconify/react";
 import type { VariantProps } from "class-variance-authority";
-import type { ComponentPropsWithoutRef } from "react";
-import React, { useState } from "react";
 import { cva } from "class-variance-authority";
-import { cn } from "../../shadcn-ui/utils/cn";
+import type { FormControlVariants } from "../form-control";
 import { FormControl } from "../form-control";
-import { buttonVariants } from "../button";
+import { Button } from "../button";
 import type { Input as ShadcnInput } from "../../shadcn-ui";
-import { omit } from "@etm/utilities";
+import { Input } from "../input";
+
+export interface FileInputRef {
+  click: () => void;
+}
 
 interface PreviewFile {
   url: string;
   type: string;
+  name: string;
 }
 
 const fileInputVariants = cva(
@@ -40,14 +51,14 @@ const fileInputVariants = cva(
       variant: "default",
       size: "md",
     },
-  },
+  }
 );
 
 type fileInputVariants = VariantProps<typeof fileInputVariants>;
 
 type ShadcnFileInputPropsWithoutColor = Omit<
   React.ComponentProps<typeof ShadcnInput>,
-  "className" | "style" | "variant" | "size" | "color"
+  "className" | "style" | "variant" | "size" | "color" | "onChange"
 >;
 
 export interface FileInputProps extends ShadcnFileInputPropsWithoutColor {
@@ -58,142 +69,174 @@ export interface FileInputProps extends ShadcnFileInputPropsWithoutColor {
   leftNode?: React.ReactNode;
   rightNode?: React.ReactNode;
   variant?: fileInputVariants["variant"];
+  chooserLink?: boolean;
   size?: fileInputVariants["size"];
+  labelVariant?: FormControlVariants["variant"];
+  labelSize?: FormControlVariants["size"];
+  onChange?: (files: File[]) => void;
 }
 
-export const FileInput = ({
-  name,
-  label,
-  variant,
-  size,
-  leftNode,
-  rightNode,
-  error,
-  description,
-  accept,
-  multiple,
-  showPreview = true,
-  onChange,
-  ...props
-}: FileInputProps) => {
-  const [preview, setPreview] = useState<PreviewFile[]>([]);
-  const [fileNames, setFileNames] = useState<string>("No file chosen");
+export const FileInput = forwardRef<FileInputRef, FileInputProps>(
+  (
+    {
+      name,
+      label,
+      variant,
+      size,
+      labelVariant,
+      labelSize,
+      leftNode,
+      rightNode,
+      error,
+      description,
+      chooserLink = true,
+      accept,
+      multiple,
+      showPreview = true,
+      onChange,
+    },
+    ref
+  ) => {
+    const [preview, setPreview] = useState<PreviewFile[]>([]);
+    const [files, setFiles] = useState<File[]>();
+    const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      setFileNames(
-        Array.from(files)
-          .map((f) => f.name)
-          .join(", "),
-      );
+    useImperativeHandle(ref, () => {
+      return {
+        click: () => {
+          if (inputRef.current) {
+            inputRef.current.value = "";
+            inputRef.current.click();
+          }
+        },
+      };
+    });
 
-      preview.forEach(({ url }) => URL.revokeObjectURL(url));
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (files) {
+        preview.forEach(({ url }) => URL.revokeObjectURL(url));
 
-      const newPreviews = Array.from(files)
-        .filter(
-          (file) =>
-            file.type.startsWith("image/") || file.type.startsWith("video/"),
-        )
-        .map((file) => ({
+        const newPreviews = Array.from(files).map((file) => ({
           url: URL.createObjectURL(file),
           type: file.type,
+          name: file.name,
         }));
 
-      setPreview(newPreviews);
-    } else {
-      setFileNames("No file chosen");
-      setPreview([]);
-    }
+        setPreview(newPreviews);
+      } else {
+        setPreview([]);
+        setFiles([]);
+      }
 
-    if (onChange) {
-      onChange(e);
-    }
-  };
+      setFiles(Array.from(e.target.files || []));
 
-  return (
-    <FormControl
-      name={name}
-      label={label}
-      error={error}
-      description={description}
-    >
-      <div className="space-y-2">
-        <div
-          className={cn(
-            fileInputVariants({ variant, size }),
-            "flex items-center",
-          )}
-        >
-          {leftNode && (
-            <span className="absolute left-3 flex items-center h-full">
-              {leftNode}
-            </span>
-          )}
-          <div className="relative flex-1 flex items-center overflow-hidden">
-            <label
-              htmlFor={name}
-              className={cn(
-                buttonVariants({
-                  variant: "default",
-                  color: variant === "default" ? "default" : variant,
-                  size,
-                }),
-                "rounded-l-md border-r cursor-pointer flex items-center ",
+      if (onChange) {
+        onChange(Array.from(e.target.files || []));
+      }
+    };
+
+    const onFileRemoveHandler = (url: string, fileName: string) => {
+      setPreview(preview.filter((p) => p.url !== url));
+
+      const filteredFiles = Array.from(files || []).filter(
+        (f) => f.name !== fileName
+      );
+
+      setFiles(filteredFiles);
+
+      onChange?.(filteredFiles);
+    };
+
+    return (
+      <FormControl
+        name={name}
+        label={label}
+        variant={labelVariant}
+        size={labelSize}
+        error={error}
+        description={description}
+      >
+        <div className="space-y-2">
+          <div className="flex items-center">
+            <div className="relative flex-1 flex gap-2 overflow-hidden">
+              <input
+                className="hidden"
+                ref={inputRef}
+                type="file"
+                accept={accept}
+                multiple={multiple}
+                aria-invalid={error ? "true" : "false"}
+                onChange={handleFileChange}
+              />
+              <div className="w-full rounded-md">
+                <Input
+                  name={name ?? ""}
+                  value={
+                    files && files.length > 0
+                      ? `${files.length} files chosen`
+                      : "No file chosen"
+                  }
+                  size={size}
+                  leftNode={leftNode}
+                  rightNode={rightNode}
+                  disabled
+                />
+              </div>
+              {chooserLink && (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    inputRef.current!.value = "";
+                    inputRef.current?.click();
+                  }}
+                  color={variant}
+                  size={size}
+                >
+                  Choose File
+                </Button>
               )}
-            >
-              Choose File
-            </label>
-            <span className="px-3 truncate flex-1 ">{fileNames}</span>
-            <input
-              {...omit(
-                props as ComponentPropsWithoutRef<typeof ShadcnInput>,
-                "className",
-                "style",
-                "color",
-                "size",
-              )}
-              id={name}
-              type="file"
-              accept={accept}
-              multiple={multiple}
-              onChange={handleFileChange}
-              className="sr-only"
-              aria-invalid={error ? "true" : "false"}
-            />
+            </div>
           </div>
-          {rightNode && (
-            <span className="absolute right-3 flex items-center h-full">
-              {rightNode}
-            </span>
+
+          {showPreview && preview.length > 0 && (
+            <div className="flex flex-col gap-2 overflow-auto mt-10 py-1 w-[80%]">
+              {preview.map(({ url, type, name }) => (
+                <div
+                  key={url}
+                  className="relative aspect-square rounded-lg hover:border-[0.25px] hover:border-dark-lighter w-[95%] h-10 px-1 mt-0.5 group flex items-center"
+                >
+                  {type.startsWith("video/") ? (
+                    <div className="flex items-center gap-2 w-full">
+                      <Icon icon="catppuccin:video" className="h-6 w-6" />
+                      <p className="w-full text-xs">{name}</p>
+                    </div>
+                  ) : type.startsWith("image/") ? (
+                    <div className="flex items-center gap-2 w-full">
+                      <img
+                        src={url}
+                        alt="Preview"
+                        className="h-6 w-6 object-contain"
+                      />
+                      <p className="w-full text-xs">{name}</p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 w-full">
+                      <Icon icon="mage:file-2" className="h-6 w-6" />
+                      <p className="w-full text-xs">{name}</p>
+                    </div>
+                  )}
+                  <Icon
+                    icon="zondicons:close-solid"
+                    onClick={() => onFileRemoveHandler(url, name)}
+                    className="hidden group-hover:flex w-3 h-3 absolute -right-[6px] -top-[6px] text-dark-lighter bg-primary-50 text-lg border-primary-50 rounded-full cursor-pointer z-20"
+                  />
+                </div>
+              ))}
+            </div>
           )}
         </div>
-
-        {showPreview && preview.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {preview.map(({ url, type }) => (
-              <div
-                key={url}
-                className="relative aspect-square rounded-lg overflow-hidden border border-basic-200"
-              >
-                {type.startsWith("video/") ? (
-                  <video
-                    src={url}
-                    className="w-full h-full object-cover"
-                    controls
-                  />
-                ) : (
-                  <img
-                    src={url}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </FormControl>
-  );
-};
+      </FormControl>
+    );
+  }
+);

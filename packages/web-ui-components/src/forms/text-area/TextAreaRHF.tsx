@@ -5,7 +5,7 @@ import React from "react";
 import { Controller } from "react-hook-form";
 
 import type { Props as TextAreaProps } from "./TextArea";
-import { TextArera } from "./TextArea";
+import { TextArea } from "./TextArea";
 
 interface Props<T extends FieldValues> extends TextAreaProps {
   name: Path<T>;
@@ -22,7 +22,7 @@ export const TextAreaRHF = <T extends FieldValues>({
       name={name}
       control={control}
       render={({ field, fieldState: { error } }) => (
-        <TextArera
+        <TextArea
           {...field}
           {...props}
           name={name as string}

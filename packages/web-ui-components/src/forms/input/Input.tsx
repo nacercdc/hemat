@@ -1,18 +1,19 @@
 import type { VariantProps } from "class-variance-authority";
-import React from "react";
+import React, { forwardRef } from "react";
 import { cva } from "class-variance-authority";
 
 import { Input as ShadcnInput } from "../../shadcn-ui";
 import { cn } from "../../shadcn-ui/utils/cn";
+import type { FormControlVariants } from "../form-control";
 import { FormControl } from "../form-control";
 
-const inputVariants = cva(
-  "flex w-full rounded-md border px-3 py-2 text-sm transition focus-visible:ring-2",
+export const inputVariants = cva(
+  "flex w-full rounded-sm border py-2 text-sm transition focus-visible:ring-2",
   {
     variants: {
       variant: {
         default:
-          "border-basic-300 focus:border-basic focus-visible:ring-basic-500",
+          "focus-visible:ring-basic-100  bg-white focus:bg-white active:bg-white",
         destructive:
           "border-destructive-500 focus:border-destructive-600 focus-visible:ring-destructive-500",
         success:
@@ -20,11 +21,15 @@ const inputVariants = cva(
         info: "border-info-500 focus:border-info-600 focus-visible:ring-info-500",
         warning:
           "border-warning-500 focus:border-warning-600 focus-visible:ring-warning-500",
+        search:
+          "border-tbaccent bg-tbaccent focus:bg-white hover:bg-white focus:border-basic-500 hover:border-basic-500 transition-colors delay-150 duration-300 ease-in-out",
       },
+
       size: {
-        sm: "px-2 h-8 text-sm",
-        md: "px-3 h-9 text-base",
-        lg: "px-4 h-10 text-lg",
+        sm: "h-8 text-sm max-[770px]:text-xs",
+        md: "h-9 text-base max-[770px]:text-sm",
+        lg: "h-10 text-lg",
+        xl: "h-12 rounded-2 border-[1px] text-lg max-[770px]:text-sm",
       },
     },
     defaultVariants: {
@@ -33,6 +38,8 @@ const inputVariants = cva(
     },
   }
 );
+
+export type InputVariantProps = VariantProps<typeof inputVariants>;
 
 export interface Props
   extends Omit<
@@ -44,51 +51,75 @@ export interface Props
   rightNode?: React.ReactNode;
   name: string;
   label?: string;
+  labelVariant?: FormControlVariants["variant"];
+  labelSize?: FormControlVariants["size"];
   error?: string;
   description?: string;
+  isPhone?: boolean;
 }
 
-export const Input = ({
-  name,
-  label,
-  variant,
-  size,
-  leftNode,
-  rightNode,
-  error,
-  description,
-  ...props
-}: Props) => {
-  return (
-    <FormControl
-      name={name}
-      label={label}
-      error={error}
-      description={description}
-    >
-      <div className="relative flex items-center">
-        {leftNode && (
-          <span className="absolute left-3 flex items-center pr-2">
-            {leftNode}
-          </span>
+export const Input = forwardRef<HTMLInputElement, Props>(
+  (
+    {
+      name,
+      label,
+      variant,
+      size,
+      leftNode,
+      rightNode,
+      error,
+      description,
+      labelVariant,
+      labelSize,
+      isPhone = false,
+      ...props
+    },
+    ref
+  ) => {
+    const InputComponent = (
+      <div
+        className={cn(
+          "grid grid-cols-[auto_1fr_auto] items-center",
+          inputVariants({ variant, size }),
+          error && "border-destructive-500",
+          isPhone && "rounded-s-none focus-visible:ring-0",
+          props.type === "search" && "border-none"
         )}
+      >
+        {leftNode && <div className="bg-transparent">{leftNode}</div>}
+
         <ShadcnInput
           {...props}
           id={name}
-          className={cn(
-            inputVariants({ variant, size }),
-            "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            error && "border-destructive-500",
-            leftNode && "pl-10"
-          )}
+          className={
+            "w-full py-2 outline-none bg-transparent border-none shadow-none active:outline-none focus-visible:outline-none focus-visible:border-none focus-visible:ring-0"
+          }
           aria-invalid={error ? "true" : "false"}
+          ref={ref}
         />
-        {rightNode && (
-          <span className="absolute right-3 flex items-center pl-2">
-            {rightNode}
-          </span>
-        )}
+
+        {rightNode && <div className="bg-transparent">{rightNode}</div>}
       </div>
-    </FormControl>
-  );
-};
+    );
+
+    return (
+      <>
+        {!isPhone && (
+          <FormControl
+            name={name}
+            label={label}
+            error={error}
+            variant={labelVariant}
+            size={labelSize}
+            description={description}
+          >
+            {InputComponent}
+          </FormControl>
+        )}
+        {isPhone && InputComponent}
+      </>
+    );
+  }
+);
+
+Input.displayName = "Input";

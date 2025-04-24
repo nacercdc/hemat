@@ -1,3 +1,7 @@
+"use client";
+
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import {
   Dialog,
@@ -31,42 +35,70 @@ const actionVariantClasses: Record<ActionVariant, string> = {
 };
 
 interface Props {
-  trigger: ReactNode;
-  title: string;
-  description: string;
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  defaultOpen?: boolean;
+  trigger?: ReactNode;
+  title?: string;
+  description?: string;
   children: ReactNode;
-  onAction: () => void;
-  actionLabel: string;
+  onAction?: () => void;
+  actionLabel?: string;
   actionVariant?: ActionVariant;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function Modal({
+  open,
+  setOpen,
+  defaultOpen = false,
   trigger,
   title,
   description,
   children,
   onAction,
   actionLabel,
-  actionVariant = "default",
+  actionVariant,
+  onOpenChange,
 }: Props) {
+  const [isModalOpen, setIsModalOpen] = useState(defaultOpen);
+  const onOpenChangeHandler = (newOpenState: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(newOpenState);
+    }
+    setIsModalOpen(newOpenState);
+    setOpen?.(newOpenState);
+  };
   return (
-    <Dialog>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
+    <Dialog open={open ?? isModalOpen} onOpenChange={onOpenChangeHandler}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      <DialogContent className="min-w-fit max-h-fit overflow-auto p-0 bg-card border border-secondary rounded-none">
+        {title ? (
+          <DialogHeader className="p-4 pb-0 flex flex-col gap-0 max-h-fit">
+            <DialogTitle className="p-0">{title}</DialogTitle>
+            <DialogDescription className="p-0">{description}</DialogDescription>
+          </DialogHeader>
+        ) : (
+          <VisuallyHidden>
+            <DialogHeader className="p-6 pb-0 ">
+              <DialogTitle>{title}</DialogTitle>
+              <DialogDescription>{description}</DialogDescription>
+            </DialogHeader>
+          </VisuallyHidden>
+        )}
+
         {children}
-        <DialogFooter>
-          <Button
-            type="submit"
-            onClick={onAction}
-            className={cn(actionVariantClasses[actionVariant])}
-          >
-            {actionLabel}
-          </Button>
-        </DialogFooter>
+        {actionLabel && actionVariant ? (
+          <DialogFooter className="p-6 ">
+            <Button
+              type="submit"
+              onClick={onAction}
+              className={cn(actionVariantClasses[actionVariant ?? "default"])}
+            >
+              {actionLabel}
+            </Button>
+          </DialogFooter>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

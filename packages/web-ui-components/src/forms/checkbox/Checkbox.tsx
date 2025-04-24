@@ -13,15 +13,15 @@ const checkboxVariants = cva(
     variants: {
       variant: {
         default:
-          "border-primary-300 data-[state=checked]:bg-primary-500 data-[state=checked]:border-primary-500 focus-visible:ring-primary-500",
+          "border-text data-[state=checked]:bg-secondary data-[state=checked]:border-secondary focus-visible:ring-secondary bg-white",
         destructive:
-          "border-destructive-500 data-[state=checked]:bg-destructive-500 data-[state=checked]:border-destructive-500 focus-visible:ring-destructive-500",
+          "border-text data-[state=checked]:bg-destructive data-[state=checked]:border-destructive focus-visible:ring-destructive",
         success:
-          "border-success-500 data-[state=checked]:bg-success-500 data-[state=checked]:border-success-500 focus-visible:ring-success-500",
-        info: "border-info-500 data-[state=checked]:bg-info-500 data-[state=checked]:border-info-500 focus-visible:ring-info-500",
-        dark: "border-basic-500 data-[state=checked]:bg-basic-500 data-[state=checked]:border-basic-500 focus-visible:ring-basic-500",
+          "border-text data-[state=checked]:bg-success data-[state=checked]:border-success focus-visible:ring-success",
+        info: "border-text data-[state=checked]:bg-info data-[state=checked]:border-info focus-visible:ring-info",
+        dark: "border-text data-[state=checked]:bg-basic data-[state=checked]:border-basic focus-visible:ring-basic",
         warning:
-          "border-warning-500 data-[state=checked]:bg-warning-500 data-[state=checked]:border-warning-500 focus-visible:ring-warning-500",
+          "border-text data-[state=checked]:bg-warning data-[state=checked]:border-warning focus-visible:ring-warning",
       },
       size: {
         sm: "h-3 w-3",
@@ -49,6 +49,7 @@ export interface Props extends ShadcnCheckboxPropsWithoutColor {
   description?: string;
   variant?: CheckboxVariants["variant"];
   size?: CheckboxVariants["size"];
+  formControlLabel?: string;
 }
 
 export const Checkbox = ({
@@ -56,6 +57,7 @@ export const Checkbox = ({
   size,
   name,
   label,
+  formControlLabel,
   error,
   description,
   checked,
@@ -68,7 +70,7 @@ export const Checkbox = ({
   return (
     <FormControl
       name={name}
-      label={label}
+      label={formControlLabel}
       error={error}
       description={description}
     >

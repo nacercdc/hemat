@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import type {
   ColumnDef,
+  PaginationState,
   SortingState,
-  ColumnFiltersState,
 } from "@tanstack/react-table";
 import {
   useReactTable,
@@ -14,68 +14,81 @@ import {
 } from "@tanstack/react-table";
 import { cn } from "../../shadcn-ui/utils/cn";
 import { Icon } from "@iconify/react";
-import { Input, RadioGroup } from "../../forms";
-import { DropdownMenu } from "../../navigations";
+import { Input } from "../../forms";
+import { TablePagination } from "./TablePagination";
+import { Skeleton } from "../../shadcn-ui";
 
 interface FilterOptionsType {
   value: string;
   label: string;
 }
 interface Props<TData> {
+  collectionName?: string;
   columns: ColumnDef<TData>[];
   data?: TData[];
+  toolbar?: React.ReactNode;
+  totalItems: number;
   isLoading: boolean;
   showFilterFields?: boolean;
-  fetchNextPage?: () => void;
-  fetchPreviousPage?: () => void;
+  pageSizeOptions?: number[];
+  initialPagination?: PaginationState;
+  enableRowSelection?: boolean;
+  onPaginationChange?: (p: PaginationState) => void;
   onRowSelectionChange?: (selectedRowIds: string[]) => void;
   onSortingChange?: (sorting: SortingState) => void;
-  onFilterChange?: (filters: ColumnFiltersState) => void;
+  onSearchFilterChange?: (searchValue: string) => void;
 }
 
 export function Table<TData extends object>({
+  collectionName,
   columns,
+  toolbar,
   data = [],
+  totalItems,
   isLoading,
   showFilterFields = true,
-  fetchNextPage,
-  fetchPreviousPage,
+  pageSizeOptions,
+  initialPagination,
+  enableRowSelection = true,
+  onPaginationChange,
   onRowSelectionChange,
   onSortingChange,
-  onFilterChange,
+  onSearchFilterChange,
 }: Props<TData>) {
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [sorting, setSorting] = useState<SortingState>([]);
-
-  const [selectedColumn, setSelectedColumn] = useState("");
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: initialPagination?.pageIndex ?? 0,
+    pageSize: initialPagination?.pageSize ?? 10,
+  });
   const [filterValue, setFilterValue] = useState("");
-
-  React.useEffect(() => {
-    setSelectedColumn(filterableColumns()?.[0]?.[0]?.value || "");
-  }, []);
+  const debounceTimer = useRef<NodeJS.Timeout>(null);
 
   const columnsWithCheckbox = React.useMemo<ColumnDef<TData>[]>(
-    () => [
-      {
-        id: "select",
-        header: ({ table }) => (
-          <input
-            type="checkbox"
-            checked={table.getIsAllPageRowsSelected()}
-            onChange={table.getToggleAllPageRowsSelectedHandler()}
-          />
-        ),
-        cell: ({ row }) => (
-          <input
-            type="checkbox"
-            checked={row.getIsSelected()}
-            onChange={row.getToggleSelectedHandler()}
-          />
-        ),
-      },
-      ...columns,
-    ],
-    [columns]
+    () =>
+      enableRowSelection
+        ? [
+            {
+              id: "select",
+              header: ({ table }) => (
+                <input
+                  type="checkbox"
+                  checked={table.getIsAllPageRowsSelected()}
+                  onChange={table.getToggleAllPageRowsSelectedHandler()}
+                />
+              ),
+              cell: ({ row }) => (
+                <input
+                  type="checkbox"
+                  checked={row.getIsSelected()}
+                  onChange={row.getToggleSelectedHandler()}
+                />
+              ),
+            },
+            ...columns,
+          ]
+        : [...columns],
+    [columns, enableRowSelection]
   );
 
   const table = useReactTable({
@@ -84,6 +97,7 @@ export function Table<TData extends object>({
     state: {
       rowSelection,
       sorting,
+      pagination,
     },
     onRowSelectionChange: setRowSelection,
     onSortingChange: (updater) => {
@@ -92,12 +106,20 @@ export function Table<TData extends object>({
       setSorting(newSorting);
       onSortingChange?.(newSorting);
     },
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     manualPagination: true,
     manualSorting: true,
     manualFiltering: true,
+    enableSorting: !isLoading && data.length > 0,
+    enableRowSelection,
   });
+
+  React.useEffect(() => {
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    // TODO we may need to reset based on other filters as well
+  }, [sorting]);
 
   React.useEffect(() => {
     const selectedRowIds = Object.keys(rowSelection).filter(
@@ -105,6 +127,23 @@ export function Table<TData extends object>({
     );
     onRowSelectionChange?.(selectedRowIds);
   }, [rowSelection, onRowSelectionChange]);
+
+  React.useEffect(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    debounceTimer.current = setTimeout(() => {
+      onSearchFilterChange?.(filterValue);
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    }, 500);
+
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [filterValue, onSearchFilterChange]);
 
   const filterableColumns = useCallback(
     () =>
@@ -126,11 +165,17 @@ export function Table<TData extends object>({
     [table]
   );
 
-  const onInputSubmitHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      onFilterChange?.([{ id: selectedColumn, value: filterValue }]);
-    }
-  };
+  const loadingRows = Array.from({ length: pagination.pageSize }).map(
+    (_, i) => (
+      <tr key={`skeleton-${i}`}>
+        {Array.from({ length: columns.length + 1 }).map((_, ci) => (
+          <td key={`skeleton-cell-${i}-${ci}`}>
+            <Skeleton className="h-10 w-[95%] rounded-xl bg-tbaccent my-1 mx-z" />
+          </td>
+        ))}
+      </tr>
+    )
+  );
 
   return (
     <div
@@ -139,50 +184,32 @@ export function Table<TData extends object>({
         !showFilterFields && "justify-between"
       )}
     >
-      {showFilterFields &&
-        (filterableColumns()?.[0] as FilterOptionsType[]).length > 0 && (
-          <div className="px-3 mb-1 max-w-md">
-            <Input
-              type="text"
-              name="filter"
-              size="sm"
-              leftNode={
-                <DropdownMenu
-                  trigger={
-                    <Icon icon="lucide:list-filter" className="text-xs" />
-                  }
-                  label={
-                    <RadioGroup
-                      labelKey="label"
-                      valueKey="value"
-                      defaultValue={
-                        selectedColumn
-                          ? {
-                              label: selectedColumn.toUpperCase(),
-                              value: selectedColumn.toLowerCase(),
-                            }
-                          : undefined
-                      }
-                      options={filterableColumns()[0] as FilterOptionsType[]}
-                      size="sm"
-                      name="searchFilters"
-                      onValueChange={(v: FilterOptionsType) =>
-                        setSelectedColumn(v.value)
-                      }
-                    />
-                  }
-                />
-              }
-              value={filterValue}
-              onChange={(e) => setFilterValue(e.target.value)}
-              onKeyDown={onInputSubmitHandler}
-              placeholder={`Filter ${selectedColumn}`}
-            />
+      {showFilterFields && (
+        <div className="flex justify-between w-full items-center mb-2">
+          {(filterableColumns()?.[0] as FilterOptionsType[]).length > 0 && (
+            <div className="px-2 w-1/4">
+              <Input
+                name="filter"
+                size="md"
+                leftNode={
+                  <Icon icon="mynaui:search" className="ml-3 text-xl" />
+                }
+                value={filterValue}
+                onChange={(e) => setFilterValue(e.target.value)}
+                placeholder={`Search ${collectionName?.toLocaleLowerCase() ?? "here"}`}
+                disabled={isLoading}
+              />
+            </div>
+          )}
+          <div className="flex items-center pr-2 justify-self-end">
+            {toolbar}
           </div>
-        )}
+        </div>
+      )}
+
       <div className="overflow-auto">
         <table className="w-full">
-          <thead className="sticky top-0 bg-card-background w-full">
+          <thead className="bg-card-background w-full">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -190,9 +217,10 @@ export function Table<TData extends object>({
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
                     className={cn(
-                      header.id === "select" && "w-0",
                       "text-left py-4 px-2 font-bold text-sm",
-                      "cursor-pointer"
+                      "cursor-pointer",
+                      header.id === "select" && "w-0",
+                      header.id === "Action" && "text-right"
                     )}
                   >
                     {flexRender(
@@ -219,44 +247,50 @@ export function Table<TData extends object>({
             ))}
           </thead>
           <tbody className="mt-4">
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
+            {data.length === 0 || isLoading ? (
+              isLoading ? (
+                loadingRows
+              ) : (
+                <tr className="h-96 w-full">
                   <td
-                    key={cell.id}
-                    className="py-2 px-2 text-sm font-medium border-b"
+                    colSpan={columns.length + 1}
+                    rowSpan={pagination.pageSize}
+                    className="h-full w-full"
                   >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    <div className="flex items-center justify-center gap-2">
+                      <Icon icon="lets-icons:sad-light" className="text-xl" />
+                      Sorry, no results found!
+                    </div>
                   </td>
-                ))}
-              </tr>
-            ))}
+                </tr>
+              )
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="py-0 px-2 text-sm font-medium border-b"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
-
-      {!isLoading && (
-        <div
-          className={cn(
-            "px-2 flex gap-2 self-end mt-1",
-            !showFilterFields && "justify-self-end"
-          )}
-        >
-          <button onClick={() => fetchPreviousPage?.()} disabled={isLoading}>
-            Previous
-          </button>
-          <button
-            onClick={() => {
-              fetchNextPage?.();
-            }}
-            disabled={isLoading}
-          >
-            Next
-          </button>
-        </div>
-      )}
-
-      {isLoading && <div className="self-center mt-4">Loading ...</div>}
+      <TablePagination
+        table={table}
+        totalItems={totalItems}
+        disabled={isLoading || data.length === 0}
+        pageSizeOptions={pageSizeOptions}
+        onPaginationChange={onPaginationChange}
+      />
     </div>
   );
 }

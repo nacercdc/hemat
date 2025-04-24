@@ -4,43 +4,52 @@ import type { Control, FieldValues, Path } from "react-hook-form";
 import React from "react";
 import { Controller } from "react-hook-form";
 
-import type { FileInputProps } from "./FileInput";
+import type { FileInputProps, FileInputRef } from "./FileInput";
 import { FileInput } from "./FileInput";
 
 interface Props<T extends FieldValues>
   extends Omit<FileInputProps, "onChange"> {
   name: Path<T>;
   control: Control<T>;
-  onChange?: (files: FileList | null) => void;
+  onChange?: (files: File[]) => void;
 }
 
-export const FileInputRHF = <T extends FieldValues>({
-  name,
-  control,
-  onChange,
-  ...props
-}: Props<T>) => {
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({
-        field: { onChange: fieldOnChange, value, ...field },
-        fieldState: { error },
-      }) => (
-        <FileInput
-          {...field}
-          {...props}
-          onChange={(e) => {
-            const files = e.target.files;
-            fieldOnChange(files);
-            onChange?.(files);
-          }}
-          name={name as string}
-          id={name}
-          error={error?.message}
-        />
-      )}
-    />
-  );
-};
+export const FileInputRHF = React.forwardRef(
+  <T extends FieldValues>(
+    { name, control, ...props }: Props<T>,
+    ref: React.ForwardedRef<FileInputRef>
+  ) => {
+    return (
+      <Controller
+        name={name}
+        control={control}
+        render={({
+          field: { onChange: fieldOnChange, ...field },
+          fieldState: { error },
+        }) => (
+          <FileInput
+            {...field}
+            {...props}
+            ref={ref}
+            onChange={(files) => {
+              fieldOnChange(files);
+            }}
+            name={name as string}
+            id={name}
+            error={
+              Array.isArray(error)
+                ? error
+                    .map((e: Record<"message", string>) => e.message)
+                    .join(", ")
+                : error?.message
+            }
+          />
+        )}
+      />
+    );
+  }
+) as <T extends FieldValues>(
+  props: Props<T> & {
+    ref?: React.ForwardedRef<FileInputRef>;
+  }
+) => React.ReactElement;

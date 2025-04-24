@@ -26,6 +26,8 @@ export interface DropdownMenuOption {
   submenu?: DropdownMenuOption[];
 }
 interface Props {
+  align?: "center" | "end" | "start";
+  triggerTextAlign?: "start" | "center" | "end";
   label?: React.ReactNode;
   options?: DropdownMenuOption[];
   variant?: Variant;
@@ -34,6 +36,8 @@ interface Props {
   trigger?: React.ReactNode;
 }
 export function DropdownMenu({
+  align = "center",
+  triggerTextAlign = "center",
   label,
   options = [],
   variant = "default",
@@ -57,7 +61,7 @@ export function DropdownMenu({
           <div key={item.value}>
             {item.separator && <DropdownMenuSeparator />}
             <DropdownMenuItem onSelect={() => item.onClick?.()}>
-              <div className="flex space-x-1 items-center">
+              <div className="flex gap-2 items-center">
                 {item.leftNode && (
                   <div className="w-6 h-6 flex items-center">
                     {item.leftNode}
@@ -76,7 +80,14 @@ export function DropdownMenu({
       {trigger && (
         <DropdownMenuTrigger asChild className="cursor-pointer">
           {trigger && (
-            <div className="w-12 h-12 flex items-center">{trigger}</div>
+            <div
+              className={cn(
+                `min-w-12 min-h-12 flex items-center justify-${triggerTextAlign}`,
+                triggerTextAlign === "end" && "w-full"
+              )}
+            >
+              {trigger}
+            </div>
           )}
         </DropdownMenuTrigger>
       )}
@@ -87,9 +98,12 @@ export function DropdownMenu({
           </Button>
         </DropdownMenuTrigger>
       )}
-      <DropdownMenuContent className={cn(!trigger && "w-[250px]", "space-y-1")}>
+      <DropdownMenuContent
+        className={cn(!trigger && "w-[250px]", "space-y-1")}
+        align={align}
+      >
         {label && <DropdownMenuLabel>{label}</DropdownMenuLabel>}
-        {label && <DropdownMenuSeparator />}
+        {label && options.length > 0 && <DropdownMenuSeparator />}
         {renderMenuItems(options)}
       </DropdownMenuContent>
     </ShadcnDropdownMenu>
