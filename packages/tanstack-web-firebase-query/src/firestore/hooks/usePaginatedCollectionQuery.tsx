@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useCollectionQuery } from "@e-market/tanstack-web-firebase-query";
+import { useCollectionQuery } from "@etm/tanstack-web-firebase-query";
 import type {
   DocumentData,
   DocumentSnapshot,
-} from "@e-market/tanstack-web-firebase-query";
+} from "@etm/tanstack-web-firebase-query";
 import { useQueryClient } from "@tanstack/react-query";
 
 type FilterType = Record<string, Record<string, string>>;
