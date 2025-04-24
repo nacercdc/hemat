@@ -18,7 +18,8 @@
   },
   "dependencies": {
     "@tanstack/react-query": "5.66.0",
-    "firebase": "^11.1.0"
+    "firebase": "^11.1.0",
+    "next-firebase-auth-edge": "^1.8.2"
   },
   "devDependencies": {
     "@etm/eslint-config": "workspace:*",
@@ -26,7 +27,6 @@
     "@etm/tsconfig": "workspace:*",
     "@types/react": "^19.0.3",
     "eslint": "^9.12.0",
-    "prettier": "^3.3.3",
     "react": "^19.0.0",
     "typescript": "^5.6.3"
   }

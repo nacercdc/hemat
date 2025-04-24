@@ -7,6 +7,7 @@ export { useRunTransactionMutation } from "./useRunTransactionMutation";
 export { useWriteBatchCommitMutation } from "./useWriteBatchCommitMutation";
 export { useDocumentQuery } from "./useDocumentQuery";
 export { useCollectionQuery } from "./useCollectionQuery";
+export { usePaginatedCollectionQuery } from "./usePaginatedCollectionQuery";
 export { useGetAggregateFromServerQuery } from "./useGetAggregateFromServerQuery";
 export { useGetCountFromServerQuery } from "./useGetCountFromServerQuery";
 // useNamedQuery

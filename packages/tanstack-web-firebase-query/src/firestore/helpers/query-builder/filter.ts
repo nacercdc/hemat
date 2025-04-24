@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
-import type { OrderByDirection } from "@react-native-firebase/firestore";
 import { QUERY_OPERATORS } from "./types/query.type";
 import type { IOrderBy, IWhere, ObjectLiteral } from "./types/query.type";
 import type { Filter, FilterOperator, OrderBy } from "./types/filter.type";
+import type { OrderByDirection } from "firebase/firestore";
 
 export class FilterService<Entity extends ObjectLiteral> {
   private filters = new Set<Filter<Entity>>();

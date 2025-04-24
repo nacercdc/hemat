@@ -1,5 +1,9 @@
 import type { UseQueryOptions } from "@tanstack/react-query";
-import type { FirestoreError, SnapshotListenOptions } from "firebase/firestore";
+import type {
+  FirestoreError,
+  QueryDocumentSnapshot,
+  SnapshotListenOptions,
+} from "firebase/firestore";
 import type { IQueryOption } from "../../helpers/query-builder/types/query.type";
 interface FirestoreOptionServer {
   source: "server";
@@ -17,7 +21,10 @@ type UseQueryOption<TData = unknown, TError = Error> = Omit<
 
 export interface QueryFirestoreOption<FromFirestore> {
   collectionName: string;
-  tqQueryOptions: UseQueryOption<FromFirestore[], FirestoreError>;
+  tqQueryOptions: UseQueryOption<
+    UseCollectionQueryResult<FromFirestore>,
+    FirestoreError
+  >;
   queryOptions?: IQueryOption<FromFirestore>;
   firestoreOptions?: FirestoreOption;
 }
@@ -30,4 +37,10 @@ export interface DocumentFirestoreOption<FromFirestore> {
     "queryKey"
   >;
   firestoreOptions?: FirestoreOption;
+}
+
+export interface UseCollectionQueryResult<FromFirestore> {
+  firstDoc?: QueryDocumentSnapshot<FromFirestore>;
+  lastDoc?: QueryDocumentSnapshot<FromFirestore>;
+  data: FromFirestore[];
 }

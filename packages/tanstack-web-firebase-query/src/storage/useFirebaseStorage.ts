@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useState } from "react";

@@ -2,9 +2,11 @@ import {
   where,
   orderBy as fsOrderBy,
   limit as fsLimit,
+  startAfter as fsStartAfter,
 } from "firebase/firestore";
 import type {
   DocumentData,
+  DocumentSnapshot,
   QueryConstraint as FsQueryConstraint,
 } from "firebase/firestore";
 import type { Filter, OrderBy } from "./types/filter.type";
@@ -26,6 +28,7 @@ export class QueryConstraint<T extends DocumentData> {
   orderBy(params?: OrderBy<T>) {
     const orderService = new OrderService(params);
     const conditions = orderService.getConditions();
+
     conditions.forEach(({ field, direction }) => {
       this.queryConstraints.push(fsOrderBy(field, direction));
     });
@@ -36,6 +39,12 @@ export class QueryConstraint<T extends DocumentData> {
   limit(limit?: number) {
     if (!limit) return this;
     this.queryConstraints.push(fsLimit(limit));
+    return this;
+  }
+
+  startAfter(startAfter?: DocumentSnapshot<T>) {
+    if (!startAfter) return this;
+    this.queryConstraints.push(fsStartAfter(startAfter));
     return this;
   }
 

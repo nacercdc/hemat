@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-
 import { useMutation } from "@tanstack/react-query";
 import type { UseMutationOptions } from "@tanstack/react-query";
 import { serverTimestamp, setDoc } from "firebase/firestore";
@@ -10,6 +8,7 @@ import type {
 } from "firebase/firestore";
 import { documentReference } from "../helpers/references";
 import { useFirebase } from "../../providers/firebase/useFirebase";
+import { getDocId } from "../helpers/doc-id";
 
 type FirestoreUseMutationOptions<
   TData = unknown,
@@ -32,9 +31,12 @@ export function useSetDocumentMutation<
   return useMutation<void, FirestoreError, WithFieldValue<DbModelType>>({
     ...options,
     mutationFn: async (data) => {
-      const documentRef = documentReference(firestore, collectionName, data.id);
+      const docId = getDocId(firestore, collectionName);
+      const id = (data?.id as string) ?? docId;
+      const documentRef = documentReference(firestore, collectionName, id);
       await setDoc(documentRef, {
         ...data,
+        id,
         updatedAt: serverTimestamp(),
       } as WithFieldValue<AppModelType>);
     },

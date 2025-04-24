@@ -1,62 +1,64 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+"use client";
+
 import type {
-  DocumentData,
   FirestoreError,
   ListenSource,
   Query,
-  QueryDocumentSnapshot,
   QuerySnapshot,
   SnapshotListenOptions,
-} from "firebase/firestore";
-import { useQuery } from "@tanstack/react-query";
-import { useQueryClient } from "@tanstack/react-query";
+} from "@firebase/firestore";
 import {
   getDocs,
   getDocsFromCache,
   getDocsFromServer,
   onSnapshot,
-} from "firebase/firestore";
+} from "@firebase/firestore";
+import type { DocumentData } from "@firebase/firestore";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import type {
+  InfiniteQueryFirestoreOption,
+  InfiniteQueryFnReturn,
+} from "./types/query.type";
+import { useFirebase } from "../../providers/firebase/useFirebase";
 import { QueryConstraint } from "../helpers/query-builder/query";
 import { queryReference } from "../helpers/references";
-import type {
-  QueryFirestoreOption,
-  UseCollectionQueryResult,
-} from "./types/query.type";
 import { serializeQuerySnapshot } from "../helpers/serialize-snapshot";
-import { useFirebase } from "../../providers/firebase/useFirebase";
 
-export function useCollectionQuery<
+export function useCollectionInfiniteQuery<
   FromFirestore extends DocumentData = DocumentData,
   ToFirestore extends DocumentData = DocumentData,
->(options: QueryFirestoreOption<FromFirestore>) {
+>(options: InfiniteQueryFirestoreOption<FromFirestore>) {
   const { firestore } = useFirebase();
-
   const queryClient = useQueryClient();
-  const constraints = new QueryConstraint<FromFirestore>([])
+  const constraints = new QueryConstraint<FromFirestore>([]);
+  constraints
     .filter(options?.queryOptions?.filters)
     .orderBy(options?.queryOptions?.orderBy)
-    .limit(options?.queryOptions?.limit)
-    .startAfter(
-      options?.queryOptions?.startAfter as QueryDocumentSnapshot<
-        FromFirestore,
-        DocumentData
-      >
-    )
-    .getQueryConstraint();
-  const queryRef = queryReference<FromFirestore>(
-    firestore,
-    options.collectionName,
-    constraints
-  );
+    .limit(options?.queryOptions?.limit);
 
-  return useQuery<UseCollectionQueryResult<FromFirestore>, FirestoreError>({
+  return useInfiniteQuery<
+    InfiniteQueryFnReturn<FromFirestore>,
+    FirestoreError,
+    FromFirestore[][],
+    string[],
+    unknown
+  >({
     ...options.tqQueryOptions,
+    initialPageParam: undefined,
     queryFn: async (context) => {
+      const queryRef = queryReference<FromFirestore>(
+        firestore,
+        options.collectionName,
+        constraints.startAfter(context?.pageParam).getQueryConstraint()
+      );
+
       if (options.firestoreOptions?.source === "server") {
         const snapshot = await getDocsFromServer(queryRef);
-
         return {
           firstDoc: snapshot.docs[0],
-          lastDoc: snapshot.docs[snapshot.docs.length - 1],
+          lastDoc: snapshot.docs[snapshot.size - 1],
           data: serializeQuerySnapshot<FromFirestore>(snapshot),
         };
       }
@@ -66,10 +68,8 @@ export function useCollectionQuery<
         !options.firestoreOptions.subscribe
       ) {
         const snapshot = await getDocsFromCache(queryRef);
-
         return {
-          firstDoc: snapshot.docs[0],
-          lastDoc: snapshot.docs[snapshot.docs.length - 1],
+          lastDoc: snapshot.docs[snapshot.size - 1],
           data: serializeQuerySnapshot<FromFirestore>(snapshot),
         };
       }
@@ -84,13 +84,13 @@ export function useCollectionQuery<
           const onNext = (
             snapshot: QuerySnapshot<FromFirestore, ToFirestore>
           ) => {
-            const results = {
-              firstDoc: snapshot.docs[0],
-              lastDoc: snapshot.docs[snapshot.docs.length - 1],
-              data: serializeQuerySnapshot<FromFirestore>(snapshot),
-            };
+            const results = serializeQuerySnapshot<FromFirestore>(snapshot);
             if (!context.signal.aborted) {
-              resolve(results);
+              resolve({
+                firstDoc: snapshot.docs[0],
+                lastDoc: snapshot.docs[snapshot.size - 1],
+                data: serializeQuerySnapshot<FromFirestore>(snapshot),
+              });
             }
 
             queryClient.setQueryData(context.queryKey, results);
@@ -110,12 +110,20 @@ export function useCollectionQuery<
       }
 
       const snapshot = await getDocs(queryRef);
-
       return {
         firstDoc: snapshot.docs[0],
-        lastDoc: snapshot.docs[snapshot.docs.length - 1],
+        lastDoc: snapshot.docs[snapshot.size - 1],
         data: serializeQuerySnapshot<FromFirestore>(snapshot),
       };
+    },
+    select: (data) => {
+      return data.pages.map((page) => page.data);
+    },
+    getNextPageParam: (lastPage) => {
+      return lastPage?.lastDoc;
+    },
+    getPreviousPageParam: (firstPage) => {
+      return firstPage.firstDoc;
     },
   });
 }

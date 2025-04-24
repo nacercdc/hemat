@@ -1,11 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { OrderByDirection } from "@react-native-firebase/firestore";
-import type { FieldPath, WhereFilterOp } from "firebase/firestore";
+import type {
+  DocumentData,
+  DocumentSnapshot,
+  FieldPath,
+  OrderByDirection,
+  WhereFilterOp,
+} from "firebase/firestore";
 import type { Filter, OrderBy } from "./filter.type";
 export interface IQueryOption<T> {
   filters?: Filter<T>;
   orderBy?: OrderBy<T>;
   limit?: number;
+  startAfter?: DocumentSnapshot<DocumentData>;
 }
 
 export type ObjectLiteral = Record<string, any>;
