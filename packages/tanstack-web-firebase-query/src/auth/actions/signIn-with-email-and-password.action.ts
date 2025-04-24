@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import type { Auth } from "firebase/auth";
@@ -28,7 +29,7 @@ export async function signInWithEmailAndPasswordAction({
   await refreshCookiesWithIdToken(
     idToken,
     await headers(),
-    await cookies(),
+    (await cookies()) as any,
     authConfig
   );
   onSignedIn?.();

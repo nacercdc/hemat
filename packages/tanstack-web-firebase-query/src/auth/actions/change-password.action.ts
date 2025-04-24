@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use server";
 
@@ -44,7 +45,7 @@ export async function changePasswordAction({
   await refreshCookiesWithIdToken(
     idToken,
     await headers(),
-    await cookies(),
+    (await cookies()) as any,
     authConfig
   );
   await updatePassword(currentUser, newPassword);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Auth } from "firebase/auth";
 import { signInWithCustomToken } from "firebase/auth";
 import type { SetAuthCookiesOptions } from "next-firebase-auth-edge/next/cookies";
@@ -14,7 +15,7 @@ export async function GetUserWithCustomTokens({
   authConfig,
   cookies,
 }: IGetUserWithCustomTokens) {
-  const tokens = await getTokens(await cookies(), {
+  const tokens = await getTokens((await cookies()) as any, {
     apiKey: authConfig.apiKey,
     cookieName: authConfig.cookieName,
     cookieSignatureKeys: authConfig.cookieSignatureKeys,

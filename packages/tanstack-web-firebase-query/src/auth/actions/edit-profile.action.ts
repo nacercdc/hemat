@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import type { Auth } from "firebase/auth";
@@ -45,7 +46,7 @@ export async function editProfileAction({
   await refreshCookiesWithIdToken(
     await currentUser.getIdToken(),
     await headers(),
-    await cookies(),
+    (await cookies()) as any,
     authConfig
   );
 }

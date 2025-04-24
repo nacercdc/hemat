@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getTokens } from "next-firebase-auth-edge";
 import type { SetAuthCookiesOptions } from "next-firebase-auth-edge/next/cookies";
 import React from "react";
@@ -15,7 +16,7 @@ export async function InjectAuthToServer({
   authConfig,
   children,
 }: Props) {
-  const tokens = await getTokens(await cookies(), {
+  const tokens = await getTokens((await cookies()) as any, {
     ...authConfig,
     headers: await headers(),
   });

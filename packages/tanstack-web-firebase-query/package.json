@@ -3,9 +3,18 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "react-native": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "types": "./dist/src/*.d.ts",
+      "default": [
+        "./src/*.ts",
+        "./src/*.tsx"
+      ]
+    }
   },
   "license": "MIT",
   "scripts": {
