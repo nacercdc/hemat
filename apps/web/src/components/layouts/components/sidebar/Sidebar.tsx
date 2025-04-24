@@ -8,6 +8,7 @@ import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import useUserAbility from "~/providers/ability/casl/useUserAbility";
 import { groups } from "./constants";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 export default function Sidebar() {
   const router = useRouter();
@@ -35,18 +36,15 @@ export default function Sidebar() {
         headerOnOpen={
           <div className="flex justify-between items-center">
             <Image
-              src="/images/trackbooks_logo.svg"
+              src="/logo.png"
               alt="logo"
               width={120}
-              height={120}
+              height={140}
               className="w-auto h-auto"
             />
-            <Image
-              src="/images/collapse_icon.svg"
-              alt="collapse_icon"
-              width={3}
-              height={3}
-              className="w-3 h-3"
+            <Icon
+              icon="carbon:row-collapse"
+              className="text-white w-6 transform -rotate-90"
             />
           </div>
         }

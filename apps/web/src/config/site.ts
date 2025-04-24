@@ -6,14 +6,14 @@ export const BASE_URL = env.NEXT_PUBLIC_HOST_URL;
 const EMAIL_URL = "mailto:info@etmsoftwareplc.com";
 
 export const siteConfig: SiteConfig = {
-  name: "yarn-monorepo-starter",
-  tagLine: "Yarn Monorepo Starter",
-  description: "Yarn monorepo starter",
+  name: "case-tracking",
+  tagLine: "Case tracking",
+  description: "Case tracking",
   url: BASE_URL,
   authors: [
     {
       name: "ETM Software PLC",
-      url: "https://emtsoftwareplc.com",
+      url: "https://etmsoftwareplc.com",
     },
   ],
   creator: "@etmsoftwareplc",
@@ -25,6 +25,6 @@ export const siteConfig: SiteConfig = {
   },
 
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.png",
   },
 };
