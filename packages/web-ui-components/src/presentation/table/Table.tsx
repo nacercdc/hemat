@@ -33,6 +33,7 @@ interface Props<TData> {
   pageSizeOptions?: number[];
   initialPagination?: PaginationState;
   enableRowSelection?: boolean;
+  onEmptyDataElement?: React.ReactNode;
   onPaginationChange?: (p: PaginationState) => void;
   onRowSelectionChange?: (selectedRowIds: string[]) => void;
   onSortingChange?: (sorting: SortingState) => void;

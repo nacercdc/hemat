@@ -1,6 +1,6 @@
 import React from "react";
-import SummaryCard from "../../components/SummaryCard";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import SummaryCard from "~/components/modules/components/SummaryCard";
 
 export default function OrganizationSummary() {
   return (
