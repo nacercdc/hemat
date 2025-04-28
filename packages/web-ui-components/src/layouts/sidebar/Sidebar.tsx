@@ -108,7 +108,7 @@ export function Sidebar({
         tooltip={item.label}
         onClick={() => toggleCollapsible(item.id)}
         className={cn(
-          "font-semibold text-secondary-foreground hover:bg-tbsidebar-accent hover:text-secondary-foreground py-[20px] text-sm data-[state=open]:hover:bg-tbsidebar-accent data-[state=open]:hover:text-secondary-foreground active:bg-secondary-500 active:text-secondary-foreground",
+          "font-medium text-secondary-foreground hover:bg-tbsidebar-accent hover:text-secondary-foreground py-[20px] text-sm data-[state=open]:hover:bg-tbsidebar-accent data-[state=open]:hover:text-secondary-foreground active:bg-secondary-500 active:text-secondary-foreground",
           isParentActive(item.children) && "bg-tbsidebar-accent"
         )}
       >
@@ -170,7 +170,7 @@ export function Sidebar({
                 {CollapsedSidebarMenuItem(item)}
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <SidebarMenuSub className="border-l-0 ml-1">
+                <SidebarMenuSub className="relative border-l-0 ml-6 before:absolute before:left-0 before:top-[15%] before:h-[70%] before:w-[1px] before:bg-primary">
                   {item.children?.map((subItem) => renderMenuItem(subItem))}
                 </SidebarMenuSub>
               </CollapsibleContent>
@@ -224,7 +224,7 @@ export function Sidebar({
             onNavigate(item.path);
           }}
           className={cn(
-            "font-semibold text-secondary-foreground hover:bg-tbsidebar-accent hover:text-secondary-foreground active:bg-secondary-500 active:text-secondary-foreground py-[20px] text-sm",
+            "font-medium text-secondary-foreground hover:bg-tbsidebar-accent hover:text-secondary-foreground active:bg-secondary-500 active:text-secondary-foreground py-[20px] text-sm",
             isItemActive(item.path)
               ? item.depth === 0
                 ? "bg-tbsidebar-accent"
@@ -238,7 +238,7 @@ export function Sidebar({
           <span
             className={cn(
               "cursor-pointer",
-              isItemActive(item.path) && "font-bold"
+              isItemActive(item.path) && "font-semibold"
             )}
           >
             {item.icon && item.depth === 0 && (
@@ -246,15 +246,34 @@ export function Sidebar({
                 {item.icon}
               </span>
             )}
-            {item.depth !== 0 && (
+            {item.icon && item.depth !== 0 && (
               <span
                 className={cn(
-                  "w-2.5 h-2.5 rounded-full bg-secondary-400 invisible",
-                  isItemActive(item.path) && "visible"
+                  "text-lg",
+                  !open && "hidden",
+                  isItemActive(item.path) && "text-primary"
                 )}
-              ></span>
+              >
+                {item.icon}
+              </span>
             )}
-            <span>{item.label}</span>
+            <span
+              className={cn(
+                isItemActive(item.path) && item.depth !== 0 && "text-primary"
+              )}
+            >
+              {item.label}
+            </span>
+            {item.icon && item.depth !== 0 && (
+              <div className="flex w-full justify-end">
+                <span
+                  className={cn(
+                    "w-2 h-2 rounded-full bg-primary invisible justify-self-end",
+                    isItemActive(item.path) && "visible"
+                  )}
+                ></span>
+              </div>
+            )}
           </span>
         </SidebarMenuButton>
       </SidebarMenuItem>
