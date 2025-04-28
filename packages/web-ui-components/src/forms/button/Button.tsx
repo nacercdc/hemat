@@ -40,7 +40,7 @@ export const compoundVariants = [
     variant: "outline",
     color: "default",
     className:
-      "bg-transparent text-basic hover:bg-transparent border-basic-500 hover:text-primary",
+      "bg-transparent text-basic hover:bg-transparent border-basic-300 hover:border-basic-400 hover:text-dark-500",
   },
   {
     variant: "outline",
@@ -69,7 +69,7 @@ export const compoundVariants = [
     variant: "outline",
     color: "dark",
     className:
-      "bg-transparent text-basic-500 hover:bg-basic-50 border-basic-500",
+      "bg-transparent text-basic-500 hover:bg-basic-50 border-basic-400",
   },
   {
     variant: "ghost",
