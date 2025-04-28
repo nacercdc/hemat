@@ -1,0 +1,24 @@
+import { Icon } from "@iconify/react/dist/iconify.js";
+import React from "react";
+interface Props {
+  icon: React.ReactElement;
+  title: string;
+  subtitle: string;
+}
+export default function SummaryCard({ icon, title, subtitle }: Props) {
+  return (
+    <div className="flex flex-row relative items-center bg-white rounded-sm h-24 w-full px-6 py-6 gap-6">
+      <button className="bg-basic-200/50 top-2 right-2 absolute rounded-2xl py-0.5 px-1">
+        <Icon
+          icon="ph:dots-three-outline-fill"
+          className="w-6 text-basic-600"
+        />
+      </button>
+      <div className="p-2.5 bg-primary-900/10 h-12 rounded-md">{icon}</div>
+      <div className="flex flex-col gap-0">
+        <span className="font-semibold text-2xl text-basic-800">{title}</span>
+        <span className="text-xs text-basic-600">{subtitle}</span>
+      </div>
+    </div>
+  );
+}
