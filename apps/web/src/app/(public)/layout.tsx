@@ -1,8 +1,9 @@
-import React from "react";
+import { AuthLayout } from "~/components/layouts/auth";
 
 interface Props {
   children: React.ReactNode;
 }
-export default function PublicLayout({ children }: Props) {
-  return <div className="w-full h-full">{children}</div>;
+
+export default function layout({ children }: Props) {
+  return <AuthLayout>{children}</AuthLayout>;
 }
