@@ -28,7 +28,7 @@ const data: { name: OrganizationDataType; label: string; value: number }[] = [
 export function OrganizationsDetailCard() {
   return (
     <SummaryContainer>
-      <div className="flex flex-col w-full h-full">
+      <div className="flex flex-col w-full h-[400px]">
         <div className="flex justify-between">
           <h6 className="font-bold">Organizations</h6>
           <Icon
@@ -64,7 +64,7 @@ function OrganizationsLegend({ payload }: DefaultLegendContentProps) {
 
 const PieChart = () => {
   return (
-    <div style={{ width: "100%", height: "276px", position: "relative" }}>
+    <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <ResponsiveContainer>
         <RPieChart className="relative">
           <Pie

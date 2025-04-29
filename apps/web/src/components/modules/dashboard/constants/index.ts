@@ -3,4 +3,5 @@ export const COLORS = {
   DarkLight: "#b8e1fe",
   Warning: "#A9CC3A",
   Accent: "#e1f2ff",
+  Destructive: "#B94100",
 };
