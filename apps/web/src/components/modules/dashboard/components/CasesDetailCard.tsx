@@ -59,7 +59,7 @@ export function CasesDetailCard() {
 
   return (
     <SummaryContainer>
-      <div className="flex flex-col w-full h-full">
+      <div className="flex flex-col w-full h-[400px]">
         <div className="flex justify-between">
           <h6 className="font-bold">Cases</h6>
           <div className="w-fit">
@@ -104,7 +104,7 @@ function CasesLegend({ payload }: DefaultLegendContentProps) {
 function LineChart() {
   return (
     <>
-      <ResponsiveContainer width="100%" height={252}>
+      <ResponsiveContainer width="100%" height="100%">
         <RLineChart data={data} margin={{ top: -40, right: 5, left: -10 }}>
           <CartesianGrid horizontal={true} vertical={false} />
           <XAxis
