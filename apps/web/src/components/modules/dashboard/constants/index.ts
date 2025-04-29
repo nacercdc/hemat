@@ -1,5 +1,6 @@
 export const COLORS = {
   Info: "#0274c5",
-  InfoForeground: "#b8e1fe",
+  DarkLight: "#b8e1fe",
   Warning: "#A9CC3A",
+  Accent: "#e1f2ff",
 };

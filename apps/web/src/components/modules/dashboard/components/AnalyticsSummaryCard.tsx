@@ -76,9 +76,7 @@ const RoundedBar = (props: RoundedBarProps) => {
     Z
   `;
 
-  return (
-    <path d={path} fill={isCurrent ? COLORS.Info : COLORS.InfoForeground} />
-  );
+  return <path d={path} fill={isCurrent ? COLORS.Info : COLORS.DarkLight} />;
 };
 
 const BarChart = () => {
