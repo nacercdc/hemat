@@ -6,6 +6,7 @@ import { Icon } from "@iconify/react";
 import { CasesDetailCard } from "./components/CasesDetailCard";
 import { OrganizationsDetailCard } from "./components/OrganizationsDetailCard";
 import { ResolvedCasesDetailCard } from "./components/ResolvedCasesDetailCard";
+import { CasesEngagementDetailCard } from "./components/CasesEngagementDetailCard";
 
 export default function Dashboard() {
   return (
@@ -52,6 +53,9 @@ export default function Dashboard() {
         </div>
         <div className="col-span-full lg:col-span-1 w-full">
           <ResolvedCasesDetailCard />
+        </div>
+        <div className="col-span-full lg:col-span-1 w-full">
+          <CasesEngagementDetailCard />
         </div>
       </div>
     </div>
