@@ -4,6 +4,7 @@ import React from "react";
 import { AnalyticsSummaryCard } from "./components/AnalyticsSummaryCard";
 import { Icon } from "@iconify/react";
 import { CasesDetailCard } from "./components/CasesDetailCard";
+import { OrganizationsDetailCard } from "./components/OrganizationsDetailCard";
 
 export default function Dashboard() {
   return (
@@ -44,6 +45,9 @@ export default function Dashboard() {
         />
         <div className="sm:col-span-2 lg:col-span-2 col-span-1 row-span-2">
           <CasesDetailCard />
+        </div>
+        <div className="row-span-2 col-span-full lg:col-span-1 w-full">
+          <OrganizationsDetailCard />
         </div>
       </div>
     </div>

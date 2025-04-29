@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { useState } from "react";
-import { DropdownMenu, Select } from "@etm/web-ui-components";
+import { Select } from "@etm/web-ui-components";
 import type { DefaultLegendContentProps } from "recharts";
 import {
   LineChart as RLineChart,
