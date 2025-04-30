@@ -6,6 +6,25 @@ input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 50px white inset;
 }
 
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
 @layer base {
   :root {
     /* Web css variable */
