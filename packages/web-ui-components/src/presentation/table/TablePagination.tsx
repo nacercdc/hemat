@@ -86,26 +86,6 @@ export function TablePagination<TData>({
 
   return (
     <div className="flex items-center justify-between bg-tbaccent py-4 px-2 my-3 rounded-md">
-      <div className="flex items-center space-x-2">
-        <p className="text-sm font-medium">Rows per page</p>
-        <Select
-          value={pageSize.toString()}
-          onValueChange={(value: string) => handlePageSizeChange(Number(value))}
-          disabled={disabled}
-        >
-          <SelectTrigger className="h-8 w-[70px]">
-            <SelectValue placeholder={pageSize} />
-          </SelectTrigger>
-          <SelectContent>
-            {pageSizeOptions.map((size) => (
-              <SelectItem key={size} value={size.toString()}>
-                {size}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
       <Pagination className="mx-0 w-auto">
         <PaginationContent>
           <PaginationItem>
@@ -131,6 +111,7 @@ export function TablePagination<TData>({
               <PaginationItem key={page}>
                 <Button
                   variant={page === currentPage ? "outline" : "ghost"}
+                  size="sm"
                   disabled={disabled}
                   onClick={() => handlePageChange(page as number)}
                 >
@@ -151,6 +132,25 @@ export function TablePagination<TData>({
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+      <div className="flex items-center space-x-2">
+        <p className="text-sm font-medium">Rows per page</p>
+        <Select
+          value={pageSize.toString()}
+          onValueChange={(value: string) => handlePageSizeChange(Number(value))}
+          disabled={disabled}
+        >
+          <SelectTrigger className="h-8 w-[70px]">
+            <SelectValue placeholder={pageSize} />
+          </SelectTrigger>
+          <SelectContent>
+            {pageSizeOptions.map((size) => (
+              <SelectItem key={size} value={size.toString()}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

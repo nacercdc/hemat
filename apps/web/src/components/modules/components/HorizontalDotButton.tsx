@@ -16,7 +16,7 @@ export const HorizontalDotButton = React.forwardRef<
       {...props}
       ref={ref}
       className={cn(
-        "bg-tbaccent/50 h-fit flex items-center justify-center rounded-2xl py-0.5 px-1",
+        "bg-tbaccent/60 h-fit flex items-center justify-center rounded-2xl py-0.5 px-1",
         className
       )}
     >
