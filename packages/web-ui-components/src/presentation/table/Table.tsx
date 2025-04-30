@@ -193,7 +193,7 @@ export function Table<TData extends object>({
           <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
           <div className="flex gap-5 items-center">
             {(filterableColumns()?.[0] as FilterOptionsType[]).length > 0 && (
-              <div className="px-2 min-w-1/4 mt-2">
+              <div className="min-w-1/4 mt-2">
                 <Input
                   type="search"
                   name="filter"

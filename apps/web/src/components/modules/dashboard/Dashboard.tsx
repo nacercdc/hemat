@@ -7,14 +7,14 @@ import { CasesDetailCard } from "./components/CasesDetailCard";
 import { OrganizationsDetailCard } from "./components/OrganizationsDetailCard";
 import { ResolvedCasesDetailCard } from "./components/ResolvedCasesDetailCard";
 import { CasesEngagementDetailCard } from "./components/CasesEngagementDetailCard";
+import { PageContainer } from "../components/PageContainer";
+import { PageHeader } from "../components/PageHeader";
 
 export default function Dashboard() {
   return (
-    // Page container component will be replaced here
-    <div className="flex flex-col gap-11">
-      {/* Page Header Component will be replaced here */}
-      <div className="text-2xl font-bold">Dashboard</div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_2fr_2fr_3fr] gap-4 w-full h-full">
+    <PageContainer>
+      <PageHeader pageTitle="Dashboard" breadcrumb={false} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_2fr_2fr_3fr] gap-4 w-full h-full mt-3">
         <AnalyticsSummaryCard
           icon={<Icon icon="solar:folder-broken" className="text-2xl" />}
           summaryFor="Cases"
@@ -58,6 +58,6 @@ export default function Dashboard() {
           <CasesEngagementDetailCard />
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

@@ -16,13 +16,13 @@ interface Props {
 export default function OrganizationAction({ organization }: Props) {
   const router = useRouter();
 
-  const onGotoDetailHandler = () => {
+  const onGotoUpdateHandler = () => {
     router.push(`/organizations/${organization.id}`);
   };
 
   return (
     <div className="w-full flex justify-end py-2.5">
-      <HorizontalDotButton onClick={onGotoDetailHandler} />
+      <HorizontalDotButton onClick={onGotoUpdateHandler} />
     </div>
   );
 }
