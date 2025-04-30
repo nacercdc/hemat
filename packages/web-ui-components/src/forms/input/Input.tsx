@@ -21,8 +21,7 @@ export const inputVariants = cva(
         info: "border-info-500 focus:border-info-600 focus-visible:ring-info-500",
         warning:
           "border-warning-500 focus:border-warning-600 focus-visible:ring-warning-500",
-        search:
-          "border-tbaccent bg-tbaccent focus:bg-white hover:bg-white focus:border-basic-500 hover:border-basic-500 transition-colors delay-150 duration-300 ease-in-out",
+        search: "border-white bg-white",
       },
 
       size: {

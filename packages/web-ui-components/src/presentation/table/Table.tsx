@@ -23,7 +23,7 @@ interface FilterOptionsType {
   label: string;
 }
 interface Props<TData> {
-  collectionName?: string;
+  collectionName: string;
   columns: ColumnDef<TData>[];
   data?: TData[];
   toolbar?: React.ReactNode;
@@ -63,6 +63,7 @@ export function Table<TData extends object>({
     pageSize: initialPagination?.pageSize ?? 10,
   });
   const [filterValue, setFilterValue] = useState("");
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   const debounceTimer = useRef<NodeJS.Timeout>(null);
 
   const columnsWithCheckbox = React.useMemo<ColumnDef<TData>[]>(
@@ -119,6 +120,9 @@ export function Table<TData extends object>({
 
   React.useEffect(() => {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    if (tableContainerRef.current) {
+      tableContainerRef.current.scrollTop = 0;
+    }
     // TODO we may need to reset based on other filters as well
   }, [sorting]);
 
@@ -166,17 +170,15 @@ export function Table<TData extends object>({
     [table]
   );
 
-  const loadingRows = Array.from({ length: pagination.pageSize }).map(
-    (_, i) => (
-      <tr key={`skeleton-${i}`}>
-        {Array.from({ length: columns.length + 1 }).map((_, ci) => (
-          <td key={`skeleton-cell-${i}-${ci}`}>
-            <Skeleton className="h-10 w-[95%] rounded-xl bg-tbaccent my-1 mx-z" />
-          </td>
-        ))}
-      </tr>
-    )
-  );
+  const loadingRows = Array.from({ length: 10 }).map((_, i) => (
+    <tr key={`skeleton-${i}`}>
+      {Array.from({ length: columns.length + 1 }).map((_, ci) => (
+        <td key={`skeleton-cell-${i}-${ci}`}>
+          <Skeleton className="h-[30px] w-[95%] rounded-md bg-primary-50 my-1 mx-z" />
+        </td>
+      ))}
+    </tr>
+  ));
 
   return (
     <div
@@ -184,33 +186,37 @@ export function Table<TData extends object>({
         "w-full flex flex-col h-full overflow-hidden",
         !showFilterFields && "justify-between"
       )}
+      ref={tableContainerRef}
     >
       {showFilterFields && (
-        <div className="flex justify-between w-full items-center mb-2">
-          {(filterableColumns()?.[0] as FilterOptionsType[]).length > 0 && (
-            <div className="px-2 w-1/4">
-              <Input
-                name="filter"
-                size="md"
-                leftNode={
-                  <Icon icon="mynaui:search" className="ml-3 text-xl" />
-                }
-                value={filterValue}
-                onChange={(e) => setFilterValue(e.target.value)}
-                placeholder={`Search ${collectionName?.toLocaleLowerCase() ?? "here"}`}
-                disabled={isLoading}
-              />
-            </div>
-          )}
-          <div className="flex items-center pr-2 justify-self-end">
+        <div className="flex w-full justify-between items-center mb-2">
+          <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
+          <div className="flex gap-5 items-center">
+            {(filterableColumns()?.[0] as FilterOptionsType[]).length > 0 && (
+              <div className="px-2 min-w-1/4 mt-2">
+                <Input
+                  type="search"
+                  name="filter"
+                  variant="search"
+                  size="md"
+                  leftNode={
+                    <Icon icon="mynaui:search" className="ml-3 text-xl" />
+                  }
+                  value={filterValue}
+                  onChange={(e) => setFilterValue(e.target.value)}
+                  placeholder={`Search ${collectionName?.toLocaleLowerCase() ?? "here"}`}
+                  disabled={isLoading}
+                />
+              </div>
+            )}
             {toolbar}
           </div>
         </div>
       )}
 
-      <div className="overflow-auto">
+      <div className="overflow-auto bg-white p-2 pt-0 rounded-sm">
         <table className="w-full">
-          <thead className="bg-card-background w-full">
+          <thead className="bg-white w-full sticky top-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -266,13 +272,13 @@ export function Table<TData extends object>({
                 </tr>
               )
             ) : (
-              table.getRowModel().rows.map((row) => (
-                <tr key={row.id}>
+              table.getRowModel().rows.map((row, index) => (
+                <tr
+                  key={row.id}
+                  className={cn(index % 2 === 0 && "bg-primary-50")}
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className="py-0 px-2 text-sm font-medium border-b"
-                    >
+                    <td key={cell.id} className="py-0 px-2 text-sm font-medium">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

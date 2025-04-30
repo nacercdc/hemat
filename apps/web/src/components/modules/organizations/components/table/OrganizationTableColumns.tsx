@@ -12,14 +12,12 @@ export const OrganizationTableColumns = ({
   {
     header: "Organization name",
     id: "organizationName",
-    enableColumnFilter: false,
     enableSorting: true,
     accessorFn: (row) => row.name ?? "--",
   },
 
   {
     header: "Address",
-    enableColumnFilter: false,
     enableSorting: true,
     id: "address",
     accessorFn: (row) => row.address ?? "--",
@@ -27,7 +25,6 @@ export const OrganizationTableColumns = ({
 
   {
     header: "Phone No.",
-    enableColumnFilter: false,
     enableSorting: true,
     id: "phoneNumber",
     accessorFn: (row) => row.phoneNumber ?? "--",
@@ -35,7 +32,6 @@ export const OrganizationTableColumns = ({
 
   {
     header: "Email address",
-    enableColumnFilter: false,
     enableSorting: true,
     id: "email",
     accessorFn: (row) => row.email ?? "--",
