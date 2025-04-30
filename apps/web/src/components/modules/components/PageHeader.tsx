@@ -1,16 +1,17 @@
 import React from "react";
+import { Breadcrumbs } from "./Breadcrumb";
 
 interface Props {
   pageTitle: string;
   listCount?: number;
-  breadCrumb?: React.ReactNode;
+  breadcrumb?: boolean;
   actions?: React.ReactNode;
 }
 
 export function PageHeader({
   pageTitle,
   listCount,
-  breadCrumb,
+  breadcrumb = true,
   actions,
 }: Props) {
   return (
@@ -18,11 +19,13 @@ export function PageHeader({
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold">{pageTitle}</h1>
-          <div className="py-1 px-2 rounded-full bg-white text-xs text-primary font-semibold">
-            {listCount}
-          </div>
+          {listCount && (
+            <div className="py-1 px-2 rounded-full bg-white text-xs text-primary font-semibold">
+              {listCount}
+            </div>
+          )}
         </div>
-        {breadCrumb}
+        {breadcrumb && <Breadcrumbs />}
       </div>
       {actions}
     </div>

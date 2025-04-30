@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import OrganizationSummary from "./components/summary";
 import OrganizationTable from "./components/table";

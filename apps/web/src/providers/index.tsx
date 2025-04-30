@@ -7,6 +7,7 @@ import { SidebarProvider } from "@etm/web-ui-components";
 import { env } from "~/env";
 import { TanstackQueryProvider as TanstackQueryWebFirebaseProvider } from "@etm/tanstack-web-firebase-query";
 import { TanstackQueryProvider as TanstackQueryAPIProvider } from "@etm/tanstack-api-query";
+import { BreadcrumbProvider } from "./breadcrumb/BreadCrumbProvider";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <TanstackQueryWebFirebaseProvider
@@ -45,7 +46,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
             appId: env.NEXT_PUBLIC_FIREBASE_APP_ID,
           })}
         >
-          <SidebarProvider>{children}</SidebarProvider>
+          <SidebarProvider>
+            <BreadcrumbProvider
+              initialPath={
+                typeof window !== "undefined" ? window.location.pathname : "/"
+              }
+            >
+              {children}
+            </BreadcrumbProvider>
+          </SidebarProvider>
         </FirebaseProvider>
       </TanstackQueryAPIProvider>
     </TanstackQueryWebFirebaseProvider>
