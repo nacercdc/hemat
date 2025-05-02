@@ -39,28 +39,29 @@ html {
     --color-basic-900: 0 0% 16.1%; /* hsl(0 0% 16.1%) */
     --color-basic-1000: 0 0% 12.2%; /* hsl(0 0% 12.2%) */
     --color-basic-1100: 0 0% 7.8%; /* hsl(0 0% 7.8%) */
-    --color-primary-50: 74 10% 98%; /* hsl(74 10% 98%) */
-    --color-primary-100: 74 15% 96%; /* hsl(74 15% 96%) */
-    --color-primary-200: 74 20% 94%; /* hsl(74 20% 94%) */
-    --color-primary-300: 74 25% 91%; /* hsl(74 25% 91%) */
-    --color-primary-400: 74 30% 88%; /* hsl(74 30% 88%) */
-    --color-primary-500: 74 35% 84%; /* hsl(74 35% 84%) */
-    --color-primary-600: 74 40% 78%; /* hsl(74 40% 78%) */
-    --color-primary-700: 74 45% 72%; /* hsl(74 45% 72%) */
-    --color-primary-800: 74 50% 65%; /* hsl(74 50% 65%) */
-    --color-primary-900: 74 55% 58%; /* hsl(74 55% 58%) */
-    --color-primary-950: 74 59% 51%; /* hsl(74 59% 51%) */
-    --color-secondary-50: 207 20% 95%; /* hsl(207 20% 95%) */
-    --color-secondary-100: 207 25% 90%; /* hsl(207 25% 90%) */
-    --color-secondary-200: 207 30% 82%; /* hsl(207 30% 82%) */
-    --color-secondary-300: 207 35% 72%; /* hsl(207 35% 72%) */
-    --color-secondary-400: 207 40% 60%; /* hsl(207 40% 60%) */
-    --color-secondary-500: 207 50% 50%; /* hsl(207 50% 50%) */
-    --color-secondary-600: 207 55% 40%; /* hsl(207 55% 40%) */
-    --color-secondary-700: 207 60% 30%; /* hsl(207 60% 30%) */
-    --color-secondary-800: 207 63% 24%; /* hsl(207 63% 24%) */
-    --color-secondary-900: 207 65% 20%; /* hsl(207 65% 20%) */
-    --color-secondary-950: 207 65% 17%; /* hsl(207 65% 17%) */
+    --color-primary-50: 345 80% 96%; /* hsl(345 80% 96%) */
+    --color-primary-100: 345 75% 92%; /* hsl(345 75% 92%) */
+    --color-primary-200: 345 72% 85%; /* hsl(345 72% 85%) */
+    --color-primary-300: 345 70% 75%; /* hsl(345 70% 75%) */
+    --color-primary-400: 345 70% 63%; /* hsl(345 70% 63%) */
+    --color-primary-500: 345 70% 51%; /* hsl(345 70% 51%) */
+    --color-primary-600: 345 70% 44%; /* hsl(345 70% 44%) */
+    --color-primary-700: 345 69% 40%; /* hsl(345 69% 40%) */
+    --color-primary-800: 345 68% 37%; /* hsl(345 68% 37%) */
+    --color-primary-900: 345 68% 35%; /* hsl(345 68% 35%) */
+    --color-primary-950: 345 68% 34%; /* hsl(345 68% 34%) */
+    --color-secondary-50: 152 60% 95%; /* hsl(152 60% 95%) */
+    --color-secondary-100: 152 63% 89%; /* hsl(152 63% 89%) */
+    --color-secondary-200: 152 65% 80%; /* hsl(152 65% 80%) */
+    --color-secondary-300: 152 68% 66%; /* hsl(152 68% 66%) */
+    --color-secondary-400: 152 70% 50%; /* hsl(152 70% 50%) */
+    --color-secondary-500: 152 71% 39%; /* hsl(152 71% 39%) */
+    --color-secondary-600: 152 72% 32%; /* hsl(152 72% 32%) */
+    --color-secondary-700: 152 72% 28%; /* hsl(152 72% 28%) */
+    --color-secondary-800: 152 72% 26%; /* hsl(152 72% 26%) */
+    --color-secondary-900: 152 72% 25%; /* hsl(152 72% 25%) */
+    --color-secondary-950: 152 72% 24%; /* hsl(152 72% 24%) */
+
     --color-success-50: 105 80% 95%; /* hsl(105 80% 95%) */
     --color-success-100: 105 85% 90%; /* hsl(105 85% 90%) */
     --color-success-200: 105 90% 80%; /* hsl(105 90% 80%) */

@@ -17,7 +17,6 @@
     "@casl/ability": "^6.7.3",
     "@casl/react": "^5.0.0",
     "@etm/tanstack-api-query": "workspace:*",
-    "@etm/tanstack-web-firebase-query": "workspace:*",
     "@etm/web-ui-components": "workspace:*",
     "@hookform/resolvers": "^3.10.0",
     "@t3-oss/env-nextjs": "^0.11.1",

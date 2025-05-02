@@ -4278,6 +4278,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"africa-cdc@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "africa-cdc@workspace:."
+  dependencies:
+    "@etm/prettier-config": "workspace:*"
+    "@turbo/gen": "npm:^2.3.1"
+    eslint: "npm:^9.12.0"
+    husky: "npm:^9.1.6"
+    prettier: "npm:^3.3.3"
+    turbo: "npm:^2.3.1"
+    typescript: "npm:^5.6.3"
+    vitest: "npm:^2.1.1"
+  languageName: unknown
+  linkType: soft
+
 "agent-base@npm:^7.1.0, agent-base@npm:^7.1.2":
   version: 7.1.3
   resolution: "agent-base@npm:7.1.3"
@@ -4870,21 +4885,6 @@ __metadata:
   checksum: 10/5608cdaf609eb5fe3a86ab6c1c2f3943dbdab813041725f4747f5432b05e6e19fc606faa8a9b75c329b37b772c91c47e8db483e76a6b715b59c289ce53dcba68
   languageName: node
   linkType: hard
-
-"case-tracking-monorepo@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "case-tracking-monorepo@workspace:."
-  dependencies:
-    "@etm/prettier-config": "workspace:*"
-    "@turbo/gen": "npm:^2.3.1"
-    eslint: "npm:^9.12.0"
-    husky: "npm:^9.1.6"
-    prettier: "npm:^3.3.3"
-    turbo: "npm:^2.3.1"
-    typescript: "npm:^5.6.3"
-    vitest: "npm:^2.1.1"
-  languageName: unknown
-  linkType: soft
 
 "chai@npm:^5.1.2":
   version: 5.2.0
