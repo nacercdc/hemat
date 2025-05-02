@@ -108,8 +108,9 @@ export function Sidebar({
         tooltip={item.label}
         onClick={() => toggleCollapsible(item.id)}
         className={cn(
-          "font-medium text-secondary-foreground hover:bg-tbsidebar-accent hover:text-secondary-foreground py-[20px] text-sm data-[state=open]:hover:bg-tbsidebar-accent data-[state=open]:hover:text-secondary-foreground active:bg-secondary-500 active:text-secondary-foreground",
-          isParentActive(item.children) && "bg-tbsidebar-accent"
+          "font-medium text-foreground hover:bg-tbsidebar-accent hover:text-secondary py-[20px] text-sm",
+          "data-[state=open]:hover:bg-tbsidebar-accent data-[state=open]:hover:text-secondary active:bg-secondary/5 active:text-secondary-950",
+          isParentActive(item.children) && "text-secondary"
         )}
       >
         {item.icon && (
@@ -163,14 +164,20 @@ export function Sidebar({
 
     if (item.children) {
       return (
-        <Collapsible key={item.id} className={`group/mcollapsible${item.id}`}>
+        <Collapsible
+          key={item.id}
+          className={cn(
+            `group/mcollapsible${item.id}`,
+            isParentActive(item.children) && "bg-secondary/5 rounded-md"
+          )}
+        >
           {open && (
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 {CollapsedSidebarMenuItem(item)}
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <SidebarMenuSub className="relative border-l-0 ml-6 before:absolute before:left-0 before:top-[15%] before:h-[70%] before:w-[1px] before:bg-primary">
+                <SidebarMenuSub className="relative border-l-0 ml-4 before:absolute before:left-0 before:top-[15%] before:h-[70%] before:w-[1px]">
                   {item.children?.map((subItem) => renderMenuItem(subItem))}
                 </SidebarMenuSub>
               </CollapsibleContent>
@@ -184,7 +191,7 @@ export function Sidebar({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-fit bg-secondary-50 border-none"
+                className="w-fit bg-secondary/5 border-none"
               >
                 {item.children?.map((subItem) => {
                   return (
@@ -197,13 +204,11 @@ export function Sidebar({
                     >
                       <span
                         className={cn(
-                          "w-2.5 h-2.5 rounded-full bg-secondary-400 invisible",
+                          "w-2.5 h-2.5 rounded-full bg-secondary/5 invisible",
                           isItemActive(subItem.path) && "visible"
                         )}
                       ></span>
-                      <span className="text-secondary-400">
-                        {subItem.label}
-                      </span>
+                      <span className="text-secondary">{subItem.label}</span>
                     </DropdownMenuItem>
                   );
                 })}
@@ -224,21 +229,21 @@ export function Sidebar({
             onNavigate(item.path);
           }}
           className={cn(
-            "font-medium text-secondary-foreground hover:bg-tbsidebar-accent hover:text-secondary-foreground active:bg-secondary-500 active:text-secondary-foreground py-[20px] text-sm",
+            "font-medium text-foreground hover:bg-tbsidebar-accent hover:text-secondary active:bg-secondary/5 active:text-secondary-950 py-[20px] text-sm",
             isItemActive(item.path)
               ? item.depth === 0
-                ? "bg-tbsidebar-accent"
-                : "text-secondary-400"
+                ? "bg-secondary/5"
+                : "text-secondary"
               : "",
             item.depth !== 0 &&
-              "hover:bg-transparent hover:text-secondary-400 active:bg-transparent",
+              "hover:bg-transparent hover:text-secondary active:bg-transparent",
             !open && "p-0 m-0"
           )}
         >
           <span
             className={cn(
               "cursor-pointer",
-              isItemActive(item.path) && "font-semibold"
+              isItemActive(item.path) && "font-semibold text-secondary-950"
             )}
           >
             {item.icon && item.depth === 0 && (
@@ -251,7 +256,7 @@ export function Sidebar({
                 className={cn(
                   "text-lg",
                   !open && "hidden",
-                  isItemActive(item.path) && "text-primary"
+                  isItemActive(item.path) && "text-secondary"
                 )}
               >
                 {item.icon}
@@ -259,7 +264,7 @@ export function Sidebar({
             )}
             <span
               className={cn(
-                isItemActive(item.path) && item.depth !== 0 && "text-primary"
+                isItemActive(item.path) && item.depth !== 0 && "text-secondary"
               )}
             >
               {item.label}
@@ -268,7 +273,7 @@ export function Sidebar({
               <div className="flex w-full justify-end">
                 <span
                   className={cn(
-                    "w-2 h-2 rounded-full bg-primary invisible justify-self-end",
+                    "w-2 h-2 rounded-full bg-secondary invisible justify-self-end",
                     isItemActive(item.path) && "visible"
                   )}
                 ></span>
@@ -294,7 +299,7 @@ export function Sidebar({
   };
 
   return (
-    <ShadcnSidebar collapsible="icon">
+    <ShadcnSidebar collapsible="icon" className="border-r border-basic-200/10">
       <SidebarContent
         className={cn(
           backgroundImagePath ? "bg-cover bg-no-repeat" : `bg-${bgColor}`

@@ -24,12 +24,9 @@ export const env = createEnv({
           "NEXT_PUBLIC_BASE_URL in the environment variables is required.",
       })
       .optional(),
-    NEXT_PUBLIC_HOST_URL: z
-      .string({
-        message:
-          "NEXT_PUBLIC_HOST_URL in the environment variables is required.",
-      })
-      .optional(),
+    NEXT_PUBLIC_HOST_URL: z.string({
+      message: "NEXT_PUBLIC_HOST_URL in the environment variables is required.",
+    }),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.

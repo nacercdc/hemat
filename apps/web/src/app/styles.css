@@ -106,9 +106,11 @@ html {
     --color-dark: 240 27% 12%; /* hsl(240 27% 12%) */
     --color-dark-light: 0 0% 50%; /* 	hsl(0 0% 50%) */
     --color-dark-lighter: 0 0% 68%; /* hsl(0 0% 68%) */
-    --color-layout-bg: 240 22% 92%; /* hsl(240 22% 92%) */
-    --color-tbsidebar-accent: var(--color-primary-950);
-    --color--accent: 252 29% 97%; /* hsl(252 29% 97%) */
+    --color-layout-bg: 240 22% 92%; /* hsl(240 22% 92%) 
+
+    /* Sidebar */
+    --color-tbsidebar-accent: var(--color-secondary-50);
+    --color-accent: var(--color-basic-1100);
 
     /* Shadcn css variables */
     --background: var(--color-background);
@@ -132,6 +134,7 @@ html {
     --ring: var(--color-basic-600);
     --radius: 0.5rem;
     --font-family: var(--font-poppins);
+
     /* Shadcn Sidebar variables */
     --sidebar-background: 0 0% 98%; /* hsl(0 0% 98%) */
     --sidebar-foreground: 240 5.3% 26.1%; /* hsl(240 5.3% 26.1) */
@@ -140,6 +143,6 @@ html {
     --sidebar-accent: 240 4.8% 95.9%; /* hsl( 240 4.8% 95.9%) */
     --sidebar-accent-foreground: 240 5.9% 10%; /* hsl( 240 5.9% 10%) */
     --sidebar-border: 220 13% 91%; /* hsl( 220 13% 91%) */
-    --sidebar-ring: var(--color-primary-900);
+    --sidebar-ring: var(--color-secondary-900);
   }
 }

@@ -28,7 +28,7 @@ export default function Sidebar() {
   const HeaderOnOpen = (
     <div className="flex justify-between items-center">
       <Image
-        src="/logo.png"
+        src="/images/logo.png"
         alt="logo"
         width={120}
         height={140}
@@ -53,17 +53,6 @@ export default function Sidebar() {
     </div>
   );
 
-  const FooterOnOpen = (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2 text-white text-sm">
-        <Icon icon="formkit:help" /> Help and support
-      </div>
-      <span className="text-dark-light text-xs">
-        &copy; Copyright. Vital Work Life {new Date().getFullYear()}
-      </span>
-    </div>
-  );
-
   const onNavigate = (path: string | undefined) => {
     if (!path) return;
 
@@ -74,13 +63,12 @@ export default function Sidebar() {
       <ETMSidebar
         headerOnOpen={HeaderOnOpen}
         headerOnCollapse={HeaderOnCollapse}
-        bgColor="secondary"
+        bgColor="white"
         isActivePath={isActivePath}
         groups={groups(ability, false)}
         separatorBetweenGroups={false}
         onNavigate={onNavigate}
         isLoading={false}
-        footerOnOpen={FooterOnOpen}
       />
     </div>
   );
