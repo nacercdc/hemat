@@ -1,0 +1,31 @@
+export enum PermissionActionEnum {
+  READ = 'read',
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  REMOVE = 'remove',
+  RESTORE = 'restore',
+  APPROVE = 'approve',
+  REJECT = 'reject',
+}
+
+export enum PermissionSubjectEnum {
+  ANSWER = 'answer',
+  ASSESSMENT = 'assessment',
+  ASSESSMENT_MEMBER = 'assessment_member',
+  ASSESSMENT_SUB_COMPONENT = 'assessment_sub_component',
+  COMPONENT = 'component',
+  DASHBOARD = 'dashboard',
+  DOMAIN = 'domain',
+  INVITATION = 'invitation',
+  MEASUREMENT = 'measurement',
+  PERMISSION = 'permission',
+  PROFILE = 'profile',
+  REPORT = 'report',
+  ROADMAP = 'roadmap',
+  ROLE = 'role',
+  SCALE = 'scale',
+  SUB_COMPONENT = 'sub_component',
+  USER = 'user',
+  RESPONSE = 'response',
+}

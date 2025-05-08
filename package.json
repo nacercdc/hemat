@@ -13,6 +13,8 @@
     "clean:workspaces": "turbo run clean",
     "dev": "turbo watch dev --continue",
     "web:dev": "yarn workspace web dev",
+    "build:apis": "yarn workspace apis build",
+    "dev:apis": "yarn workspace apis dev",
     "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
     "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
     "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
@@ -30,6 +32,7 @@
     "@etm/prettier-config": "workspace:*",
     "@turbo/gen": "^2.3.1",
     "eslint": "^9.12.0",
+    "eslint-plugin-prettier": "^5.4.0",
     "husky": "^9.1.6",
     "prettier": "^3.3.3",
     "turbo": "^2.3.1",
@@ -40,5 +43,8 @@
   "engines": {
     "node": "22",
     "npm": "10.8"
+  },
+  "dependencies": {
+    "@nestjs/cli": "^11.0.7"
   }
 }
