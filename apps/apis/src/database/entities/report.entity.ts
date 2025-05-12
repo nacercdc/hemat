@@ -11,6 +11,7 @@ import { BaseEntityWithSoftDelete } from './entity';
 import { Domain } from './domain.entity';
 import { Assessment } from './assessment.entity';
 import { User } from './user.entity';
+import { AssessmentGroup } from './assessment-group.entity';
 
 @Entity('reports')
 export class Report extends BaseEntityWithSoftDelete {
@@ -27,15 +28,25 @@ export class Report extends BaseEntityWithSoftDelete {
     type: () => Assessment,
   })
   @ManyToOne(() => Assessment, (assessment) => assessment.reports)
+  @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
 
   @ApiPropertyOptional({
-    description: 'Group name for the report',
-    example: 'Ethiopia Group 1',
+    description: 'ID of the associated group',
+    example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
   @Column({ nullable: true })
-  groupName: string;
+  @Index()
+  assessmentGroupId: string;
+
+  @ApiPropertyOptional({
+    description: 'AssessmentGroup object',
+    type: () => AssessmentGroup,
+  })
+  @ManyToOne(() => AssessmentGroup)
+  @JoinColumn({ name: 'assessmentGroupId' })
+  assessment_groups: AssessmentGroup | null;
 
   @ApiPropertyOptional({
     description: 'ID of the team leader',

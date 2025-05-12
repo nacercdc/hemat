@@ -2,7 +2,6 @@ import { Entity, Column, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Component } from './component.entity';
-import { Assessment } from './assessment.entity';
 
 @Entity('domains')
 export class Domain extends BaseEntityWithSoftDelete {
@@ -44,11 +43,4 @@ export class Domain extends BaseEntityWithSoftDelete {
   })
   @OneToMany(() => Component, (component) => component.domain)
   components: Component[];
-
-  @ApiProperty({
-    description: 'Assessments related to this domain',
-    type: () => [Assessment],
-  })
-  @OneToMany(() => Assessment, (assessment) => assessment.domain)
-  assessments: Assessment[];
 }

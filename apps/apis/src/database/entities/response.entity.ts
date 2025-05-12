@@ -1,7 +1,8 @@
-import { Entity, Column, OneToOne } from 'typeorm';
+import { Entity, Column, OneToOne, OneToMany, JoinColumn } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
+import { Comment } from './comment.entity';
 
 @Entity('responses')
 export class Response extends BaseEntityWithSoftDelete {
@@ -18,6 +19,7 @@ export class Response extends BaseEntityWithSoftDelete {
     type: () => Assessment,
   })
   @OneToOne(() => Assessment, (assessment) => assessment.response)
+  @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment | null;
 
   @ApiProperty({
@@ -30,13 +32,10 @@ export class Response extends BaseEntityWithSoftDelete {
 
   @ApiPropertyOptional({
     description: 'Comments on the response',
-    example: [
-      { userId: '123e4567-e89b-12d3-a456-426614174000', comment: 'Great work' },
-    ],
-    type: Array,
+    type: () => [Comment],
   })
-  @Column({ type: 'jsonb', nullable: true })
-  comments: { userId: string; comment: string }[];
+  @OneToMany(() => Comment, (comment) => comment.response)
+  comments: Comment[];
 
   @ApiProperty({
     description: 'Whether the response is published',

@@ -1,23 +1,25 @@
 import {
   Entity,
   Column,
-  ManyToOne,
   OneToMany,
   Index,
-  OneToOne,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
-import { Domain } from './domain.entity';
 import { Response } from './response.entity';
 import { AssessmentSubComponent } from './assessment-sub-component.entity';
 import { AssessmentMember } from './assessment-member.entity';
-import { LanguageEnum } from '../../shared';
-import { Answer } from './answer.entity';
+import { AssessmentAnswer } from './assessment-answer.entity';
 import { User } from './user.entity';
 import { Report } from './report.entity';
 import { Invitation } from './invitation.entity';
+import { AssessmentDomain } from './assessment-domain.entity';
+import { AssessmentComponent } from './assessment-component.entity';
+import { AssessmentMeasurementScale } from './assessment-measurement-scale.entity';
+import { AssessmentLanguage } from './assessment-language.entity';
+import { Country } from './country.entity';
 
 @Entity('assessments')
 export class Assessment extends BaseEntityWithSoftDelete {
@@ -34,7 +36,7 @@ export class Assessment extends BaseEntityWithSoftDelete {
     description: 'User object',
     type: () => User,
   })
-  @OneToOne(() => User, (user) => user.assessment)
+  @ManyToOne(() => User, (user) => user.assessments)
   @JoinColumn({ name: 'userId' })
   user: User | null;
 
@@ -51,16 +53,33 @@ export class Assessment extends BaseEntityWithSoftDelete {
     example: 'Annual public health assessment',
     type: String,
   })
-  @Column()
+  @Column({ type: 'text' })
   description: string;
 
   @ApiProperty({
-    description: 'Country of the assessment',
-    example: 'Ethiopia',
+    description: 'ID of the associated user',
+    example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  @Column()
-  country: string;
+  @Column({ type: String })
+  @Index()
+  countryCode: string;
+
+  @ApiPropertyOptional({
+    description: 'Country object',
+    type: () => Country,
+  })
+  @ManyToOne(() => Country, (country) => country.assessments)
+  @JoinColumn({ name: 'countryCode' })
+  country: Country | null;
+
+  @ApiPropertyOptional({
+    description: 'Organization of the assessment',
+    example: 'WHO',
+    type: String,
+  })
+  @Column({ type: 'text', nullable: true })
+  organization: string | null;
 
   @ApiProperty({
     description: 'Date of the assessment',
@@ -71,21 +90,28 @@ export class Assessment extends BaseEntityWithSoftDelete {
   date: Date;
 
   @ApiProperty({
-    description: 'Language of the assessment',
-    enum: LanguageEnum,
-    example: LanguageEnum.EN,
+    description: 'ID of the associated domian',
+    example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  @Column({ type: 'enum', enum: LanguageEnum, default: LanguageEnum.EN })
-  language: LanguageEnum;
+  @Column()
+  @Index()
+  domianId: string;
 
   @ApiProperty({
     description: 'Associated domain',
-    type: () => Domain,
+    type: () => [AssessmentDomain],
   })
-  @ManyToOne(() => Domain, (domain) => domain.assessments)
-  @Index()
-  domain: Domain;
+  @OneToMany(() => AssessmentDomain, (domain) => domain.assessment)
+  @JoinColumn({ name: 'domianId' })
+  domains: AssessmentDomain[];
+
+  @ApiPropertyOptional({
+    description: 'Components under this domain',
+    type: () => [AssessmentComponent],
+  })
+  @OneToMany(() => AssessmentComponent, (component) => component.assessment)
+  components: AssessmentComponent[];
 
   @ApiProperty({
     description: 'Sub-components linked to this assessment',
@@ -96,6 +122,16 @@ export class Assessment extends BaseEntityWithSoftDelete {
     (assessmentSubComponent) => assessmentSubComponent.assessment,
   )
   subComponents: AssessmentSubComponent[];
+
+  @ApiProperty({
+    description: 'Sub-components linked to this assessment',
+    type: () => [AssessmentMeasurementScale],
+  })
+  @OneToMany(
+    () => AssessmentMeasurementScale,
+    (measurementScales) => measurementScales.assessment,
+  )
+  measurementScales: AssessmentMeasurementScale[];
 
   @ApiPropertyOptional({
     description: 'Members of the assessment',
@@ -108,18 +144,18 @@ export class Assessment extends BaseEntityWithSoftDelete {
   members: AssessmentMember[] | null;
 
   @ApiPropertyOptional({
-    description: 'Answers of the assessment',
-    type: () => [Answer],
+    description: 'Assessment answer of the assessment',
+    type: () => [AssessmentAnswer],
   })
-  @OneToMany(() => Answer, (answers) => answers.assessment)
-  answers: Answer[] | null;
+  @OneToMany(() => AssessmentAnswer, (answers) => answers.assessment)
+  answers: AssessmentAnswer[] | null;
 
   @ApiPropertyOptional({
     description: 'Invitation of the assessment',
     type: () => [Invitation],
   })
   @OneToMany(() => Invitation, (invitation) => invitation.assessment)
-  invitation: Invitation[] | null;
+  invitations: Invitation[] | null;
 
   @ApiPropertyOptional({
     description: 'Response of the assessment',
@@ -134,4 +170,11 @@ export class Assessment extends BaseEntityWithSoftDelete {
   })
   @OneToMany(() => Report, (reports) => reports.assessment)
   reports: Report[] | null;
+
+  @ApiPropertyOptional({
+    description: 'Assessments related to this domain',
+    type: () => AssessmentLanguage,
+  })
+  @OneToMany(() => AssessmentLanguage, (language) => language.assessment)
+  languages: AssessmentLanguage[];
 }

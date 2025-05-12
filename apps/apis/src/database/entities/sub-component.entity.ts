@@ -2,10 +2,7 @@ import { Entity, Column, ManyToOne, OneToMany, Index, OneToOne } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Component } from './component.entity';
-import { AssessmentSubComponent } from './assessment-sub-component.entity';
-import { Answer } from './answer.entity';
-import { Roadmap } from './roadmap.entity';
-import { MeasurementScaleDescription } from './measurement-scale-description.entity';
+import { MeasurementScaleSubComponent } from './measurement-scale-sub-component.entity';
 
 @Entity('sub_components')
 export class SubComponent extends BaseEntityWithSoftDelete {
@@ -33,14 +30,6 @@ export class SubComponent extends BaseEntityWithSoftDelete {
   @Column()
   description: string;
 
-  @ApiPropertyOptional({
-    description: 'Maximum score for the sub-component',
-    example: 100,
-    type: Number,
-  })
-  @Column({ nullable: true })
-  maxScore?: number;
-
   @ApiProperty({
     description: 'Associated component',
     type: () => Component,
@@ -50,36 +39,12 @@ export class SubComponent extends BaseEntityWithSoftDelete {
   component: Component;
 
   @ApiProperty({
-    description: 'Assessments linked to this sub-component',
-    type: () => [AssessmentSubComponent],
+    description: 'MeasurementScaleSubComponent linked to this SubComponent',
+    type: () => [MeasurementScaleSubComponent],
   })
   @OneToMany(
-    () => AssessmentSubComponent,
-    (assessmentSubComponent) => assessmentSubComponent.subComponent,
+    () => MeasurementScaleSubComponent,
+    (measurementScaleSubComponent) => measurementScaleSubComponent.subComponent,
   )
-  assessments: AssessmentSubComponent[];
-
-  @ApiPropertyOptional({
-    description: 'Answer object',
-    type: () => Answer,
-  })
-  @OneToOne(() => Answer, (answers) => answers.subComponent)
-  answers: Answer | null;
-
-  @ApiProperty({
-    description: 'Roadmaps linked to this Roadmap',
-    type: () => [Roadmap],
-  })
-  @OneToMany(() => Roadmap, (roadmap) => roadmap.subComponent)
-  roadmaps: Roadmap[];
-
-  @ApiProperty({
-    description: 'MeasurementScaleDescription linked to this SubComponent',
-    type: () => [MeasurementScaleDescription],
-  })
-  @OneToMany(
-    () => MeasurementScaleDescription,
-    (measurementScaleDescription) => measurementScaleDescription.subComponent,
-  )
-  measurementScaleDescription: MeasurementScaleDescription[];
+  measurementScaleSubComponents: MeasurementScaleSubComponent[];
 }

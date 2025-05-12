@@ -2,10 +2,10 @@ import { Entity, Column, ManyToOne, Index, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { SubComponent } from './sub-component.entity';
-import { Measurement } from './measurement.entity';
+import {  MeasurementScale } from './measurement-scale.entity';
 
-@Entity('measurement_scale_descriptions')
-export class MeasurementScaleDescription extends BaseEntityWithSoftDelete {
+@Entity('measurement_scale_sub_components')
+export class MeasurementScaleSubComponent extends BaseEntityWithSoftDelete {
   @ApiProperty({
     description: 'ID of the associated sub-component',
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -30,15 +30,15 @@ export class MeasurementScaleDescription extends BaseEntityWithSoftDelete {
   })
   @Column()
   @Index()
-  measurementId: string;
+  measurementScaleId: string;
 
   @ApiProperty({
     description: 'Associated measurement',
-    type: () => Measurement,
+    type: () => MeasurementScale,
   })
-  @ManyToOne(() => Measurement, (measurement) => measurement.roadmaps)
-  @JoinColumn({ name: 'measurementId' })
-  measurement: Measurement;
+  @ManyToOne(() => MeasurementScale, (measurementScale) => measurementScale.measurementScaleSubComponents)
+  @JoinColumn({ name: 'measurementScaleId' })
+  measurementScale: MeasurementScale;
 
   @ApiProperty({
     description: 'Description for this sub-component and scale combination',

@@ -1,4 +1,11 @@
-import { Entity, Column, ManyToOne, OneToMany, Index } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  OneToMany,
+  Index,
+  JoinColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Domain } from './domain.entity';
@@ -31,11 +38,20 @@ export class Component extends BaseEntityWithSoftDelete {
   description: string;
 
   @ApiProperty({
+    description: 'ID of the associated domain',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @Column({ type: 'uuid' })
+  @Index()
+  domainId: string;
+
+  @ApiProperty({
     description: 'Associated domain',
     type: () => Domain,
   })
   @ManyToOne(() => Domain, (domain) => domain.components)
-  @Index()
+  @JoinColumn({ name: 'domainId' })
   domain: Domain;
 
   @ApiProperty({

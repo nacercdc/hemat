@@ -14,7 +14,7 @@ import { Role } from './role.entity';
 import { Permission } from './permission.entity';
 import { UserStatusEnum, LanguageEnum } from '../../shared';
 import { AssessmentMember } from './assessment-member.entity';
-import { Answer } from './answer.entity';
+import { AssessmentAnswer } from './assessment-answer.entity';
 import { Assessment } from './assessment.entity';
 import { Report } from './report.entity';
 
@@ -137,7 +137,7 @@ export class User extends BaseEntityWithSoftDelete {
     description: 'AssessmentMember object',
     type: () => AssessmentMember,
   })
-  @OneToOne(
+  @OneToMany(
     () => AssessmentMember,
     (assessmentMember) => assessmentMember.user,
     {
@@ -145,24 +145,21 @@ export class User extends BaseEntityWithSoftDelete {
       onDelete: 'CASCADE',
     },
   )
-  assessmentMember: AssessmentMember | null;
+  assessmentMembers: AssessmentMember[] | null;
 
   @ApiPropertyOptional({
-    description: 'Answer object',
-    type: () => Answer,
+    description: 'AssessmentAnswer Object',
+    type: () => [AssessmentAnswer],
   })
-  @OneToOne(() => Answer, (answers) => answers.user, {
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
-  })
-  answers: Answer | null;
+  @OneToMany(() => AssessmentAnswer, (answer) => answer.user)
+  answers: AssessmentAnswer[] | null;
 
   @ApiPropertyOptional({
     description: 'Assessment object',
     type: () => Assessment,
   })
-  @OneToOne(() => Assessment, (assessment) => assessment.user)
-  assessment: Assessment | null;
+  @OneToMany(() => Assessment, (assessment) => assessment.user)
+  assessments: Assessment[] | null;
 
   @ApiPropertyOptional({
     description: 'Report Object',

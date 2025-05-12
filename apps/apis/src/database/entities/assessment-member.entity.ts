@@ -11,6 +11,7 @@ import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { MemberRole } from '../../shared';
 import { User } from './user.entity';
+import { AssessmentGroup } from './assessment-group.entity';
 
 @Entity('assessment_members')
 export class AssessmentMember extends BaseEntityWithSoftDelete {
@@ -19,7 +20,7 @@ export class AssessmentMember extends BaseEntityWithSoftDelete {
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  @Column()
+  @Column({ type: 'uuid' })
   @Index()
   userId: string;
 
@@ -27,7 +28,7 @@ export class AssessmentMember extends BaseEntityWithSoftDelete {
     description: 'User object',
     type: () => User,
   })
-  @OneToOne(() => User, (user) => user.assessmentMember)
+  @ManyToOne(() => User, (user) => user.assessmentMembers)
   @JoinColumn({ name: 'userId' })
   user: User | null;
 
@@ -36,7 +37,7 @@ export class AssessmentMember extends BaseEntityWithSoftDelete {
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  @Column()
+  @Column({ type: 'uuid' })
   @Index()
   assessmentId: string;
 
@@ -45,16 +46,25 @@ export class AssessmentMember extends BaseEntityWithSoftDelete {
     type: () => Assessment,
   })
   @ManyToOne(() => Assessment, (assessment) => assessment.members)
-  @Index()
+  @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
 
   @ApiProperty({
-    description: 'Group name within the assessment',
-    example: 'Ethiopia Group 1',
+    description: 'ID of the associated Assessment group',
+    example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  @Column()
-  groupName: string;
+  @Column({ type: 'uuid' })
+  @Index()
+  groupId: string;
+
+  @ApiPropertyOptional({
+    description: 'Assessment Group object',
+    type: () => AssessmentGroup,
+  })
+  @ManyToOne(() => AssessmentGroup, (group) => group.members)
+  @JoinColumn({ name: 'groupId' })
+  group: AssessmentGroup;
 
   @ApiProperty({
     description: 'Role of the member',

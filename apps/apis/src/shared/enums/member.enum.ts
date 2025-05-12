@@ -1,5 +1,5 @@
 export enum MemberRole {
-  TEAM_LEADER = 'team_leader',
+  TEAM_LEADER = 'team-leader',
   PRIMARY = 'primary',
-  SECONDARY = 'secondary',
+  MEMBER = 'member',
 }

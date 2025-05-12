@@ -10,21 +10,20 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Roadmap } from './roadmap.entity';
-import { EvidenceType } from '../../shared';
 import { Assessment } from './assessment.entity';
+import { AssessmentSubComponent } from './assessment-sub-component.entity';
+import { AssessmentMeasurementScale } from './assessment-measurement-scale.entity';
 import { User } from './user.entity';
-import { SubComponent } from './sub-component.entity';
-import { Measurement } from './measurement.entity';
 
-@Entity('answers')
-export class Answer extends BaseEntityWithSoftDelete {
+@Entity('assessment_answers')
+export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   @ApiProperty({
     description: 'ID of the associated assessment',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
   @Index()
-  @Column()
+  @Column({ type: 'uuid' })
   assessmentId: string;
 
   @ApiProperty({
@@ -32,49 +31,43 @@ export class Answer extends BaseEntityWithSoftDelete {
     type: () => Assessment,
   })
   @ManyToOne(() => Assessment, (assessment) => assessment.answers)
+  @JoinColumn({ name: 'assessmentId' })
   @Index()
   assessment: Assessment;
 
   @ApiProperty({
-    description: 'ID of the user submitting the answer',
+    description: 'ID of the associated user',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  @Index()
   @Column()
+  @Index()
   userId: string;
 
   @ApiPropertyOptional({
     description: 'User object',
     type: () => User,
   })
-  @OneToOne(() => User, (user) => user.answers)
+  @ManyToOne(() => User, (user) => user.answers)
   @JoinColumn({ name: 'userId' })
   user: User | null;
-
-  @ApiProperty({
-    description: 'Group name submitting the answer',
-    example: 'Ethiopia Group 1',
-    type: String,
-  })
-  @Column()
-  groupName: string;
 
   @ApiProperty({
     description: 'ID of the associated sub-component',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  @Column()
+  @Index()
+  @Column({ type: 'uuid' })
   subComponentId: string;
 
   @ApiPropertyOptional({
     description: 'SubComponent object',
-    type: () => SubComponent,
+    type: () => AssessmentSubComponent,
   })
-  @OneToOne(() => SubComponent, (subComponent) => subComponent.answers)
+  @OneToOne(() => AssessmentSubComponent, (subComponent) => subComponent.answer)
   @JoinColumn({ name: 'subComponentId' })
-  subComponent: SubComponent | null;
+  subComponent: AssessmentSubComponent | null;
 
   @ApiProperty({
     description: 'ID of the associated measurement',
@@ -82,23 +75,32 @@ export class Answer extends BaseEntityWithSoftDelete {
     type: String,
   })
   @Column()
-  measurementId: string;
+  measurementScaleId: string;
 
   @ApiPropertyOptional({
-    description: 'Measurement object',
-    type: () => Measurement,
+    description: 'Measurement scale object',
+    type: () => AssessmentMeasurementScale,
   })
-  @OneToOne(() => Measurement, (measurement) => measurement.answers)
-  @JoinColumn({ name: 'measurementId' })
-  measurement: Measurement | null;
+  @OneToOne(
+    () => AssessmentMeasurementScale,
+    (measurement) => measurement.answer,
+  )
+  @JoinColumn({ name: 'measurementScaleId' })
+  measurementScale: AssessmentMeasurementScale | null;
 
   @ApiProperty({
-    description: 'Rate assigned in the answer',
-    example: 4,
-    type: Number,
+    description: 'Evidence supporting the answer',
+    type: String,
   })
-  @Column()
-  rate: number;
+  @Column({ type: 'text' })
+  evidence: string;
+
+  @ApiProperty({
+    description: 'Reference for the answer',
+    type: String,
+  })
+  @Column({ type: 'text' })
+  reference: string;
 
   @ApiPropertyOptional({
     description: 'Notes for the answer',
@@ -106,28 +108,12 @@ export class Answer extends BaseEntityWithSoftDelete {
     type: String,
   })
   @Column({ type: 'text', nullable: true })
-  notes: string;
-
-  @ApiProperty({
-    description: 'Evidence supporting the answer',
-    example: { type: EvidenceType.TEXT, value: 'Evidence description' },
-    type: Object,
-  })
-  @Column({ type: 'jsonb' })
-  evidence: { type: EvidenceType; value: string };
-
-  @ApiProperty({
-    description: 'Reference for the answer',
-    example: { type: EvidenceType.LINK, value: 'https://example.com' },
-    type: Object,
-  })
-  @Column({ type: 'jsonb' })
-  reference: { type: EvidenceType; value: string };
+  notes: string | null;
 
   @ApiProperty({
     description: 'Roadmaps linked to this answer',
     type: () => [Roadmap],
   })
-  @OneToMany(() => Roadmap, (roadmap) => roadmap.answer)
+  @OneToMany(() => Roadmap, (roadmap) => roadmap.answers)
   roadmaps: Roadmap[];
 }

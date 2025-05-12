@@ -1,27 +1,27 @@
-import { Entity, Column, ManyToOne, Index } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { Entity, Column, ManyToOne, Index, OneToMany } from 'typeorm';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
-import { Answer } from './answer.entity';
+import { AssessmentAnswer } from './assessment-answer.entity';
 import { SubComponent } from './sub-component.entity';
-import { Measurement } from './measurement.entity';
+import { MeasurementScale } from './measurement-scale.entity';
+import { AssessmentSubComponent } from '.';
 
 @Entity('roadmaps')
 export class Roadmap extends BaseEntityWithSoftDelete {
   @ApiProperty({
-    description: 'ID of the associated answer',
+    description: 'ID of the associated Assessment answer',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
   @Column()
-  answerId: string;
+  assessmentAnswerId: string;
 
-  @ApiProperty({
-    description: 'Associated answer',
-    type: () => Answer,
+  @ApiPropertyOptional({
+    description: 'Associated AssessmentAnswer',
+    type: () => [AssessmentAnswer],
   })
-  @ManyToOne(() => Answer, (answer) => answer.roadmaps)
-  @Index()
-  answer: Answer;
+  @OneToMany(() => AssessmentAnswer, (answers) => answers.roadmaps)
+  answers: AssessmentAnswer[] | null;
 
   @ApiProperty({
     description: 'ID of the associated sub-component',
@@ -33,10 +33,13 @@ export class Roadmap extends BaseEntityWithSoftDelete {
 
   @ApiProperty({
     description: 'Associated sub-component',
-    type: () => SubComponent,
+    type: () => AssessmentSubComponent,
   })
-  @ManyToOne(() => SubComponent, (subComponent) => subComponent.roadmaps)
-  subComponent: SubComponent;
+  @ManyToOne(
+    () => AssessmentSubComponent,
+    (subComponent) => subComponent.roadmap,
+  )
+  subComponents: AssessmentSubComponent;
 
   @ApiProperty({
     description: 'ID of the associated measurement',
@@ -48,10 +51,13 @@ export class Roadmap extends BaseEntityWithSoftDelete {
 
   @ApiProperty({
     description: 'Associated measurement',
-    type: () => Measurement,
+    type: () => MeasurementScale,
   })
-  @ManyToOne(() => Measurement, (measurement) => measurement.roadmaps)
-  measurement: Measurement;
+  @ManyToOne(
+    () => MeasurementScale,
+    (measurementScale) => measurementScale.roadmap,
+  )
+  measurementScales: MeasurementScale;
 
   @ApiProperty({
     description: 'Target of the roadmap',
