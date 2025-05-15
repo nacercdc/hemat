@@ -19,9 +19,10 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   dropSchema: false,
   keepConnectionAlive: true,
   logging: process.env.NODE_ENV !== 'production',
-  entities: ['src/database/entities/**/*.entity.ts'],
-  migrations: ['src/database/migrations/**/*{.ts}'],
-
+  entities: ['dist/database/entities/*{.entity.js,.entity.ts}'],
+  migrations: ['dist/database/migrations/**/*{.ts,.js}'],
+  subscribers: ['dist/database/subscribers/*{.subscriber.js,.subscriber.ts}'],
+  seeds: ['dist/database/seeders/**/*.js'],
   cli: {
     entitiesDir: 'src',
     subscribersDir: 'subscriber',

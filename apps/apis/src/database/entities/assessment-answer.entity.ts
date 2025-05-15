@@ -32,7 +32,6 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   })
   @ManyToOne(() => Assessment, (assessment) => assessment.answers)
   @JoinColumn({ name: 'assessmentId' })
-  @Index()
   assessment: Assessment;
 
   @ApiProperty({
