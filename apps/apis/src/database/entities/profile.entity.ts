@@ -47,14 +47,6 @@ export class Profile extends BaseEntityWithSoftDelete {
   lastName: string;
 
   @ApiPropertyOptional({
-    description: 'Email address',
-    example: 'john.doe@example.com',
-    type: String,
-  })
-  @Column({ type: String, length: 320, unique: true, nullable: true })
-  email: string | null;
-
-  @ApiPropertyOptional({
     description: 'Gender',
     enum: GenderEnum,
     example: GenderEnum.MALE,

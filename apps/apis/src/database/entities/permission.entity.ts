@@ -8,13 +8,6 @@ import { PermissionActionEnum, PermissionSubjectEnum } from '../../shared';
 @Entity('permissions')
 export class Permission extends BaseEntityWithSoftDelete {
   @ApiProperty({
-    description: 'Unique name of the permission',
-    example: 'read:assessment$',
-  })
-  @Column({ unique: true })
-  name: string;
-
-  @ApiProperty({
     description: 'Action',
     enum: PermissionActionEnum,
     example: PermissionActionEnum.READ,
