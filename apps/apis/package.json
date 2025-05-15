@@ -23,15 +23,15 @@
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
     "typeorm": "node --require ts-node/register ../../node_modules/typeorm/cli.js -d src/database/data-source.ts",
-    "migration:generate": "yarn typeorm migration:generate ./src/database/migrations/Migration",
-    "migration:create": "yarn typeorm migration:create ./src/database/migrations/Migration",
+    "migration:generate": "yarn typeorm migration:generate ./src/database/migrations/migration",
+    "migration:create": "yarn typeorm migration:create ./src/database/migrations/migration",
     "migration:run": "yarn typeorm migration:run",
     "migration:show": "yarn typeorm migration:show",
     "rollback": "yarn typeorm migration:revert",
     "schema:drop": "yarn typeorm schema:drop",
     "schema:sync": "yarn typeorm schema:sync",
     "typeorm-extension": "ts-node ./node_modules/typeorm-extension/bin/cli.cjs -d ./src/database/data-source.ts",
-    "db:seed": "yarn typeorm-extension seed:run"
+    "db:seed": "typeorm-extension seed:run -d ./src/database/data-source.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -41,6 +41,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
+    "@nestjs/throttler": "^6.4.0",
     "@nestjs/typeorm": "^11.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
