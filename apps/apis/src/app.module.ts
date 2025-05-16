@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { appConfig, authConfig, databaseConfig } from './config';
 import { DatabaseModule } from './database';
-import { AccountModule } from './modules';
+import { AccessModule, AccountModule } from './modules';
+import { ExistConstraint, UniqueConstraint } from './shared/validators';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -11,7 +12,9 @@ import { AccountModule } from './modules';
       envFilePath: ['.env'],
     }),
     DatabaseModule,
+    AccessModule,
     AccountModule,
   ],
+  providers: [UniqueConstraint, ExistConstraint],
 })
 export class AppModule {}
