@@ -1,8 +1,8 @@
-import { PermissionActionEnum } from '../enums';
+import { PermissionActionEnum, PermissionSubjectEnum } from '../enums';
 
 export interface PermissionRule {
   action: PermissionActionEnum;
-  subject: 'PermissionSubjectEnum';
+  subject: PermissionSubjectEnum;
 }
 
 export interface AbilityParams {
