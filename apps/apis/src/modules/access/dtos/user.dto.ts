@@ -26,6 +26,21 @@ const genders = Object.values(GenderEnum).join(', ');
 
 export class UserBaseRequestDto {
   @ApiProperty({
+    description: 'Title',
+    example: 'Mr',
+    minLength: 2,
+    maxLength: 10,
+    type: String,
+  })
+  @Length(2, 10, {
+    message: 'validation.title.length args: min:2 | max:10',
+  })
+  @IsAlphaSpaceOnly({ message: 'validation.title.isAlphaSpaceOnly' })
+  @IsNotEmpty({ message: 'validation.title.isNotEmpty' })
+  @Type(() => String)
+  title: string;
+
+  @ApiProperty({
     description: 'First name',
     example: 'John',
     minLength: 2,
