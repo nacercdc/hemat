@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsMatch } from '../../../shared/validators';
 
 export class UpdatePasswordRequestDto {
@@ -17,6 +17,7 @@ export class UpdatePasswordRequestDto {
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message: 'validation.password.isWeak',
   })
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @Type(() => String)
   password: string;
 
@@ -28,6 +29,7 @@ export class UpdatePasswordRequestDto {
   @IsNotEmpty({ message: 'validation.confirmPassword.isNotEmpty' })
   @IsString({ message: 'validation.confirmPassword.isString' })
   @IsMatch('password', { message: 'validation.confirmPassword.isMatch' })
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
   @Type(() => String)
   confirmPassword: string;
 }
