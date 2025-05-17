@@ -79,6 +79,7 @@ export class UserService extends CrudService<User> {
         userId: user.id,
         ...pick(
           payload,
+          'title',
           'firstName',
           'lastName',
           'email',
@@ -141,11 +142,12 @@ export class UserService extends CrudService<User> {
           {
             ...pick(
               payload,
+              'title',
               'firstName',
               'lastName',
-              'email',
               'gender',
               'dateOfBirth',
+              'country',
             ),
           },
         )
