@@ -9,7 +9,6 @@ export const USER_FIELD_CONFIG = {
     'disabledAt',
     'lastLoggedInAt',
     'lastPasswordUpdatedAt',
-    'country',
     'createdAt',
     'updatedAt',
     'deletedAt',
