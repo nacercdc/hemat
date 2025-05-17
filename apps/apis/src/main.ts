@@ -6,6 +6,7 @@ import { useContainer } from 'class-validator';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { ConfigType } from './config/types';
+import { validationOptions } from './shared/helpers';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -44,13 +45,7 @@ async function bootstrap() {
       exclude: ['/'],
     },
   );
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
+  app.useGlobalPipes(new ValidationPipe(validationOptions));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   await app.listen(configService.getOrThrow('app.port', { infer: true }));
