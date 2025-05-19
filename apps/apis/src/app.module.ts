@@ -2,7 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { appConfig, authConfig, databaseConfig } from './config';
 import { DatabaseModule } from './database';
-import { AccessModule, AccountModule } from './modules';
+import {
+  AccessModule,
+  AccountModule,
+  MeasurementScaleModule,
+  TemplateModule,
+} from './modules';
 import { ExistConstraint, UniqueConstraint } from './shared/validators';
 @Module({
   imports: [
@@ -14,6 +19,8 @@ import { ExistConstraint, UniqueConstraint } from './shared/validators';
     DatabaseModule,
     AccessModule,
     AccountModule,
+    MeasurementScaleModule,
+    TemplateModule,
   ],
   providers: [UniqueConstraint, ExistConstraint],
 })
