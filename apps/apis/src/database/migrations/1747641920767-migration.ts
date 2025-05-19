@@ -1,13 +1,13 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1747309936936 implements MigrationInterface {
-    name = 'Migration1747309936936'
+export class Migration1747641920767 implements MigrationInterface {
+    name = 'Migration1747641920767'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "domains" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "code" character varying NOT NULL, "name" character varying NOT NULL, "description" character varying NOT NULL, "isActive" boolean NOT NULL DEFAULT true, CONSTRAINT "UQ_c1eacbd811cc699e0854b4090e1" UNIQUE ("code"), CONSTRAINT "PK_05a6b087662191c2ea7f7ddfc4d" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "components" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "code" character varying NOT NULL, "name" character varying NOT NULL, "description" character varying NOT NULL, "domainId" uuid NOT NULL, CONSTRAINT "UQ_5409124de81d8d24ef76b4a5315" UNIQUE ("code"), CONSTRAINT "PK_0d742661c63926321b5f5eac1ad" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_4ee9fc4c57cce74443dca8d033" ON "components" ("domainId") `);
-        await queryRunner.query(`CREATE TABLE "sub_components" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "code" character varying NOT NULL, "name" character varying NOT NULL, "description" character varying NOT NULL, "componentId" uuid, CONSTRAINT "UQ_3f78a1f320640def3b4c2d98b1d" UNIQUE ("code"), CONSTRAINT "PK_d403367627d1958909a22da2ef5" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "sub_components" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "code" character varying NOT NULL, "name" character varying NOT NULL, "description" character varying NOT NULL, "componentId" uuid NOT NULL, CONSTRAINT "UQ_3f78a1f320640def3b4c2d98b1d" UNIQUE ("code"), CONSTRAINT "PK_d403367627d1958909a22da2ef5" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_520ce9d3c21e8c923594e41a9b" ON "sub_components" ("componentId") `);
         await queryRunner.query(`CREATE TABLE "measurement_scale_sub_components" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "subComponentId" uuid NOT NULL, "measurementScaleId" uuid NOT NULL, "description" text NOT NULL, CONSTRAINT "PK_28c76639b09fb54a495a42dff2d" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_66a8865b5c1c313a5a4ca56d86" ON "measurement_scale_sub_components" ("subComponentId") `);
