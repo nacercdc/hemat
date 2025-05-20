@@ -17,8 +17,6 @@ export class SubComponentService extends CrudService<SubComponent> {
   constructor(
     @InjectRepository(SubComponent)
     private readonly subComponentRepository: Repository<SubComponent>,
-    @InjectRepository(Component)
-    private readonly componentRepository: Repository<Component>,
   ) {
     super(subComponentRepository);
   }

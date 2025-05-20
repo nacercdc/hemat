@@ -5,6 +5,7 @@ import {
   Length,
   IsUUID,
   IsOptional,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -59,6 +60,16 @@ export class SubComponentUpdateRequestDto {
   })
   @Type(() => String)
   description?: string;
+
+  @ApiPropertyOptional({
+    description: 'Whether the sub-component is active',
+    example: true,
+    type: Boolean,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'validation.isActive.isBoolean' })
+  @Type(() => Boolean)
+  isActive?: boolean;
 
   @ApiPropertyOptional({
     description: 'ID of the associated component',

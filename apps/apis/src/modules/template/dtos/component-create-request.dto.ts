@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, Length, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  Length,
+  IsUUID,
+  IsBoolean,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ComponentCreateRequestDto {
@@ -43,6 +49,16 @@ export class ComponentCreateRequestDto {
   })
   @Type(() => String)
   description: string;
+
+  @ApiProperty({
+    description: 'Whether the component is active',
+    example: true,
+    type: Boolean,
+  })
+  @IsNotEmpty({ message: 'validation.isActive.isNotEmpty' })
+  @IsBoolean({ message: 'validation.isActive.isBoolean' })
+  @Type(() => Boolean)
+  isActive: boolean;
 
   @ApiProperty({
     description: 'ID of the associated domain',
