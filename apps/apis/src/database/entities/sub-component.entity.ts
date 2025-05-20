@@ -4,7 +4,6 @@ import {
   ManyToOne,
   OneToMany,
   Index,
-  OneToOne,
   JoinColumn,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -38,6 +37,14 @@ export class SubComponent extends BaseEntityWithSoftDelete {
   @Column()
   description: string;
 
+  @ApiProperty({
+    description: 'Whether the sub-component is active',
+    example: true,
+    type: Boolean,
+  })
+  @Column({ default: true })
+  isActive: boolean;
+
   @ApiPropertyOptional({
     description: 'ID of the associated component',
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -61,7 +68,7 @@ export class SubComponent extends BaseEntityWithSoftDelete {
   })
   @OneToMany(
     () => MeasurementScaleSubComponent,
-    (measurementScaleSubComponent) => measurementScaleSubComponent.subComponent,
+    (measurementScale) => measurementScale.subComponent,
   )
-  measurementScaleSubComponents: MeasurementScaleSubComponent[];
+  measurementScales: MeasurementScaleSubComponent[];
 }

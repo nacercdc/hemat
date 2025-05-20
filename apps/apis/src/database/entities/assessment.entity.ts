@@ -90,20 +90,10 @@ export class Assessment extends BaseEntityWithSoftDelete {
   date: Date;
 
   @ApiProperty({
-    description: 'ID of the associated domian',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @Column()
-  @Index()
-  domianId: string;
-
-  @ApiProperty({
     description: 'Associated domain',
     type: () => [AssessmentDomain],
   })
-  @OneToMany(() => AssessmentDomain, (domain) => domain.assessment)
-  @JoinColumn({ name: 'domianId' })
+  @ManyToOne(() => AssessmentDomain, (domain) => domain.assessment)
   domains: AssessmentDomain[];
 
   @ApiPropertyOptional({

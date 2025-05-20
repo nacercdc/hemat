@@ -14,6 +14,7 @@ import { AssessmentComponent } from './assessment-component.entity';
 import { AssessmentTranslationDto } from '../../shared/dtos';
 import { AssessmentAnswer } from './assessment-answer.entity';
 import { Roadmap } from './roadmap.entity';
+import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
 
 @Entity('assessment_sub_components')
 export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
@@ -101,4 +102,11 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
   })
   @Column('jsonb')
   translations: AssessmentTranslationDto;
+
+  @ApiProperty({
+    description: 'Associated sub-component',
+    type: () => AssessmentMeasurementScaleSubComponent,
+  })
+  @ManyToOne(() => AssessmentMeasurementScaleSubComponent)
+  messurmentScales: AssessmentMeasurementScaleSubComponent[];
 }

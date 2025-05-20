@@ -38,6 +38,14 @@ export class Component extends BaseEntityWithSoftDelete {
   description: string;
 
   @ApiProperty({
+    description: 'Whether the component is active',
+    example: true,
+    type: Boolean,
+  })
+  @Column({ default: true })
+  isActive: boolean;
+
+  @ApiProperty({
     description: 'ID of the associated domain',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,

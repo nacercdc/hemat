@@ -12,54 +12,110 @@ import { Assessment } from './assessment.entity';
 @Entity('countries')
 export class Country {
   @ApiProperty({
-    description: 'Code',
-    example: 'en',
+    description: 'ISO 3166-1 alpha-2 code',
+    example: 'DZ',
     type: String,
   })
-  @PrimaryColumn({ type: String })
-  code: string;
+  @PrimaryColumn({ type: 'varchar', length: 2 })
+  iso2: string;
 
   @ApiProperty({
-    description: 'Name',
-    example: 'Ethiopia',
+    description: 'Name of the country',
+    example: 'Algeria',
     type: String,
   })
-  @Column({ type: String })
+  @Column({ type: 'varchar', length: 100 })
   name: string;
 
   @ApiProperty({
-    description: 'Phone code',
-    example: '+251',
+    description: 'Numeric code (ISO 3166-1 numeric)',
+    example: '012',
     type: String,
   })
-  @Column({ type: String })
+  @Column({ type: 'varchar', length: 3 })
+  numericCode: string;
+
+  @ApiProperty({
+    description: 'International phone code',
+    example: '213',
+    type: String,
+  })
+  @Column({ type: 'varchar', length: 10 })
   phoneCode: string;
 
-  @ApiPropertyOptional({
-    description: 'Phone code',
+  @ApiProperty({
+    description: 'Native name of the country',
+    example: 'الجزائر',
     type: String,
   })
-  @Column({ type: 'text' })
+  @Column({ type: 'varchar', length: 100 })
+  native: string;
+
+  @ApiProperty({
+    description: 'French translation of the country name',
+    example: 'Algérie',
+    type: String,
+  })
+  @Column({ type: 'varchar', length: 100 })
+  frenchTranslation: string;
+
+  @ApiProperty({
+    description: 'Latitude of the country',
+    example: '28.00000000',
+    type: String,
+  })
+  @Column({ type: 'varchar', length: 20 })
+  latitude: string;
+
+  @ApiProperty({
+    description: 'Longitude of the country',
+    example: '3.00000000',
+    type: String,
+  })
+  @Column({ type: 'varchar', length: 20 })
+  longitude: string;
+
+  @ApiProperty({
+    description: 'Country flag emoji',
+    example: '🇩🇿',
+    type: String,
+  })
+  @Column({ type: 'varchar', length: 10 })
+  emoji: string;
+
+  @ApiProperty({
+    description: 'Unicode representation of the country flag emoji',
+    example: 'U+1F1E9 U+1F1FF',
+    type: String,
+  })
+  @Column({ type: 'varchar', length: 20 })
+  emojiU: string;
+
+  @ApiPropertyOptional({
+    description: 'Description of the country',
+    type: String,
+  })
+  @Column({ type: 'text', nullable: true })
   description: string | null;
 
   @ApiProperty({
-    description: 'Created at',
-    example: '2024-01-10T07:56:08.000000Z',
+    description: 'Timestamp when the country was created',
+    example: '2024-01-10T07:56:08.000Z',
     type: Date,
   })
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
 
   @ApiProperty({
-    description: 'Updated at',
-    example: '2024-01-10T07:56:08.000000Z',
+    description: 'Timestamp when the country was last updated',
+    example: '2024-01-10T07:56:08.000Z',
     type: Date,
   })
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
   @ApiPropertyOptional({
-    description: 'Assessments related to this domain',
+    description: 'Assessments related to this country',
     type: () => Assessment,
   })
   @OneToMany(() => Assessment, (assessment) => assessment.country)
