@@ -53,13 +53,14 @@ export class AssessmentCreateRequestDto {
     example: 'ET',
     type: String,
   })
-  @IsNotEmpty({ message: 'validation.countryCode.isNotEmpty' })
+  // @IsNotEmpty({ message: 'validation.countryCode.isNotEmpty' })
+  @IsOptional()
   @IsString({ message: 'validation.countryCode.isString' })
   @Length(2, 3, {
     message: 'validation.countryCode.length args: min:2 | max:3',
   })
   @Type(() => String)
-  countryCode: string;
+  countryCode?: string;
 
   @ApiPropertyOptional({
     description: 'Organization conducting the assessment',
@@ -79,20 +80,11 @@ export class AssessmentCreateRequestDto {
     example: '2025-04-30',
     type: String,
   })
-  @IsNotEmpty({ message: 'validation.date.isNotEmpty' })
-  @IsDateString({}, { message: 'validation.date.isDateString' })
-  @Type(() => String)
-  date: string;
-
-  @ApiProperty({
-    description: 'ID of the template domain to copy',
-    example: '123e4567-e89b-12d3-a456-426614174001',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.templateDomainId.isNotEmpty' })
-  @IsUUID('4', { message: 'validation.templateDomainId.isUUID' })
-  @Type(() => String)
-  templateDomainId: string;
+  // @IsNotEmpty({ message: 'validation.date.isNotEmpty' })
+  // @IsDateString({}, { message: 'validation.date.isDateString' })
+  @IsOptional()
+  @Type(() => Date)
+  date?: Date;
 }
 
 export class AssessmentUpdateRequestDto {
