@@ -12,8 +12,8 @@ import {
   AssessmentSubComponent,
 } from '../../database/entities';
 import { AssessmentService } from './services';
-import { AssessmentDomainCopyService } from './services/assessment-domain-copy.service';
 import { AssessmentController } from './controllers';
+import { AuthModule } from '../../shared';
 
 @Module({
   imports: [
@@ -28,9 +28,10 @@ import { AssessmentController } from './controllers';
       AssessmentComponent,
       AssessmentSubComponent,
     ]),
+    AuthModule,
   ],
   controllers: [AssessmentController],
-  providers: [AssessmentService, AssessmentDomainCopyService],
-  exports: [AssessmentService, AssessmentDomainCopyService],
+  providers: [AssessmentService],
+  exports: [AssessmentService],
 })
 export class AssessmentModule {}

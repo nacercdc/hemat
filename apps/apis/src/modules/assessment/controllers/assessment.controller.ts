@@ -85,7 +85,7 @@ export class AssessmentController {
   @Get()
   async findAll(@Query() query: QueryManyRequestDto) {
     query.select ??= ASSESSMENT_FIELD_CONFIG.baseFields.join(',');
-    query.include ??= ''; // Avoid fetching relations by default
+    query.include ??= '';
     return this.assessmentService.findAll({ query });
   }
 
