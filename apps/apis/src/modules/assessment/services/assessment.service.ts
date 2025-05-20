@@ -2,10 +2,19 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { CrudService } from '../../../shared/services';
-import { Assessment, User, Country } from '../../../database/entities';
+import {
+  User,
+  Country,
+  Assessment,
+  Domain,
+  Component,
+  SubComponent,
+  AssessmentDomain,
+  AssessmentComponent,
+  AssessmentSubComponent,
+} from '../../../database/entities';
 import { ASSESSMENT_FIELD_CONFIG } from '../config/assessment-field-config';
 import { AssessmentCreateRequestDto } from '../dtos';
-import { AssessmentDomainCopyService } from './assessment-domain-copy.service';
 
 @Injectable()
 export class AssessmentService extends CrudService<Assessment> {
@@ -23,7 +32,6 @@ export class AssessmentService extends CrudService<Assessment> {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
-    private readonly assessmentDomainCopyService: AssessmentDomainCopyService,
     private readonly dataSource: DataSource,
   ) {
     super(assessmentRepository);
@@ -31,7 +39,6 @@ export class AssessmentService extends CrudService<Assessment> {
 
   async create(payload: AssessmentCreateRequestDto): Promise<Assessment> {
     try {
-      // Validate userId
       const user = await this.userRepository.findOne({
         where: { id: payload.userId },
       });
@@ -39,37 +46,89 @@ export class AssessmentService extends CrudService<Assessment> {
         throw new BadRequestException('User not found');
       }
 
-      // Validate countryCode
-      const country = await this.countryRepository.findOne({
-        where: { code: payload.countryCode },
-      });
-      if (!country) {
-        throw new BadRequestException('Country not found');
-      }
+      // const country = await this.countryRepository.findOne({
+      //   where: { code: payload.countryCode },
+      // });
+      // if (!country) {
+      //   throw new BadRequestException('Country not found');
+      // }
 
-      // Create Assessment using transaction
       const savedAssessment = await this.dataSource.transaction(
         async (manager) => {
-          // Create Assessment without domainId initially
-          const assessment = new Assessment();
-          assessment.userId = payload.userId;
-          assessment.name = payload.name;
-          assessment.description = payload.description;
-          assessment.countryCode = payload.countryCode;
-          assessment.date = new Date(payload.date);
+          const assessment = manager.create(Assessment, {
+            userId: payload.userId,
+            name: payload.name,
+            description: payload.description,
+            countryCode: payload.countryCode,
+            date: payload.date,
+          });
 
-          await manager.save(Assessment, assessment);
+          await manager.insert(Assessment, assessment);
 
-          // Copy Domain to AssessmentDomain and link it
-          const assessmentDomain =
-            await this.assessmentDomainCopyService.copyDomainToAssessmentDomain(
-              payload.templateDomainId,
-              assessment.id,
-            );
+          const domains = await manager.find(Domain, {
+            where: { isActive: true },
+            select: { code: true, name: true, description: true },
+          });
 
-          // Update Assessment with domainId
-          assessment.domianId = assessmentDomain.id;
-          await manager.save(Assessment, assessment);
+          const assessmentDomains = domains.map(({ code, name, description }) =>
+            manager.create(AssessmentDomain, {
+              code,
+              name,
+              description,
+              assessmentId: assessment.id,
+              translations: {
+                code: { en: code },
+                name: { en: name },
+                description: { en: description },
+              },
+            }),
+          );
+          await manager.insert(AssessmentDomain, assessmentDomains);
+
+          const components = await manager.find(Component, {
+            where: { isActive: true },
+            select: { code: true, name: true, description: true },
+          });
+
+          const assessmentComponents = components.map(
+            ({ code, name, description }) =>
+              manager.create(AssessmentComponent, {
+                code,
+                name,
+                description,
+                assessmentId: assessment.id,
+                translations: {
+                  code: { en: code },
+                  name: { en: name },
+                  description: { en: description },
+                },
+              }),
+          );
+
+          await manager.insert(AssessmentComponent, assessmentComponents);
+
+          const subComponents = await manager.find(SubComponent, {
+            where: { isActive: true },
+            select: { code: true, name: true, description: true },
+            relations: { measurementScales: { measurementScale: true } },
+          });
+
+          const assessmentSubComponents = subComponents.map(
+            ({ code, name, description }) =>
+              manager.create(AssessmentSubComponent, {
+                code,
+                name,
+                description,
+                assessmentId: assessment.id,
+                translations: {
+                  code: { en: code },
+                  name: { en: name },
+                  description: { en: description },
+                },
+              }),
+          );
+
+          await manager.insert(AssessmentSubComponent, assessmentSubComponents);
 
           return assessment;
         },
@@ -79,7 +138,7 @@ export class AssessmentService extends CrudService<Assessment> {
         `Assessment created successfully: ${savedAssessment.id}`,
       );
 
-      // Return the full assessment with relations
+      // Fetch full assessment with relations
       const fullAssessment = await this.assessmentRepository.findOne({
         where: { id: savedAssessment.id },
         relations: this.includes,
@@ -92,6 +151,11 @@ export class AssessmentService extends CrudService<Assessment> {
       return fullAssessment;
     } catch (err) {
       this.loggerService.error('Failed to create assessment', err.stack || err);
+      if (err.code === '23505') {
+        throw new BadRequestException(
+          'Assessment with this name already exists',
+        );
+      }
       throw new BadRequestException(
         'Failed to create assessment: ' + (err.message || err),
       );
