@@ -1,5 +1,13 @@
 export const ASSESSMENT_FIELD_CONFIG = {
-  includeRelations: ['user', 'country', 'domains'],
+  includeRelations: [
+    'user',
+    'country',
+    'domains',
+    'components',
+    'subComponents',
+    'subComponents.measurementScales',
+    'subComponents.measurementScales.measurementScale',
+  ],
   selectableFields: [
     'id',
     'userId',
@@ -8,7 +16,9 @@ export const ASSESSMENT_FIELD_CONFIG = {
     'countryCode',
     'organization',
     'date',
-    'domainId',
+    'createdAt',
+    'updatedAt',
+    'deletedAt',
     'user.id',
     'user.email',
     'user.name',
@@ -18,9 +28,9 @@ export const ASSESSMENT_FIELD_CONFIG = {
     'domains.code',
     'domains.name',
   ],
-  searchableFields: ['name', 'description'],
-  filterableFields: ['countryCode', 'userId', 'domainId'],
-  sortableFields: ['name', 'date'],
+  searchableFields: ['name', 'description', 'organization'],
+  filterableFields: ['userId', 'countryCode', 'date'],
+  sortableFields: ['name', 'date', 'createdAt', 'updatedAt'],
   baseFields: [
     'id',
     'userId',
@@ -29,6 +39,7 @@ export const ASSESSMENT_FIELD_CONFIG = {
     'countryCode',
     'organization',
     'date',
-    'domainId',
+    'createdAt',
+    'updatedAt',
   ],
 };
