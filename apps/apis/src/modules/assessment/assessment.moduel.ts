@@ -10,10 +10,12 @@ import {
   AssessmentDomain,
   AssessmentComponent,
   AssessmentSubComponent,
+  MeasurementScale,
 } from '../../database/entities';
 import { AssessmentService } from './services';
 import { AssessmentController } from './controllers';
 import { AuthModule } from '../../shared';
+import { AssessmentMeasurementScaleSubComponent } from '../../database/entities/assessment-measurement-scale-sub-component.entity';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { AuthModule } from '../../shared';
       AssessmentDomain,
       AssessmentComponent,
       AssessmentSubComponent,
+      MeasurementScale,
+      AssessmentMeasurementScaleSubComponent,
     ]),
     AuthModule,
   ],
