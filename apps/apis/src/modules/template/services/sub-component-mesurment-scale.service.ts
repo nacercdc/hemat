@@ -1,5 +1,3 @@
-// src/sub-components/services/sub-component-measurement-scale.service.ts
-
 import {
   Injectable,
   Logger,
@@ -69,7 +67,6 @@ export class SubComponentMeasurementScaleService {
     subComponentId: string,
     payload: SubComponentMeasurementScaleDto,
   ): Promise<MeasurementScaleSubComponent> {
-    // Validate SubComponent existence
     const subComponent = await this.subComponentRepository.findOne({
       where: { id: subComponentId },
     });
@@ -80,7 +77,6 @@ export class SubComponentMeasurementScaleService {
       throw new NotFoundException('subComponent.exception.notFound');
     }
 
-    // Validate MeasurementScale existence
     const measurementScale = await this.measurementScaleRepository.findOne({
       where: { id: payload.measurementScaleId },
     });
@@ -91,7 +87,6 @@ export class SubComponentMeasurementScaleService {
       throw new NotFoundException('measurementScale.exception.notFound');
     }
 
-    // Check for existing relationship
     const existingRelation =
       await this.measurementScaleSubComponentRepository.findOne({
         where: {
@@ -108,7 +103,6 @@ export class SubComponentMeasurementScaleService {
       );
     }
 
-    // Create new MeasurementScaleSubComponent
     const measurementScaleSubComponent =
       this.measurementScaleSubComponentRepository.create({
         subComponentId: subComponentId,
