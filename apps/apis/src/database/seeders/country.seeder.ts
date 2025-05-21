@@ -54,7 +54,7 @@ export default class CountrySeeder implements Seeder {
         const frenchTranslation = country.translations?.fr || country.name;
 
         return {
-          iso2: country.iso2,
+          code: country.iso2,
           name: country.name,
           numericCode: country.numeric_code,
           phoneCode: country.phonecode,
