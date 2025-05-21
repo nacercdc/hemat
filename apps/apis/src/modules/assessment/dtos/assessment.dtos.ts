@@ -53,7 +53,7 @@ export class AssessmentCreateRequestDto {
     example: 'ET',
     type: String,
   })
-  // @IsNotEmpty({ message: 'validation.countryCode.isNotEmpty' })
+  @IsNotEmpty({ message: 'validation.countryCode.isNotEmpty' })
   @IsOptional()
   @IsString({ message: 'validation.countryCode.isString' })
   @Length(2, 3, {
