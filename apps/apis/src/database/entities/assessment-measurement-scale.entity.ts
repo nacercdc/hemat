@@ -57,18 +57,21 @@ export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
   assessmentId: string;
 
   @ApiPropertyOptional({
-    description: 'Assessments related to this domain',
+    description: 'Associated assessment',
     type: () => Assessment,
   })
-  @OneToMany(() => Assessment, (assessment) => assessment.measurementScales)
+  @ManyToOne(() => Assessment, (assessment) => assessment.measurementScales)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
 
   @ApiProperty({
-    description: 'Associated sub-component',
-    type: () => AssessmentMeasurementScaleSubComponent,
+    description: 'Associated sub-components',
+    type: () => [AssessmentMeasurementScaleSubComponent],
   })
-  @ManyToOne(() => AssessmentMeasurementScaleSubComponent)
+  @OneToMany(
+    () => AssessmentMeasurementScaleSubComponent,
+    (subComponent) => subComponent.measurementScale,
+  )
   subComponents: AssessmentMeasurementScaleSubComponent[];
 
   @ApiPropertyOptional({

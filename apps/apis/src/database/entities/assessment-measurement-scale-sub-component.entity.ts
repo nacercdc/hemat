@@ -1,4 +1,12 @@
-import { Entity, Column, Index, JoinColumn, Unique, OneToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  Index,
+  JoinColumn,
+  Unique,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { AssessmentSubComponent } from './assessment-sub-component.entity';
@@ -21,9 +29,9 @@ export class AssessmentMeasurementScaleSubComponent extends BaseEntityWithSoftDe
     description: 'Associated sub-component',
     type: () => AssessmentSubComponent,
   })
-  @OneToMany(
+  @ManyToOne(
     () => AssessmentSubComponent,
-    (subComponent) => subComponent.messurmentScales,
+    (subComponent) => subComponent.measurementScales,
   )
   @JoinColumn({ name: 'subComponentId' })
   subComponent: AssessmentSubComponent;
@@ -38,10 +46,10 @@ export class AssessmentMeasurementScaleSubComponent extends BaseEntityWithSoftDe
   measurementScaleId: string;
 
   @ApiProperty({
-    description: 'Associated measurement',
+    description: 'Associated measurement scale',
     type: () => AssessmentMeasurementScale,
   })
-  @OneToMany(
+  @ManyToOne(
     () => AssessmentMeasurementScale,
     (measurementScale) => measurementScale.subComponents,
   )

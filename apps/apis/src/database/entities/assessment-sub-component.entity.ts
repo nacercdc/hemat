@@ -6,6 +6,7 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
+  Unique,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
@@ -17,13 +18,14 @@ import { Roadmap } from './roadmap.entity';
 import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
 
 @Entity('assessment_sub_components')
+@Unique(['code', 'assessmentId'])
 export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
   @ApiProperty({
     description: 'Unique code of the sub-component',
     example: '1.A.1',
     type: String,
   })
-  @Column({ unique: true })
+  @Column()
   code: string;
 
   @ApiProperty({
@@ -104,9 +106,12 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
   translations: AssessmentTranslationDto;
 
   @ApiProperty({
-    description: 'Associated sub-component',
-    type: () => AssessmentMeasurementScaleSubComponent,
+    description: 'Associated measurement scales',
+    type: () => [AssessmentMeasurementScaleSubComponent],
   })
-  @ManyToOne(() => AssessmentMeasurementScaleSubComponent)
-  messurmentScales: AssessmentMeasurementScaleSubComponent[];
+  @OneToMany(
+    () => AssessmentMeasurementScaleSubComponent,
+    (measurementScale) => measurementScale.subComponent,
+  )
+  measurementScales: AssessmentMeasurementScaleSubComponent[];
 }

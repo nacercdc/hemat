@@ -93,7 +93,10 @@ export class Assessment extends BaseEntityWithSoftDelete {
     description: 'Associated domain',
     type: () => [AssessmentDomain],
   })
-  @ManyToOne(() => AssessmentDomain, (domain) => domain.assessment)
+  @OneToMany(
+    () => AssessmentDomain,
+    (assessmentDomain) => assessmentDomain.assessment,
+  )
   domains: AssessmentDomain[];
 
   @ApiPropertyOptional({

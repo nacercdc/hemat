@@ -17,7 +17,7 @@ export class Country {
     type: String,
   })
   @PrimaryColumn({ type: 'varchar', length: 2 })
-  iso2: string;
+  code: string;
 
   @ApiProperty({
     description: 'Name of the country',
