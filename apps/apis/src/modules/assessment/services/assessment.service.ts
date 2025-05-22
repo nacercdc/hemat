@@ -13,17 +13,15 @@ import {
   AssessmentComponent,
   AssessmentSubComponent,
   MeasurementScale,
-  MeasurementScaleSubComponent,
   AssessmentMeasurementScale,
+  AssessmentMeasurementScaleSubComponent,
 } from '../../../database/entities';
 import { ASSESSMENT_FIELD_CONFIG } from '../config/assessment-field-config';
 import { AssessmentCreateRequestDto } from '../dtos';
-import { AssessmentMeasurementScaleSubComponent } from '../../../database/entities/assessment-measurement-scale-sub-component.entity';
 
 @Injectable()
 export class AssessmentService extends CrudService<Assessment> {
   private readonly loggerService = new Logger(AssessmentService.name);
-  protected includes = ASSESSMENT_FIELD_CONFIG.includeRelations;
   protected selectable = ASSESSMENT_FIELD_CONFIG.selectableFields;
   protected searchable = ASSESSMENT_FIELD_CONFIG.searchableFields;
   protected filterable = ASSESSMENT_FIELD_CONFIG.filterableFields;
@@ -199,7 +197,6 @@ export class AssessmentService extends CrudService<Assessment> {
 
           // Create AssessmentMeasurementScales
           const measurementScales = await manager.find(MeasurementScale, {
-            // where: { isActive: true },
             select: {
               id: true,
               name: true,
@@ -292,13 +289,6 @@ export class AssessmentService extends CrudService<Assessment> {
 
       const fullAssessment = await this.assessmentRepository.findOne({
         where: { id: savedAssessment.id },
-        relations: [
-          ...this.includes,
-          'components',
-          'subComponents',
-          'subComponents.measurementScales',
-          'subComponents.measurementScales.measurementScale',
-        ],
       });
 
       if (!fullAssessment) {
