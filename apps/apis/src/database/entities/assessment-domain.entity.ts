@@ -1,4 +1,12 @@
-import { Entity, Column, OneToMany, Index, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToMany,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  Unique,
+} from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
@@ -6,13 +14,14 @@ import { AssessmentComponent } from './assessment-component.entity';
 import { AssessmentTranslationDto } from '../../shared/dtos';
 
 @Entity('assessment-domains')
+@Unique(['code', 'assessmentId'])
 export class AssessmentDomain extends BaseEntityWithSoftDelete {
   @ApiProperty({
     description: 'Unique code of the domain',
     example: '1',
     type: String,
   })
-  @Column({ unique: true })
+  @Column()
   code: string;
 
   @ApiProperty({
@@ -44,7 +53,7 @@ export class AssessmentDomain extends BaseEntityWithSoftDelete {
     description: 'Assessments related to this domain',
     type: () => Assessment,
   })
-  @OneToMany(() => Assessment, (assessment) => assessment.domains)
+  @ManyToOne(() => Assessment, (assessment) => assessment.domains)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
 

@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, OneToOne, ManyToOne } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { MeasurementScaleSubComponent } from './measurement-scale-sub-component.entity';

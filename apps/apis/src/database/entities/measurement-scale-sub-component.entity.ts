@@ -1,10 +1,11 @@
-import { Entity, Column, ManyToOne, Index, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, Index, JoinColumn, Unique } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { SubComponent } from './sub-component.entity';
 import {  MeasurementScale } from './measurement-scale.entity';
 
 @Entity('measurement_scale_sub_components')
+@Unique(['subComponentId', 'measurementScaleId'])
 export class MeasurementScaleSubComponent extends BaseEntityWithSoftDelete {
   @ApiProperty({
     description: 'ID of the associated sub-component',
