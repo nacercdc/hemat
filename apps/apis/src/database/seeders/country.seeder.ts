@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Seeder } from 'typeorm-extension';
-import { Country } from '../entities';
+import { Country } from '../entities/country.entity';
 import * as countriesDataRaw from '../../data/countries.json';
 
 interface CountryJson {
@@ -9,7 +9,7 @@ interface CountryJson {
   numeric_code: string;
   phonecode: string;
   native: string;
-  translations: { fr: string } | undefined;
+  translations: Record<string, string> | undefined;
   latitude: string;
   longitude: string;
   emoji: string;
@@ -22,15 +22,9 @@ export default class CountrySeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
     console.log('Starting CountrySeeder...');
 
-    // Handle CommonJS JSON import
     const countriesData = (countriesDataRaw as any).default || countriesDataRaw;
 
-    // Debug the imported data
     console.log('Type of countriesData:', typeof countriesData);
-    console.log(
-      'countriesData content:',
-      JSON.stringify(countriesData, null, 2),
-    );
     console.log('Is countriesData an array?', Array.isArray(countriesData));
 
     if (!Array.isArray(countriesData)) {
@@ -40,18 +34,14 @@ export default class CountrySeeder implements Seeder {
     }
 
     const countryRepository = dataSource.getRepository(Country);
-    console.log('Inserting African countries from countries.json...');
+    console.log('Inserting countries from countries.json...');
 
     const countriesToInsert = countriesData
       .map((country: CountryJson) => {
-        // Validate country data
         if (!country.iso2 || !country.name) {
           console.warn(`Skipping invalid country: ${JSON.stringify(country)}`);
           return null;
         }
-
-        // Use translations.fr if available, otherwise fallback to name
-        const frenchTranslation = country.translations?.fr || country.name;
 
         return {
           code: country.iso2,
@@ -59,7 +49,7 @@ export default class CountrySeeder implements Seeder {
           numericCode: country.numeric_code,
           phoneCode: country.phonecode,
           native: country.native,
-          frenchTranslation, // Ensures NOT NULL
+          translations: country.translations || { en: country.name },
           latitude: country.latitude,
           longitude: country.longitude,
           emoji: country.emoji,
@@ -67,7 +57,7 @@ export default class CountrySeeder implements Seeder {
           description: null,
         };
       })
-      .filter((country) => country !== null); // Remove invalid entries
+      .filter((country) => country !== null);
 
     if (countriesToInsert.length === 0) {
       throw new Error('No valid countries to insert.');
@@ -81,10 +71,10 @@ export default class CountrySeeder implements Seeder {
         .orIgnore()
         .execute();
       console.log(
-        `Inserted ${countriesToInsert.length} African countries successfully`,
+        `Inserted ${countriesToInsert.length} countries successfully`,
       );
     } catch (error) {
-      console.error('Error inserting African countries:', error);
+      console.error('Error inserting countries:', error);
       throw error;
     }
 

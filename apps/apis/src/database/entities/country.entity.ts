@@ -1,3 +1,4 @@
+// src/entities/country.entity.ts
 import {
   Entity,
   Column,
@@ -52,12 +53,12 @@ export class Country {
   native: string;
 
   @ApiProperty({
-    description: 'French translation of the country name',
-    example: 'Algérie',
-    type: String,
+    description: 'Translations of the country name in multiple languages',
+    example: { fr: 'Algérie', es: 'Argelia' },
+    type: Object,
   })
-  @Column({ type: 'varchar', length: 100 })
-  frenchTranslation: string;
+  @Column({ type: 'jsonb', default: {} })
+  translations: Record<string, string>;
 
   @ApiProperty({
     description: 'Latitude of the country',
