@@ -85,8 +85,6 @@ export class AssessmentController {
   @Get()
   async findAll(@Query() query: QueryManyRequestDto) {
     query.select ??= ASSESSMENT_FIELD_CONFIG.baseFields.join(',');
-    query.include ??=
-      'user,country,domains,components,subComponents.measurementScales,subComponents.measurementScales.measurementScale';
     return this.assessmentService.findAll({ query });
   }
 
@@ -108,8 +106,6 @@ export class AssessmentController {
     @Query() query: QueryOneRequestDto,
   ) {
     query.select ??= ASSESSMENT_FIELD_CONFIG.baseFields.join(',');
-    query.include ??=
-      'user,country,domains,components,subComponents.measurementScales,subComponents.measurementScales.measurementScale';
     return this.assessmentService.findOne(id, { query });
   }
 
