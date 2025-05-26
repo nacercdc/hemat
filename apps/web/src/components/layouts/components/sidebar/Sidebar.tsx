@@ -24,34 +24,6 @@ export default function Sidebar() {
         );
   };
 
-  const HeaderOnOpen = (
-    <div className="flex justify-between items-center">
-      <Image
-        src="/images/acdc-logo.png"
-        alt="logo"
-        width={159}
-        height={84}
-        className="w-auto h-auto"
-      />
-      <Icon
-        icon="carbon:row-collapse"
-        className="text-white w-6 transform -rotate-90"
-      />
-    </div>
-  );
-
-  const HeaderOnCollapse = (
-    <div className="flex justify-between items-center">
-      <Image
-        src="/images/icon.png"
-        alt="logo"
-        width={30}
-        height={30}
-        className="w-auto h-auto"
-      />
-    </div>
-  );
-
   const onNavigate = (path: string | undefined) => {
     if (!path) return;
 
@@ -61,16 +33,40 @@ export default function Sidebar() {
   return (
     <div className="z-30">
       <ETMSidebar
-        headerOnOpen={HeaderOnOpen}
-        headerOnCollapse={HeaderOnCollapse}
+        header={{
+          expand: (
+            <div className="flex justify-between items-center">
+              <Image
+                src="/images/acdc-logo.png"
+                alt="logo"
+                width={159}
+                height={84}
+                className="w-auto h-auto"
+              />
+              <Icon
+                icon="carbon:row-collapse"
+                className="text-white w-6 transform -rotate-90"
+              />
+            </div>
+          ),
+          collapse: (
+            <Image
+              src="/images/icon.png"
+              alt="logo"
+              width={30}
+              height={30}
+              className="w-auto h-auto"
+            />
+          ),
+        }}
         bgColor="white"
         isActivePath={isActivePath}
         groups={groups(ability, false)}
         separatorBetweenGroups={false}
         onNavigate={onNavigate}
         isLoading={false}
-        footerOnOpen={
-          <div className="flex justify-start items-start">
+        footer={{
+          expand: (
             <Image
               src="/images/branding-texture.png"
               alt="logo"
@@ -78,8 +74,9 @@ export default function Sidebar() {
               height={62}
               className="transform scale-x-[-1]"
             />
-          </div>
-        }
+          ),
+          collapse: null,
+        }}
       />
     </div>
   );

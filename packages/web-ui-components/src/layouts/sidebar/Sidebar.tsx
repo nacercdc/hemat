@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect, SVGProps } from "react";
+import { useState, useEffect } from "react";
 import {
   Sidebar as ShadcnSidebar,
   SidebarContent,
@@ -29,6 +29,10 @@ import { cn } from "../../shadcn-ui/utils/cn";
 
 type BGColor = "primary" | "secondary" | "white";
 
+interface HeaderFooterContent {
+  collapse: React.ReactNode;
+  expand: React.ReactNode;
+}
 interface MenuItem {
   id: string;
   label: string;
@@ -47,10 +51,8 @@ export interface Group {
 
 interface Props {
   groups: Group[];
-  headerOnOpen: React.ReactNode;
-  headerOnCollapse: React.ReactNode;
-  footerOnOpen?: React.ReactNode;
-  footerOnCollapse?: React.ReactNode;
+  header: HeaderFooterContent;
+  footer: HeaderFooterContent;
   backgroundImagePath?: string;
   bgColor?: BGColor;
   separatorBetweenGroups: boolean;
@@ -59,28 +61,10 @@ interface Props {
   onNavigate: (path: string | undefined) => void;
 }
 
-export const RightArrowBrown = (props: SVGProps<SVGSVGElement>) => {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 7 7"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M6 2.63398C6.66667 3.01888 6.66667 3.98113 6 4.36603L2.25 6.53109C1.58333 6.91599 0.75 6.43486 0.75 5.66506L0.75 1.33494C0.75 0.565135 1.58333 0.084011 2.25 0.468911L6 2.63398Z"
-        fill="#C45B39"
-      />
-    </svg>
-  );
-};
-
 export function Sidebar({
   groups,
-  headerOnOpen,
-  headerOnCollapse,
-  footerOnOpen,
-  footerOnCollapse,
+  header,
+  footer,
   backgroundImagePath,
   bgColor = "white",
   separatorBetweenGroups = true,
@@ -97,10 +81,7 @@ export function Sidebar({
     let foundActive = false;
     for (const group of groups) {
       for (const item of group.menuItems) {
-        if (
-          item.children &&
-          item.children.some((child) => isActivePath(child.path))
-        ) {
+        if (item.children?.some((child) => isActivePath(child.path))) {
           setActiveCollapsible(item.id);
           foundActive = true;
           break;
@@ -251,7 +232,10 @@ export function Sidebar({
                         >
                           <span className="cursor-pointer flex items-center">
                             {isSubItemActive && (
-                              <RightArrowBrown className="!w-[7px] !h-[7px]" />
+                              <Icon
+                                icon="fluent:triangle-right-48-filled"
+                                className="!w-[8px] !h-[8px] text-warning-800"
+                              />
                             )}
                             <span
                               className={cn(
@@ -294,7 +278,10 @@ export function Sidebar({
                         className="flex items-center gap-2"
                       >
                         {isSubItemActive ? (
-                          <RightArrowBrown className="text-warning-500 !w-[7px] !h-[7px]" />
+                          <Icon
+                            icon="fluent:triangle-right-48-filled"
+                            className="!w-[8px] !h-[8px] text-warning-800"
+                          />
                         ) : (
                           <span className="w-[7px]"></span>
                         )}
@@ -419,8 +406,7 @@ export function Sidebar({
             )}
             onClick={toggleSidebar}
           >
-            {open && headerOnOpen}
-            {!open && headerOnCollapse}
+            {open ? header.expand : header.collapse}
           </SidebarMenuItem>
           {!isLoading && (
             <div className="flex-1 overflow-auto">
@@ -434,10 +420,10 @@ export function Sidebar({
           )}
           {open && (
             <SidebarMenuItem className="self-center w-full">
-              <div>{footerOnOpen}</div>
+              {open && footer.expand}
             </SidebarMenuItem>
           )}
-          {!open && <div>{footerOnCollapse}</div>}
+          {!open && footer.collapse}
         </SidebarMenu>
       </SidebarContent>
       <SidebarRail />
