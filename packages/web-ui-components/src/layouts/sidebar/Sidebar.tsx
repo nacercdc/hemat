@@ -274,7 +274,7 @@ export function Sidebar({
           {!open && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <>{CollapsedSidebarMenuItem(item)}zz</>
+                {CollapsedSidebarMenuItem(item)}
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
