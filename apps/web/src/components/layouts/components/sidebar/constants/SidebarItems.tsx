@@ -12,7 +12,7 @@ export const groups = (
       {
         id: "dashboard",
         label: "Dashboard",
-        icon: <Icon icon="material-symbols-light:dashboard-outline-rounded" />,
+        icon: <Icon icon="mage:dashboard-2" className="!w-[24px] !h-[24px]" />,
         path: "/",
         permission: isLoading ? false : true,
         depth: 0,
@@ -20,7 +20,12 @@ export const groups = (
       {
         id: "assessment",
         label: "Assessment",
-        icon: <Icon icon="fluent-mdl2:assessment-group" />,
+        icon: (
+          <Icon
+            icon="fluent-mdl2:assessment-group"
+            className="!w-[24px] !h-[24px]"
+          />
+        ),
         path: "/assessment",
         permission: isLoading ? false : true,
         depth: 0,
@@ -28,7 +33,9 @@ export const groups = (
       {
         id: "roadmap",
         label: "Roadmap",
-        icon: <Icon icon="hugeicons:floor-plan" />,
+        icon: (
+          <Icon icon="hugeicons:floor-plan" className="!w-[24px] !h-[24px]" />
+        ),
         path: "/roadmap",
         permission: isLoading ? false : true,
         depth: 0,
@@ -36,7 +43,12 @@ export const groups = (
       {
         id: "domains",
         label: "Domains",
-        icon: <Icon icon="material-symbols-light:domain-rounded" />,
+        icon: (
+          <Icon
+            icon="material-symbols-light:domain-rounded"
+            className="!w-[24px] !h-[24px]"
+          />
+        ),
         path: "/domains",
         permission: isLoading ? false : true,
         depth: 0,
@@ -44,7 +56,7 @@ export const groups = (
       {
         id: "measurement-scale",
         label: "Measurement scale",
-        icon: <Icon icon="oui:scale" />,
+        icon: <Icon icon="oui:scale" className="!w-[24px] !h-[24px]" />,
         path: "/measurement-scale",
         permission: isLoading ? false : true,
         depth: 0,
@@ -52,8 +64,13 @@ export const groups = (
 
       {
         id: "logs",
-        label: "logs",
-        icon: <Icon icon="radix-icons:activity-log" />,
+        label: "Logs",
+        icon: (
+          <Icon
+            icon="radix-icons:activity-log"
+            className="!w-[23px] !h-[23px] pr-1"
+          />
+        ),
         permission: [true].some(Boolean),
         depth: 0,
         children: [
@@ -76,7 +93,9 @@ export const groups = (
       {
         id: "settings",
         label: "Settings",
-        icon: <Icon icon="solar:settings-linear" />,
+        icon: (
+          <Icon icon="solar:settings-linear" className="!w-[24px] !h-[24px]" />
+        ),
         permission: [true].some(Boolean),
         depth: 0,
         children: [
@@ -96,9 +115,9 @@ export const groups = (
           },
 
           {
-            id: "Backup",
+            id: "backup",
             label: "Backup",
-            path: "/Backup",
+            path: "/backup",
             permission: true,
             depth: 1,
           },
@@ -108,7 +127,12 @@ export const groups = (
       {
         id: "administration",
         label: "Administration",
-        icon: <Icon icon="clarity:administrator-line" />,
+        icon: (
+          <Icon
+            icon="clarity:administrator-line"
+            className="!w-[24px] !h-[24px]"
+          />
+        ),
         path: "/administration",
         permission: isLoading ? false : true,
         depth: 0,
@@ -117,7 +141,12 @@ export const groups = (
       {
         id: "support",
         label: "Support",
-        icon: <Icon icon="fluent:person-support-28-regular" />,
+        icon: (
+          <Icon
+            icon="fluent:person-support-28-regular"
+            className="!w-[24px] !h-[24px]"
+          />
+        ),
         path: "/support",
         permission: isLoading ? false : true,
         depth: 0,
