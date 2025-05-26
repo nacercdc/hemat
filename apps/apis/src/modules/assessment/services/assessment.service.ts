@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, In } from 'typeorm';
 import { CrudService } from '../../../shared/services';
 import {
   User,
@@ -15,9 +15,11 @@ import {
   MeasurementScale,
   AssessmentMeasurementScale,
   AssessmentMeasurementScaleSubComponent,
+  Language,
 } from '../../../database/entities';
 import { ASSESSMENT_FIELD_CONFIG } from '../config/assessment-field-config';
 import { AssessmentCreateRequestDto } from '../dtos';
+import { AssessmentStatus } from '../../../shared';
 
 @Injectable()
 export class AssessmentService extends CrudService<Assessment> {
@@ -32,6 +34,8 @@ export class AssessmentService extends CrudService<Assessment> {
     private readonly assessmentRepository: Repository<Assessment>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Language)
+    private readonly languageRepository: Repository<Language>,
     @InjectRepository(Country)
     private readonly countryRepository: Repository<Country>,
     @InjectRepository(MeasurementScale)
@@ -46,6 +50,7 @@ export class AssessmentService extends CrudService<Assessment> {
       const user = await this.userRepository.findOne({
         where: { id: payload.userId },
       });
+
       if (!user) {
         throw new BadRequestException('User not found');
       }
@@ -53,19 +58,40 @@ export class AssessmentService extends CrudService<Assessment> {
       const country = await this.countryRepository.findOne({
         where: { code: payload.countryCode },
       });
+
       if (!country) {
         throw new BadRequestException('Country not found');
       }
 
+      const languages = (
+        await this.languageRepository.find({
+          where: { code: In(payload.languages) },
+          select: { code: true },
+        })
+      ).map(({ code }) => code);
+
+      for (const language of payload.languages) {
+        if (!languages.includes(language)) {
+          throw new BadRequestException(`Language ${language} not found`);
+        }
+      }
+
+      if (new Date(payload.endDate) < new Date(payload.startDate)) {
+        throw new BadRequestException('End date cannot be before start date');
+      }
+
       const savedAssessment = await this.dataSource.transaction(
         async (manager) => {
-          // Create Assessment
           const assessment = manager.create(Assessment, {
             userId: payload.userId,
             name: payload.name,
             description: payload.description,
             countryCode: payload.countryCode,
-            date: payload.date,
+            organization: payload.organization,
+            startDate: payload.startDate,
+            endDate: payload.endDate,
+            languages: payload.languages,
+            status: payload.status ?? AssessmentStatus.DRAFT,
           });
 
           await manager.insert(Assessment, assessment);
