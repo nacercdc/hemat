@@ -6,8 +6,12 @@ import {
   IsUUID,
   IsDateString,
   IsOptional,
+  ArrayNotEmpty,
+  ArrayMaxSize,
+  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { AssessmentStatus } from 'src/shared';
 
 export class AssessmentCreateRequestDto {
   @ApiProperty({
@@ -54,13 +58,12 @@ export class AssessmentCreateRequestDto {
     type: String,
   })
   @IsNotEmpty({ message: 'validation.countryCode.isNotEmpty' })
-  @IsOptional()
   @IsString({ message: 'validation.countryCode.isString' })
   @Length(2, 3, {
     message: 'validation.countryCode.length args: min:2 | max:3',
   })
   @Type(() => String)
-  countryCode?: string;
+  countryCode: string;
 
   @ApiPropertyOptional({
     description: 'Organization conducting the assessment',
@@ -76,15 +79,45 @@ export class AssessmentCreateRequestDto {
   organization?: string;
 
   @ApiProperty({
-    description: 'Date of the assessment',
+    description: 'Start date of the assessment',
     example: '2025-04-30',
     type: String,
   })
-  // @IsNotEmpty({ message: 'validation.date.isNotEmpty' })
-  // @IsDateString({}, { message: 'validation.date.isDateString' })
-  @IsOptional()
-  @Type(() => Date)
-  date?: Date;
+  @IsNotEmpty({ message: 'validation.startDate.isNotEmpty' })
+  @IsDateString({}, { message: 'validation.startDate.isDateString' })
+  @Type(() => String)
+  startDate: string;
+
+  @ApiProperty({
+    description: 'End date of the assessment',
+    example: '2025-05-30',
+    type: String,
+  })
+  @IsNotEmpty({ message: 'validation.endDate.isNotEmpty' })
+  @IsDateString({}, { message: 'validation.endDate.isDateString' })
+  @Type(() => String)
+  endDate: string;
+
+  @ApiProperty({
+    description: 'Language',
+    example: ['en'],
+    type: String,
+    isArray: true,
+  })
+  @IsString({ each: true })
+  @ArrayNotEmpty()
+  @ArrayMaxSize(12)
+  languages: string[];
+
+  @ApiPropertyOptional({
+    description: 'Status of the assessment',
+    example: AssessmentStatus.DRAFT,
+    enum: AssessmentStatus,
+    default: AssessmentStatus.DRAFT,
+  })
+  @IsEnum(AssessmentStatus, { message: 'validation.status.isEnum' })
+  @Type(() => String)
+  status: AssessmentStatus;
 }
 
 export class AssessmentUpdateRequestDto {
@@ -143,12 +176,34 @@ export class AssessmentUpdateRequestDto {
   organization?: string;
 
   @ApiPropertyOptional({
-    description: 'Date of the assessment',
+    description: 'Start date of the assessment',
     example: '2025-04-30',
     type: String,
   })
   @IsOptional()
-  @IsDateString({}, { message: 'validation.date.isDateString' })
+  @IsDateString({}, { message: 'validation.startDate.isDateString' })
   @Type(() => String)
-  date?: string;
+  startDate?: string;
+
+  @ApiPropertyOptional({
+    description: 'End date of the assessment',
+    example: '2025-05-30',
+    type: String,
+  })
+  @IsOptional()
+  @IsDateString({}, { message: 'validation.endDate.isDateString' })
+  @Type(() => String)
+  endDate?: string;
+
+  @ApiPropertyOptional({
+    description: 'Status of the assessment',
+    example: AssessmentStatus.DRAFT,
+    enum: AssessmentStatus,
+    default: AssessmentStatus.DRAFT,
+  })
+  @IsOptional()
+  @IsEnum(AssessmentStatus, { message: 'validation.status.isEnum' })
+  @Type(() => String)
+  status?: AssessmentStatus;
 }
+
