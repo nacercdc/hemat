@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use client";
-
 import React from "react";
 import { Sidebar as ETMSidebar } from "@etm/web-ui-components";
 import { useRouter, usePathname } from "next/navigation";
@@ -28,10 +27,10 @@ export default function Sidebar() {
   const HeaderOnOpen = (
     <div className="flex justify-between items-center">
       <Image
-        src="/images/logo.png"
+        src="/images/acdc-logo.png"
         alt="logo"
-        width={120}
-        height={140}
+        width={159}
+        height={84}
         className="w-auto h-auto"
       />
       <Icon
@@ -58,6 +57,7 @@ export default function Sidebar() {
 
     router.push(path);
   };
+
   return (
     <div className="z-30">
       <ETMSidebar
@@ -69,6 +69,17 @@ export default function Sidebar() {
         separatorBetweenGroups={false}
         onNavigate={onNavigate}
         isLoading={false}
+        footerOnOpen={
+          <div className="flex justify-start items-start">
+            <Image
+              src="/images/branding-texture.png"
+              alt="logo"
+              width={117}
+              height={62}
+              className="transform scale-x-[-1]"
+            />
+          </div>
+        }
       />
     </div>
   );
