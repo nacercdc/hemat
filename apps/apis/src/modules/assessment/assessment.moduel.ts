@@ -12,6 +12,8 @@ import {
   AssessmentSubComponent,
   MeasurementScale,
   AssessmentMeasurementScale,
+  AssessmentMeasurementScaleSubComponent,
+  Language,
 } from '../../database/entities';
 import { AssessmentService, AssessmentStructureService } from './services';
 import {
@@ -19,7 +21,6 @@ import {
   AssessmentStructureController,
 } from './controllers';
 import { AuthModule } from '../../shared';
-import { AssessmentMeasurementScaleSubComponent } from '../../database/entities/assessment-measurement-scale-sub-component.entity';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { AssessmentMeasurementScaleSubComponent } from '../../database/entities/
       MeasurementScale,
       AssessmentMeasurementScale,
       AssessmentMeasurementScaleSubComponent,
+      Language,
     ]),
     AuthModule,
   ],
