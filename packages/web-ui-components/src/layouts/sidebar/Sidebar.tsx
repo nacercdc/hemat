@@ -278,7 +278,7 @@ export function Sidebar({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-fit bg-warning-500 border-none shadow-md"
+                className="w-fit border-none shadow-md"
               >
                 <div className="relative pl-2 py-1">
                   <div className="absolute left-2 top-[10px] h-[calc(100%-20px)] w-[1px] bg-warning-200"></div>
@@ -345,7 +345,6 @@ export function Sidebar({
               isItemActive(item.path) && "font-semibold text-secondary-950"
             )}
           >
-            {/* Uncollapsible icons */}
             {item.icon && item.depth === 0 && (
               <span className={cn("text-xl", !open && "text-lg")}>
                 {item.icon}
@@ -362,7 +361,6 @@ export function Sidebar({
                 {item.icon}
               </span>
             )}
-            {/* Uncollapsible labels */}
             <span
               className={cn(
                 isItemActive(item.path) && item.depth !== 0 && "text-secondary"
