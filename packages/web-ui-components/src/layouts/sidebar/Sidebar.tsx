@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import type React from "react";
+import { useState, useEffect } from "react";
 import {
   Sidebar as ShadcnSidebar,
   SidebarContent,
@@ -28,6 +29,10 @@ import { cn } from "../../shadcn-ui/utils/cn";
 
 type BGColor = "primary" | "secondary" | "white";
 
+interface HeaderFooterContent {
+  collapse: React.ReactNode;
+  expand: React.ReactNode;
+}
 interface MenuItem {
   id: string;
   label: string;
@@ -46,10 +51,8 @@ export interface Group {
 
 interface Props {
   groups: Group[];
-  headerOnOpen: React.ReactNode;
-  headerOnCollapse: React.ReactNode;
-  footerOnOpen?: React.ReactNode;
-  footerOnCollapse?: React.ReactNode;
+  header: HeaderFooterContent;
+  footer: HeaderFooterContent;
   backgroundImagePath?: string;
   bgColor?: BGColor;
   separatorBetweenGroups: boolean;
@@ -60,10 +63,8 @@ interface Props {
 
 export function Sidebar({
   groups,
-  headerOnOpen,
-  headerOnCollapse,
-  footerOnOpen,
-  footerOnCollapse,
+  header,
+  footer,
   backgroundImagePath,
   bgColor = "white",
   separatorBetweenGroups = true,
@@ -71,16 +72,27 @@ export function Sidebar({
   isActivePath,
   onNavigate,
 }: Props) {
-  const [openCollapsible, setOpenCollapsible] = useState<
-    Record<string, boolean>
-  >({});
+  const [activeCollapsible, setActiveCollapsible] = useState<string | null>(
+    null
+  );
   const { toggleSidebar, open } = useSidebar();
 
+  useEffect(() => {
+    let foundActive = false;
+    for (const group of groups) {
+      for (const item of group.menuItems) {
+        if (item.children?.some((child) => isActivePath(child.path))) {
+          setActiveCollapsible(item.id);
+          foundActive = true;
+          break;
+        }
+      }
+      if (foundActive) break;
+    }
+  }, [groups, isActivePath]);
+
   const toggleCollapsible = (id: string) => {
-    setOpenCollapsible((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setActiveCollapsible((prevId) => (prevId === id ? null : id));
   };
 
   const isItemActive = (itemPath?: string) => {
@@ -88,14 +100,8 @@ export function Sidebar({
   };
 
   const isParentActive = (items?: MenuItem[]) => {
-    if (!items) return;
-    return items
-      .map((item) => {
-        return isActivePath(item.path);
-      })
-      .includes(true)
-      ? true
-      : false;
+    if (!items) return false;
+    return items.some((item) => isActivePath(item.path));
   };
 
   const hasPermission = (item: MenuItem) => {
@@ -103,6 +109,8 @@ export function Sidebar({
   };
 
   const CollapsedSidebarMenuItem = (item: MenuItem) => {
+    const isActive = isParentActive(item.children);
+
     return (
       <SidebarMenuButton
         tooltip={item.label}
@@ -110,17 +118,33 @@ export function Sidebar({
         className={cn(
           "font-medium text-foreground hover:bg-tbsidebar-accent hover:text-secondary py-[20px] text-sm",
           "data-[state=open]:hover:bg-tbsidebar-accent data-[state=open]:hover:text-secondary active:bg-secondary/5 active:text-secondary-950",
-          isParentActive(item.children) && "text-secondary"
+          isActive && "!text-secondary font-bold bg-success/5 rounded-md"
         )}
       >
         {item.icon && (
-          <span className={cn("text-xl", !open && "text-lg")}>{item.icon}</span>
+          <span
+            className={cn(
+              "text-xl",
+              !open && "text-lg",
+              isActive && "text-success-700"
+            )}
+          >
+            {item.icon}
+          </span>
         )}
-        <span>{item.label}</span>
-        {openCollapsible[item.id] ? (
-          <Icon icon={"lucide:chevron-down"} className="ml-auto w-4 h-4" />
+        <span className={cn(isActive && "text-success-700 font-semibold")}>
+          {item.label}
+        </span>
+        {activeCollapsible === item.id ? (
+          <Icon
+            icon="mdi:chevron-down"
+            className={cn("ml-auto w-4 h-4", isActive && "text-success-700")}
+          />
         ) : (
-          <Icon icon={"lucide:chevron-right"} className="ml-auto w-4 h-4" />
+          <Icon
+            icon="mdi:chevron-right"
+            className={cn("ml-auto w-4 h-4", isActive && "text-success-700")}
+          />
         )}
       </SidebarMenuButton>
     );
@@ -140,7 +164,7 @@ export function Sidebar({
                 <CollapsibleTrigger>
                   {label}
                   <Icon
-                    icon="lucide:chevron-down"
+                    icon="mdi:chevron-down"
                     className={`ml-auto transition-transform group-data-[state=open]/gcollapsible:rotate-180`}
                   />
                 </CollapsibleTrigger>
@@ -163,12 +187,22 @@ export function Sidebar({
     if (!hasPermission(item)) return null;
 
     if (item.children) {
+      const isActive = isParentActive(item.children);
+
       return (
         <Collapsible
           key={item.id}
+          open={activeCollapsible === item.id}
+          onOpenChange={(open) => {
+            if (open) {
+              setActiveCollapsible(item.id);
+            } else if (activeCollapsible === item.id) {
+              setActiveCollapsible(null);
+            }
+          }}
           className={cn(
             `group/mcollapsible${item.id}`,
-            isParentActive(item.children) && "bg-secondary/5 rounded-md"
+            isActive && "rounded-md"
           )}
         >
           {open && (
@@ -177,8 +211,45 @@ export function Sidebar({
                 {CollapsedSidebarMenuItem(item)}
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <SidebarMenuSub className="relative border-l-0 ml-4 before:absolute before:left-0 before:top-[15%] before:h-[70%] before:w-[1px]">
-                  {item.children?.map((subItem) => renderMenuItem(subItem))}
+                <SidebarMenuSub
+                  className={cn(
+                    "relative border-l-0",
+                    "before:absolute before:left-0 before:top-[10px]",
+                    `before:h-[calc(100%-20px)] before:w-[1px] before:bg-warning-500`
+                  )}
+                >
+                  {item.children?.map((subItem) => {
+                    const isSubItemActive = isItemActive(subItem.path);
+                    return (
+                      <SidebarMenuItem key={subItem.id}>
+                        <SidebarMenuButton
+                          asChild
+                          onClick={(e) => {
+                            e.preventDefault();
+                            onNavigate(subItem.path);
+                          }}
+                          className="font-medium hover:bg-transparent hover:text-secondary px-0 py-4 text-sm"
+                        >
+                          <span className="cursor-pointer flex items-center">
+                            {isSubItemActive && (
+                              <Icon
+                                icon="fluent:triangle-right-48-filled"
+                                className="!w-[8px] !h-[8px] text-warning-800"
+                              />
+                            )}
+                            <span
+                              className={cn(
+                                isSubItemActive && "text-warning-700 font-bold",
+                                !isSubItemActive && "pl-[15px]"
+                              )}
+                            >
+                              {subItem.label}
+                            </span>
+                          </span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
                 </SidebarMenuSub>
               </CollapsibleContent>
             </SidebarMenuItem>
@@ -191,27 +262,42 @@ export function Sidebar({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="w-fit bg-secondary/5 border-none"
+                className="w-fit border-none shadow-md"
               >
-                {item.children?.map((subItem) => {
-                  return (
-                    <DropdownMenuItem
-                      key={subItem.id}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onNavigate(subItem.path);
-                      }}
-                    >
-                      <span
-                        className={cn(
-                          "w-2.5 h-2.5 rounded-full bg-secondary/5 invisible",
-                          isItemActive(subItem.path) && "visible"
+                <div className="relative pl-2 py-1">
+                  <div className="absolute left-2 top-[10px] h-[calc(100%-20px)] w-[1px] bg-warning-200"></div>
+                  {item.children?.map((subItem) => {
+                    const isSubItemActive = isItemActive(subItem.path);
+                    return (
+                      <DropdownMenuItem
+                        key={subItem.id}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onNavigate(subItem.path);
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        {isSubItemActive ? (
+                          <Icon
+                            icon="fluent:triangle-right-48-filled"
+                            className="!w-[8px] !h-[8px] text-warning-800"
+                          />
+                        ) : (
+                          <span className="w-[7px]"></span>
                         )}
-                      ></span>
-                      <span className="text-secondary">{subItem.label}</span>
-                    </DropdownMenuItem>
-                  );
-                })}
+                        <span
+                          className={cn(
+                            isSubItemActive
+                              ? "text-warning-500 font-medium"
+                              : "text-foreground"
+                          )}
+                        >
+                          {subItem.label}
+                        </span>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -269,7 +355,7 @@ export function Sidebar({
             >
               {item.label}
             </span>
-            {item.icon && item.depth !== 0 && (
+            {item.depth !== 0 && (
               <div className="flex w-full justify-end">
                 <span
                   className={cn(
@@ -320,8 +406,7 @@ export function Sidebar({
             )}
             onClick={toggleSidebar}
           >
-            {open && headerOnOpen}
-            {!open && headerOnCollapse}
+            {open ? header.expand : header.collapse}
           </SidebarMenuItem>
           {!isLoading && (
             <div className="flex-1 overflow-auto">
@@ -334,11 +419,11 @@ export function Sidebar({
             </div>
           )}
           {open && (
-            <SidebarMenuItem className="self-center my-3">
-              <div>{footerOnOpen}</div>
+            <SidebarMenuItem className="self-center w-full">
+              {open && footer.expand}
             </SidebarMenuItem>
           )}
-          {!open && <div>{footerOnCollapse}</div>}
+          {!open && footer.collapse}
         </SidebarMenu>
       </SidebarContent>
       <SidebarRail />
