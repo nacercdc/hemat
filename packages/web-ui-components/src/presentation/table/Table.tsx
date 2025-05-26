@@ -23,7 +23,7 @@ interface FilterOptionsType {
   label: string;
 }
 interface Props<TData> {
-  collectionName: string;
+  collectionName?: string;
   columns: ColumnDef<TData>[];
   data?: TData[];
   toolbar?: React.ReactNode;
@@ -188,9 +188,9 @@ export function Table<TData extends object>({
       )}
       ref={tableContainerRef}
     >
-      {showFilterFields && (
+      {showFilterFields ? (
         <div className="flex w-full justify-between items-center mb-2">
-          <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
+          {collectionName && <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>}
           <div className="flex gap-5 items-center">
             {(filterableColumns()?.[0] as FilterOptionsType[]).length > 0 && (
               <div className="min-w-1/4 mt-2">
@@ -212,11 +212,11 @@ export function Table<TData extends object>({
             {toolbar}
           </div>
         </div>
-      )}
-
-      <div className="overflow-auto bg-white p-2 pt-0 rounded-sm">
+      ) :<div className="flex  mb-2"> {toolbar}</div>}
+<div className="flex flex-col min-h-[650px] justify-between bg-transparent rounded-sm">
+      <div className="overflow-auto  p-0 rounded-sm border-[1px] border-basic-300">
         <table className="w-full">
-          <thead className="bg-white w-full sticky top-0">
+          <thead className="bg-basic-200 w-full sticky top-0 h-">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -272,10 +272,12 @@ export function Table<TData extends object>({
                 </tr>
               )
             ) : (
-              table.getRowModel().rows.map((row, index) => (
+              table.getRowModel().rows.map((row,index) => (
                 <tr
                   key={row.id}
-                  className={cn(index % 2 === 0 && "bg-primary-50")}
+                  className={cn("bg-card border-b-[1px] border-basic-300 hover:bg-secondary-50/40 h-11",{
+                    index
+                  })}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="py-0 px-2 text-sm font-medium">
@@ -298,6 +300,7 @@ export function Table<TData extends object>({
         pageSizeOptions={pageSizeOptions}
         onPaginationChange={onPaginationChange}
       />
+      </div>
     </div>
   );
 }
