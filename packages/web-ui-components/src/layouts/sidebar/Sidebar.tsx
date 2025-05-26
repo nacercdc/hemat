@@ -351,7 +351,7 @@ export function Sidebar({
                 {item.icon}
               </span>
             )}
-            {/* {item.icon && item.depth !== 0 && (
+            {item.icon && item.depth !== 0 && (
               <span
                 className={cn(
                   "text-lg",
@@ -361,7 +361,7 @@ export function Sidebar({
               >
                 {item.icon}
               </span>
-            )} */}
+            )}
             {/* Uncollapsible labels */}
             <span
               className={cn(
@@ -370,7 +370,7 @@ export function Sidebar({
             >
               {item.label}
             </span>
-            {/* {item.depth !== 0 && (
+            {item.depth !== 0 && (
               <div className="flex w-full justify-end">
                 <span
                   className={cn(
@@ -379,7 +379,7 @@ export function Sidebar({
                   )}
                 ></span>
               </div>
-            )} */}
+            )}
           </span>
         </SidebarMenuButton>
       </SidebarMenuItem>
