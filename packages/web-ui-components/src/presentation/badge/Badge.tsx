@@ -3,19 +3,19 @@ import { cva } from "class-variance-authority";
 import { Badge as ShadcnBadge } from "../../shadcn-ui";
 import { cn } from "../../shadcn-ui/utils/cn";
 
-const badgeVariants = cva("text-sm", {
+const badgeVariants = cva("text-sm shadow-none p-4", {
   variants: {
     variant: {
       outlined:
-        "border-dark-light bg-transparent text-dark-light hover:bg-dark-lighter",
+        "bg-transparent text-dark-light hover:bg-dark-lighter",
       destructive:
-        "border-destructive-400 bg-destructive-100 text-destructive hover:bg-destructive-200",
+        "bg-destructive-50 text-destructive hover:bg-destructive-200",
       success:
-        "border-success-400 bg-success-100 text-success hover:bg-success-200",
-      info: "border-info-400 bg-info-100 text-info hover:bg-info-200",
+        "bg-success-50 text-success hover:bg-success-200",
+      info: "bg-info-50 text-info hover:bg-info-200",
       warning:
-        "border-warning-400 bg-warning-100 text-warning hover:bg-warning-200",
-      dark: "border-dark-lighter bg-dark-lighter text-dark-light",
+        "bg-warning-50 text-warning hover:bg-warning-200",
+      dark: "bg-dark-lighter text-dark-light",
     },
     shape: {
       rectangular: "rounded-sm",
@@ -41,7 +41,7 @@ export function Badge({ text, icon, onAction, variant, shape }: Props) {
     <ShadcnBadge
       className={cn(
         badgeVariants({ variant, shape }),
-        "flex items-center gap-1 max-h-7 w-fit",
+        "flex items-center gap-1 max-h-7 w-fit text-xs font-medium",
         !onAction && "justify-center"
       )}
     >
