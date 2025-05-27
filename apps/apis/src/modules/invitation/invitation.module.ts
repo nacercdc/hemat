@@ -5,10 +5,12 @@ import {
   Assessment,
   AssessmentGroup,
   AssessmentMember,
+  User,
 } from '../../database/entities';
 import { InvitationService } from './services';
 import { InvitationController } from './controllers';
 import { AuthModule } from '../../shared';
+import { AssessmentModule } from '../assessment';
 
 @Module({
   imports: [
@@ -17,8 +19,10 @@ import { AuthModule } from '../../shared';
       Assessment,
       AssessmentGroup,
       AssessmentMember,
+      User,
     ]),
     AuthModule,
+    AssessmentModule,
   ],
   controllers: [InvitationController],
   providers: [InvitationService],
