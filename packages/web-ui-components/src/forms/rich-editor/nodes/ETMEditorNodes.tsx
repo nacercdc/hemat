@@ -14,7 +14,7 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 
 import { ImageNode } from "./ImageNode";
 
-const PlaygroundNodes: Array<Klass<LexicalNode>> = [
+const ETMEditorNodes: Array<Klass<LexicalNode>> = [
   HeadingNode,
   ListNode,
   ListItemNode,
@@ -30,4 +30,4 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   MarkNode,
 ];
 
-export default PlaygroundNodes;
+export default ETMEditorNodes;
