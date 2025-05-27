@@ -38,7 +38,10 @@ export class AssessmentMeasurementScaleSubComponentService {
     });
   }
 
-  async findOne(id: string): Promise<AssessmentMeasurementScaleSubComponent> {
+  async findOne(
+    assessmentId: string,
+    id: string,
+  ): Promise<AssessmentMeasurementScaleSubComponent> {
     const measurementScaleSubComponent =
       await this.assessmentMeasurementScaleSubComponentRepository.findOne({
         where: { id },
@@ -53,16 +56,15 @@ export class AssessmentMeasurementScaleSubComponentService {
   }
 
   async update(
+    assessmentId: string,
     id: string,
     payload: AssessmentMeasurementScaleSubComponentDto,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
-    const measurementScaleSubComponent = await this.findOne(id);
+    const measurementScaleSubComponent = await this.findOne(assessmentId, id);
     try {
       const entity = {
         description: payload.description,
         translations: payload.translations,
-        subComponentId: payload.subComponentId,
-        measurementScaleId: payload.measurementScaleId,
       };
       await this.assessmentMeasurementScaleSubComponentRepository.update(
         { id },

@@ -39,13 +39,6 @@ export class AssessmentMemberService {
     payload: AssessmentMemberCreateRequestDto,
   ): Promise<AssessmentMember> {
     try {
-      if (
-        payload.assessmentId !== assessmentId ||
-        payload.groupId !== groupId
-      ) {
-        throw new BadRequestException('Assessment ID or group ID mismatch');
-      }
-
       const assessment = await this.assessmentRepository.findOne({
         where: { id: assessmentId },
       });
@@ -101,7 +94,7 @@ export class AssessmentMemberService {
     }
   }
 
-  async findById(
+  async findOne(
     assessmentId: string,
     groupId: string,
     id: string,
@@ -139,7 +132,7 @@ export class AssessmentMemberService {
     }
   }
 
-  async findByGroupId(
+  async findAll(
     assessmentId: string,
     groupId: string,
   ): Promise<AssessmentMember[]> {

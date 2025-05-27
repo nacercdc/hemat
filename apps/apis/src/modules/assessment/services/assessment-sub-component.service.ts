@@ -49,7 +49,6 @@ export class AssessmentSubComponentService {
         name: payload.name,
         description: payload.description,
         translations: payload.translations,
-        componentId: payload.componentId,
       };
       await this.assessmentSubComponentRepository.update(
         { id, assessmentId },

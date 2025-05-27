@@ -49,7 +49,6 @@ export class AssessmentComponentService {
         name: payload.name,
         description: payload.description,
         translations: payload.translations,
-        domainId: payload.domainId,
       };
       await this.assessmentComponentRepository.update(
         { id, assessmentId },

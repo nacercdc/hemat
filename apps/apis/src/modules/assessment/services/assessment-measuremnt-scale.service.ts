@@ -26,9 +26,7 @@ export class AssessmentMeasurementScaleService {
     private readonly assessmentMeasurementScaleSubComponentRepository: Repository<AssessmentMeasurementScaleSubComponent>,
   ) {}
 
-  async findAllBySubComponent(
-    subComponentId: string,
-  ): Promise<AssessmentMeasurementScale[]> {
+  async findAll(subComponentId: string): Promise<AssessmentMeasurementScale[]> {
     const subComponent = await this.assessmentSubComponentRepository.findOne({
       where: { id: subComponentId },
     });
@@ -47,23 +45,10 @@ export class AssessmentMeasurementScaleService {
     });
   }
 
-  async findOne(id: string): Promise<AssessmentMeasurementScale> {
-    const measurementScale =
-      await this.assessmentMeasurementScaleRepository.findOne({
-        where: { id },
-      });
-    if (!measurementScale) {
-      throw new NotFoundException('Assessment measurement scale not found');
-    }
-    return measurementScale;
-  }
-
-  async update(
-    id: string,
+  async findOne(
     subComponentId: string,
-    payload: AssessmentMeasurementScaleDto,
+    id: string,
   ): Promise<AssessmentMeasurementScale> {
-    const measurementScale = await this.findOne(id);
     const subComponent = await this.assessmentSubComponentRepository.findOne({
       where: { id: subComponentId },
     });
@@ -79,6 +64,24 @@ export class AssessmentMeasurementScaleService {
         'Measurement scale is not associated with the specified sub-component',
       );
     }
+    const measurementScale =
+      await this.assessmentMeasurementScaleRepository.findOne({
+        where: { id },
+      });
+    if (!measurementScale) {
+      throw new NotFoundException('Assessment measurement scale not found');
+    }
+    return measurementScale;
+  }
+
+  async update(
+    subComponentId: string,
+    id: string,
+    payload: AssessmentMeasurementScaleDto,
+  ): Promise<AssessmentMeasurementScale> {
+    // Validate sub-component and association via findOne
+    await this.findOne(subComponentId, id);
+
     try {
       const entity = {
         name: payload.name,
@@ -89,14 +92,16 @@ export class AssessmentMeasurementScaleService {
       };
       await this.assessmentMeasurementScaleRepository.update({ id }, entity);
 
-      return { ...measurementScale, ...entity };
+      // Fetch updated record to ensure accuracy
+      const updatedMeasurementScale = await this.findOne(subComponentId, id);
+      return updatedMeasurementScale;
     } catch (err) {
       this.logger.error(
         `Failed to update assessment measurement scale: ${err.message}`,
         err.stack,
       );
       throw new BadRequestException(
-        'Failed to update assessment measurement scale',
+        `Failed to update assessment measurement scale: ${err.message}`,
       );
     }
   }

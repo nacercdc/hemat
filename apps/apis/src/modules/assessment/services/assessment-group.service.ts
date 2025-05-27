@@ -67,7 +67,7 @@ export class AssessmentGroupService {
     }
   }
 
-  async findById(assessmentId: string, id: string): Promise<AssessmentGroup> {
+  async findOne(assessmentId: string, id: string): Promise<AssessmentGroup> {
     try {
       const assessment = await this.assessmentRepository.findOne({
         where: { id: assessmentId },
@@ -94,7 +94,7 @@ export class AssessmentGroupService {
     }
   }
 
-  async findByAssessmentId(assessmentId: string): Promise<AssessmentGroup[]> {
+  async findAll(assessmentId: string): Promise<AssessmentGroup[]> {
     try {
       const assessment = await this.assessmentRepository.findOne({
         where: { id: assessmentId },
