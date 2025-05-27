@@ -36,13 +36,16 @@ export interface ETMEditorRef {
 interface RichEditorProps {
   onStateChange?: (state: string) => void;
   initialState?: string;
+  isEnabled: boolean;
 }
 
 const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
-  ({ onStateChange, initialState }, ref) => {
+  ({ onStateChange, initialState, isEnabled }, ref) => {
     const [editor] = useLexicalComposerContext();
     const [activeEditor, setActiveEditor] = useState(editor);
     const { historyState } = useSharedHistoryContext();
+
+    editor.setEditable(isEnabled);
 
     const placeholder = "Enter some text...";
 
@@ -109,7 +112,9 @@ const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
           <RichTextPlugin
             contentEditable={
               <div className="editor-scroller">
-                <div className="editor bg-white rounded-b-md">
+                <div
+                  className={`editor bg-white rounded-b-md ${!isEnabled && "rounded-md"}`}
+                >
                   <ContentEditable placeholder={placeholder} />
                 </div>
               </div>
@@ -130,10 +135,14 @@ const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
 interface Props {
   initialEditorState?: string;
   onEditorStateChange?: (state: string) => void;
+  isEditorEnabled?: boolean;
 }
 
 export const ETMEditor = forwardRef<ETMEditorRef, Props>(
-  ({ onEditorStateChange, initialEditorState }, ref) => {
+  (
+    { onEditorStateChange, initialEditorState, isEditorEnabled = true },
+    ref
+  ) => {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -156,9 +165,10 @@ export const ETMEditor = forwardRef<ETMEditorRef, Props>(
       <LexicalComposer initialConfig={initialConfig}>
         <ToolbarContext>
           <RichEditor
+            ref={ref}
             onStateChange={onEditorStateChange}
             initialState={initialEditorState}
-            ref={ref}
+            isEnabled={isEditorEnabled}
           />
         </ToolbarContext>
       </LexicalComposer>

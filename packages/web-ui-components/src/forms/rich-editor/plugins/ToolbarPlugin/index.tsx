@@ -478,7 +478,7 @@ export default function ToolbarPlugin({
   editor: LexicalEditor;
   activeEditor: LexicalEditor;
   setActiveEditor: Dispatch<LexicalEditor>;
-}): JSX.Element {
+}): React.ReactNode {
   const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(
     null
   );
@@ -686,6 +686,8 @@ export default function ToolbarPlugin({
 
   const canViewerSeeInsertDropdown = !toolbarState.isImageCaption;
   const canViewerSeeInsertCodeButton = !toolbarState.isImageCaption;
+
+  if (!isEditable) return null;
 
   return (
     <div className="toolbar">
