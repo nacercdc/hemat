@@ -1,4 +1,3 @@
-// src/assessment-group/controllers/group.controller.ts
 import {
   Controller,
   Post,
@@ -29,12 +28,8 @@ import {
   PermissionSubjectEnum,
 } from '../../../shared/enums';
 import { ExceptionResponseDto } from '../../../shared/dtos';
-import { GroupService } from '../services';
-import {
-  GroupCreateRequestDto,
-  GroupUpdateRequestDto,
-  GroupResponseDto,
-} from '../dtos';
+import { AssessmentGroupService } from '../services';
+import { AssessmentGroupRequestDto } from '../dtos';
 import { AssessmentGroup } from '../../../database/entities';
 
 @ApiBearerAuth()
@@ -57,15 +52,17 @@ import { AssessmentGroup } from '../../../database/entities';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('assessment-groups')
-export class GroupController {
-  constructor(private readonly groupService: GroupService) {}
+@Controller('assessments/:assessmentId/assessment-groups')
+export class AssessmentGroupController {
+  constructor(
+    private readonly assessmentGroupService: AssessmentGroupService,
+  ) {}
 
   @ApiOperation({
     summary: 'Create a new assessment group',
-    description: 'Create a new group for an assessment',
+    description: 'Create a new assessment group for an assessment',
   })
-  @ApiOkResponse({ description: 'Ok', type: GroupResponseDto })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentGroup })
   @HttpCode(201)
   @Abilities({
     isAdmin: true,
@@ -78,16 +75,18 @@ export class GroupController {
   })
   @Post()
   async create(
-    @Body() payload: GroupCreateRequestDto,
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Body() payload: AssessmentGroupRequestDto,
   ): Promise<AssessmentGroup> {
-    return this.groupService.create(payload);
+    return this.assessmentGroupService.create(assessmentId, payload);
   }
 
   @ApiOperation({
-    summary: 'Get groups by assessment ID',
-    description: 'Retrieve all groups for a specific assessment',
+    summary: 'Get an assessment group by ID',
+    description:
+      'Retrieve a specific assessment group by its ID for an assessment',
   })
-  @ApiOkResponse({ description: 'Ok', type: [GroupResponseDto] })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentGroup })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -99,18 +98,42 @@ export class GroupController {
       },
     ],
   })
-  @Get('assessment/:assessmentId')
-  async findByAssessmentId(
+  @Get(':id')
+  async findById(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<AssessmentGroup> {
+    return this.assessmentGroupService.findById(assessmentId, id);
+  }
+
+  @ApiOperation({
+    summary: 'Get all assessment groups',
+    description: 'Retrieve all assessment groups for a specific assessment',
+  })
+  @ApiOkResponse({ description: 'Ok', type: [AssessmentGroup] })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Get()
+  async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
   ): Promise<AssessmentGroup[]> {
-    return this.groupService.findByAssessmentId(assessmentId);
+    return this.assessmentGroupService.findByAssessmentId(assessmentId);
   }
 
   @ApiOperation({
     summary: 'Update an assessment group',
     description: 'Update an assessment group by ID',
   })
-  @ApiOkResponse({ description: 'Ok', type: GroupResponseDto })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentGroup })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -124,17 +147,18 @@ export class GroupController {
   })
   @Put(':id')
   async update(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() payload: GroupUpdateRequestDto,
+    @Body() payload: AssessmentGroupRequestDto,
   ): Promise<AssessmentGroup> {
-    return this.groupService.update({ id }, payload);
+    return this.assessmentGroupService.update(assessmentId, id, payload);
   }
 
   @ApiOperation({
     summary: 'Delete an assessment group',
     description: 'Soft delete an assessment group by ID',
   })
-  @ApiOkResponse({ description: 'Ok', type: GroupResponseDto })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentGroup })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -148,8 +172,9 @@ export class GroupController {
   })
   @Delete(':id')
   async delete(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<AssessmentGroup> {
-    return this.groupService.delete({ id });
+    return this.assessmentGroupService.delete(assessmentId, id);
   }
 }

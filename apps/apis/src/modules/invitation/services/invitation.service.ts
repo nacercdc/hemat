@@ -49,7 +49,6 @@ export class InvitationService extends CrudService<Invitation> {
         throw new BadRequestException('Group not found');
       }
 
-      // Check if the email is already invited for this assessment and group
       const existingInvitation = await this.invitationRepository.findOne({
         where: {
           email: payload.email,
@@ -64,10 +63,8 @@ export class InvitationService extends CrudService<Invitation> {
         );
       }
 
-      // Generate unique token
       const token = uuidv4();
 
-      // Create invitation
       const invitation = await this.dataSource.transaction(async (manager) => {
         const newInvitation = manager.create(Invitation, {
           name: payload.name,

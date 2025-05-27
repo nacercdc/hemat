@@ -1,9 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID, IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsUUID, IsEnum, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MemberRole } from '../../../shared';
 
-export class MemberCreateRequestDto {
+export class AssessmentMemberCreateRequestDto {
   @ApiProperty({
     description: 'ID of the user to be added as a member',
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -25,7 +25,7 @@ export class MemberCreateRequestDto {
   assessmentId: string;
 
   @ApiProperty({
-    description: 'ID of the associated group',
+    description: 'ID of the associated assessment group',
     example: '123e4567-e89b-12d3-a456-426614174001',
     type: String,
   })
@@ -35,7 +35,7 @@ export class MemberCreateRequestDto {
   groupId: string;
 
   @ApiProperty({
-    description: 'Role of the member',
+    description: 'Role of the member in the assessment group',
     enum: MemberRole,
     example: MemberRole.PRIMARY,
     type: String,
@@ -44,4 +44,17 @@ export class MemberCreateRequestDto {
   @IsEnum(MemberRole, { message: 'validation.role.isEnum' })
   @Type(() => String)
   role: MemberRole;
+}
+
+export class AssessmentMemberUpdateRequestDto {
+  @ApiPropertyOptional({
+    description: 'Role of the member in the assessment group',
+    enum: MemberRole,
+    example: MemberRole.MEMBER,
+    type: String,
+  })
+  @IsOptional()
+  @IsEnum(MemberRole, { message: 'validation.role.isEnum' })
+  @Type(() => String)
+  role?: MemberRole;
 }

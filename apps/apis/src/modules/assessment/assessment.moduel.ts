@@ -14,11 +14,28 @@ import {
   AssessmentMeasurementScale,
   AssessmentMeasurementScaleSubComponent,
   Language,
+  AssessmentGroup,
+  AssessmentMember,
 } from '../../database/entities';
-import { AssessmentService, AssessmentStructureService } from './services';
 import {
+  AssessmentComponentService,
+  AssessmentDomainService,
+  AssessmentGroupService,
+  AssessmentMeasurementScaleService,
+  AssessmentMeasurementScaleSubComponentService,
+  AssessmentMemberService,
+  AssessmentService,
+  AssessmentSubComponentService,
+} from './services';
+import {
+  AssessmentComponentController,
   AssessmentController,
-  AssessmentStructureController,
+  AssessmentDomainController,
+  AssessmentGroupController,
+  AssessmentMeasurementScaleController,
+  AssessmentMeasurementScaleSubComponentController,
+  AssessmentMemberController,
+  AssessmentSubComponentController,
 } from './controllers';
 import { AuthModule } from '../../shared';
 
@@ -38,11 +55,31 @@ import { AuthModule } from '../../shared';
       AssessmentMeasurementScale,
       AssessmentMeasurementScaleSubComponent,
       Language,
+      AssessmentGroup,
+      AssessmentMember,
     ]),
     AuthModule,
   ],
-  controllers: [AssessmentController, AssessmentStructureController],
-  providers: [AssessmentService, AssessmentStructureService],
+  controllers: [
+    AssessmentController,
+    AssessmentDomainController,
+    AssessmentComponentController,
+    AssessmentSubComponentController,
+    AssessmentMeasurementScaleController,
+    AssessmentMeasurementScaleSubComponentController,
+    AssessmentGroupController,
+    AssessmentMemberController,
+  ],
+  providers: [
+    AssessmentService,
+    AssessmentDomainService,
+    AssessmentComponentService,
+    AssessmentSubComponentService,
+    AssessmentMeasurementScaleService,
+    AssessmentMeasurementScaleSubComponentService,
+    AssessmentGroupService,
+    AssessmentMemberService,
+  ],
   exports: [AssessmentService],
 })
 export class AssessmentModule {}
