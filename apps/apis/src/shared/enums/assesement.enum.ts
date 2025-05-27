@@ -1,6 +1,8 @@
 export enum AssessmentStatus {
-  PLANNED = 'planned',
+  DRAFT = 'DRAFT',
+  PENDING = 'PENDING',
+  READY = 'READY',
   IN_PROGRESS = 'in_progress',
-  COMPLETED = 'completed',
-  NO_DATA = 'no_data',
+  CLOSED = 'CLOSED',
+  COMPLETED = 'COMPLETED',
 }

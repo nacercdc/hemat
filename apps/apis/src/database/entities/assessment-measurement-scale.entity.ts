@@ -1,9 +1,10 @@
 import { Entity, Column, ManyToOne, Index, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BaseEntityWithSoftDelete } from './entity'; 
-import { AssessmentSubComponent } from './assessment-sub-component.entity';
+import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentAnswer } from './assessment-answer.entity';
+import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
+import { NameDescriptionDto } from 'src/shared/dtos';
 
 @Entity('assessment_measurement_scale')
 export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
@@ -39,6 +40,13 @@ export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
   @Column()
   rate: number;
 
+  @ApiPropertyOptional({
+    description: 'Assessments related to this domain',
+    type: () => NameDescriptionDto,
+  })
+  @Column('jsonb')
+  translations: NameDescriptionDto;
+
   @ApiProperty({
     description: 'ID of the associated assessment',
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -49,29 +57,22 @@ export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
   assessmentId: string;
 
   @ApiPropertyOptional({
-    description: 'Assessments related to this domain',
+    description: 'Associated assessment',
     type: () => Assessment,
   })
-  @OneToMany(() => Assessment, (assessment) => assessment.measurementScales)
+  @ManyToOne(() => Assessment, (assessment) => assessment.measurementScales)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
 
   @ApiProperty({
-    description: 'ID of the associated sub-component',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
+    description: 'Associated sub-components',
+    type: () => [AssessmentMeasurementScaleSubComponent],
   })
-  @Column()
-  @Index()
-  subComponentId: string;
-
-  @ApiProperty({
-    description: 'Associated sub-component',
-    type: () => AssessmentSubComponent,
-  })
-  @ManyToOne(() => AssessmentSubComponent)
-  @JoinColumn({ name: 'subComponentId' })
-  subComponent: AssessmentSubComponent;
+  @OneToMany(
+    () => AssessmentMeasurementScaleSubComponent,
+    (subComponent) => subComponent.measurementScale,
+  )
+  subComponents: AssessmentMeasurementScaleSubComponent[];
 
   @ApiPropertyOptional({
     description: 'Assessment answer object',

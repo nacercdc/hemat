@@ -18,8 +18,8 @@ import { Invitation } from './invitation.entity';
 import { AssessmentDomain } from './assessment-domain.entity';
 import { AssessmentComponent } from './assessment-component.entity';
 import { AssessmentMeasurementScale } from './assessment-measurement-scale.entity';
-import { AssessmentLanguage } from './assessment-language.entity';
 import { Country } from './country.entity';
+import { AssessmentStatus } from '../../shared';
 
 @Entity('assessments')
 export class Assessment extends BaseEntityWithSoftDelete {
@@ -41,11 +41,12 @@ export class Assessment extends BaseEntityWithSoftDelete {
   user: User | null;
 
   @ApiProperty({
-    description: 'Name of the assessment',
+    description: 'Name of the assessment (must be unique)',
     example: 'Health Assessment 2025',
     type: String,
   })
   @Column()
+  @Index({ unique: true })
   name: string;
 
   @ApiProperty({
@@ -82,28 +83,49 @@ export class Assessment extends BaseEntityWithSoftDelete {
   organization: string | null;
 
   @ApiProperty({
-    description: 'Date of the assessment',
-    example: '2025-05-02',
+    description: 'Start date of the assessment',
+    example: '2025-05-01',
     type: Date,
   })
   @Column()
-  date: Date;
+  startDate: Date;
 
   @ApiProperty({
-    description: 'ID of the associated domian',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
+    description: 'End date of the assessment',
+    example: '2025-05-30',
+    type: Date,
   })
   @Column()
-  @Index()
-  domianId: string;
+  endDate: Date;
+  @ApiProperty({
+    description: 'Language',
+    example: ['en'],
+    type: String,
+    isArray: true,
+  })
+  @Column('text', { array: true, default: ['en'] })
+  languages: string[];
+
+  @ApiProperty({
+    description: 'Status of the assessment',
+    example: AssessmentStatus.DRAFT,
+    enum: AssessmentStatus,
+  })
+  @Column({
+    type: 'enum',
+    enum: AssessmentStatus,
+    default: AssessmentStatus.DRAFT,
+  })
+  status: AssessmentStatus;
 
   @ApiProperty({
     description: 'Associated domain',
     type: () => [AssessmentDomain],
   })
-  @OneToMany(() => AssessmentDomain, (domain) => domain.assessment)
-  @JoinColumn({ name: 'domianId' })
+  @OneToMany(
+    () => AssessmentDomain,
+    (assessmentDomain) => assessmentDomain.assessment,
+  )
   domains: AssessmentDomain[];
 
   @ApiPropertyOptional({
@@ -170,11 +192,4 @@ export class Assessment extends BaseEntityWithSoftDelete {
   })
   @OneToMany(() => Report, (reports) => reports.assessment)
   reports: Report[] | null;
-
-  @ApiPropertyOptional({
-    description: 'Assessments related to this domain',
-    type: () => AssessmentLanguage,
-  })
-  @OneToMany(() => AssessmentLanguage, (language) => language.assessment)
-  languages: AssessmentLanguage[];
 }
