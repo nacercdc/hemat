@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
@@ -6,10 +6,11 @@ import {
   IsUUID,
   Length,
   IsEnum,
+  IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MemberRole } from '../../../shared';
-
+import { InvitationStatus } from '../../../shared';
 export class InvitationCreateRequestDto {
   @ApiProperty({
     description: 'Name of the invitee',
@@ -62,4 +63,17 @@ export class InvitationCreateRequestDto {
   @IsEnum(MemberRole, { message: 'validation.role.isEnum' })
   @Type(() => String)
   role: MemberRole;
+}
+
+export class InvitationUpdateRequestDto {
+  @ApiPropertyOptional({
+    description: 'Status of the invitation',
+    enum: InvitationStatus,
+    example: InvitationStatus.ACCEPTED,
+    type: String,
+  })
+  @IsOptional()
+  @IsEnum(InvitationStatus, { message: 'validation.status.isEnum' })
+  @Type(() => String)
+  status?: InvitationStatus;
 }
