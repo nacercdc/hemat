@@ -16,26 +16,6 @@ export class AssessmentMeasurementScaleSubComponentDto {
   description: string;
 
   @ApiPropertyOptional({
-    description: 'ID of the associated sub-component',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsNotEmpty()
-  @IsUUID()
-  @Type(() => String)
-  subComponentId: string;
-
-  @ApiPropertyOptional({
-    description: 'ID of the associated measurement scale',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsNotEmpty()
-  @IsUUID()
-  @Type(() => String)
-  measurementScaleId: string;
-
-  @ApiPropertyOptional({
     description: 'Translations for the measurement scale sub-component',
     type: () => DescriptionTranslationDto,
   })

@@ -15,26 +15,6 @@ export class AssessmentMemberCreateRequestDto {
   userId: string;
 
   @ApiProperty({
-    description: 'ID of the associated assessment',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.assessmentId.isNotEmpty' })
-  @IsUUID('4', { message: 'validation.assessmentId.isUUID' })
-  @Type(() => String)
-  assessmentId: string;
-
-  @ApiProperty({
-    description: 'ID of the associated assessment group',
-    example: '123e4567-e89b-12d3-a456-426614174001',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.groupId.isNotEmpty' })
-  @IsUUID('4', { message: 'validation.groupId.isUUID' })
-  @Type(() => String)
-  groupId: string;
-
-  @ApiProperty({
     description: 'Role of the member in the assessment group',
     enum: MemberRole,
     example: MemberRole.PRIMARY,
