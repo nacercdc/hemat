@@ -11,7 +11,6 @@ import {
   TemplateModule,
 } from './modules';
 import { ExistConstraint, UniqueConstraint } from './shared/validators';
-import { AssessmentGroupModule } from './modules/group/assessment-group.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,7 +22,6 @@ import { AssessmentGroupModule } from './modules/group/assessment-group.module';
     AccessModule,
     AccountModule,
     AssessmentModule,
-    AssessmentGroupModule,
     InvitationModule,
     MeasurementScaleModule,
     TemplateModule,
