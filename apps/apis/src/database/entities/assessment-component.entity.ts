@@ -5,6 +5,7 @@ import {
   Index,
   ManyToOne,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
@@ -14,13 +15,14 @@ import { AssessmentSubComponent } from './assessment-sub-component.entity';
 import { AssessmentTranslationDto } from '../../shared/dtos';
 
 @Entity('assessment-components')
+@Unique(['code', 'assessmentId'])
 export class AssessmentComponent extends BaseEntityWithSoftDelete {
   @ApiProperty({
     description: 'Unique code of the domain',
     example: '1',
     type: String,
   })
-  @Column({ unique: true })
+  @Column()
   code: string;
 
   @ApiProperty({
@@ -49,10 +51,10 @@ export class AssessmentComponent extends BaseEntityWithSoftDelete {
   assessmentId: string;
 
   @ApiPropertyOptional({
-    description: 'Assessments related to this domain',
+    description: 'Assessment related to this component',
     type: () => Assessment,
   })
-  @OneToMany(() => Assessment, (assessment) => assessment.components)
+  @ManyToOne(() => Assessment, (assessment) => assessment.components)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
 
@@ -63,12 +65,21 @@ export class AssessmentComponent extends BaseEntityWithSoftDelete {
   @Column('jsonb')
   translations: AssessmentTranslationDto;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
+    description: 'ID of the associated domain',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @Column({ type: 'uuid' })
+  @Index()
+  domainId: string;
+
+  @ApiProperty({
     description: 'Associated domain',
     type: () => AssessmentDomain,
   })
   @ManyToOne(() => AssessmentDomain, (domain) => domain.components)
-  @Index()
+  @JoinColumn({ name: 'domainId' })
   domain: AssessmentDomain;
 
   @ApiPropertyOptional({

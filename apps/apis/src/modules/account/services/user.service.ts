@@ -186,6 +186,13 @@ export class UserService extends CrudService<User> {
       });
   }
 
+  public async findAllUsers(): Promise<User[]> {
+    return this.userRepository.find().catch((err) => {
+      this.loggerService.error('findAllUsers:', err);
+      throw new BadRequestException('Failed to fetch users');
+    });
+  }
+
   private async findUserById(id: string): Promise<User | null> {
     return this.findOne(id).catch((err) => {
       this.loggerService.error('findUserById:', err);

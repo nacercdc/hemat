@@ -7,7 +7,6 @@ import {
   OneToMany,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { AssessmentLanguage } from './assessment-language.entity';
 
 @Entity('languages')
 export class Language {
@@ -50,11 +49,4 @@ export class Language {
   })
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
-
-  @ApiPropertyOptional({
-    description: 'Assessments related to this domain',
-    type: () => AssessmentLanguage,
-  })
-  @OneToMany(() => AssessmentLanguage, (assessment) => assessment.language)
-  assessments: AssessmentLanguage[];
 }

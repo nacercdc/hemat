@@ -1,0 +1,786 @@
+[
+  {
+    "name": "Algeria",
+    "iso2": "DZ",
+    "numeric_code": "012",
+    "phonecode": "213",
+    "native": "الجزائر",
+    "translations": {
+      "fr": "Algérie"
+    },
+    "latitude": "28.00000000",
+    "longitude": "3.00000000",
+    "emoji": "🇩🇿",
+    "emojiU": "U+1F1E9 U+1F1FF"
+  },
+  {
+    "name": "Angola",
+    "iso2": "AO",
+    "numeric_code": "024",
+    "phonecode": "244",
+    "native": "Angola",
+    "translations": {
+      "fr": "Angola"
+    },
+    "latitude": "-12.50000000",
+    "longitude": "18.50000000",
+    "emoji": "🇦🇴",
+    "emojiU": "U+1F1E6 U+1F1F4"
+  },
+  {
+    "name": "Benin",
+    "iso2": "BJ",
+    "numeric_code": "204",
+    "phonecode": "229",
+    "native": "Bénin",
+    "translations": {
+      "fr": "Bénin"
+    },
+    "latitude": "9.50000000",
+    "longitude": "2.25000000",
+    "emoji": "🇧🇯",
+    "emojiU": "U+1F1E7 U+1F1EF"
+  },
+  {
+    "name": "Botswana",
+    "iso2": "BW",
+    "numeric_code": "072",
+    "phonecode": "267",
+    "native": "Botswana",
+    "translations": {
+      "fr": "Botswana"
+    },
+    "latitude": "-22.00000000",
+    "longitude": "24.00000000",
+    "emoji": "🇧🇼",
+    "emojiU": "U+1F1E7 U+1F1FC"
+  },
+  {
+    "name": "Burkina Faso",
+    "iso2": "BF",
+    "numeric_code": "854",
+    "phonecode": "226",
+    "native": "Burkina Faso",
+    "translations": {
+      "fr": "Burkina Faso"
+    },
+    "latitude": "13.00000000",
+    "longitude": "-2.00000000",
+    "emoji": "🇧🇫",
+    "emojiU": "U+1F1E7 U+1F1EB"
+  },
+  {
+    "name": "Burundi",
+    "iso2": "BI",
+    "numeric_code": "108",
+    "phonecode": "257",
+    "native": "Uburundi",
+    "translations": {
+      "fr": "Burundi"
+    },
+    "latitude": "-3.50000000",
+    "longitude": "30.00000000",
+    "emoji": "🇧🇮",
+    "emojiU": "U+1F1E7 U+1F1EE"
+  },
+  {
+    "name": "Cameroon",
+    "iso2": "CM",
+    "numeric_code": "120",
+    "phonecode": "237",
+    "native": "Cameroon",
+    "translations": {
+      "fr": "Cameroun"
+    },
+    "latitude": "6.00000000",
+    "longitude": "12.00000000",
+    "emoji": "🇨🇲",
+    "emojiU": "U+1F1E8 U+1F1F2"
+  },
+  {
+    "name": "Cape Verde",
+    "iso2": "CV",
+    "numeric_code": "132",
+    "phonecode": "238",
+    "native": "Cabo Verde",
+    "translations": {
+      "fr": "Cap-Vert"
+    },
+    "latitude": "16.00000000",
+    "longitude": "-24.00000000",
+    "emoji": "🇨🇻",
+    "emojiU": "U+1F1E8 U+1F1FB"
+  },
+  {
+    "name": "Central African Republic",
+    "iso2": "CF",
+    "numeric_code": "140",
+    "phonecode": "236",
+    "native": "Ködörösêse tî Bêafrîka",
+    "translations": {
+      "fr": "République centrafricaine"
+    },
+    "latitude": "7.00000000",
+    "longitude": "21.00000000",
+    "emoji": "🇨🇫",
+    "emojiU": "U+1F1E8 U+1F1EB"
+  },
+  {
+    "name": "Chad",
+    "iso2": "TD",
+    "numeric_code": "148",
+    "phonecode": "235",
+    "native": "Tchad",
+    "translations": {
+      "fr": "Tchad"
+    },
+    "latitude": "15.00000000",
+    "longitude": "19.00000000",
+    "emoji": "🇹🇩",
+    "emojiU": "U+1F1F9 U+1F1E9"
+  },
+  {
+    "name": "Comoros",
+    "iso2": "KM",
+    "numeric_code": "174",
+    "phonecode": "269",
+    "native": "Komori",
+    "translations cron": {
+      "fr": "Comores"
+    },
+    "latitude": "-12.16666666",
+    "longitude": "44.25000000",
+    "emoji": "🇰🇲",
+    "emojiU": "U+1F1F0 U+1F1F2"
+  },
+  {
+    "name": "Congo (Brazzaville)",
+    "iso2": "CG",
+    "numeric_code": "178",
+    "phonecode": "242",
+    "native": "République du Congo",
+    "translations": {
+      "fr": "Congo"
+    },
+    "latitude": "-1.00000000",
+    "longitude": "15.00000000",
+    "emoji": "🇨🇬",
+    "emojiU": "U+1F1E8 U+1F1EC"
+  },
+  {
+    "name": "Congo (Kinshasa)",
+    "iso2": "CD",
+    "numeric_code": "180",
+    "phonecode": "243",
+    "native": "République démocratique du Congo",
+    "translations": {
+      "fr": "RD Congo"
+    },
+    "latitude": "0.00000000",
+    "longitude": "25.00000000",
+    "emoji": "🇨🇩",
+    "emojiU": "U+1F1E8 U+1F1E9"
+  },
+  {
+    "name": "Cote d'Ivoire",
+    "iso2": "CI",
+    "numeric_code": "384",
+    "phonecode": "225",
+    "native": "Côte d'Ivoire",
+    "translations": {
+      "fr": "Côte d'Ivoire"
+    },
+    "latitude": "8.00000000",
+    "longitude": "-5.00000000",
+    "emoji": "🇨🇮",
+    "emojiU": "U+1F1E8 U+1F1EE"
+  },
+  {
+    "name": "Djibouti",
+    "iso2": "DJ",
+    "numeric_code": "262",
+    "phonecode": "253",
+    "native": "Djibouti",
+    "translations": {
+      "fr": "Djibouti"
+    },
+    "latitude": "11.50000000",
+    "longitude": "43.00000000",
+    "emoji": "🇩🇯",
+    "emojiU": "U+1F1E9 U+1F1EF"
+  },
+  {
+    "name": "Egypt",
+    "iso2": "EG",
+    "numeric_code": "818",
+    "phonecode": "20",
+    "native": "مصر‎",
+    "translations": {
+      "fr": "Égypte"
+    },
+    "latitude": "27.00000000",
+    "longitude": "30.00000000",
+    "emoji": "🇪🇬",
+    "emojiU": "U+1F1E6 U+1F1EC"
+  },
+  {
+    "name": "Equatorial Guinea",
+    "iso2": "GQ",
+    "numeric_code": "226",
+    "phonecode": "240",
+    "native": "Guinea Ecuatorial",
+    "translations": {
+      "fr": "Guinée équatoriale"
+    },
+    "latitude": "2.00000000",
+    "longitude": "10.00000000",
+    "emoji": "🇬🇶",
+    "emojiU": "U+1F1EC U+1F1F6"
+  },
+  {
+    "name": "Eritrea",
+    "iso2": "ER",
+    "numeric_code": "232",
+    "phonecode": "291",
+    "native": "ኤርትራ",
+    "translations": {
+      "fr": "Érythrée"
+    },
+    "latitude": "15.00000000",
+    "longitude": "39.00000000",
+    "emoji": "🇪🇷",
+    "emojiU": "U+1F1EA U+1F1F7"
+  },
+  {
+    "name": "Ethiopia",
+    "iso2": "ET",
+    "numeric_code": "231",
+    "phonecode": "251",
+    "native": "ኢትዮጵያ",
+    "translations": {
+      "fr": "Éthiopie"
+    },
+    "latitude": "8.00000000",
+    "longitude": "38.00000000",
+    "emoji": "🇪🇹",
+    "emojiU": "U+1F1EA U+1F1F9"
+  },
+  {
+    "name": "Gabon",
+    "iso2": "GA",
+    "numeric_code": "266",
+    "phonecode": "241",
+    "native": "Gabon",
+    "translations": {
+      "fr": "Gabon"
+    },
+    "latitude": "-1.00000000",
+    "longitude": "11.75000000",
+    "emoji": "🇬🇦",
+    "emojiU": "U+1F1EC U+1F1E6"
+  },
+  {
+    "name": "Gambia The",
+    "iso2": "GM",
+    "numeric_code": "270",
+    "phonecode": "220",
+    "native": "Gambia",
+    "translations": {
+      "fr": "Gambie"
+    },
+    "latitude": "13.46666666",
+    "longitude": "-16.56666666",
+    "emoji": "🇬🇲",
+    "emojiU": "U+1F1EC U+1F1F2"
+  },
+  {
+    "name": "Ghana",
+    "iso2": "GH",
+    "numeric_code": "288",
+    "phonecode": "233",
+    "native": "Ghana",
+    "translations": {
+      "fr": "Ghana"
+    },
+    "latitude": "8.00000000",
+    "longitude": "-2.00000000",
+    "emoji": "🇬🇭",
+    "emojiU": "U+1F1EC U+1F1ED"
+  },
+  {
+    "name": "Guinea",
+    "iso2": "GN",
+    "numeric_code": "324",
+    "phonecode": "224",
+    "native": "Guinée",
+    "translations": {
+      "fr": "Guinée"
+    },
+    "latitude": "11.00000000",
+    "longitude": "-10.00000000",
+    "emoji": "🇬🇳",
+    "emojiU": "U+1F1EC U+1F1F3"
+  },
+  {
+    "name": "Guinea-Bissau",
+    "iso2": "GW",
+    "numeric_code": "624",
+    "phonecode": "245",
+    "native": "Guiné-Bissau",
+    "translations": {
+      "fr": "Guinée-Bissau"
+    },
+    "latitude": "12.00000000",
+    "longitude": "-15.00000000",
+    "emoji": "🇬🇼",
+    "emojiU": "U+1F1EC U+1F1FC"
+  },
+  {
+    "name": "Kenya",
+    "iso2": "KE",
+    "numeric_code": "404",
+    "phonecode": "254",
+    "native": "Kenya",
+    "translations": {
+      "fr": "Kenya"
+    },
+    "latitude": "1.00000000",
+    "longitude": "38.00000000",
+    "emoji": "🇰🇪",
+    "emojiU": "U+1F1F0 U+1F1EA"
+  },
+  {
+    "name": "Lesotho",
+    "iso2": "LS",
+    "numeric_code": "426",
+    "phonecode": "266",
+    "native": "Lesotho",
+    "translations": {
+      "fr": "Lesotho"
+    },
+    "latitude": "-29.50000000",
+    "longitude": "28.50000000",
+    "emoji": "🇱🇸",
+    "emojiU": "U+1F1F1 U+1F1F8"
+  },
+  {
+    "name": "Liberia",
+    "iso2": "LR",
+    "numeric_code": "430",
+    "phonecode": "231",
+    "native": "Liberia",
+    "translations": {
+      "fr": "Liberia"
+    },
+    "latitude": "6.50000000",
+    "longitude": "-9.50000000",
+    "emoji": "🇱🇷",
+    "emojiU": "U+1F1F1 U+1F1F7"
+  },
+  {
+    "name": "Libya",
+    "iso2": "LY",
+    "numeric_code": "434",
+    "phonecode": "218",
+    "native": "‏ليبيا",
+    "translations": {
+      "fr": "Libye"
+    },
+    "latitude": "25.00000000",
+    "longitude": "17.00000000",
+    "emoji": "🇱🇾",
+    "emojiU": "U+1F1F1 U+1F1FE"
+  },
+  {
+    "name": "Madagascar",
+    "iso2": "MG",
+    "numeric_code": "450",
+    "phonecode": "261",
+    "native": "Madagasikara",
+    "translations": {
+      "fr": "Madagascar"
+    },
+    "latitude": "-20.00000000",
+    "longitude": "47.00000000",
+    "emoji": "🇲🇬",
+    "emojiU": "U+1F1F2 U+1F1EC"
+  },
+  {
+    "name": "Malawi",
+    "iso2": "MW",
+    "numeric_code": "454",
+    "phonecode": "265",
+    "native": "Malawi",
+    "translations": {
+      "fr": "Malawi"
+    },
+    "latitude": "-13.50000000",
+    "longitude": "34.00000000",
+    "emoji": "🇲🇼",
+    "emojiU": "U+1F1F2 U+1F1FC"
+  },
+  {
+    "name": "Mali",
+    "iso2": "ML",
+    "numeric_code": "466",
+    "phonecode": "223",
+    "native": "Mali",
+    "translations": {
+      "fr": "Mali"
+    },
+    "latitude": "17.00000000",
+    "longitude": "-4.00000000",
+    "emoji": "🇲🇱",
+    "emojiU": "U+1F1F2 U+1F1F1"
+  },
+  {
+    "name": "Mauritania",
+    "iso2": "MR",
+    "numeric_code": "478",
+    "phonecode": "222",
+    "native": "موريتانيا",
+    "translations": {
+      "fr": "Mauritanie"
+    },
+    "latitude": "20.00000000",
+    "longitude": "-12.00000000",
+    "emoji": "🇲🇷",
+    "emojiU": "U+1F1F2 U+1F1F7"
+  },
+  {
+    "name": "Mauritius",
+    "iso2": "MU",
+    "numeric_code": "480",
+    "phonecode": "230",
+    "native": "Maurice",
+    "translations": {
+      "fr": "Maurice"
+    },
+    "latitude": "-20.28333333",
+    "longitude": "57.55000000",
+    "emoji": "🇲🇺",
+    "emojiU": "U+1F1F2 U+1F1FA"
+  },
+  {
+    "name": "Morocco",
+    "iso2": "MA",
+    "numeric_code": "504",
+    "phonecode": "212",
+    "native": "المغرب",
+    "translations": {
+      "fr": "Maroc"
+    },
+    "latitude": "32.00000000",
+    "longitude": "-5.00000000",
+    "emoji": "🇲🇦",
+    "emojiU": "U+1F1F2 U+1F1E6"
+  },
+  {
+    "name": "Mozambique",
+    "iso2": "MZ",
+    "numeric_code": "508",
+    "phonecode": "258",
+    "native": "Moçambique",
+    "translations": {
+      "fr": "Mozambique"
+    },
+    "latitude": "-18.25000000",
+    "longitude": "35.00000000",
+    "emoji": "🇲🇿",
+    "emojiU": "U+1F1F2 U+1F1FF"
+  },
+  {
+    "name": "Namibia",
+    "iso2": "NA",
+    "numeric_code": "516",
+    "phonecode": "264",
+    "native": "Namibia",
+    "translations": {
+      "fr": "Namibie"
+    },
+    "latitude": "-22.00000000",
+    "longitude": "17.00000000",
+    "emoji": "🇳🇦",
+    "emojiU": "U+1F1F3 U+1F1E6"
+  },
+  {
+    "name": "Niger",
+    "iso2": "NE",
+    "numeric_code": "562",
+    "phonecode": "227",
+    "native": "Niger",
+    "translations": {
+      "fr": "Niger"
+    },
+    "latitude": "16.00000000",
+    "longitude": "8.00000000",
+    "emoji": "🇳🇪",
+    "emojiU": "U+1F1F3 U+1F1EA"
+  },
+  {
+    "name": "Nigeria",
+    "iso2": "NG",
+    "numeric_code": "566",
+    "phonecode": "234",
+    "native": "Nigeria",
+    "translations": {
+      "fr": "Nigéria"
+    },
+    "latitude": "10.00000000",
+    "longitude": "8.00000000",
+    "emoji": "🇳🇬",
+    "emojiU": "U+1F1F3 U+1F1EC"
+  },
+  {
+    "name": "Reunion",
+    "iso2": "RE",
+    "numeric_code": "638",
+    "phonecode": "262",
+    "native": "La Réunion",
+    "translations": {
+      "fr": "Réunion"
+    },
+    "latitude": "-21.15000000",
+    "longitude": "55.50000000",
+    "emoji": "🇷🇪",
+    "emojiU": "U+1F1F7 U+1F1EA"
+  },
+  {
+    "name": "Rwanda",
+    "iso2": "RW",
+    "numeric_code": "646",
+    "phonecode": "250",
+    "native": "Rwanda",
+    "translations": {
+      "fr": "Rwanda"
+    },
+    "latitude": "-2.00000000",
+    "longitude": "30.00000000",
+    "emoji": "🇷🇼",
+    "emojiU": "U+1F1F7 U+1F1FC"
+  },
+  {
+    "name": "Saint Helena",
+    "iso2": "SH",
+    "numeric_code": "654",
+    "phonecode": "290",
+    "native": "Saint Helena",
+    "translations": {
+      "fr": "Sainte-Hélène"
+    },
+    "latitude": "-15.95000000",
+    "longitude": "-5.70000000",
+    "emoji": "🇸🇭",
+    "emojiU": "U+1F1F8 U+1F1ED"
+  },
+  {
+    "name": "Sao Tome and Principe",
+    "iso2": "ST",
+    "numeric_code": "678",
+    "phonecode": "239",
+    "native": "São Tomé e Príncipe",
+    "translations": {
+      "fr": "Sao Tomé-et-Principe"
+    },
+    "latitude": "1.00000000",
+    "longitude": "7.00000000",
+    "emoji": "🇸🇹",
+    "emojiU": "U+1F1F8 U+1F1F9"
+  },
+  {
+    "name": "Senegal",
+    "iso2": "SN",
+    "numeric_code": "686",
+    "phonecode": "221",
+    "native": "Sénégal",
+    "translations": {
+      "fr": "Sénégal"
+    },
+    "latitude": "14.00000000",
+    "longitude": "-14.00000000",
+    "emoji": "🇸🇳",
+    "emojiU": "U+1F1F8 U+1F1F3"
+  },
+  {
+    "name": "Seychelles",
+    "iso2": "SC",
+    "numeric_code": "690",
+    "phonecode": "248",
+    "native": "Seychelles",
+    "translations": {
+      "fr": "Seychelles"
+    },
+    "latitude": "-4.58333333",
+    "longitude": "55.66666666",
+    "emoji": "🇸🇨",
+    "emojiU": "U+1F1F8 U+1F1E8"
+  },
+  {
+    "name": "Sierra Leone",
+    "iso2": "SL",
+    "numeric_code": "694",
+    "phonecode": "232",
+    "native": "Sierra Leone",
+    "translations": {
+      "fr": "Sierra Leone"
+    },
+    "latitude": "8.50000000",
+    "longitude": "-11.50000000",
+    "emoji": "🇸🇱",
+    "emojiU": "U+1F1F8 U+1F1F1"
+  },
+  {
+    "name": "Somalia",
+    "iso2": "SO",
+    "numeric_code": "706",
+    "phonecode": "252",
+    "native": "Soomaaliya",
+    "translations": {
+      "fr": "Somalie"
+    },
+    "latitude": "10.00000000",
+    "longitude": "49.00000000",
+    "emoji": "🇸🇴",
+    "emojiU": "U+1F1F8 U+1F1F4"
+  },
+  {
+    "name": "South Africa",
+    "iso2": "ZA",
+    "numeric_code": "710",
+    "phonecode": "27",
+    "native": "South Africa",
+    "translations": {
+      "fr": "Afrique du Sud"
+    },
+    "latitude": "-29.00000000",
+    "longitude": "24.00000000",
+    "emoji": "🇿🇦",
+    "emojiU": "U+1F1FF U+1F1E6"
+  },
+  {
+    "name": "South Sudan",
+    "iso2": "SS",
+    "numeric_code": "728",
+    "phonecode": "211",
+    "native": "South Sudan",
+    "translations": {
+      "fr": "Soudan du Sud"
+    },
+    "latitude": "7.00000000",
+    "longitude": "30.00000000",
+    "emoji": "🇸🇸",
+    "emojiU": "U+1F1F8 U+1F1F8"
+  },
+  {
+    "name": "Sudan",
+    "iso2": "SD",
+    "numeric_code": "729",
+    "phonecode": "249",
+    "native": "السودان",
+    "translations": {
+      "fr": "Soudan"
+    },
+    "latitude": "15.00000000",
+    "longitude": "30.00000000",
+    "emoji": "🇸🇩",
+    "emojiU": "U+1F1F8 U+1F1E9"
+  },
+  {
+    "name": "Swaziland",
+    "iso2": "SZ",
+    "numeric_code": "748",
+    "phonecode": "268",
+    "native": "Swaziland",
+    "translations": {
+      "fr": "Swaziland"
+    },
+    "latitude": "-26.50000000",
+    "longitude": "31.50000000",
+    "emoji": "🇸🇿",
+    "emojiU": "U+1F1F8 U+1F1FF"
+  },
+  {
+    "name": "Togo",
+    "iso2": "TG",
+    "numeric_code": "768",
+    "phonecode": "228",
+    "native": "Togo",
+    "translations": {
+      "fr": "Togo"
+    },
+    "latitude": "8.00000000",
+    "longitude": "1.16666666",
+    "emoji": "🇹🇬",
+    "emojiU": "U+1F1F9 U+1F1EC"
+  },
+  {
+    "name": "Tunisia",
+    "iso2": "TN",
+    "numeric_code": "788",
+    "phonecode": "216",
+    "native": "تونس",
+    "translations": {
+      "fr": "Tunisie"
+    },
+    "latitude": "34.00000000",
+    "longitude": "9.00000000",
+    "emoji": "🇹🇳",
+    "emojiU": "U+1F1F9 U+1F1F3"
+  },
+  {
+    "name": "Uganda",
+    "iso2": "UG",
+    "numeric_code": "800",
+    "phonecode": "256",
+    "native": "Uganda",
+    "translations": {
+      "fr": "Uganda"
+    },
+    "latitude": "1.00000000",
+    "longitude": "32.00000000",
+    "emoji": "🇺🇬",
+    "emojiU": "U+1F1FA U+1F1EC"
+  },
+  {
+    "name": "Western Sahara",
+    "iso2": "EH",
+    "numeric_code": "732",
+    "phonecode": "212",
+    "native": "الصحراء الغربية",
+    "translations": {
+      "fr": "Sahara Occidental"
+    },
+    "latitude": "24.50000000",
+    "longitude": "-13.00000000",
+    "emoji": "🇪🇭",
+    "emojiU": "U+1F1EA U+1F1ED"
+  },
+  {
+    "name": "Zambia",
+    "iso2": "ZM",
+    "numeric_code": "894",
+    "phonecode": "260",
+    "native": "Zambia",
+    "translations": {
+      "fr": "Zambie"
+    },
+    "latitude": "-15.00000000",
+    "longitude": "30.00000000",
+    "emoji": "🇿🇲",
+    "emojiU": "U+1F1FF U+1F1F2"
+  },
+  {
+    "name": "Zimbabwe",
+    "iso2": "ZW",
+    "numeric_code": "716",
+    "phonecode": "263",
+    "native": "Zimbabwe",
+    "translations": {
+      "fr": "Zimbabwe"
+    },
+    "latitude": "-20.00000000",
+    "longitude": "30.00000000",
+    "emoji": "🇿🇼",
+    "emojiU": "U+1F1FF U+1F1FC"
+  }
+]
