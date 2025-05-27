@@ -21,16 +21,19 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AuthGuard, Abilities } from '../../../shared';
-import { PermissionActionEnum, PermissionSubjectEnum } from '../../../shared';
-import { ExceptionResponseDto } from '../../../shared/dtos';
+import {
+  AuthGuard,
+  Abilities,
+  PermissionActionEnum,
+  PermissionSubjectEnum,
+} from '@africa-cdc/shared';
+import { ExceptionResponseDto } from '@africa-cdc/shared/dtos';
 import { InvitationService } from '../services';
 import {
   InvitationCreateRequestDto,
   InvitationUpdateRequestDto,
-  InvitationResponseDto,
 } from '../dtos';
-import { Invitation } from '../../../database/entities';
+import { Invitation } from '@africa-cdc/database/entities';
 
 @ApiBearerAuth()
 @ApiTags('Invitations')
@@ -52,7 +55,7 @@ import { Invitation } from '../../../database/entities';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('invitations')
+@Controller('assessments/:assessmentId/invitations')
 export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
 
@@ -60,7 +63,7 @@ export class InvitationController {
     summary: 'Create a new invitation',
     description: 'Send an invitation to a user to join an assessment group',
   })
-  @ApiOkResponse({ description: 'Ok', type: InvitationResponseDto })
+  @ApiOkResponse({ description: 'Created', type: Invitation })
   @HttpCode(201)
   @Abilities({
     isAdmin: true,
@@ -71,18 +74,20 @@ export class InvitationController {
       },
     ],
   })
-  @Post()
+  @Post(':groupId')
   async create(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('groupId', new ParseUUIDPipe()) groupId: string,
     @Body() payload: InvitationCreateRequestDto,
   ): Promise<Invitation> {
-    return this.invitationService.create(payload);
+    return this.invitationService.create(assessmentId, groupId, payload);
   }
 
   @ApiOperation({
-    summary: 'Get invitations by assessment ID',
+    summary: 'Get all invitations for an assessment',
     description: 'Retrieve all invitations for a specific assessment',
   })
-  @ApiOkResponse({ description: 'Ok', type: [InvitationResponseDto] })
+  @ApiOkResponse({ description: 'Ok', type: [Invitation] })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -94,18 +99,18 @@ export class InvitationController {
       },
     ],
   })
-  @Get('assessment/:assessmentId')
-  async findByAssessmentId(
+  @Get()
+  async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
   ): Promise<Invitation[]> {
-    return this.invitationService.findByAssessmentId(assessmentId);
+    return this.invitationService.findAll(assessmentId);
   }
 
   @ApiOperation({
     summary: 'Update an invitation',
     description: 'Update the status of an invitation by ID',
   })
-  @ApiOkResponse({ description: 'Ok', type: InvitationResponseDto })
+  @ApiOkResponse({ description: 'Ok', type: Invitation })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -119,9 +124,10 @@ export class InvitationController {
   })
   @Put(':id')
   async update(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: InvitationUpdateRequestDto,
   ): Promise<Invitation> {
-    return this.invitationService.update({ id }, payload);
+    return this.invitationService.update(id, payload);
   }
 }
