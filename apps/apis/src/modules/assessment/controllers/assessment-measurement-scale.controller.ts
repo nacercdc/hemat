@@ -20,13 +20,13 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AssessmentMeasurementScale } from '../../../database/entities';
-import { AuthGuard, Abilities } from '../../../shared/modules';
+import { AssessmentMeasurementScale } from '@africa-cdc/database/entities';
+import { AuthGuard, Abilities } from '@africa-cdc/shared/modules';
 import {
   PermissionActionEnum,
   PermissionSubjectEnum,
-} from '../../../shared/enums';
-import { ExceptionResponseDto } from '../../../shared/dtos';
+} from '@africa-cdc/shared/enums';
+import { ExceptionResponseDto } from '@africa-cdc/shared/dtos';
 import { AssessmentMeasurementScaleService } from '../services';
 import { AssessmentMeasurementScaleDto } from '../dtos';
 
@@ -50,7 +50,7 @@ import { AssessmentMeasurementScaleDto } from '../dtos';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller()
+@Controller('sub-components/:subComponentId/measurement-scales')
 export class AssessmentMeasurementScaleController {
   constructor(
     private readonly assessmentMeasurementScaleService: AssessmentMeasurementScaleService,
@@ -59,7 +59,7 @@ export class AssessmentMeasurementScaleController {
   @ApiOperation({
     summary: 'Get all measurement scales for a sub-component',
     description:
-      'Retrieve all measurement scales associated with a sub-component',
+      'Retrieve all measurement scales associated with a specific sub-component',
   })
   @ApiOkResponse({ description: 'Ok', type: [AssessmentMeasurementScale] })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -73,26 +73,45 @@ export class AssessmentMeasurementScaleController {
       },
     ],
   })
-  @Get('sub-components/:subComponentId/measurement-scales')
-  async findMeasurementScalesBySubComponent(
+  @Get()
+  async findAll(
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
-  ) {
-    return this.assessmentMeasurementScaleService.findAllBySubComponent(
-      subComponentId,
-    );
+  ): Promise<AssessmentMeasurementScale[]> {
+    return this.assessmentMeasurementScaleService.findAll(subComponentId);
+  }
+
+  @ApiOperation({
+    summary: 'Get a single measurement scale',
+    description:
+      'Retrieve a single measurement scale by ID for a specific sub-component',
+  })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentMeasurementScale })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Get(':id')
+  async findOne(
+    @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<AssessmentMeasurementScale> {
+    return this.assessmentMeasurementScaleService.findOne(subComponentId, id);
   }
 
   @ApiOperation({
     summary: 'Update an assessment measurement scale',
     description:
-      'Update an assessment measurement scale by ID for a sub-component',
+      'Update an assessment measurement scale by ID for a specific sub-component',
   })
   @ApiOkResponse({ description: 'Ok', type: AssessmentMeasurementScale })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @ApiBadRequestResponse({
-    description: 'Bad Request',
-    type: ExceptionResponseDto,
-  })
   @HttpCode(200)
   @Abilities({
     isAdmin: true,
@@ -103,15 +122,15 @@ export class AssessmentMeasurementScaleController {
       },
     ],
   })
-  @Put('sub-components/:subComponentId/measurement-scales/:id')
-  async updateMeasurementScale(
-    @Param('id', new ParseUUIDPipe()) id: string,
+  @Put(':id')
+  async update(
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: AssessmentMeasurementScaleDto,
-  ) {
+  ): Promise<AssessmentMeasurementScale> {
     return this.assessmentMeasurementScaleService.update(
-      id,
       subComponentId,
+      id,
       payload,
     );
   }

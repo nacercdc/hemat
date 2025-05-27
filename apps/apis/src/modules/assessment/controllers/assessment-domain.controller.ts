@@ -20,13 +20,13 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AssessmentDomain } from '../../../database/entities';
-import { AuthGuard, Abilities } from '../../../shared/modules';
+import { AssessmentDomain } from '@africa-cdc/database/entities';
+import { AuthGuard, Abilities } from '@africa-cdc/shared/modules';
 import {
   PermissionActionEnum,
   PermissionSubjectEnum,
-} from '../../../shared/enums';
-import { ExceptionResponseDto } from '../../../shared/dtos';
+} from '@africa-cdc/shared/enums';
+import { ExceptionResponseDto } from '@africa-cdc/shared/dtos';
 import { AssessmentDomainService } from '../services';
 import { AssessmentDomainDto } from '../dtos';
 
@@ -50,7 +50,7 @@ import { AssessmentDomainDto } from '../dtos';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller()
+@Controller('assessments/:assessmentId/domains')
 export class AssessmentDomainController {
   constructor(
     private readonly assessmentDomainService: AssessmentDomainService,
@@ -58,9 +58,10 @@ export class AssessmentDomainController {
 
   @ApiOperation({
     summary: 'Get all assessment domains',
-    description: 'Retrieve all domains for an assessment',
+    description: 'Retrieve all domains for a specific assessment',
   })
   @ApiOkResponse({ description: 'Ok', type: [AssessmentDomain] })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
     isAdmin: true,
@@ -71,11 +72,35 @@ export class AssessmentDomainController {
       },
     ],
   })
-  @Get('assessments/:assessmentId/domains')
-  async findDomains(
+  @Get()
+  async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-  ) {
+  ): Promise<AssessmentDomain[]> {
     return this.assessmentDomainService.findAll(assessmentId);
+  }
+
+  @ApiOperation({
+    summary: 'Get one assessment domain',
+    description: 'Retrieve a specific domain for an assessment',
+  })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentDomain })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Get(':id')
+  async findOne(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<AssessmentDomain> {
+    return this.assessmentDomainService.findOne(assessmentId, id);
   }
 
   @ApiOperation({
@@ -94,12 +119,12 @@ export class AssessmentDomainController {
       },
     ],
   })
-  @Put('assessments/:assessmentId/domains/:id')
-  async updateDomain(
+  @Put(':id')
+  async update(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: AssessmentDomainDto,
-  ) {
+  ): Promise<AssessmentDomain> {
     return this.assessmentDomainService.update(assessmentId, id, payload);
   }
 }

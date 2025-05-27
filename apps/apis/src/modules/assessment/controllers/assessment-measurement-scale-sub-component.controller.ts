@@ -50,7 +50,7 @@ import { AssessmentMeasurementScaleSubComponentDto } from '../dtos';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller()
+@Controller('assessments/:assessmentId/measurement-scale')
 export class AssessmentMeasurementScaleSubComponentController {
   constructor(
     private readonly assessmentMeasurementScaleSubComponentService: AssessmentMeasurementScaleSubComponentService,
@@ -59,12 +59,13 @@ export class AssessmentMeasurementScaleSubComponentController {
   @ApiOperation({
     summary: 'Get all assessment measurement scale sub-components',
     description:
-      'Retrieve all measurement scale sub-components for an assessment',
+      'Retrieve all measurement scale sub-components for a specific assessment',
   })
   @ApiOkResponse({
     description: 'Ok',
     type: [AssessmentMeasurementScaleSubComponent],
   })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
     isAdmin: true,
@@ -75,18 +76,50 @@ export class AssessmentMeasurementScaleSubComponentController {
       },
     ],
   })
-  @Get('assessments/:assessmentId/measurement-scale-sub-components')
-  async findMeasurementScaleSubComponents(
+  @Get()
+  async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-  ) {
+  ): Promise<AssessmentMeasurementScaleSubComponent[]> {
     return this.assessmentMeasurementScaleSubComponentService.findAll(
       assessmentId,
     );
   }
 
   @ApiOperation({
+    summary: 'Get one assessment measurement scale sub-component',
+    description:
+      'Retrieve one measurement scale sub-component for a specific assessment',
+  })
+  @ApiOkResponse({
+    description: 'Ok',
+    type: AssessmentMeasurementScaleSubComponent,
+  })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Get(':id')
+  async findOne(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<AssessmentMeasurementScaleSubComponent> {
+    return this.assessmentMeasurementScaleSubComponentService.findOne(
+      assessmentId,
+      id,
+    );
+  }
+
+  @ApiOperation({
     summary: 'Update an assessment measurement scale sub-component',
-    description: 'Update an assessment measurement scale sub-component by ID',
+    description:
+      'Update an assessment measurement scale sub-component by ID for a specific assessment',
   })
   @ApiOkResponse({
     description: 'Ok',
@@ -103,12 +136,14 @@ export class AssessmentMeasurementScaleSubComponentController {
       },
     ],
   })
-  @Put('assessments/:assessmentId/measurement-scale-sub-components/:id')
-  async updateMeasurementScaleSubComponent(
+  @Put(':id')
+  async update(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: AssessmentMeasurementScaleSubComponentDto,
-  ) {
+  ): Promise<AssessmentMeasurementScaleSubComponent> {
     return this.assessmentMeasurementScaleSubComponentService.update(
+      assessmentId,
       id,
       payload,
     );

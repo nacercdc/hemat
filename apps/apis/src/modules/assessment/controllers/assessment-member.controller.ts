@@ -55,7 +55,7 @@ import { AssessmentMember } from '../../../database/entities';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('assessments/:assessmentId/assessment-groups/:groupId/members')
+@Controller('assessments/:assessmentId/groups/:groupId/members')
 export class AssessmentMemberController {
   constructor(
     private readonly assessmentMemberService: AssessmentMemberService,
@@ -102,12 +102,12 @@ export class AssessmentMemberController {
     ],
   })
   @Get(':id')
-  async findById(
+  async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('groupId', new ParseUUIDPipe()) groupId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<AssessmentMember> {
-    return this.assessmentMemberService.findById(assessmentId, groupId, id);
+    return this.assessmentMemberService.findOne(assessmentId, groupId, id);
   }
 
   @ApiOperation({
@@ -131,7 +131,7 @@ export class AssessmentMemberController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('groupId', new ParseUUIDPipe()) groupId: string,
   ): Promise<AssessmentMember[]> {
-    return this.assessmentMemberService.findByGroupId(assessmentId, groupId);
+    return this.assessmentMemberService.findAll(assessmentId, groupId);
   }
 
   @ApiOperation({

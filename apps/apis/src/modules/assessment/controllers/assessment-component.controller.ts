@@ -20,13 +20,13 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AssessmentComponent } from '../../../database/entities';
-import { AuthGuard, Abilities } from '../../../shared/modules';
+import { AssessmentComponent } from '@africa-cdc/database/entities';
+import { AuthGuard, Abilities } from '@africa-cdc/shared/modules';
 import {
   PermissionActionEnum,
   PermissionSubjectEnum,
-} from '../../../shared/enums';
-import { ExceptionResponseDto } from '../../../shared/dtos';
+} from '@africa-cdc/shared/enums';
+import { ExceptionResponseDto } from '@africa-cdc/shared/dtos';
 import { AssessmentComponentService } from '../services';
 import { AssessmentComponentDto } from '../dtos';
 
@@ -50,7 +50,7 @@ import { AssessmentComponentDto } from '../dtos';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller()
+@Controller('assessments/:assessmentId/components')
 export class AssessmentComponentController {
   constructor(
     private readonly assessmentComponentService: AssessmentComponentService,
@@ -58,9 +58,10 @@ export class AssessmentComponentController {
 
   @ApiOperation({
     summary: 'Get all assessment components',
-    description: 'Retrieve all components for an assessment',
+    description: 'Retrieve all components for a specific assessment',
   })
   @ApiOkResponse({ description: 'Ok', type: [AssessmentComponent] })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
     isAdmin: true,
@@ -71,11 +72,35 @@ export class AssessmentComponentController {
       },
     ],
   })
-  @Get('assessments/:assessmentId/components')
-  async findComponents(
+  @Get()
+  async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-  ) {
+  ): Promise<AssessmentComponent[]> {
     return this.assessmentComponentService.findAll(assessmentId);
+  }
+
+  @ApiOperation({
+    summary: 'Get a single assessment component',
+    description: 'Retrieve a specific component by ID',
+  })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentComponent })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Get(':id')
+  async findOne(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<AssessmentComponent> {
+    return this.assessmentComponentService.findOne(assessmentId, id);
   }
 
   @ApiOperation({
@@ -94,12 +119,12 @@ export class AssessmentComponentController {
       },
     ],
   })
-  @Put('assessments/:assessmentId/components/:id')
-  async updateComponent(
+  @Put(':id')
+  async update(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: AssessmentComponentDto,
-  ) {
+  ): Promise<AssessmentComponent> {
     return this.assessmentComponentService.update(assessmentId, id, payload);
   }
 }
