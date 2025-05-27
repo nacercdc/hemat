@@ -99,4 +99,17 @@ export class UserController {
   ): Promise<SuccessResponseDto> {
     return this.userService.changePassword(req.user, payload);
   }
+
+  @ApiOperation({ summary: 'Get user information' })
+  @ApiOkResponse({ type: AccountResponseDto })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse()
+  @ApiBadRequestResponse()
+  @UseGuards(AuthGuard)
+  @Get('users')
+  async findAllUsers(
+    @Request() req: { user: AuthDto },
+  ): Promise<AccountResponseDto[]> {
+    return this.userService.findAllUsers();
+  }
 }
