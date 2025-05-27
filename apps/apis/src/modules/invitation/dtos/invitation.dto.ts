@@ -34,26 +34,6 @@ export class InvitationCreateRequestDto {
   email: string;
 
   @ApiProperty({
-    description: 'ID of the associated assessment',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.assessmentId.isNotEmpty' })
-  @IsUUID('4', { message: 'validation.assessmentId.isUUID' })
-  @Type(() => String)
-  assessmentId: string;
-
-  @ApiProperty({
-    description: 'ID of the associated group',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.groupId.isNotEmpty' })
-  @IsUUID('4', { message: 'validation.groupId.isUUID' })
-  @Type(() => String)
-  groupId: string;
-
-  @ApiProperty({
     description: 'Role assigned to the invitee',
     enum: MemberRole,
     example: MemberRole.PRIMARY,
