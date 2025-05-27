@@ -80,6 +80,6 @@ import { AuthModule } from '../../shared';
     AssessmentGroupService,
     AssessmentMemberService,
   ],
-  exports: [AssessmentService],
+  exports: [AssessmentService, AssessmentMemberService],
 })
 export class AssessmentModule {}

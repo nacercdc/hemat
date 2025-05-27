@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1748351109563 implements MigrationInterface {
-    name = 'Migration1748351109563'
+export class Migration1748369198647 implements MigrationInterface {
+    name = 'Migration1748369198647'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "domains" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "code" character varying NOT NULL, "name" character varying NOT NULL, "description" character varying NOT NULL, "isActive" boolean NOT NULL DEFAULT true, CONSTRAINT "UQ_c1eacbd811cc699e0854b4090e1" UNIQUE ("code"), CONSTRAINT "PK_05a6b087662191c2ea7f7ddfc4d" PRIMARY KEY ("id"))`);
@@ -36,7 +36,7 @@ export class Migration1748351109563 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE "invitations" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "name" character varying NOT NULL, "email" character varying NOT NULL, "assessmentId" uuid NOT NULL, "groupId" uuid NOT NULL, "role" character varying NOT NULL, "token" character varying NOT NULL, "status" character varying NOT NULL DEFAULT 'pending', CONSTRAINT "PK_5dec98cfdfd562e4ad3648bbb07" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_ddc98f91c59170ffe68dbf30aa" ON "invitations" ("assessmentId") `);
         await queryRunner.query(`CREATE INDEX "IDX_a704d320fc52f862c40d7787d6" ON "invitations" ("groupId") `);
-        await queryRunner.query(`CREATE TABLE "assessment_groups" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "name" character varying NOT NULL, "assessmentId" uuid NOT NULL, CONSTRAINT "PK_e5108a6097d428f822bc5831081" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "assessment_groups" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "name" character varying NOT NULL, "assessmentId" uuid NOT NULL, CONSTRAINT "UQ_1d1a105947562220ab492f7cad0" UNIQUE ("name", "assessmentId"), CONSTRAINT "PK_e5108a6097d428f822bc5831081" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_414306d733ded348bd081b21ca" ON "assessment_groups" ("assessmentId") `);
         await queryRunner.query(`CREATE TABLE "reports" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "assessmentId" uuid NOT NULL, "assessmentGroupId" uuid, "userId" uuid NOT NULL, "content" text NOT NULL, "isFinal" boolean NOT NULL DEFAULT false, "domainId" uuid, CONSTRAINT "REL_bed415cd29716cd707e9cb3c09" UNIQUE ("userId"), CONSTRAINT "PK_d9013193989303580053c0b5ef6" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_b72d04036ac3d9b543e2bd9f8c" ON "reports" ("assessmentGroupId") `);
