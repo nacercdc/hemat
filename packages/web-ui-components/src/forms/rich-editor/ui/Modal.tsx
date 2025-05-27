@@ -2,8 +2,6 @@
 
 import type { JSX, ReactNode } from "react";
 
-import "./Modal.css";
-
 import { isDOMNode } from "lexical";
 import * as React from "react";
 import { useEffect, useRef } from "react";
@@ -65,18 +63,27 @@ function PortalImpl({
   }, [closeOnClickOutside, onClose]);
 
   return (
-    <div className="Modal__overlay" role="dialog">
-      <div className="Modal__modal" tabIndex={-1} ref={modalRef}>
-        <h2 className="Modal__title">{title}</h2>
+    <div
+      className="flex justify-center items-center fixed flex-col inset-0 bg-[rgba(40,40,40,0.6)] flex-grow-0 flex-shrink z-[100]"
+      role="dialog"
+    >
+      <div
+        className="p-5 min-h-[100px] min-w-[300px] flex flex-grow-0 bg-white flex-col relative shadow-[0_0_20px_0_#444] rounded-[10px]"
+        tabIndex={-1}
+        ref={modalRef}
+      >
+        <h2 className="text-[#444] m-0 pb-[10px] border-b border-gray-300">
+          {title}
+        </h2>
         <button
-          className="Modal__closeButton"
+          className="border-0 absolute right-5 rounded-[20px] flex justify-center items-center w-[30px] h-[30px] text-center cursor-pointer bg-gray-200 hover:bg-gray-300"
           aria-label="Close modal"
           type="button"
           onClick={onClose}
         >
           X
         </button>
-        <div className="Modal__content">{children}</div>
+        <div className="pt-5">{children}</div>
       </div>
     </div>
   );

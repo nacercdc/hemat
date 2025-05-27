@@ -22,7 +22,7 @@ import { ToolbarContext } from "./context/ToolbarContext";
 import { useSharedHistoryContext } from "./context/SharedHistoryContext";
 import { theme as EditorTheme } from "./themes/EditorTheme";
 
-import "./styles.css";
+import "./themes/editorGlobals.css";
 
 import dynamic from "next/dynamic";
 const ImagesPlugin = dynamic(() => import("./plugins/ImagesPlugin"), {

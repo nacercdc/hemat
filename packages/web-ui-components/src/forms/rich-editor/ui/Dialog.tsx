@@ -2,8 +2,6 @@
 
 import type { JSX } from "react";
 
-import "./Dialog.css";
-
 import * as React from "react";
 import type { ReactNode } from "react";
 
@@ -13,7 +11,7 @@ type Props = Readonly<{
 }>;
 
 export function DialogButtonsList({ children }: Props): JSX.Element {
-  return <div className="DialogButtonsList">{children}</div>;
+  return <div className="flex flex-col justify-end mt-5 gap-2">{children}</div>;
 }
 
 export function DialogActions({
@@ -21,7 +19,7 @@ export function DialogActions({
   children,
 }: Props): JSX.Element {
   return (
-    <div className="DialogActions" data-test-id={dataTestId}>
+    <div className="flex flex-row justify-end mt-5" data-test-id={dataTestId}>
       {children}
     </div>
   );
