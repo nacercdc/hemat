@@ -28,18 +28,4 @@ export class GroupResponseDto {
     type: () => [AssessmentMember],
   })
   members: AssessmentMember[] | null;
-
-  @ApiProperty({
-    description: 'Creation timestamp',
-    example: '2025-05-26T15:42:00.000Z',
-    type: String,
-  })
-  createdAt: Date;
-
-  @ApiProperty({
-    description: 'Update timestamp',
-    example: '2025-05-26T15:42:00.000Z',
-    type: String,
-  })
-  updatedAt: Date;
 }

@@ -1,5 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Length, IsUUID } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsNotEmpty,
+  IsString,
+  Length,
+  IsUUID,
+  IsOptional,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class GroupCreateRequestDto {
@@ -23,4 +29,17 @@ export class GroupCreateRequestDto {
   @IsUUID('4', { message: 'validation.assessmentId.isUUID' })
   @Type(() => String)
   assessmentId: string;
+}
+
+export class GroupUpdateRequestDto {
+  @ApiPropertyOptional({
+    description: 'Name of the assessment group',
+    example: 'Ethiopia Group 1 Updated',
+    type: String,
+  })
+  @IsOptional()
+  @IsString({ message: 'validation.name.isString' })
+  @Length(1, 100, { message: 'validation.name.length args: min:1 | max:100' })
+  @Type(() => String)
+  name?: string;
 }
