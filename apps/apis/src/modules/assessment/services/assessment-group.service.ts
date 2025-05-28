@@ -29,34 +29,33 @@ export class AssessmentGroupService {
     payload: AssessmentGroupRequestDto,
   ): Promise<AssessmentGroup> {
     try {
-      const assessment = await this.assessmentRepository.findOne({
+      const assessment = await this.assessmentRepository.exists({
         where: { id: assessmentId },
       });
+
       if (!assessment) {
         throw new NotFoundException('Assessment not found');
       }
 
-      const existingGroup = await this.groupRepository.findOne({
+      const existingGroup = await this.groupRepository.exists({
         where: {
           name: payload.name,
           assessmentId,
         },
-        relations: ['members'],
       });
+
       if (existingGroup) {
         throw new BadRequestException(
           'Assessment group with this name already exists in the assessment',
         );
       }
 
-      const group = await this.dataSource.transaction(async (manager) => {
-        const newGroup = manager.create(AssessmentGroup, {
-          name: payload.name,
-          assessmentId,
-        });
-        return manager.save(AssessmentGroup, newGroup);
+      const group = this.groupRepository.create({
+        name: payload.name,
+        assessmentId,
       });
 
+      await this.groupRepository.insert(group);
       return group;
     } catch (err) {
       this.logger.error(
@@ -69,17 +68,10 @@ export class AssessmentGroupService {
 
   async findOne(assessmentId: string, id: string): Promise<AssessmentGroup> {
     try {
-      const assessment = await this.assessmentRepository.findOne({
-        where: { id: assessmentId },
-      });
-      if (!assessment) {
-        throw new NotFoundException('Assessment not found');
-      }
-
       const group = await this.groupRepository.findOne({
         where: { id, assessmentId },
-        relations: ['members', 'invitations'],
       });
+
       if (!group) {
         throw new NotFoundException('Assessment group not found');
       }
@@ -96,16 +88,8 @@ export class AssessmentGroupService {
 
   async findAll(assessmentId: string): Promise<AssessmentGroup[]> {
     try {
-      const assessment = await this.assessmentRepository.findOne({
-        where: { id: assessmentId },
-      });
-      if (!assessment) {
-        throw new NotFoundException('Assessment not found');
-      }
-
       return this.groupRepository.find({
         where: { assessmentId },
-        relations: ['members', 'invitations'],
       });
     } catch (err) {
       this.logger.error(
@@ -124,33 +108,30 @@ export class AssessmentGroupService {
     try {
       const group = await this.groupRepository.findOne({
         where: { id, assessmentId },
-        relations: ['members', 'invitations'],
       });
+
       if (!group) {
         throw new NotFoundException('Assessment group not found');
       }
 
-      if (payload.name) {
-        const existingGroup = await this.groupRepository.findOne({
-          where: {
-            name: payload.name,
-            assessmentId,
-            id: Not(id),
-          },
-          relations: ['members'],
-        });
-        if (existingGroup) {
-          throw new BadRequestException(
-            'Assessment group with this name already exists in the assessment',
-          );
-        }
-      }
-
-      Object.assign(group, {
-        name: payload.name ?? group.name,
+      const groupNameExists = await this.groupRepository.exists({
+        where: {
+          name: payload.name,
+          assessmentId,
+          id: Not(id),
+        },
       });
 
-      return await this.groupRepository.save(group);
+      if (groupNameExists) {
+        throw new BadRequestException(
+          'Assessment group with this name already exists in the assessment',
+        );
+      }
+
+      const entity = { name: payload.name };
+      await this.groupRepository.update({ id, assessmentId }, entity);
+
+      return { ...group, ...entity };
     } catch (err) {
       this.logger.error(
         `Failed to update assessment group: ${err.message}`,
@@ -164,7 +145,6 @@ export class AssessmentGroupService {
     try {
       const group = await this.groupRepository.findOne({
         where: { id, assessmentId },
-        relations: ['members', 'invitations'],
       });
       if (!group) {
         throw new NotFoundException('Assessment group not found');
