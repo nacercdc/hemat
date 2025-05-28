@@ -6,10 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import {
-  AssessmentMeasurementScaleSubComponent,
-  AssessmentSubComponent,
-} from '@africa-cdc/database/entities';
+import { AssessmentMeasurementScaleSubComponent } from '@africa-cdc/database/entities';
 import { AssessmentMeasurementScaleSubComponentDto } from '../dtos';
 
 @Injectable()
@@ -21,31 +18,25 @@ export class AssessmentMeasurementScaleSubComponentService {
   constructor(
     @InjectRepository(AssessmentMeasurementScaleSubComponent)
     private readonly assessmentMeasurementScaleSubComponentRepository: Repository<AssessmentMeasurementScaleSubComponent>,
-    @InjectRepository(AssessmentSubComponent)
-    private readonly assessmentSubComponentRepository: Repository<AssessmentSubComponent>,
   ) {}
 
   async findAll(
-    assessmentId: string,
+    subComponentId: string,
   ): Promise<AssessmentMeasurementScaleSubComponent[]> {
-    const subComponents = await this.assessmentSubComponentRepository.find({
-      where: { assessmentId },
-    });
-    const subComponentIds = subComponents.map((sc) => sc.id);
     return this.assessmentMeasurementScaleSubComponentRepository.find({
-      where: { subComponentId: In(subComponentIds) },
-      relations: ['measurementScale'],
+      relations: { measurementScale: true },
+      where: { subComponentId },
     });
   }
 
   async findOne(
-    assessmentId: string,
-    id: string,
+    subComponentId: string,
+    measurementScaleId: string,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
     const measurementScaleSubComponent =
       await this.assessmentMeasurementScaleSubComponentRepository.findOne({
-        where: { id },
-        relations: ['measurementScale'],
+        relations: { measurementScale: true },
+        where: { subComponentId, measurementScaleId },
       });
     if (!measurementScaleSubComponent) {
       throw new NotFoundException(
@@ -56,18 +47,21 @@ export class AssessmentMeasurementScaleSubComponentService {
   }
 
   async update(
-    assessmentId: string,
-    id: string,
+    subComponentId: string,
+    measurementScaleId: string,
     payload: AssessmentMeasurementScaleSubComponentDto,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
-    const measurementScaleSubComponent = await this.findOne(assessmentId, id);
+    const measurementScaleSubComponent = await this.findOne(
+      subComponentId,
+      measurementScaleId,
+    );
     try {
       const entity = {
         description: payload.description,
         translations: payload.translations,
       };
       await this.assessmentMeasurementScaleSubComponentRepository.update(
-        { id },
+        { subComponentId, measurementScaleId },
         entity,
       );
 
