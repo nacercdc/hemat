@@ -74,13 +74,12 @@ export class InvitationController {
       },
     ],
   })
-  @Post(':groupId')
+  @Post()
   async create(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('groupId', new ParseUUIDPipe()) groupId: string,
     @Body() payload: InvitationCreateRequestDto,
   ): Promise<Invitation> {
-    return this.invitationService.create(assessmentId, groupId, payload);
+    return this.invitationService.create(assessmentId, payload);
   }
 
   @ApiOperation({
@@ -107,27 +106,35 @@ export class InvitationController {
   }
 
   @ApiOperation({
-    summary: 'Update an invitation',
-    description: 'Update the status of an invitation by ID',
+    summary: 'Accept an invitation',
+    description: 'Accept an invitation using email and token',
   })
-  @ApiOkResponse({ description: 'Ok', type: Invitation })
-  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.UPDATE,
-        subject: PermissionSubjectEnum.ASSESSMENT,
+  @ApiOkResponse({
+    description: 'Ok',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        message: { type: 'string' },
+        nextStep: { type: 'string', nullable: true },
+        registerUrl: { type: 'string', nullable: true },
       },
-    ],
+    },
   })
-  @Put(':id')
-  async update(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() payload: InvitationUpdateRequestDto,
-  ): Promise<Invitation> {
-    return this.invitationService.update(id, payload);
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(200)
+  @Post('accept')
+  async accept(@Body() payload: InvitationUpdateRequestDto): Promise<{
+    success: boolean;
+    message: string;
+    nextStep?: string;
+    registerUrl?: string;
+  }> {
+    return this.invitationService.accept(payload);
   }
 }
+
