@@ -20,3 +20,4 @@ export {
   CheckboxRHF,
 } from "./checkbox";
 export * from "./filter";
+export * from "./color-picker";
