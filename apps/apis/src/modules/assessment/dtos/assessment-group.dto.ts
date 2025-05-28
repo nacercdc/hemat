@@ -20,9 +20,9 @@ export class AssessmentGroupUpdateRequestDto {
     example: 'Health Team Updated',
     type: String,
   })
-  @IsOptional()
   @IsString()
   @Length(1, 100)
+  @IsNotEmpty()
   @Type(() => String)
   name: string;
 }
