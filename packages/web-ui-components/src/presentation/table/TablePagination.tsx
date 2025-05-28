@@ -33,9 +33,11 @@ export function TablePagination<TData>({
   pageSizeOptions = [10, 20, 30, 50, 100],
 }: ManualPaginationProps<TData>) {
   const currentPage = table.getState().pagination.pageIndex + 1;
-  const pageSize = totalItems < 5 
-  ? 5 
-  : (pageSizeOptions.find(size => size <= totalItems) || table.getState().pagination.pageSize);
+  const pageSize =
+    totalItems < 5
+      ? 5
+      : pageSizeOptions.find((size) => size <= totalItems) ||
+        table.getState().pagination.pageSize;
   const totalPages = Math.ceil(totalItems / pageSize);
 
   const handlePageChange = (newPage: number) => {
@@ -96,17 +98,18 @@ export function TablePagination<TData>({
               disabled={currentPage <= 1 || disabled}
               onClick={() => handlePageChange(currentPage - 1)}
             >
-              <span className="text-sm font-bold">
-            Prev
-            </span>
+              <span className="text-sm font-bold">Prev</span>
             </Button>
           </PaginationItem>
 
           {getPageNumbers().map((page, index) => {
             if (page === "ellipsis-left" || page === "ellipsis-right") {
               return (
-                <PaginationItem key={`${page}-${index}`} className="px-0 mx-0  w-fit">
-                  <PaginationEllipsis className="px-0 mx-0 items-end w-fit"/>
+                <PaginationItem
+                  key={`${page}-${index}`}
+                  className="px-0 mx-0  w-fit"
+                >
+                  <PaginationEllipsis className="px-0 mx-0 items-end w-fit" />
                 </PaginationItem>
               );
             }
@@ -114,18 +117,15 @@ export function TablePagination<TData>({
             return (
               <PaginationItem key={page}>
                 <Button
-                  variant={page === currentPage ? "secondary" : "outline"}
+                  variant={page === currentPage ? "default" : "outline"}
                   disabled={disabled}
                   onClick={() => handlePageChange(page as number)}
-                  className={cn("h-6 w-6 rounded-[2px] p-0 ",{
+                  className={cn("h-6 w-6 rounded-[2px] p-0 ", {
                     "bg-card": page !== currentPage,
-                    "text-bold text-card": page === currentPage,
+                    "bg-primary text-bold text-card": page === currentPage,
                   })}
                 >
-                    <span className="text-xs p-0">
-                  {page}
-            
-            </span>
+                  <span className="text-xs p-0">{page}</span>
                 </Button>
               </PaginationItem>
             );
@@ -137,9 +137,7 @@ export function TablePagination<TData>({
               disabled={currentPage >= totalPages || disabled}
               onClick={() => handlePageChange(currentPage + 1)}
             >
-             <span className="text-sm font-bold">
-            Next
-            </span>
+              <span className="text-sm font-bold">Next</span>
             </Button>
           </PaginationItem>
         </PaginationContent>
@@ -154,17 +152,20 @@ export function TablePagination<TData>({
             <SelectValue placeholder={pageSize} />
           </SelectTrigger>
           <SelectContent>
-            {pageSizeOptions.filter(size => size <= totalItems).length > 0 
-              ? pageSizeOptions.filter(size => size <= totalItems).map((size) => (
-                <SelectItem key={size} value={size.toString()}>
-                 {`${size} / page`}
-                </SelectItem>
-              ))
-              : <SelectItem value="5">{`5 / page`}</SelectItem>
-            }
+            {pageSizeOptions.filter((size) => size <= totalItems).length > 0 ? (
+              pageSizeOptions
+                .filter((size) => size <= totalItems)
+                .map((size) => (
+                  <SelectItem key={size} value={size.toString()}>
+                    {`${size} / page`}
+                  </SelectItem>
+                ))
+            ) : (
+              <SelectItem value="5">{`5 / page`}</SelectItem>
+            )}
           </SelectContent>
-          </Select>
-        <p className="text-xs font-bold">{`1-${pageSize < totalItems ? pageSize :totalItems} of ${totalItems}`}</p>
+        </Select>
+        <p className="text-xs font-bold">{`1-${pageSize < totalItems ? pageSize : totalItems} of ${totalItems}`}</p>
       </div>
     </div>
   );
