@@ -50,7 +50,7 @@ import { AssessmentMeasurementScaleSubComponentDto } from '../dtos';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('assessments/:assessmentId/measurement-scale')
+@Controller('sub-components/:subComponentId/measurement-scales')
 export class AssessmentMeasurementScaleSubComponentController {
   constructor(
     private readonly assessmentMeasurementScaleSubComponentService: AssessmentMeasurementScaleSubComponentService,
@@ -78,10 +78,10 @@ export class AssessmentMeasurementScaleSubComponentController {
   })
   @Get()
   async findAll(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
   ): Promise<AssessmentMeasurementScaleSubComponent[]> {
     return this.assessmentMeasurementScaleSubComponentService.findAll(
-      assessmentId,
+      subComponentId,
     );
   }
 
@@ -107,11 +107,11 @@ export class AssessmentMeasurementScaleSubComponentController {
   })
   @Get(':id')
   async findOne(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
     return this.assessmentMeasurementScaleSubComponentService.findOne(
-      assessmentId,
+      subComponentId,
       id,
     );
   }
@@ -138,12 +138,12 @@ export class AssessmentMeasurementScaleSubComponentController {
   })
   @Put(':id')
   async update(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: AssessmentMeasurementScaleSubComponentDto,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
     return this.assessmentMeasurementScaleSubComponentService.update(
-      assessmentId,
+      subComponentId,
       id,
       payload,
     );
