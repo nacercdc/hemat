@@ -14,14 +14,6 @@ import { AssessmentGroup } from './assessment-group.entity';
 @Entity('invitations')
 export class Invitation extends BaseEntityWithSoftDelete {
   @ApiProperty({
-    description: 'Name of the invitee',
-    example: 'Jane Doe',
-    type: String,
-  })
-  @Column()
-  name: string;
-
-  @ApiProperty({
     description: 'Email of the invitee',
     example: 'jane.doe@hiemat.org',
     type: String,
