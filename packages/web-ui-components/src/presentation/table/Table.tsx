@@ -228,7 +228,7 @@ export function Table<TData extends object>({
                       key={header.id}
                       onClick={header.column.getToggleSortingHandler()}
                       className={cn(
-                        "text-left py-4 px-2 font-bold text-sm",
+                        "text-left py-4 px-2 font-bold text-[13px]",
                         "cursor-pointer",
                         header.id === "select" && "w-0",
                         header.id === "Action" && "text-right"
@@ -280,7 +280,7 @@ export function Table<TData extends object>({
                   <tr
                     key={row.id}
                     className={cn(
-                      "bg-card hover:bg-secondary-50/40 h-11",
+                      "bg-card hover:bg-primary-50/40 h-11",
                       index < table.getRowModel().rows.length - 1 &&
                         "border-b-[1px] border-basic-300",
                       {
@@ -291,7 +291,7 @@ export function Table<TData extends object>({
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className="py-0 px-2 text-sm font-medium"
+                        className="py-0 px-2 text-xs font-medium"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
