@@ -9,19 +9,19 @@ import {
   IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { MemberRole } from '../../../shared';
-import { InvitationStatus } from '../../../shared';
+import { MemberRole } from '@africa-cdc/shared';
+import { InvitationStatus } from '@africa-cdc/shared';
+
 export class InvitationCreateRequestDto {
   @ApiProperty({
-    description: 'Name of the invitee',
-    example: 'Jane Doe',
+    description: 'Group ID for the invitation',
+    example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
   @IsNotEmpty({ message: 'validation.name.isNotEmpty' })
-  @IsString({ message: 'validation.name.isString' })
-  @Length(1, 100, { message: 'validation.name.length args: min:1 | max:100' })
+  @IsUUID(undefined, { message: 'validation.name.isString' })
   @Type(() => String)
-  name: string;
+  groupId: string;
 
   @ApiProperty({
     description: 'Email of the invitee',
@@ -46,14 +46,23 @@ export class InvitationCreateRequestDto {
 }
 
 export class InvitationUpdateRequestDto {
-  @ApiPropertyOptional({
-    description: 'Status of the invitation',
-    enum: InvitationStatus,
-    example: InvitationStatus.ACCEPTED,
+  @ApiProperty({
+    description: 'Email of the invitee',
+    example: 'jane.doe@hiemat.org',
     type: String,
   })
-  @IsOptional()
-  @IsEnum(InvitationStatus, { message: 'validation.status.isEnum' })
+  @IsNotEmpty({ message: 'validation.email.isNotEmpty' })
+  @IsEmail({}, { message: 'validation.email.isEmail' })
   @Type(() => String)
-  status?: InvitationStatus;
+  email: string;
+
+  @ApiProperty({
+    description: 'Invitation token',
+    example: 'abc123xyz789',
+    type: String,
+  })
+  @IsNotEmpty({ message: 'validation.email.isNotEmpty' })
+  @IsString({ message: 'validation.email.isEmail' })
+  @Type(() => String)
+  token: string;
 }
