@@ -4,6 +4,7 @@ export {
   PhoneNumberInput,
   PhoneNumberInputRHF,
 } from "./input";
+export * from "./rich-editor";
 export { TextArea, TextAreaRHF } from "./text-area";
 export { Select, SelectRHF } from "./select";
 export { RadioGroup, RadioGroupRHF } from "./radio-group";
