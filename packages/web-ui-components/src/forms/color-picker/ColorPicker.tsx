@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../../shadcn-ui";
 import { cn } from "../../shadcn-ui/utils/cn";
 import type { FormControlVariants } from "../form-control";
 import { FormControl } from "../form-control";
+import { isValidHexColor } from "@etm/utilities/string.utils";
 
 const colorPickerVariants = cva(
   "flex items-center justify-between rounded-sm shadow-none transition w-full px-1 gap-1",
@@ -62,7 +63,8 @@ export interface Props
       "size" | "className" | "style" | "onChange"
     >,
     VariantProps<typeof colorPickerVariants> {
-  value: string;
+  value?: string;
+  defaultValue?: string;
   onChange: (color: string) => void;
   name?: string;
   label?: string;
@@ -75,7 +77,8 @@ export interface Props
 }
 
 export const ColorPicker = ({
-  value,
+  value: propValue,
+  defaultValue,
   onChange,
   name,
   label,
@@ -92,6 +95,16 @@ export const ColorPicker = ({
   const [open, setOpen] = useState(false);
   const { width, height } = pickerSizes[size || "md"];
 
+  const value =
+    propValue && isValidHexColor(propValue) ? propValue : defaultValue || "";
+
+  const handleChange = (color: string) => {
+    if (color === "" || !isValidHexColor(color)) {
+      onChange(defaultValue || "");
+    } else {
+      onChange(color);
+    }
+  };
   return (
     <FormControl
       name={name}
@@ -118,12 +131,12 @@ export const ColorPicker = ({
             <HexColorInput
               id={name}
               color={value}
-              onChange={onChange}
+              onChange={handleChange}
               className={cn(
                 colorPickerInputVariants({ size }),
                 "flex-1 border-none focus:outline-none focus:ring-0 w-full"
               )}
-              placeholder="#ffffff"
+              placeholder={defaultValue || ""}
               aria-invalid={error ? "true" : "false"}
             />
           </div>
@@ -135,7 +148,7 @@ export const ColorPicker = ({
         >
           <HexColorPicker
             color={value}
-            onChange={onChange}
+            onChange={handleChange}
             className="w-full rounded-md"
             style={{ width: `${width}px`, height: `${height}px` }}
           />
