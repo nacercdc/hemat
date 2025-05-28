@@ -23,7 +23,7 @@ interface FilterOptionsType {
   label: string;
 }
 interface Props<TData> {
-  collectionName: string;
+  collectionName?: string;
   columns: ColumnDef<TData>[];
   data?: TData[];
   toolbar?: React.ReactNode;
@@ -188,9 +188,11 @@ export function Table<TData extends object>({
       )}
       ref={tableContainerRef}
     >
-      {showFilterFields && (
+      {showFilterFields ? (
         <div className="flex w-full justify-between items-center mb-2">
-          <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
+          {collectionName && (
+            <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
+          )}
           <div className="flex gap-5 items-center">
             {(filterableColumns()?.[0] as FilterOptionsType[]).length > 0 && (
               <div className="min-w-1/4 mt-2">
@@ -212,92 +214,105 @@ export function Table<TData extends object>({
             {toolbar}
           </div>
         </div>
+      ) : (
+        <div className="flex  mb-2"> {toolbar}</div>
       )}
-
-      <div className="overflow-auto bg-white p-2 pt-0 rounded-sm">
-        <table className="w-full">
-          <thead className="bg-white w-full sticky top-0">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    onClick={header.column.getToggleSortingHandler()}
-                    className={cn(
-                      "text-left py-4 px-2 font-bold text-sm",
-                      "cursor-pointer",
-                      header.id === "select" && "w-0",
-                      header.id === "Action" && "text-right"
-                    )}
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                    {{
-                      asc: (
-                        <Icon
-                          icon="lucide:sort-asc"
-                          className="text-lg inline-block ml-1"
-                        />
-                      ),
-                      desc: (
-                        <Icon
-                          icon="lucide:sort-desc"
-                          className="text-lg inline-block ml-1"
-                        />
-                      ),
-                    }[header.column.getIsSorted() as string] ?? null}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="mt-4">
-            {data.length === 0 || isLoading ? (
-              isLoading ? (
-                loadingRows
-              ) : (
-                <tr className="h-96 w-full">
-                  <td
-                    colSpan={columns.length + 1}
-                    rowSpan={pagination.pageSize}
-                    className="h-full w-full"
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <Icon icon="lets-icons:sad-light" className="text-xl" />
-                      Sorry, no results found!
-                    </div>
-                  </td>
-                </tr>
-              )
-            ) : (
-              table.getRowModel().rows.map((row, index) => (
-                <tr
-                  key={row.id}
-                  className={cn(index % 2 === 0 && "bg-primary-50")}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="py-0 px-2 text-sm font-medium">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
+      <div className="flex flex-col min-h-[650px] justify-between bg-transparent rounded-sm rounded-b-none">
+        <div className="overflow-auto  p-0 rounded-sm rounded-b-none border-[1px] border-basic-300">
+          <table className="w-full">
+            <thead className="bg-basic-200 w-full sticky top-0 h-">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      onClick={header.column.getToggleSortingHandler()}
+                      className={cn(
+                        "text-left py-4 px-2 font-bold text-[13px]",
+                        "cursor-pointer",
+                        header.id === "select" && "w-0",
+                        header.id === "Action" && "text-right"
                       )}
-                    </td>
+                    >
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                      {{
+                        asc: (
+                          <Icon
+                            icon="lucide:sort-asc"
+                            className="text-lg inline-block ml-1"
+                          />
+                        ),
+                        desc: (
+                          <Icon
+                            icon="lucide:sort-desc"
+                            className="text-lg inline-block ml-1"
+                          />
+                        ),
+                      }[header.column.getIsSorted() as string] ?? null}
+                    </th>
                   ))}
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ))}
+            </thead>
+            <tbody className="mt-4">
+              {data.length === 0 || isLoading ? (
+                isLoading ? (
+                  loadingRows
+                ) : (
+                  <tr className="h-96 w-full">
+                    <td
+                      colSpan={columns.length + 1}
+                      rowSpan={pagination.pageSize}
+                      className="h-full w-full"
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <Icon icon="lets-icons:sad-light" className="text-xl" />
+                        Sorry, no results found!
+                      </div>
+                    </td>
+                  </tr>
+                )
+              ) : (
+                table.getRowModel().rows.map((row, index) => (
+                  <tr
+                    key={row.id}
+                    className={cn(
+                      "bg-card hover:bg-primary-50/40 h-11",
+                      index < table.getRowModel().rows.length - 1 &&
+                        "border-b-[1px] border-basic-300",
+                      {
+                        index,
+                      }
+                    )}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className="py-0 px-2 text-xs font-medium"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <TablePagination
+          table={table}
+          totalItems={totalItems}
+          disabled={isLoading || data.length === 0}
+          pageSizeOptions={pageSizeOptions}
+          onPaginationChange={onPaginationChange}
+        />
       </div>
-      <TablePagination
-        table={table}
-        totalItems={totalItems}
-        disabled={isLoading || data.length === 0}
-        pageSizeOptions={pageSizeOptions}
-        onPaginationChange={onPaginationChange}
-      />
     </div>
   );
 }
