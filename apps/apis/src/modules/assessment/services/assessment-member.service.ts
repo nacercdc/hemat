@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
 import {
   AssessmentMember,
   Assessment,
@@ -30,7 +30,6 @@ export class AssessmentMemberService {
     private readonly groupRepository: Repository<AssessmentGroup>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly dataSource: DataSource,
   ) {}
 
   async create(
@@ -74,17 +73,13 @@ export class AssessmentMemberService {
         );
       }
 
-      const member = await this.dataSource.transaction(async (manager) => {
-        const newMember = manager.create(AssessmentMember, {
-          userId: payload.userId,
-          assessmentId,
-          groupId,
-          role: payload.role,
-        });
-        return manager.save(AssessmentMember, newMember);
+      const newMember = this.memberRepository.create({
+        userId: payload.userId,
+        assessmentId,
+        groupId,
+        role: payload.role,
       });
-
-      return member;
+      return await this.memberRepository.save(newMember);
     } catch (err) {
       this.logger.error(
         `Failed to create assessment member: ${err.message}`,
