@@ -14,8 +14,9 @@ export class ProfileResponseDto {
     description: 'Title',
     example: 'Manager',
     type: String,
+    nullable: true,
   })
-  title: string;
+  title: string | null;
 
   @ApiProperty({
     description: 'First name',
@@ -60,13 +61,6 @@ export class ProfileResponseDto {
   })
   jobTitle: string;
 
-  @ApiPropertyOptional({
-    description: 'Profile status',
-    example: 'active',
-    type: String,
-  })
-  status: string | null;
-
   constructor(entity: Profile) {
     this.id = entity.id;
     this.title = entity.title;
@@ -76,6 +70,5 @@ export class ProfileResponseDto {
     this.dateOfBirth = entity.dateOfBirth;
     this.country = entity.country;
     this.jobTitle = entity.jobTitle;
-    this.status = entity.status;
   }
 }
