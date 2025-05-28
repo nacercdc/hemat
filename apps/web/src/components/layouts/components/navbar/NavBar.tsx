@@ -46,7 +46,7 @@ export function NavBar() {
 
       <div className="flex items-center gap-4">
         <button
-          className="p-2 rounded-full bg-white hover:bg-basic-300 relative"
+          className="p-2 rounded-full bg-card hover:bg-basic-300 relative"
           onClick={onNotificationClickHandler}
         >
           <Icon icon="lucide:bell" className="h-5 w-5 flex" />

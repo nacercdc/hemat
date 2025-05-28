@@ -29,21 +29,21 @@ export class User extends BaseEntityWithSoftDelete {
   isAdmin: boolean;
 
   @ApiProperty({ description: 'Full name of the user', example: 'Admin User' })
-  @Column({ type: 'varchar' })
+  @Column({ type: String, length: 320 })
   name: string;
 
   @ApiProperty({
     description: 'Unique email address of the user',
     example: 'admin@hiemat.org',
   })
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: String, unique: true, length: 320 })
   email: string;
 
   @ApiProperty({
     description: 'Hashed password (not exposed in API responses)',
     example: '$2b$10$...',
   })
-  @Column({ type: 'varchar' })
+  @Column({ type: 'text' })
   password: string;
 
   @ApiProperty({

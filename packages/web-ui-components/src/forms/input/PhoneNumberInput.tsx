@@ -64,7 +64,7 @@ export const PhoneNumberInput: React.ForwardRefExoticComponent<Props> =
           <RPNInput.default
             ref={ref}
             className={cn("flex")}
-            CodeComponent={CodeComponent}
+            flagComponent={CodeComponent}
             countries={options?.map((v) => v.value)}
             countrySelectComponent={({ ...csProps }: CountrySelectProps) => (
               <div className="relative">
@@ -198,14 +198,16 @@ const CountrySelectOption = ({
 };
 
 const CodeComponent = ({ country }: RPNInput.FlagProps) => {
-  const callingCode = country ? RPNInput.getCountryCallingCode(country) : '';
-  
+  const callingCode = country ? RPNInput.getCountryCallingCode(country) : "";
+
   return (
-      <span className="flex items-center justify-between gap-4">
-        <span className="flex h-4 w-6 items-center justify-between text-sm font-medium">
-          +{callingCode}
-        </span>     
-        <span className="text-[10px] font-medium items-center text-dark-light">|</span>
+    <span className="flex items-center justify-between gap-4">
+      <span className="flex h-4 w-6 items-center justify-between text-sm font-medium">
+        +{callingCode}
       </span>
-    );
+      <span className="text-[10px] font-medium items-center text-dark-light">
+        |
+      </span>
+    </span>
+  );
 };

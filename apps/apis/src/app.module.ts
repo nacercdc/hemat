@@ -6,6 +6,7 @@ import {
   AccessModule,
   AccountModule,
   AssessmentModule,
+  InvitationModule,
   MeasurementScaleModule,
   TemplateModule,
 } from './modules';
@@ -21,6 +22,7 @@ import { ExistConstraint, UniqueConstraint } from './shared/validators';
     AccessModule,
     AccountModule,
     AssessmentModule,
+    InvitationModule,
     MeasurementScaleModule,
     TemplateModule,
   ],
