@@ -2,13 +2,20 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '../../../database/entities';
+import { DataSource, Repository } from 'typeorm';
+import {
+  AssessmentMember,
+  Invitation,
+  Profile,
+  User,
+} from '../../../database/entities';
 import {
   AuthService,
   LoginResponseDto,
@@ -16,7 +23,7 @@ import {
 } from '../../../shared/modules';
 import { ConfigType } from '../../../config/types';
 import { HashHelper, pick } from '../../../shared/helpers';
-import { UserStatusEnum } from '../../../shared/enums';
+import { InvitationStatus, UserStatusEnum } from '../../../shared/enums';
 import { SuccessResponseDto } from '../../../shared/dtos';
 import {
   LoginRequestDto,
@@ -24,30 +31,87 @@ import {
   ChangePasswordRequestDto,
   RegisterRequestDto,
 } from '../dtos';
-import { CrudService } from '../../../shared/services';
 
 @Injectable()
-export class UserService extends CrudService<User> {
+export class UserService {
   private readonly loggerService = new Logger(UserService.name);
 
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly dataSource: DataSource,
     private readonly authService: AuthService,
     private readonly configService: ConfigService<ConfigType>,
-  ) {
-    super(userRepository);
-  }
+  ) {}
 
   public async register(
     payload: RegisterRequestDto,
   ): Promise<SuccessResponseDto> {
+    const emailExists = await this.userRepository.exists({
+      where: { email: payload.email },
+    });
+
+    if (emailExists) {
+      throw new BadRequestException();
+    }
+
     try {
-      const user = await this.create({
-        email: payload.email,
-        password: payload.password,
-        status: UserStatusEnum.ACTIVE,
-        name: payload.name,
+      await this.dataSource.transaction(async function (manager) {
+        const { title, firstName, middleName, lastName } = payload;
+        const user = manager.create(User, {
+          email: payload.email,
+          password: payload.password,
+          status: UserStatusEnum.ACTIVE,
+          name: [title, firstName, middleName, lastName]
+            .filter((n) => n)
+            .join(' '),
+        });
+
+        await manager.insert(User, user);
+
+        if (payload.invitationId) {
+          const invitation = await manager.findOne(Invitation, {
+            where: { id: payload.invitationId, email: payload.email },
+          });
+
+          if (!invitation) {
+            throw new BadRequestException();
+          }
+
+          if (invitation?.status !== InvitationStatus.PENDING) {
+            throw new BadRequestException();
+          }
+
+          const member = manager.create(AssessmentMember, {
+            userId: user.id,
+            assessmentId: invitation.assessmentId,
+            groupId: invitation.groupId,
+            role: invitation.role,
+          });
+
+          await manager.insert(AssessmentMember, member);
+          await manager.update(
+            Invitation,
+            {
+              id: invitation.id,
+            },
+            { status: InvitationStatus.ACCEPTED },
+          );
+        }
+
+        const profile = manager.create(Profile, {
+          userId: user.id,
+          title,
+          firstName,
+          middleName,
+          lastName,
+          gender: payload.gender,
+          dateOfBirth: payload.dateOfBirth,
+          country: payload.country,
+          jobTitle: payload.jobTitle,
+        });
+
+        await manager.insert(Profile, profile);
       });
 
       return {
@@ -56,7 +120,12 @@ export class UserService extends CrudService<User> {
       };
     } catch (err) {
       this.loggerService.error('register:', err);
-      throw new BadRequestException('Failed to register user');
+
+      if (err instanceof BadRequestException) {
+        throw new BadRequestException(err.message);
+      }
+
+      throw new InternalServerErrorException('Failed to register user');
     }
   }
 
@@ -122,11 +191,13 @@ export class UserService extends CrudService<User> {
       })
       .catch((err) => {
         this.loggerService.error('me:', err);
-        throw new BadRequestException('Failed to fetch user information');
+        throw new InternalServerErrorException(
+          'Failed to fetch user information',
+        );
       });
 
     if (!account) {
-      throw new BadRequestException('Failed to fetch user information');
+      throw new NotFoundException('Account not found.');
     }
 
     return new AccountResponseDto(account);
@@ -187,16 +258,18 @@ export class UserService extends CrudService<User> {
   }
 
   private async findUserById(id: string): Promise<User | null> {
-    return this.findOne(id).catch((err) => {
+    return this.userRepository.findOneBy({ id }).catch((err) => {
       this.loggerService.error('findUserById:', err);
-      throw new BadRequestException('User not found');
+      throw new InternalServerErrorException(`Failed to get user by ID ${id}`);
     });
   }
 
   private async findUserByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOneBy({ email }).catch((err) => {
       this.loggerService.error('findUserByEmail:', err);
-      throw new BadRequestException('User not found');
+      throw new InternalServerErrorException(
+        `Failed to get user by EMAIL ${email}`,
+      );
     });
   }
 }
