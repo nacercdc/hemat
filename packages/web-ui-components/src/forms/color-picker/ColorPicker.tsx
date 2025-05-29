@@ -26,6 +26,7 @@ const colorPickerVariants = cva(
         sm: " h-8 text-xs",
         md: " h-9 text-sm",
         lg: " h-10 text-base",
+        xl: "h-12 rounded-2 border-[1px] text-lg max-[770px]:text-sm",
       },
     },
     defaultVariants: {
@@ -43,6 +44,7 @@ const colorPickerInputVariants = cva(
         sm: " h-7 text-xs",
         md: " h-8 text-sm",
         lg: " h-9 text-base",
+        xl: "h-11 rounded-2 border-[1px] text-lg max-[770px]:text-sm",
       },
     },
     defaultVariants: {
@@ -55,9 +57,10 @@ const pickerSizes = {
   sm: { width: 98, height: 100 },
   md: { width: 178, height: 150 },
   lg: { width: 258, height: 200 },
+  xl: { width: 338, height: 250 },
 };
 
-export interface Props
+interface Props
   extends Omit<
       React.HTMLAttributes<HTMLDivElement>,
       "size" | "className" | "style" | "onChange"
