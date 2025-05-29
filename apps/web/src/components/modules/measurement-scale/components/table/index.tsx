@@ -1,16 +1,30 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import type { ModalRef } from "@etm/web-ui-components";
+import type { ModalRef, PaginationState, SortingState } from "@etm/web-ui-components";
 import { Table as ETMTable, Modal } from "@etm/web-ui-components";
-import type { Scale } from "./ScaleTableColumns";
 import { ScaleTableColumns } from "./ScaleTableColumns";
 import { EmptyTableDataElement } from "~/components/modules/components/EmptyTableDataElement";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ScaleForm } from "../form";
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "~/constants";
+import type { Scale } from "~/libs/models/scale.model";
 
 export function ScaleTable() {
   const addScaleModalRef = useRef<ModalRef>(null);
+    const [_sort, setSort] = useState<{
+      direction: string;
+      field:string | number | symbol;
+    }[]>([
+    {
+      direction: "desc",
+      field: "created_at",
+    },
+  ]);
+   const [_pagination, setPagination] = useState<PaginationState>({
+    pageIndex: DEFAULT_PAGE_INDEX,
+    pageSize: DEFAULT_PAGE_SIZE,
+  });
 
   const OnEmptyDataElement = (
     <EmptyTableDataElement
@@ -27,13 +41,27 @@ export function ScaleTable() {
     />
   );
 
+   const onSortingChangeHandler = (sortingState: SortingState) => {
+    setSort(
+      sortingState.map((v) => ({
+        direction: v.desc ? "desc" : "asc",
+        field: v.id as keyof Scale,
+      }))
+    );
+    setPagination({
+      pageIndex: DEFAULT_PAGE_INDEX,
+      pageSize: DEFAULT_PAGE_SIZE,
+    });
+  };
+
   return (
     <div className="h-full bg-card pt-4 rounded-md">
       <ETMTable<Scale>
         collectionName="Scales"
         columns={ScaleTableColumns({
           refetch: () => {
-            return console.log("Refetch called");
+            //TODO: Add refetch logic on delete here
+            return null;
           },
         })}
         data={[
@@ -75,6 +103,7 @@ export function ScaleTable() {
         ]}
         totalItems={10}
         isLoading={false}
+        onSortingChange={onSortingChangeHandler}
         pageSizeOptions={[10, 25, 50, 100]}
         enableRowSelection={false}
         onEmptyDataElement={OnEmptyDataElement}
@@ -82,7 +111,9 @@ export function ScaleTable() {
       <Modal
         ref={addScaleModalRef}
       >
-      <ScaleForm onSubmitScaleFormHandler={(value)=>console.log(value) } />
+      <ScaleForm onSubmitScaleFormHandler={(_value)=>{
+        //TODO: Handle form submission logic here
+      } } />
       </Modal>
     </div>
   );

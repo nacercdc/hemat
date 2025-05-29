@@ -1,19 +1,14 @@
 import React from "react";
 import type { ColumnDef } from "@etm/web-ui-components";
 import ScaleAction from "./ScaleAction";
+import type { Scale } from "~/libs/models/scale.model";
 // import type {
 //   QueryObserverResult,
 //   RefetchOptions,
 // } from "@tanstack/react-query";
 // import type { UseSearchResponse } from "~/libs/tanstack-api-query/hooks/useSearch";
 
-export interface Scale {
-  id: number;
-  name: string;
-  rate: number;
-  color: string;
-  description: string;
-}
+
 
 interface Props {
   // refetch: (

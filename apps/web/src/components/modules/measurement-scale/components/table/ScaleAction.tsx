@@ -2,8 +2,8 @@ import type { DialogRef } from "@etm/web-ui-components";
 import { Dialog, DropdownMenu, Modal, useToast } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import React, { useRef, useState } from "react";
-import type { Scale } from "./ScaleTableColumns";
 import { ScaleForm } from "../form";
+import type { Scale } from "~/libs/models/scale.model";
 interface Props {
   scale: Scale;
   onRefetch?: () => void;
@@ -24,7 +24,6 @@ export default function ScaleAction({ scale, onRefetch }: Props) {
 
   const onDeleteScaleHandler = () => {
     //TODO: Add delete mutation logic here
-    console.log("Delete scale:", scale.id);
     onRefetch?.();
     onCloseModalHandler();
     toast({

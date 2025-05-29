@@ -4,7 +4,7 @@ import { Button, ColorPickerRHF, InputRHF, TextAreaRHF } from "@etm/web-ui-compo
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Scale } from "../table/ScaleTableColumns";
+import type { Scale } from "~/libs/models/scale.model";
 
 const ScaleFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -25,7 +25,10 @@ export function ScaleForm({ onSubmitScaleFormHandler, isLoading = false,scale }:
 
   const { control, handleSubmit, reset } = useForm<ScaleFormData>({
     defaultValues: {
- ...scale
+      name: scale?.name ?? "",
+      rate: scale?.rate ?? 0,
+      color: scale?.color ?? "",
+      description: scale?.description ?? "",
     },
     resolver: zodResolver(ScaleFormSchema),
     mode: "onChange",
