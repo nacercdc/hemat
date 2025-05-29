@@ -8,7 +8,7 @@ import type { FormControlVariants } from "../form-control";
 import { FormControl } from "../form-control";
 
 export const inputVariants = cva(
-  "flex w-full rounded-sm border py-2 text-sm transition focus-visible:ring-2",
+  "flex w-full rounded-md border py-2 text-sm transition focus-visible:ring-2",
   {
     variants: {
       variant: {
