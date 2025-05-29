@@ -89,7 +89,7 @@ export default function Login() {
         />
       </div>
 
-      <div className="flex justify-end items-center -mt-7">
+      <div className="flex justify-end items-center -mt-6">
         <Checkbox size="md" label="Remember me" />
         <Button
           type="button"

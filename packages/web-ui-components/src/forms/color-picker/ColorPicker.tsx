@@ -23,9 +23,9 @@ const colorPickerVariants = cva(
         warning: "border-warning-500 border-[1px] bg-card",
       },
       size: {
-        sm: " h-8 text-xs",
-        md: " h-9 text-sm",
-        lg: " h-10 text-base",
+        sm: "h-8 text-xs",
+        md: "h-9 text-sm",
+        lg: "h-10 text-base",
       },
     },
     defaultVariants: {
@@ -40,9 +40,9 @@ const colorPickerInputVariants = cva(
   {
     variants: {
       size: {
-        sm: " h-7 text-xs",
-        md: " h-8 text-sm",
-        lg: " h-9 text-base",
+        sm: "h-7 text-xs",
+        md: "h-8 text-sm",
+        lg: "h-9 text-base",
       },
     },
     defaultVariants: {

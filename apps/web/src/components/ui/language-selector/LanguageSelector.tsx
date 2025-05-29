@@ -86,7 +86,7 @@ export function LanguageSelector({
           )}
         >
           {!trigger && (
-            <div className="flex items-center justify-between gap-2 bg-info/5 py-1 px-3 rounded-sm text-xs">
+            <div className="flex items-center justify-between gap-2 bg-info/5 py-1 px-3 rounded-sm text-xs w-full">
               {selectedLanguage ? (
                 LanguageItem()
               ) : (
