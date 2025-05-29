@@ -28,7 +28,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       <body
         className={cn(
           `${inter.variable}`,
-          "min-h-screen antialiased w-full bg-layout-bg font-roboto text-dark"
+          "min-h-screen antialiased w-full bg-layout-bg font-roboto text-dark p-0"
         )}
         suppressHydrationWarning
       >
