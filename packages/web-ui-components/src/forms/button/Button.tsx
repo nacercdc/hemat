@@ -24,8 +24,7 @@ export const colorVariants = {
   warning:
     "bg-warning-500 hover:bg-warning-600 text-background border-warning-500",
   lightGray: "bg-card border-[1px]",
-  authButtons:
-    "bg-secondary text-card border-secondary hover:bg-primary hover:border-primary",
+  card: "bg-card text-dark ",
 };
 
 export const variantVariants = {

@@ -81,7 +81,7 @@ export const Input = forwardRef<HTMLInputElement, Props>(
           "grid grid-cols-[auto_1fr_auto] items-center",
           inputVariants({ variant, size }),
           error && "border-destructive-500",
-          isPhone && "rounded-s-none focus-visible:ring-0",
+          isPhone && "rounded-s-none border-s-0 focus-visible:ring-0",
           props.type === "search" && "border-none"
         )}
       >

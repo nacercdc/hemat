@@ -1,1 +1,1 @@
-export * from './assessment.moduel';
+export * from './assessment.module';

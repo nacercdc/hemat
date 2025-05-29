@@ -27,23 +27,31 @@ export class Profile extends BaseEntityWithSoftDelete {
     type: String,
     example: 'Manager',
   })
-  @Column()
-  title: string;
+  @Column({ type: 'varchar', nullable: true, length: 150 })
+  title: string | null;
 
   @ApiProperty({
     description: 'First name',
     type: String,
     example: 'John',
   })
-  @Column({ type: String, length: 64 })
+  @Column({ type: 'varchar', length: 50 })
   firstName: string;
+
+  @ApiProperty({
+    description: 'Middle name',
+    type: String,
+    example: 'John',
+  })
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  middleName: string | null;
 
   @ApiProperty({
     description: 'Last name',
     type: String,
     example: 'Doe',
   })
-  @Column({ type: String, length: 64 })
+  @Column({ type: 'varchar', length: 50 })
   lastName: string;
 
   @ApiPropertyOptional({
@@ -68,17 +76,13 @@ export class Profile extends BaseEntityWithSoftDelete {
     example: 'Ethiopia',
     type: String,
   })
-  @Column({ type: String, length: 100, nullable: true })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   country: string | null;
 
   @ApiPropertyOptional({
     description: 'Job title of the user',
     example: 'Team Lead',
   })
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   jobTitle: string;
-
-  @ApiPropertyOptional({ description: 'Profile status', example: 'active' })
-  @Column({ nullable: true })
-  status: string;
 }

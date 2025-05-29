@@ -3,6 +3,7 @@
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { Icon } from "@iconify/react";
+
 import type { ReactNode } from "react";
 import * as RDialog from "@radix-ui/react-dialog";
 import {
@@ -45,8 +46,8 @@ interface Props {
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   defaultOpen?: boolean;
   trigger?: ReactNode;
-  title?: string;
-  description?: string;
+  title?: ReactNode;
+  description?: ReactNode;
   children: ReactNode;
   onAction?: () => void;
   actionLabel?: string;
