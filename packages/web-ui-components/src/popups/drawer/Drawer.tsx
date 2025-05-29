@@ -22,8 +22,8 @@ interface Props {
   direction?: Direction;
   size?: Size;
   trigger?: React.ReactNode;
-  title?: string;
-  description?: string;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
   children: React.ReactNode;
   closeNode?: ReactNode;
   onOpenChange?: (open: boolean) => void;
