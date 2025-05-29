@@ -2,17 +2,26 @@
 
 import React from "react";
 import { DomainCompListItem } from "./DomainCompListItem";
-
-import type { ListItemType, ListType } from "./DomainCompCard";
 import { cn } from "~/utils/cn.util";
+
+import type { ItemDetailType, ListItemType, ListType, ListTypeLabel } from "..";
+import { ListTypeColors } from "./DomainCompCard";
 
 interface Props {
   list: ListType;
+  listType: ListTypeLabel;
   selectedItem: ListItemType | null;
   onSelectItem?: (item: ListItemType) => void;
+  getItemDetails?: (item: ListItemType) => Partial<ItemDetailType>;
 }
 
-export function DomainsList({ list, selectedItem, onSelectItem }: Props) {
+export function DomainCompList({
+  list,
+  listType,
+  selectedItem,
+  onSelectItem,
+  getItemDetails,
+}: Props) {
   const isItemSelected = (item: ListItemType) => {
     if (selectedItem) return item.id === selectedItem.id;
   };
@@ -22,9 +31,19 @@ export function DomainsList({ list, selectedItem, onSelectItem }: Props) {
       {list.map((listItem) => (
         <div
           key={listItem.id}
-          className={cn(isItemSelected(listItem) && "bg-info/20 rounded-lg")}
+          className="rounded-lg"
+          style={{
+            backgroundColor: isItemSelected(listItem)
+              ? `${ListTypeColors[listType]}`
+              : "",
+          }}
         >
-          <DomainCompListItem item={listItem} onClick={onSelectItem} />
+          <DomainCompListItem
+            item={listItem}
+            type={listType}
+            onClick={onSelectItem}
+            getDetails={getItemDetails}
+          />
         </div>
       ))}
     </div>
