@@ -31,7 +31,7 @@ export default function MeasurementScale() {
       <ScaleTable />
       <Modal ref={addScaleModalRef}>
         <div className="flex flex-col gap-4">
-          <ScaleForm />
+          <ScaleForm onSubmitScaleFormHandler={(value)=>console.log(value) } />
         </div>
       </Modal>
     </ContentLayout>

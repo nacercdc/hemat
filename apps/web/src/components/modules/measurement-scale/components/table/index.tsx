@@ -81,10 +81,8 @@ export function ScaleTable() {
       />
       <Modal
         ref={addScaleModalRef}
-        // title="Add new Scale"
-        // description="Create new Scale"
       >
-        <ScaleForm />
+      <ScaleForm onSubmitScaleFormHandler={(value)=>console.log(value) } />
       </Modal>
     </div>
   );

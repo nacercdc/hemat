@@ -3,6 +3,7 @@ import { Dialog, DropdownMenu, Modal, useToast } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import React, { useRef, useState } from "react";
 import type { Scale } from "./ScaleTableColumns";
+import { ScaleForm } from "../form";
 interface Props {
   scale: Scale;
   onRefetch?: () => void;
@@ -79,15 +80,10 @@ export default function ScaleAction({ scale, onRefetch }: Props) {
       </Dialog>
 
       <Modal
-        title="Update"
-        description="Update an Scale"
         open={open}
         setOpen={setOpen}
       >
-        <div className="flex flex-col gap-4">
-          {/*TODO Scale Form Component would go here */}
-          <p>Scale Form Placeholder</p>
-        </div>
+      <ScaleForm onSubmitScaleFormHandler={(value)=>console.log(value) } scale={scale} />
       </Modal>
     </>
   );
