@@ -57,7 +57,7 @@ const pickerSizes = {
   lg: { width: 258, height: 200 },
 };
 
-export interface Props
+interface Props
   extends Omit<
       React.HTMLAttributes<HTMLDivElement>,
       "size" | "className" | "style" | "onChange"
