@@ -2,7 +2,6 @@
 
 import React from "react";
 import { DomainCompListItem } from "./DomainCompListItem";
-import { cn } from "~/utils/cn.util";
 
 import type { ItemDetailType, ListItemType, ListType, ListTypeLabel } from "..";
 import { ListTypeColors } from "./DomainCompCard";
