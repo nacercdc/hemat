@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -49,4 +50,13 @@ export class Language {
   })
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
+
+  @ApiPropertyOptional({
+    description: 'Deleted at',
+    example: '2024-01-10T07:56:08.000000Z',
+    type: Date,
+    nullable: true,
+  })
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt?: Date;
 }

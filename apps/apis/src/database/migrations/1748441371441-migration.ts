@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1748438596742 implements MigrationInterface {
-    name = 'Migration1748438596742'
+export class Migration1748441371441 implements MigrationInterface {
+    name = 'Migration1748441371441'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "domains" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "code" character varying NOT NULL, "name" character varying NOT NULL, "description" character varying NOT NULL, "isActive" boolean NOT NULL DEFAULT true, CONSTRAINT "UQ_c1eacbd811cc699e0854b4090e1" UNIQUE ("code"), CONSTRAINT "PK_05a6b087662191c2ea7f7ddfc4d" PRIMARY KEY ("id"))`);
@@ -61,7 +61,7 @@ export class Migration1748438596742 implements MigrationInterface {
         await queryRunner.query(`CREATE INDEX "IDX_4d502f7ff718afc7403fe3ffd1" ON "assessment_answers" ("subComponentId") `);
         await queryRunner.query(`CREATE TYPE "public"."dashboard_assessmentstatus_enum" AS ENUM('DRAFT', 'PENDING', 'READY', 'in_progress', 'CLOSED', 'COMPLETED')`);
         await queryRunner.query(`CREATE TABLE "dashboard" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "country" character varying NOT NULL, "assessmentStatus" "public"."dashboard_assessmentstatus_enum" NOT NULL, "externalReport" text, CONSTRAINT "PK_233ed28fa3a1f9fbe743f571f75" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE TABLE "languages" ("code" character varying NOT NULL, "name" character varying NOT NULL, "native" character varying NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_7397752718d1c9eb873722ec9b2" PRIMARY KEY ("code"))`);
+        await queryRunner.query(`CREATE TABLE "languages" ("code" character varying NOT NULL, "name" character varying NOT NULL, "native" character varying NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_7397752718d1c9eb873722ec9b2" PRIMARY KEY ("code"))`);
         await queryRunner.query(`CREATE TABLE "permissions_users_users" ("permissionsId" uuid NOT NULL, "usersId" uuid NOT NULL, CONSTRAINT "PK_9afd76fbb1b7b9e72bcfb72e957" PRIMARY KEY ("permissionsId", "usersId"))`);
         await queryRunner.query(`CREATE INDEX "IDX_28ed803df963293de68d58e191" ON "permissions_users_users" ("permissionsId") `);
         await queryRunner.query(`CREATE INDEX "IDX_79318fb026bf8e2a19a5f64d41" ON "permissions_users_users" ("usersId") `);
