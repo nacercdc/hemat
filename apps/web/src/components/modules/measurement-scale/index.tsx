@@ -7,16 +7,18 @@ import { ContentLayout } from "~/components/layouts/dashboard/components/content
 import TitleBar from "~/components/layouts/dashboard/components/title-bar";
 import { ScaleTable } from "./components/table";
 import { useRef } from "react";
+import type { ScaleFormData } from "./components/form";
 import { ScaleForm } from "./components/form";
 
 export default function MeasurementScale() {
   const addScaleModalRef = useRef<ModalRef>(null);
 
-  const openAddScaleModal = () => {
-    if (addScaleModalRef.current) {
-      addScaleModalRef.current.openModal();
-    }
-  };
+  const openAddScaleModal = () => addScaleModalRef.current.openModal(); ;
+  const onCancelScaleFormHandler = () =>  addScaleModalRef.current?.closeModal();
+  const onSubmitScaleFormHandler = (_value:ScaleFormData) => {
+    //TODO: Add submit logic here
+  }
+
   return (
     <ContentLayout>
       <TitleBar title="Measurement Scale">
@@ -31,7 +33,7 @@ export default function MeasurementScale() {
       <ScaleTable />
       <Modal ref={addScaleModalRef}>
         <div className="flex flex-col gap-4">
-          <ScaleForm onSubmitScaleFormHandler={(value)=>console.log(value) } />
+          <ScaleForm onSubmitScaleFormHandler={onSubmitScaleFormHandler} onCancelScaleFormHandler={onCancelScaleFormHandler} />
         </div>
       </Modal>
     </ContentLayout>

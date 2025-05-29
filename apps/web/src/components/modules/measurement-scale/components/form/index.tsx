@@ -17,11 +17,12 @@ export type ScaleFormData = z.infer<typeof ScaleFormSchema>;
 
 interface Props {
   onSubmitScaleFormHandler: (values: ScaleFormData) => void;
+  onCancelScaleFormHandler?: () => void;
   isLoading?: boolean;
   scale?: Scale;
 }
 
-export function ScaleForm({ onSubmitScaleFormHandler, isLoading = false,scale }: Props) {
+export function ScaleForm({ onSubmitScaleFormHandler,onCancelScaleFormHandler, isLoading = false,scale }: Props) {
 
   const { control, handleSubmit, reset } = useForm<ScaleFormData>({
     defaultValues: {
@@ -33,6 +34,11 @@ export function ScaleForm({ onSubmitScaleFormHandler, isLoading = false,scale }:
     resolver: zodResolver(ScaleFormSchema),
     mode: "onChange",
   });
+
+  const onCancelHandler = () => {
+    onCancelScaleFormHandler?.();
+    reset();
+  };
 
   if (isLoading) {
     return <div>Loading...</div>; // TODO replace this with a proper skeleton component if available
@@ -86,7 +92,7 @@ export function ScaleForm({ onSubmitScaleFormHandler, isLoading = false,scale }:
           variant="outline"
           color="card"
           type="button"
-          onClick={() => reset()}
+          onClick={onCancelHandler}
         >
           Cancel
         </Button>

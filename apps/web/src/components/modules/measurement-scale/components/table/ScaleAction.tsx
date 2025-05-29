@@ -1,7 +1,8 @@
-import type { DialogRef } from "@etm/web-ui-components";
+import type { DialogRef, ModalRef } from "@etm/web-ui-components";
 import { Dialog, DropdownMenu, Modal, useToast } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
+import type { ScaleFormData } from "../form";
 import { ScaleForm } from "../form";
 import type { Scale } from "~/libs/models/scale.model";
 interface Props {
@@ -9,17 +10,17 @@ interface Props {
   onRefetch?: () => void;
 }
 export default function ScaleAction({ scale, onRefetch }: Props) {
-  const [open, setOpen] = useState(false);
+   const editScaleModalRef = useRef<ModalRef>(null);
   const deleteDialogRef = useRef<DialogRef>(null);
 
   const { toast } = useToast();
 
   const onOpenModalHandler = () => {
-    setOpen(true);
+   editScaleModalRef.current?.openModal()
   };
 
   const onCloseModalHandler = () => {
-    setOpen(false);
+   editScaleModalRef.current?.closeModal();
   };
 
   const onDeleteScaleHandler = () => {
@@ -29,6 +30,16 @@ export default function ScaleAction({ scale, onRefetch }: Props) {
     toast({
       title: "Success",
       message: "Scale has been deleted successfully.",
+    });
+  };
+
+  const onSubmitScaleFormHandler = (_value: ScaleFormData) => {
+    //TODO: Add edit mutation logic here
+    onRefetch?.();
+    onCloseModalHandler();
+    toast({
+      title: "Success",
+      message: "Scale has been updated successfully.",
     });
   };
 
@@ -77,12 +88,9 @@ export default function ScaleAction({ scale, onRefetch }: Props) {
         Are you sure you want to delete this scale? This action cannot be
         undone.
       </Dialog>
-
       <Modal
-        open={open}
-        setOpen={setOpen}
-      >
-      <ScaleForm onSubmitScaleFormHandler={(value)=>console.log(value) } scale={scale} />
+       ref={editScaleModalRef}>
+      <ScaleForm onSubmitScaleFormHandler={onSubmitScaleFormHandler } onCancelScaleFormHandler={onCloseModalHandler} scale={scale} />
       </Modal>
     </>
   );

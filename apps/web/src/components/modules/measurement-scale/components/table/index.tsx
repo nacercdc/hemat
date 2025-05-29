@@ -6,6 +6,7 @@ import { Table as ETMTable, Modal } from "@etm/web-ui-components";
 import { ScaleTableColumns } from "./ScaleTableColumns";
 import { EmptyTableDataElement } from "~/components/modules/components/EmptyTableDataElement";
 import { useRef, useState } from "react";
+import type { ScaleFormData } from "../form";
 import { ScaleForm } from "../form";
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "~/constants";
 import type { Scale } from "~/libs/models/scale.model";
@@ -53,6 +54,12 @@ export function ScaleTable() {
       pageSize: DEFAULT_PAGE_SIZE,
     });
   };
+
+  const onSubmitScaleFormHandler = (_value: ScaleFormData) => {
+    //TODO: Add submit logic here
+  };
+  const onCancelScaleFormHandler = () =>  addScaleModalRef.current?.closeModal();
+  
 
   return (
     <div className="h-full bg-card pt-4 rounded-md">
@@ -111,9 +118,7 @@ export function ScaleTable() {
       <Modal
         ref={addScaleModalRef}
       >
-      <ScaleForm onSubmitScaleFormHandler={(_value)=>{
-        //TODO: Handle form submission logic here
-      } } />
+      <ScaleForm onSubmitScaleFormHandler={onSubmitScaleFormHandler }  onCancelScaleFormHandler={onCancelScaleFormHandler} />
       </Modal>
     </div>
   );
