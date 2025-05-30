@@ -9,6 +9,8 @@ import { Button, Checkbox, InputRHF, useToast } from "@etm/web-ui-components";
 import PasswordVisibilityToggler from "../../components/PasswordVisibilityToggler";
 import { AuthCardHeader } from "../components/AuthCardHeader";
 import Link from "next/link";
+import { useAddMutation as useLogin } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import type { LoginRequestBody } from "~/app/api/types";
 
 type ActionMode = "resetPassword";
 
@@ -23,16 +25,15 @@ const loginFormSchema = z.object({
 type LoginFormInputs = z.infer<typeof loginFormSchema>;
 export default function Login() {
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
-  const { toast: _ } = useToast();
+  const { toast } = useToast();
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { mutate: login, ...loginState } = useLogin<unknown, LoginRequestBody>(
+    "/api/login"
+  );
 
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm<LoginFormInputs>({
+  const { control, handleSubmit } = useForm<LoginFormInputs>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: { email: "", password: "" },
   });
@@ -45,8 +46,31 @@ export default function Login() {
     setPasswordVisible(!passwordVisible);
   };
 
-  const onLoginHandler = async (_values: LoginFormInputs) => {
-    // TODO: send request to api
+  const onLoginHandler = (values: LoginFormInputs) => {
+    login(
+      {
+        baseURL: window.location.origin,
+        data: {
+          username: values.email,
+          password: values.password,
+        },
+        isProtected: false,
+      },
+      {
+        onSuccess: () => {
+          router.replace("/");
+        },
+        onError: (error) => {
+          toast({
+            message:
+              (JSON.parse(error.message) as { error?: string })?.error ??
+              "Login failed.",
+            title: "Login Error",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   if (
@@ -104,7 +128,11 @@ export default function Login() {
         </Button>
       </div>
 
-      <Button type="submit" disabled={isSubmitting} loading={isSubmitting}>
+      <Button
+        type="submit"
+        disabled={loginState.isPending}
+        loading={loginState.isPending}
+      >
         Sign in
       </Button>
 
