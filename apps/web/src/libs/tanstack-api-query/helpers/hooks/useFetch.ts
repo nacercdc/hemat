@@ -31,7 +31,7 @@ export default function useFetch() {
   >(options: Query<Include, Filterable, Sortable>): Promise<Res> {
     return request<Entity, Res, Include, Filterable, Sortable>({
       method: "GET",
-      isProtected: options?.isProtected ?? true,
+      isProtected: options?.isProtected,
       ...options,
     });
   }
@@ -41,8 +41,9 @@ export default function useFetch() {
   ): Promise<Res> {
     return request<Res, Res>({
       method: "POST",
-      isProtected: option?.isProtected ?? true,
+      isProtected: option?.isProtected,
       path: option.path,
+      data: option.data as any,
       configs: option.configs,
     });
   }
@@ -52,7 +53,7 @@ export default function useFetch() {
   ): Promise<Res> {
     return request<Res, Res>({
       method: "PUT",
-      isProtected: option?.isProtected ?? true,
+      isProtected: option?.isProtected,
       path: option.path,
       configs: option.configs,
     });
@@ -63,8 +64,9 @@ export default function useFetch() {
   ): Promise<Res> {
     return request<Res, Res>({
       method: "PUT",
-      isProtected: option?.isProtected ?? true,
+      isProtected: option?.isProtected,
       path: option.path,
+      data: option.data as any,
       configs: option.configs,
     });
   }

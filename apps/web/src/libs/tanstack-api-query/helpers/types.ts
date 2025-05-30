@@ -110,10 +110,9 @@ export interface QueryManyResponse<Entity> {
   total: number;
 }
 
-export interface RequestConfig<T = any> {
+export interface RequestConfig {
   baseURL?: string;
   headers?: RequestHeaders;
-  data?: T;
   isProtected?: boolean;
   id?: string;
 }

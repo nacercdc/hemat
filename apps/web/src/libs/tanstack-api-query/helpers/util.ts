@@ -10,14 +10,15 @@ import type {
 export function buildRequest<T = any>(
   headers: Headers,
   method: Method,
-  request: RequestConfig<T>,
+  request: RequestConfig,
+  data?: T,
   requestInit?: RequestInit
 ): RequestInit {
   return {
     ...requestInit,
     ...request,
     method,
-    body: prepareData(request.data),
+    body: data ? prepareData(data) : null,
     headers: buildRequestHeaders(headers, request.headers),
   };
 }

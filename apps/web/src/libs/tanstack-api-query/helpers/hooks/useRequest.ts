@@ -27,8 +27,9 @@ interface Request<
 > {
   method: Method;
   path: string;
-  configs?: RequestConfig<Entity>;
+  configs?: RequestConfig;
   isProtected?: boolean;
+  data?: Entity;
   queries?: QueryManyRequest<Include, Filterable, Sortable>;
 }
 export const useFetchRequest = ({ baseUrl, requestInit }: UseFetchRequest) => {
@@ -70,12 +71,13 @@ export const useFetchRequest = ({ baseUrl, requestInit }: UseFetchRequest) => {
         }),
         options.method,
         {
-          data: options?.configs?.data,
           headers: options?.configs?.headers,
         },
+        options?.data,
         requestInit
       )
     );
+
     const response = await fetch(request).catch((err) => {
       throw err;
     });

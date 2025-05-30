@@ -7,7 +7,7 @@ export function usePatchMutation<Entity, Mutate = Entity>(path: string) {
   const {
     methods: { patch },
   } = useFetch();
-  return useMutation<Entity, Error, RequestConfig<Mutate>>({
+  return useMutation<Entity, Error, RequestConfig & { data: Mutate }>({
     mutationFn: async (request) => {
       let fullPath = cleanPath(path);
       if (request?.id) {
@@ -16,7 +16,7 @@ export function usePatchMutation<Entity, Mutate = Entity>(path: string) {
 
       return await patch<Entity, Mutate>({
         path: fullPath,
-        isProtected: request.isProtected,
+        isProtected: request?.isProtected ?? true,
         data: request.data,
         configs: {
           baseURL: request?.baseURL,
