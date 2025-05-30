@@ -10,7 +10,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Component } from './component.entity';
 import { MeasurementScaleSubComponent } from './measurement-scale-sub-component.entity';
-import { SubcomponenttanslationDto } from '@africa-cdc/shared/dtos';
+import { SubcomponenttanslationDto } from '@shared/dtos';
 
 @Entity('sub_components')
 export class SubComponent extends BaseEntityWithSoftDelete {

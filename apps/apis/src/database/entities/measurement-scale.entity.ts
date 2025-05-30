@@ -3,7 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { MeasurementScaleSubComponent } from './measurement-scale-sub-component.entity';
 import { Roadmap } from './roadmap.entity';
-import { MeasurementScaleTranslationDto } from '@africa-cdc/shared/dtos';
+import { MeasurementScaleTranslationDto } from '@shared/dtos';
 
 @Entity('measurement_scales')
 export class MeasurementScale extends BaseEntityWithSoftDelete {

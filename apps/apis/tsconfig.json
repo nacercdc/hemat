@@ -20,7 +20,10 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "paths": {
-      "@africa-cdc/*": ["./src/*"]
+      "@config/*": ["./src/config/*"],
+      "@database/*": ["./src/database/*"],
+      "@modules/*": ["./src/modules/*"],
+      "@shared/*": ["./src/shared/*"]
     }
   }
 }

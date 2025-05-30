@@ -9,7 +9,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
-import { MemberRole } from '../../shared';
+import { MemberRole } from '@shared/enums';
 import { User } from './user.entity';
 import { AssessmentGroup } from './assessment-group.entity';
 

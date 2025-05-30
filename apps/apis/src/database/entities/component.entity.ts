@@ -10,7 +10,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Domain } from './domain.entity';
 import { SubComponent } from './sub-component.entity';
-import { ComponenttanslationDto } from '@africa-cdc/shared/dtos';
+import { ComponenttanslationDto } from '@shared/dtos';
 
 @Entity('components')
 export class Component extends BaseEntityWithSoftDelete {

@@ -11,7 +11,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { AssessmentSubComponent } from './assessment-sub-component.entity';
 import { AssessmentMeasurementScale } from './assessment-measurement-scale.entity';
-import { MeasurementScaleSubcomponentTranslationDto } from '@africa-cdc/shared/dtos';
+import { MeasurementScaleSubcomponentTranslationDto } from '@shared/dtos';
 
 @Entity('assessment_measurement_scale_sub_components')
 @Unique(['subComponentId', 'measurementScaleId'])

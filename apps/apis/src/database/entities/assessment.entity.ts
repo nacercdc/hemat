@@ -19,7 +19,7 @@ import { AssessmentDomain } from './assessment-domain.entity';
 import { AssessmentComponent } from './assessment-component.entity';
 import { AssessmentMeasurementScale } from './assessment-measurement-scale.entity';
 import { Country } from './country.entity';
-import { AssessmentStatus } from '../../shared';
+import { AssessmentStatus } from '@shared/enums';
 import { AssessmentGroup } from './assessment-group.entity';
 
 @Entity('assessments')

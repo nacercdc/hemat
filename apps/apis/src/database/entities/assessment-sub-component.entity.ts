@@ -15,7 +15,7 @@ import { AssessmentComponent } from './assessment-component.entity';
 import { AssessmentAnswer } from './assessment-answer.entity';
 import { Roadmap } from './roadmap.entity';
 import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
-import { SubcomponenttanslationDto } from '@africa-cdc/shared/dtos';
+import { SubcomponenttanslationDto } from '@shared/dtos';
 
 @Entity('assessment_sub_components')
 @Unique(['code', 'assessmentId'])
