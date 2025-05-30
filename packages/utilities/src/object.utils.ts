@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import get from "lodash.get";
 
 export function omit<T extends Record<string, unknown>, K extends keyof T>(
@@ -29,3 +30,26 @@ export type DeepKeyOf<T> = T extends object
 export const getValueFromPath = <T>(entity: T, path: DeepKeyOf<T>): string => {
   return get(entity, path) as string;
 };
+
+export function flattenParams(
+  params: object,
+  prefix?: string
+): Record<string, string> {
+  const result: Record<string, string> = {};
+
+  for (const key in params) {
+    const value = (params as any)[key] ?? null;
+
+    if (!value) continue;
+
+    const newKey = prefix ? `${prefix}[${key}]` : key;
+
+    if (typeof value === "object" && value !== null) {
+      Object.assign(result, flattenParams(value, newKey));
+    } else {
+      result[newKey] = value;
+    }
+  }
+
+  return result;
+}

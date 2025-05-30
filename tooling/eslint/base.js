@@ -77,6 +77,8 @@ export default tseslint.config(
       "@typescript-eslint/no-unsafe-member-access": "off",
       "no-restricted-properties": "off",
       "turbo/no-undeclared-env-vars": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "no-empty": "off",
     },
   },
   {
