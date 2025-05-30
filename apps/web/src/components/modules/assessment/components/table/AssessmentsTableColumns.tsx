@@ -1,0 +1,100 @@
+import React from "react";
+import { Badge } from "@etm/web-ui-components";
+import CustomerAction from "./AssessmentsAction";
+
+import type { BadgeVariants, ColumnDef } from "@etm/web-ui-components";
+import type { Assessment, StatusType } from "~/libs/models/assessment.model";
+
+const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
+  Draft: "dark",
+  Pending: "warning",
+  Closed: "destructive",
+  Ready: "info",
+  "In-Progress": "progress",
+  Completed: "success",
+};
+
+interface Props {
+  refetch: () => void;
+}
+export const AssessmentsTableColumns = ({
+  refetch,
+}: Props): ColumnDef<Assessment>[] => [
+  {
+    header: "Name",
+    accessorKey: "name",
+    enableColumnFilter: false,
+    cell: ({ row }) => {
+      return <span>{row.original.name}</span>;
+    },
+  },
+  {
+    header: "Created By",
+    accessorKey: "createdBy",
+    enableColumnFilter: false,
+    cell: ({
+      row: {
+        original: {
+          createdBy: { firstName, lastName },
+        },
+      },
+    }) => <span>{`${firstName} ${lastName}`}</span>,
+  },
+
+  {
+    header: "Start Date",
+    accessorKey: "startDate",
+    enableColumnFilter: false,
+    cell: ({ row }) => (
+      <span>{new Date(row.original.startDate).toLocaleDateString()}</span>
+    ),
+  },
+
+  {
+    header: "End Date",
+    accessorKey: "endDate",
+    enableColumnFilter: false,
+    cell: ({ row }) => (
+      <span>{new Date(row.original.endDate).toLocaleDateString()}</span>
+    ),
+  },
+
+  {
+    header: "Country",
+    accessorKey: "country",
+    enableColumnFilter: false,
+    cell: ({ row }) => <span>{row.original.country.name}</span>,
+  },
+
+  {
+    header: "Status",
+    accessorKey: "status",
+    enableColumnFilter: false,
+    cell: ({ row }) => {
+      return (
+        <Badge
+          text={row.original.status}
+          variant={StatusVariantClasses[row.original.status]}
+          shape="circular"
+        />
+      );
+    },
+  },
+  {
+    header: "Date created",
+    accessorKey: "created_at",
+    enableColumnFilter: false,
+    cell: ({ row }) => (
+      <span>{new Date(row.original.createdAt).toLocaleDateString()}</span>
+    ),
+  },
+  {
+    header: "Action",
+    accessorKey: "",
+    enableColumnFilter: false,
+    enableSorting: false,
+    cell: ({ row }) => (
+      <CustomerAction assessment={row.original} refetch={refetch} />
+    ),
+  },
+];
