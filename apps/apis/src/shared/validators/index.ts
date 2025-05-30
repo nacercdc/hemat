@@ -2,6 +2,7 @@ export * from './decorators';
 export * from './alpha-space-only.validator';
 export * from './email.validator';
 export * from './exist.validator';
+export * from './array-contains.validator';
 export * from './match.validator';
 export * from './object-key-in.validator';
 export * from './object-value-in.validator';

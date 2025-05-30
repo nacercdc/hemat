@@ -1,6 +1,7 @@
 export * from './alpha-space-only.decorator';
 export * from './email.decorator';
 export * from './exist.decorator';
+export * from './array-contains.decorator';
 export * from './match.decorator';
 export * from './object-key-in.decorator';
 export * from './object-value-in.decorator';
