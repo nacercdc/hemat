@@ -10,6 +10,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Component } from './component.entity';
 import { MeasurementScaleSubComponent } from './measurement-scale-sub-component.entity';
+import { SubcomponenttanslationDto } from '@africa-cdc/shared/dtos';
 
 @Entity('sub_components')
 export class SubComponent extends BaseEntityWithSoftDelete {
@@ -44,6 +45,13 @@ export class SubComponent extends BaseEntityWithSoftDelete {
   })
   @Column({ default: true })
   isActive: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Assessments related to this Sub component',
+    type: () => SubcomponenttanslationDto,
+  })
+  @Column('jsonb')
+  translations: Record<string, SubcomponenttanslationDto> = {};
 
   @ApiPropertyOptional({
     description: 'ID of the associated component',

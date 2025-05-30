@@ -6,8 +6,10 @@ import {
   IsUUID,
   IsOptional,
   IsBoolean,
+  IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { SubcomponenttanslationDto } from '@africa-cdc/shared/dtos';
 
 export class SubComponentUpdateRequestDto {
   @ApiProperty({
@@ -80,4 +82,20 @@ export class SubComponentUpdateRequestDto {
   @IsUUID('4', { message: 'validation.componentId.isUUID' })
   @Type(() => String)
   componentId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Translations for the domain',
+    example: {
+      en: {
+        code: '1',
+        name: 'Public Health',
+        description: 'Domain covering public health initiatives',
+      },
+    },
+    type: () => Object,
+  })
+  @IsOptional()
+  @IsObject({ message: 'validation.translations.isObject' })
+  @Type(() => Object)
+  translations?: Record<string, SubcomponenttanslationDto>;
 }

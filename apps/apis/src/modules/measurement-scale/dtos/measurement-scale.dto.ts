@@ -8,8 +8,10 @@ import {
   Min,
   Max,
   IsOptional,
+  IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { MeasurementScaleTranslationDto } from '@africa-cdc/shared/dtos';
 
 export class MeasurementScaleCreateRequestDto {
   @ApiProperty({
@@ -34,7 +36,9 @@ export class MeasurementScaleCreateRequestDto {
   })
   @IsNotEmpty({ message: 'validation.description.isNotEmpty' })
   @IsString({ message: 'validation.description.isString' })
-  @Length(1, 500, { message: 'validation.description.length args: min:1 | max:500' })
+  @Length(1, 500, {
+    message: 'validation.description.length args: min:1 | max:500',
+  })
   @Type(() => String)
   description: string;
 
@@ -62,6 +66,21 @@ export class MeasurementScaleCreateRequestDto {
   @Max(10, { message: 'validation.rate.max args: value:10' })
   @Type(() => Number)
   rate: number;
+
+  @ApiProperty({
+    description: 'Translations for the Measuremnt scale',
+    example: {
+      en: {
+        name: 'Initated',
+        description: 'Measuremnt scale covering public health initiatives',
+      },
+    },
+    type: () => Object,
+  })
+  @IsNotEmpty({ message: 'validation.translations.isNotEmpty' })
+  @IsObject({ message: 'validation.translations.isObject' })
+  @Type(() => Object)
+  translations: Record<string, MeasurementScaleTranslationDto>;
 }
 
 export class MeasurementScaleUpdateRequestDto {
@@ -97,7 +116,9 @@ export class MeasurementScaleUpdateRequestDto {
   })
   @IsOptional()
   @IsString({ message: 'validation.description.isString' })
-  @Length(1, 500, { message: 'validation.description.length args: min:1 | max:500' })
+  @Length(1, 500, {
+    message: 'validation.description.length args: min:1 | max:500',
+  })
   @Type(() => String)
   description?: string;
 
@@ -125,4 +146,20 @@ export class MeasurementScaleUpdateRequestDto {
   @Max(10, { message: 'validation.rate.max args: value:10' })
   @Type(() => Number)
   rate?: number;
+
+  @ApiPropertyOptional({
+    description: 'Translations for the Measuremntscale',
+    example: {
+      en: {
+        code: '1',
+        name: 'Public Health',
+        description: 'Measuremntscale covering public health initiatives',
+      },
+    },
+    type: () => Object,
+  })
+  @IsOptional()
+  @IsObject({ message: 'validation.translations.isObject' })
+  @Type(() => Object)
+  translations?: Record<string, MeasurementScaleTranslationDto>;
 }

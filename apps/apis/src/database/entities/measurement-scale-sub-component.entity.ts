@@ -1,8 +1,9 @@
 import { Entity, Column, ManyToOne, Index, JoinColumn, Unique } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { SubComponent } from './sub-component.entity';
-import {  MeasurementScale } from './measurement-scale.entity';
+import { MeasurementScale } from './measurement-scale.entity';
+import { MeasurementScaleSubcomponentTranslationDto } from '@africa-cdc/shared/dtos';
 
 @Entity('measurement_scale_sub_components')
 @Unique(['subComponentId', 'measurementScaleId'])
@@ -37,7 +38,10 @@ export class MeasurementScaleSubComponent extends BaseEntityWithSoftDelete {
     description: 'Associated measurement',
     type: () => MeasurementScale,
   })
-  @ManyToOne(() => MeasurementScale, (measurementScale) => measurementScale.measurementScaleSubComponents)
+  @ManyToOne(
+    () => MeasurementScale,
+    (measurementScale) => measurementScale.measurementScaleSubComponents,
+  )
   @JoinColumn({ name: 'measurementScaleId' })
   measurementScale: MeasurementScale;
 
@@ -48,4 +52,11 @@ export class MeasurementScaleSubComponent extends BaseEntityWithSoftDelete {
   })
   @Column({ type: 'text' })
   description: string;
+
+  @ApiPropertyOptional({
+    description: 'Assessments related to this Measuremnt scale Subcomponent',
+    type: () => MeasurementScaleSubcomponentTranslationDto,
+  })
+  @Column('jsonb')
+  translations: Record<string, MeasurementScaleSubcomponentTranslationDto> = {};
 }

@@ -5,8 +5,10 @@ import {
   Length,
   IsBoolean,
   IsOptional,
+  IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { DomaintranslationDto } from '@africa-cdc/shared/dtos';
 
 export class DomainUpdateRequestDto {
   @ApiProperty({
@@ -69,4 +71,20 @@ export class DomainUpdateRequestDto {
   @IsBoolean({ message: 'validation.isActive.isBoolean' })
   @Type(() => Boolean)
   isActive?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Translations for the domain',
+    example: {
+      en: {
+        code: '1',
+        name: 'Public Health',
+        description: 'Domain covering public health initiatives',
+      },
+    },
+    type: () => Object,
+  })
+  @IsOptional()
+  @IsObject({ message: 'validation.translations.isObject' })
+  @Type(() => Object)
+  translations?: Record<string, DomaintranslationDto>;
 }
