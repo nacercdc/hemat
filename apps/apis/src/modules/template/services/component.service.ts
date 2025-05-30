@@ -1,23 +1,136 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
-import { CrudService } from '../../../shared/services';
-import { Component, Domain } from '../../../database/entities';
-import { COMPONENT_FIELD_CONFIG } from '../config/component-field-config';
+import { Repository, DataSource } from 'typeorm';
+import { Component, Domain } from '@database/entities';
+import { QueryService } from '@shared/services';
+import {
+  FindAllComponentDto,
+  FindOneComponentDto,
+  ComponentCreateRequestDto,
+  ComponentUpdateRequestDto,
+} from '../dtos';
+import { FindAllResponseDto } from '@shared/dtos';
 
 @Injectable()
-export class ComponentService extends CrudService<Component> {
-  private readonly loggerService = new Logger(ComponentService.name);
-  protected includes = COMPONENT_FIELD_CONFIG.includeRelations;
-  protected selectable = COMPONENT_FIELD_CONFIG.selectableFields;
-  protected searchable = COMPONENT_FIELD_CONFIG.searchableFields;
-  protected filterable = COMPONENT_FIELD_CONFIG.filterableFields;
-  protected sortable = COMPONENT_FIELD_CONFIG.sortableFields;
+export class ComponentService {
+  private readonly logger = new Logger(ComponentService.name);
 
   constructor(
     @InjectRepository(Component)
     private readonly componentRepository: Repository<Component>,
-  ) {
-    super(componentRepository);
+    private readonly dataSource: DataSource,
+  ) {}
+
+  async findAll(
+    query: FindAllComponentDto,
+  ): Promise<FindAllResponseDto<Component>> {
+    try {
+      return await new QueryService<Component>(this.componentRepository)
+        .join(query.include)
+        .filter([], {
+          fields: ['code', 'name'],
+          value: query.search,
+        })
+        .sort({ ascending: query.ascending, descending: query.descending })
+        .take(query.take)
+        .skip(query.skip)
+        .getManyAndCount();
+    } catch (err) {
+      this.logger.error('findAll:', err);
+      throw new BadRequestException('Failed to fetch components.');
+    }
+  }
+
+  async findOne(id: string, query: FindOneComponentDto): Promise<Component> {
+    const component = await this.componentRepository.findOne({
+      where: { id },
+      relations: query.include,
+    });
+
+    if (!component) {
+      throw new NotFoundException(`Component ${id} not found.`);
+    }
+
+    return component;
+  }
+
+  async create(payload: ComponentCreateRequestDto): Promise<Component> {
+    return this.dataSource.transaction(async (manager) => {
+      const domain = await manager.getRepository(Domain).findOne({
+        where: { id: payload.domainId },
+      });
+
+      if (!domain) {
+        throw new NotFoundException(`Domain ${payload.domainId} not found.`);
+      }
+
+      const component = manager.getRepository(Component).create({
+        ...payload,
+        domain,
+      });
+
+      return await manager.getRepository(Component).save(component);
+    });
+  }
+
+  async update(
+    id: string,
+    payload: ComponentUpdateRequestDto,
+  ): Promise<Component> {
+    return this.dataSource.transaction(async (manager) => {
+      const component = await manager.getRepository(Component).findOne({
+        where: { id },
+        relations: ['domain'],
+      });
+
+      if (!component) {
+        throw new NotFoundException(`Component ${id} not found.`);
+      }
+
+      let domain = component.domain;
+      if (payload.domainId && payload.domainId !== component.domain.id) {
+        const newDomain = await manager.getRepository(Domain).findOne({
+          where: { id: payload.domainId },
+        });
+
+        if (!newDomain) {
+          throw new NotFoundException(`Domain ${payload.domainId} not found.`);
+        }
+        domain = newDomain;
+      }
+
+      Object.assign(component, { ...payload, domain });
+      return await manager.getRepository(Component).save(component);
+    });
+  }
+
+  async delete(id: string): Promise<Component> {
+    const component = await this.componentRepository.findOne({
+      where: { id },
+    });
+
+    if (!component) {
+      throw new NotFoundException(`Component ${id} not found.`);
+    }
+
+    return await this.componentRepository.softRemove(component);
+  }
+
+  async restore(id: string): Promise<Component> {
+    const component = await this.componentRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+
+    if (!component) {
+      throw new NotFoundException(`Component ${id} not found.`);
+    }
+
+    return await this.componentRepository.recover(component);
   }
 }

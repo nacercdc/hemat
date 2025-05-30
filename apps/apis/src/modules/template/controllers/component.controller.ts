@@ -8,12 +8,14 @@ import {
   Body,
   Query,
   HttpCode,
+  HttpStatus,
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
+  ApiOkResponse,
   ApiCreatedResponse,
   ApiBearerAuth,
   ApiBadRequestResponse,
@@ -21,24 +23,19 @@ import {
   ApiForbiddenResponse,
   ApiUnprocessableEntityResponse,
   ApiTooManyRequestsResponse,
-  ApiOkResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { Component } from '../../../database/entities';
-import { Abilities, AuthGuard } from '../../../shared/modules';
-import {
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from '../../../shared/enums';
-import {
-  ExceptionResponseDto,
-  QueryManyRequestDto,
-  QueryManyResponseDto,
-  QueryOneRequestDto,
-} from '../../../shared/dtos';
+import { Component } from '@database/entities';
+import { Abilities, AuthGuard } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { ComponentService } from '../services';
-import { ComponentCreateRequestDto, ComponentUpdateRequestDto } from '../dtos';
-import { COMPONENT_FIELD_CONFIG } from '../config/component-field-config';
+import {
+  FindAllComponentDto,
+  FindOneComponentDto,
+  ComponentCreateRequestDto,
+  ComponentUpdateRequestDto,
+} from '../dtos';
 
 @ApiBearerAuth()
 @ApiTags('Components')
@@ -68,8 +65,9 @@ export class ComponentController {
     summary: 'Find all',
     description: 'Get all components with pagination',
   })
-  @ApiOkResponse({ description: 'Ok', type: QueryManyResponseDto<Component> })
-  @HttpCode(200)
+  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Component> })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -80,15 +78,14 @@ export class ComponentController {
     ],
   })
   @Get()
-  async findAll(@Query() query: QueryManyRequestDto) {
-    query.select ??= COMPONENT_FIELD_CONFIG.baseFields.join(',');
-    query.include ??= COMPONENT_FIELD_CONFIG.includeRelations.join(',');
-    return this.componentService.findAll({ query });
+  async findAll(@Query() query: FindAllComponentDto) {
+    return this.componentService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Find one', description: 'Get a component by ID' })
   @ApiOkResponse({ description: 'Ok', type: Component })
-  @HttpCode(200)
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -101,16 +98,18 @@ export class ComponentController {
   @Get(':id')
   async findOne(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Query() query: QueryOneRequestDto,
+    @Query() query: FindOneComponentDto,
   ) {
-    query.select ??= COMPONENT_FIELD_CONFIG.baseFields.join(',');
-    query.include ??= COMPONENT_FIELD_CONFIG.includeRelations.join(',');
-    return this.componentService.findOne(id, { query });
+    return this.componentService.findOne(id, query);
   }
 
   @ApiOperation({ summary: 'Create', description: 'Create a new component' })
   @ApiCreatedResponse({ description: 'Created', type: Component })
-  @HttpCode(201)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.CREATED)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -128,7 +127,11 @@ export class ComponentController {
   @ApiOperation({ summary: 'Update', description: 'Update a component by ID' })
   @ApiOkResponse({ description: 'Ok', type: Component })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -143,13 +146,20 @@ export class ComponentController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: ComponentUpdateRequestDto,
   ) {
-    return this.componentService.update({ id }, payload);
+    return this.componentService.update(id, payload);
   }
 
-  @ApiOperation({ summary: 'Delete', description: 'Delete a component by ID' })
-  @ApiOkResponse({ description: 'Ok', type: Object })
+  @ApiOperation({
+    summary: 'Delete',
+    description: 'Soft delete a component by ID',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Component })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -161,17 +171,20 @@ export class ComponentController {
   })
   @Delete(':id')
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {
-    const deletedEntity = await this.componentService.delete({ id });
-    return { message: 'Component deleted successfully', data: deletedEntity };
+    return this.componentService.delete(id);
   }
 
   @ApiOperation({
     summary: 'Restore',
     description: 'Restore a component by ID',
   })
-  @ApiOkResponse({ description: 'Ok', type: Object })
+  @ApiOkResponse({ description: 'Ok', type: Component })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -183,7 +196,6 @@ export class ComponentController {
   })
   @Post(':id/restore')
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
-    const restoredEntity = await this.componentService.restore({ id });
-    return { message: 'Component restored successfully', data: restoredEntity };
+    return this.componentService.restore(id);
   }
 }

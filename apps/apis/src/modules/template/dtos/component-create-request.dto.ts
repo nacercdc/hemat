@@ -1,14 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   IsNotEmpty,
   Length,
   IsUUID,
   IsBoolean,
+  IsOptional,
   IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ComponenttanslationDto } from '@africa-cdc/shared/dtos';
+import { IsUnique, IsExists } from '@shared/validators';
+import { ComponenttanslationDto } from '@shared/dtos';
 
 export class ComponentCreateRequestDto {
   @ApiProperty({
@@ -21,6 +23,10 @@ export class ComponentCreateRequestDto {
   @IsNotEmpty({ message: 'validation.code.isNotEmpty' })
   @IsString({ message: 'validation.code.isString' })
   @Length(1, 50, { message: 'validation.code.length args: min:1 | max:50' })
+  @IsUnique(
+    { tableName: 'components', columns: ['code'] },
+    { message: 'validation.code.isUnique' },
+  )
   @Type(() => String)
   code: string;
 
@@ -69,15 +75,19 @@ export class ComponentCreateRequestDto {
   })
   @IsNotEmpty({ message: 'validation.domainId.isNotEmpty' })
   @IsUUID('4', { message: 'validation.domainId.isUUID' })
+  @IsExists(
+    { tableName: 'domains', columns: ['id'] },
+    { message: 'validation.domainId.isExists' },
+  )
   @Type(() => String)
   domainId: string;
 
   @ApiProperty({
-    description: 'Translations for the Component',
+    description: 'Translations for the component',
     example: {
       en: {
-        code: '1',
-        name: 'Public Health',
+        code: '1.A',
+        name: 'Vaccination Program',
         description: 'Component covering public health initiatives',
       },
     },

@@ -9,7 +9,7 @@ import {
   IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ComponenttanslationDto } from '@africa-cdc/shared/dtos';
+import { ComponenttanslationDto } from '@shared/dtos';
 
 export class ComponentUpdateRequestDto {
   @ApiProperty({

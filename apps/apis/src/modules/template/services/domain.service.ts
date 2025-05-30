@@ -1,23 +1,95 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
-import { CrudService } from '../../../shared/services';
-import { Domain } from '../../../database/entities';
-import { DOMAIN_FIELD_CONFIG } from '../config/domain-field-config';
+import { Repository } from 'typeorm';
+import { Domain } from '@database/entities';
+import { QueryService } from '@shared/services';
+import {
+  FindAllDomainDto,
+  DomainCreateRequestDto,
+  DomainUpdateRequestDto,
+} from '../dtos';
+import { FindAllResponseDto } from '@shared/dtos';
 
 @Injectable()
-export class DomainService extends CrudService<Domain> {
-  private readonly loggerService = new Logger(DomainService.name);
-  protected includes = DOMAIN_FIELD_CONFIG.includeRelations;
-  protected selectable = DOMAIN_FIELD_CONFIG.selectableFields;
-  protected searchable = DOMAIN_FIELD_CONFIG.searchableFields;
-  protected filterable = DOMAIN_FIELD_CONFIG.filterableFields;
-  protected sortable = DOMAIN_FIELD_CONFIG.sortableFields;
+export class DomainService {
+  private readonly logger = new Logger(DomainService.name);
 
   constructor(
     @InjectRepository(Domain)
     private readonly domainRepository: Repository<Domain>,
-  ) {
-    super(domainRepository);
+  ) {}
+
+  async findAll(query: FindAllDomainDto): Promise<FindAllResponseDto<Domain>> {
+    try {
+      return await new QueryService<Domain>(this.domainRepository)
+        .filter([{ field: 'isActive', operator: '=', value: true || false }], {
+          fields: ['code', 'name'],
+          value: query.search,
+        })
+        .sort({ ascending: query.ascending, descending: query.descending })
+        .take(query.take)
+        .skip(query.skip)
+        .getManyAndCount();
+    } catch (err) {
+      this.logger.error('findAll:', err);
+      throw new BadRequestException('Failed to fetch domains.');
+    }
+  }
+  async findOne(id: string): Promise<Domain> {
+    const domain = await this.domainRepository.findOne({ where: { id } });
+
+    if (!domain) {
+      throw new NotFoundException(`Domain ${id} not found.`);
+    }
+
+    return domain;
+  }
+
+  async create(payload: DomainCreateRequestDto): Promise<Domain> {
+    const domain = this.domainRepository.create(payload);
+    return await this.domainRepository.save(domain);
+  }
+
+  async update(id: string, payload: DomainUpdateRequestDto): Promise<Domain> {
+    const domain = await this.domainRepository.findOne({
+      where: { id },
+    });
+
+    if (!domain) {
+      throw new NotFoundException(`Domain ${id} not found.`);
+    }
+
+    Object.assign(domain, payload);
+    return await this.domainRepository.save(domain);
+  }
+
+  async delete(id: string): Promise<Domain> {
+    const domain = await this.domainRepository.findOne({
+      where: { id },
+    });
+
+    if (!domain) {
+      throw new NotFoundException(`Domain ${id} not found.`);
+    }
+
+    return await this.domainRepository.softRemove(domain);
+  }
+
+  async restore(id: string): Promise<Domain> {
+    const domain = await this.domainRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+
+    if (!domain) {
+      throw new NotFoundException(`Domain ${id} not found.`);
+    }
+
+    return await this.domainRepository.recover(domain);
   }
 }

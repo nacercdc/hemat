@@ -4,3 +4,6 @@ export * from './domain-create-request.dto';
 export * from './domain-update-request.dto';
 export * from './sub-component-create-request.dto';
 export * from './sub-component-update-request.dto';
+export * from './query-domain.dto';
+export * from './query-component.dto';
+export * from './query-sub-component.dto';
