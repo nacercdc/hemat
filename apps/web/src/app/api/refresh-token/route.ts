@@ -6,8 +6,7 @@ import jwt from "jsonwebtoken";
 
 import { refreshAccessToken } from "~/app/actions/refresh-token.actions";
 import { getTokenExpireMilliseconds } from "@etm/utilities/date.utils";
-import { clearAuthCookies, SET_COOKIE_CONFIG } from "../configs/cookie.config";
-import { setAuthCookies } from "../utils";
+import { clearAuthCookies, setAuthCookies } from "../utils";
 
 export async function GET(): Promise<NextResponse> {
   const cookieStore = await cookies();

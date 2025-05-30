@@ -29,13 +29,6 @@ export const authenticateUser = async ({
   return rawResult as LoginResponse;
 };
 
-export const clearAuthCookies = (response: NextResponse): void => {
-  const cookies = COOKIE_KEYS.map((key) =>
-    serialize(key, "", SET_COOKIE_CONFIG)
-  );
-  response.headers.set("Set-Cookie", cookies.join(", "));
-};
-
 export function setAuthCookies(
   response: NextResponse,
   tokens: TokenResponse
@@ -51,3 +44,10 @@ export function setAuthCookies(
   ];
   response.headers.set("Set-Cookie", cookies.join(", "));
 }
+
+export const clearAuthCookies = (response: NextResponse): void => {
+  const cookies = COOKIE_KEYS.map((key) =>
+    serialize(key, "", { ...SET_COOKIE_CONFIG, expires: new Date(0) })
+  );
+  response.headers.set("Set-Cookie", cookies.join(", "));
+};

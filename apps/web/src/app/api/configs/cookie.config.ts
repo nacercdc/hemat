@@ -1,23 +1,14 @@
-import { serialize } from "cookie";
-import type { NextResponse } from "next/server";
 export const COOKIE_KEYS = ["token", "refreshToken", "expires"] as const;
 
-export const BASE_COOKIE_CONFIG = {
+export const SET_COOKIE_CONFIG = {
   httpOnly: true,
   path: "/",
   sameSite: "lax" as const,
   secure: process.env.NODE_ENV === "production",
+  maxAge: 60 * 60 * 24 * 7,
 };
 
-export const SET_COOKIE_CONFIG = {
-  ...BASE_COOKIE_CONFIG,
-  secure: true,
+export const CLEAR_COOKIE_CONFIG = {
+  ...SET_COOKIE_CONFIG,
   expires: new Date(0),
-};
-
-export const clearAuthCookies = (response: NextResponse): void => {
-  const cookies = COOKIE_KEYS.map((key) =>
-    serialize(key, "", { ...BASE_COOKIE_CONFIG, expires: new Date(0) })
-  );
-  response.headers.set("Set-Cookie", cookies.join(", "));
 };
