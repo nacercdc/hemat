@@ -29,7 +29,7 @@ import {
   AssessmentMemberController,
   AssessmentSubComponentController,
 } from './controllers';
-import { AuthModule } from '../../shared';
+import { AuthModule } from '@shared/modules';
 import { AssessmentUtilityService } from './utils';
 
 @Module({

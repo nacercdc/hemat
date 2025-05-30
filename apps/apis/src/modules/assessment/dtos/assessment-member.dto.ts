@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID, IsEnum, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
-import { MemberRole } from '../../../shared';
+import { MemberRole } from '@shared/enums';
 
 export class AssessmentMemberCreateRequestDto {
   @ApiProperty({

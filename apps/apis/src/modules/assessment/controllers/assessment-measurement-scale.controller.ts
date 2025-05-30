@@ -20,13 +20,10 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AssessmentMeasurementScale } from '@africa-cdc/database/entities';
-import { AuthGuard, Abilities } from '@africa-cdc/shared/modules';
-import {
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from '@africa-cdc/shared/enums';
-import { ExceptionResponseDto } from '@africa-cdc/shared/dtos';
+import { AssessmentMeasurementScale } from '@database/entities';
+import { AuthGuard, Abilities } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ExceptionResponseDto } from '@shared/dtos';
 import { AssessmentMeasurementScaleService } from '../services';
 import { AssessmentMeasurementScaleDto } from '../dtos';
 

@@ -9,8 +9,8 @@ import {
   IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { MemberRole } from '@africa-cdc/shared';
-import { InvitationStatus } from '@africa-cdc/shared';
+import { MemberRole } from '@shared/enums';
+import { InvitationStatus } from '@shared/enums';
 
 export class InvitationCreateRequestDto {
   @ApiProperty({

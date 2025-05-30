@@ -22,18 +22,17 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import {
-  AuthGuard,
-  Abilities,
   PermissionActionEnum,
   PermissionSubjectEnum,
-} from '@africa-cdc/shared';
-import { ExceptionResponseDto } from '@africa-cdc/shared/dtos';
+} from '@shared/enums';
+import { ExceptionResponseDto } from '@shared/dtos';
 import { InvitationService } from '../services';
 import {
   InvitationCreateRequestDto,
   InvitationUpdateRequestDto,
 } from '../dtos';
-import { Invitation } from '@africa-cdc/database/entities';
+import { Invitation } from '@database/entities';
+import { Abilities, AuthGuard } from '@shared/modules';
 
 @ApiBearerAuth()
 @ApiTags('Invitations')

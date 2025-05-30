@@ -12,7 +12,7 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { GenderEnum } from '@africa-cdc/shared';
+import { GenderEnum } from '@shared/enums';
 
 export class RegisterRequestDto {
   @ApiProperty({

@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { AssessmentComponent, Component } from '@africa-cdc/database/entities';
+import { AssessmentComponent, Component } from '@database/entities';
 import { AssessmentComponentDto } from '../dtos';
-import { UUID } from '@africa-cdc/shared';
+import { UUID } from '@shared/helpers';
 
 @Injectable()
 export class AssessmentComponentService {

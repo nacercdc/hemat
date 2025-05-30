@@ -14,17 +14,17 @@ import {
   AssessmentGroup,
   User,
   AssessmentMember,
-} from '@africa-cdc/database/entities';
+} from '@database/entities';
 import {
   InvitationCreateRequestDto,
   InvitationUpdateRequestDto,
 } from '../dtos';
-import { AssessmentMemberService } from '@africa-cdc/modules/assessment/services';
-import { InvitationStatus, MemberRole } from '@africa-cdc/shared';
+import { AssessmentMemberService } from '@modules/assessment/services';
+import { InvitationStatus, MemberRole } from '@shared/enums';
 import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
-import { AppConfig } from '@africa-cdc/config';
-import { generateRandomToken } from '@africa-cdc/shared/helpers/token.helper';
+import { AppConfig } from '../../../config';
+import { generateRandomToken } from '@shared/helpers/token.helper';
 
 @Injectable()
 export class InvitationService {

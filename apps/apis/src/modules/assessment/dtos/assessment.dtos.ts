@@ -11,7 +11,7 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { AssessmentStatus } from 'src/shared';
+import { AssessmentStatus } from '@shared/enums';
 
 export class AssessmentCreateRequestDto {
   @ApiProperty({
