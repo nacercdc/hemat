@@ -11,7 +11,8 @@ import {
   IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { MeasurementScaleTranslationDto } from '@africa-cdc/shared/dtos';
+import { IsUnique } from '@shared/validators';
+import { MeasurementScaleTranslationDto } from '@shared/dtos';
 
 export class MeasurementScaleCreateRequestDto {
   @ApiProperty({
@@ -24,6 +25,10 @@ export class MeasurementScaleCreateRequestDto {
   @IsNotEmpty({ message: 'validation.name.isNotEmpty' })
   @IsString({ message: 'validation.name.isString' })
   @Length(1, 100, { message: 'validation.name.length args: min:1 | max:100' })
+  @IsUnique(
+    { tableName: 'measurement_scales', columns: ['name'] },
+    { message: 'validation.name.isUnique' },
+  )
   @Type(() => String)
   name: string;
 
@@ -68,11 +73,11 @@ export class MeasurementScaleCreateRequestDto {
   rate: number;
 
   @ApiProperty({
-    description: 'Translations for the Measuremnt scale',
+    description: 'Translations for the measurement scale',
     example: {
       en: {
-        name: 'Initated',
-        description: 'Measuremnt scale covering public health initiatives',
+        name: 'Initiated',
+        description: 'Measurement scale covering public health initiatives',
       },
     },
     type: () => Object,
@@ -84,16 +89,6 @@ export class MeasurementScaleCreateRequestDto {
 }
 
 export class MeasurementScaleUpdateRequestDto {
-  @ApiProperty({
-    description: 'ID of the measurement scale',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.id.isNotEmpty' })
-  @IsString({ message: 'validation.id.isString' })
-  @Type(() => String)
-  id: string;
-
   @ApiPropertyOptional({
     description: 'Name of the measurement scale',
     example: 'Initial',
@@ -104,6 +99,10 @@ export class MeasurementScaleUpdateRequestDto {
   @IsOptional()
   @IsString({ message: 'validation.name.isString' })
   @Length(1, 100, { message: 'validation.name.length args: min:1 | max:100' })
+  @IsUnique(
+    { tableName: 'measurement_scales', columns: ['name'], exclude: 'id' },
+    { message: 'validation.name.isUnique' },
+  )
   @Type(() => String)
   name?: string;
 
@@ -148,12 +147,11 @@ export class MeasurementScaleUpdateRequestDto {
   rate?: number;
 
   @ApiPropertyOptional({
-    description: 'Translations for the Measuremntscale',
+    description: 'Translations for the measurement scale',
     example: {
       en: {
-        code: '1',
-        name: 'Public Health',
-        description: 'Measuremntscale covering public health initiatives',
+        name: 'Initiated',
+        description: 'Measurement scale covering public health initiatives',
       },
     },
     type: () => Object,

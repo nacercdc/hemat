@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MeasurementScale } from '../../database/entities';
 import { MeasurementScaleService } from './services';
 import { MeasurementScaleController } from './controllers';
-import { AuthModule } from '../../shared';
+import { AuthModule } from '@shared/modules';
 
 @Module({
   imports: [TypeOrmModule.forFeature([MeasurementScale]), AuthModule],
