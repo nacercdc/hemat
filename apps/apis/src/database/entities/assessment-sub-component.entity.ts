@@ -12,10 +12,10 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentComponent } from './assessment-component.entity';
-import { AssessmentTranslationDto } from '../../shared/dtos';
 import { AssessmentAnswer } from './assessment-answer.entity';
 import { Roadmap } from './roadmap.entity';
 import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
+import { SubcomponenttanslationDto } from '@africa-cdc/shared/dtos';
 
 @Entity('assessment_sub_components')
 @Unique(['code', 'assessmentId'])
@@ -100,10 +100,10 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
 
   @ApiPropertyOptional({
     description: 'Assessments related to this domain',
-    type: () => AssessmentTranslationDto,
+    type: () => SubcomponenttanslationDto,
   })
   @Column('jsonb')
-  translations: AssessmentTranslationDto;
+  translations: Record<string, SubcomponenttanslationDto> = {};
 
   @ApiProperty({
     description: 'Associated measurement scales',

@@ -4,7 +4,7 @@ import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentAnswer } from './assessment-answer.entity';
 import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
-import { NameDescriptionDto } from 'src/shared/dtos';
+import { MeasurementScaleTranslationDto } from 'src/shared/dtos';
 
 @Entity('assessment_measurement_scale')
 export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
@@ -41,11 +41,11 @@ export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
   rate: number;
 
   @ApiPropertyOptional({
-    description: 'Assessments related to this domain',
-    type: () => NameDescriptionDto,
+    description: 'Assessments related to this Measuremnt scale',
+    type: () => MeasurementScaleTranslationDto,
   })
   @Column('jsonb')
-  translations: NameDescriptionDto;
+  translations: Record<string, MeasurementScaleTranslationDto> = {};
 
   @ApiProperty({
     description: 'ID of the associated assessment',
