@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, Length, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DescriptionTranslationDto } from '../../../shared/dtos';
+import { MeasurementScaleSubcomponentTranslationDto } from '../../../shared/dtos';
 
 export class AssessmentMeasurementScaleSubComponentDto {
   @ApiPropertyOptional({
@@ -17,9 +17,9 @@ export class AssessmentMeasurementScaleSubComponentDto {
 
   @ApiPropertyOptional({
     description: 'Translations for the measurement scale sub-component',
-    type: () => DescriptionTranslationDto,
+    type: () => MeasurementScaleSubcomponentTranslationDto,
   })
   @IsNotEmpty()
-  @Type(() => DescriptionTranslationDto)
-  translations: DescriptionTranslationDto;
+  @Type(() => MeasurementScaleSubcomponentTranslationDto)
+  translations: Record<string, MeasurementScaleSubcomponentTranslationDto> = {};
 }

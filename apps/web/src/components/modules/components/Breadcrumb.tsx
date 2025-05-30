@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { useBreadcrumbs } from "~/providers/breadcrumb/BreadCrumbProvider";
+import { useBreadcrumbs } from "~/providers/breadcrumb/BreadcrumbProvider";
 import { useEffect, useState } from "react";
 
 export function Breadcrumbs() {

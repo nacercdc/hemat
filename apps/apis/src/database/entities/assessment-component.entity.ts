@@ -12,7 +12,7 @@ import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentDomain } from './assessment-domain.entity';
 import { AssessmentSubComponent } from './assessment-sub-component.entity';
-import { AssessmentTranslationDto } from '../../shared/dtos';
+import { ComponenttanslationDto } from '../../shared/dtos';
 
 @Entity('assessment-components')
 @Unique(['code', 'assessmentId'])
@@ -60,10 +60,10 @@ export class AssessmentComponent extends BaseEntityWithSoftDelete {
 
   @ApiPropertyOptional({
     description: 'Assessments related to this domain',
-    type: () => AssessmentTranslationDto,
+    type: () => ComponenttanslationDto,
   })
   @Column('jsonb')
-  translations: AssessmentTranslationDto;
+  translations: Record<string, ComponenttanslationDto> = {};
 
   @ApiProperty({
     description: 'ID of the associated domain',

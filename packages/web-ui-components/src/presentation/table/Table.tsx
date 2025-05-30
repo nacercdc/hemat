@@ -29,7 +29,6 @@ interface Props<TData> {
   toolbar?: React.ReactNode;
   totalItems: number;
   isLoading: boolean;
-  showFilterFields?: boolean;
   pageSizeOptions?: number[];
   initialPagination?: PaginationState;
   enableRowSelection?: boolean;
@@ -47,10 +46,10 @@ export function Table<TData extends object>({
   data = [],
   totalItems,
   isLoading,
-  showFilterFields = true,
   pageSizeOptions,
   initialPagination,
   enableRowSelection = true,
+  onEmptyDataElement,
   onPaginationChange,
   onRowSelectionChange,
   onSortingChange,
@@ -182,13 +181,10 @@ export function Table<TData extends object>({
 
   return (
     <div
-      className={cn(
-        "w-full flex flex-col h-full overflow-hidden",
-        !showFilterFields && "justify-between"
-      )}
+      className={cn("w-full flex flex-col h-full overflow-hidden")}
       ref={tableContainerRef}
     >
-      {showFilterFields ? (
+      {onSearchFilterChange ? (
         <div className="flex w-full justify-between items-center mb-2">
           {collectionName && (
             <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
@@ -215,9 +211,9 @@ export function Table<TData extends object>({
           </div>
         </div>
       ) : (
-        <div className="flex  mb-2"> {toolbar}</div>
+        <div className="flex mb-2"> {toolbar}</div>
       )}
-      <div className="flex flex-col min-h-[650px] justify-between bg-transparent rounded-sm rounded-b-none">
+      <div className="flex flex-col min-h-[650px] justify-between bg-transparent rounded-sm">
         <div className="overflow-auto  p-0 rounded-sm rounded-b-none border-[1px] border-basic-300">
           <table className="w-full">
             <thead className="bg-basic-200 w-full sticky top-0 h-">
@@ -268,10 +264,19 @@ export function Table<TData extends object>({
                       rowSpan={pagination.pageSize}
                       className="h-full w-full"
                     >
-                      <div className="flex items-center justify-center gap-2">
-                        <Icon icon="lets-icons:sad-light" className="text-xl" />
-                        Sorry, no results found!
-                      </div>
+                      {onEmptyDataElement ?? (
+                        <div className="flex flex-col items-center justify-center gap-4">
+                          <div className="flex items-center justify-center w-32 h-32 rounded-full bg-tbaccent">
+                            <Icon
+                              icon="fluent:collections-empty-20-regular"
+                              className="w-16 h-16 text-secondary"
+                            />
+                          </div>
+                          <h6 className="text-secondary text-sm">
+                            Sorry, no results found
+                          </h6>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 )
@@ -279,19 +284,15 @@ export function Table<TData extends object>({
                 table.getRowModel().rows.map((row, index) => (
                   <tr
                     key={row.id}
-                    className={cn(
-                      "bg-card hover:bg-primary-50/40 h-11",
-                      index < table.getRowModel().rows.length - 1 &&
-                        "border-b-[1px] border-basic-300",
-                      {
-                        index,
-                      }
-                    )}
+                    className={cn("bg-card hover:bg-primary-50/40 h-11", {
+                      "border-b-[1px] border-basic-300":
+                        index !== table.getRowModel().rows.length - 1,
+                    })}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className="py-0 px-2 text-xs font-medium"
+                        className="py-0 px-2 text-sm font-medium"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -305,13 +306,15 @@ export function Table<TData extends object>({
             </tbody>
           </table>
         </div>
-        <TablePagination
-          table={table}
-          totalItems={totalItems}
-          disabled={isLoading || data.length === 0}
-          pageSizeOptions={pageSizeOptions}
-          onPaginationChange={onPaginationChange}
-        />
+        {onPaginationChange && (
+          <TablePagination
+            table={table}
+            totalItems={totalItems}
+            disabled={isLoading || data.length === 0}
+            pageSizeOptions={pageSizeOptions}
+            onPaginationChange={onPaginationChange}
+          />
+        )}
       </div>
     </div>
   );

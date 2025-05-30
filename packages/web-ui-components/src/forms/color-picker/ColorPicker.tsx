@@ -23,9 +23,10 @@ const colorPickerVariants = cva(
         warning: "border-warning-500 border-[1px] bg-card",
       },
       size: {
-        sm: "h-8 text-xs",
-        md: "h-9 text-sm",
-        lg: "h-10 text-base",
+        sm: " h-8 text-xs",
+        md: " h-9 text-sm",
+        lg: " h-10 text-base",
+        xl: "h-12 rounded-2 border-[1px] text-lg max-[770px]:text-sm",
       },
     },
     defaultVariants: {
@@ -40,9 +41,10 @@ const colorPickerInputVariants = cva(
   {
     variants: {
       size: {
-        sm: "h-7 text-xs",
-        md: "h-8 text-sm",
-        lg: "h-9 text-base",
+        sm: " h-7 text-xs",
+        md: " h-8 text-sm",
+        lg: " h-9 text-base",
+        xl: "h-11 rounded-2 border-[1px] text-lg max-[770px]:text-sm",
       },
     },
     defaultVariants: {
@@ -55,6 +57,7 @@ const pickerSizes = {
   sm: { width: 98, height: 100 },
   md: { width: 178, height: 150 },
   lg: { width: 258, height: 200 },
+  xl: { width: 338, height: 250 },
 };
 
 interface Props

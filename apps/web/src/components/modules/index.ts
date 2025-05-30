@@ -1,1 +1,2 @@
-export * from "./dashboard";
+export * from "./domains";
+export * from "./assessment";

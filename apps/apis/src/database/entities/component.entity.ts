@@ -10,6 +10,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Domain } from './domain.entity';
 import { SubComponent } from './sub-component.entity';
+import { ComponenttanslationDto } from '@africa-cdc/shared/dtos';
 
 @Entity('components')
 export class Component extends BaseEntityWithSoftDelete {
@@ -44,6 +45,13 @@ export class Component extends BaseEntityWithSoftDelete {
   })
   @Column({ default: true })
   isActive: boolean;
+
+  @ApiProperty({
+    description: 'Assessments related to this Components',
+    type: () => ComponenttanslationDto,
+  })
+  @Column('jsonb')
+  translations: Record<string, ComponenttanslationDto> = {};
 
   @ApiProperty({
     description: 'ID of the associated domain',
