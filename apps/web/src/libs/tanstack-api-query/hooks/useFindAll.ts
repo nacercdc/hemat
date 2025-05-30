@@ -56,7 +56,7 @@ export function useFindAll<
         Include,
         Filterable,
         Sortable
-      >(rest);
+      >({ ...rest, isProtected: rest.isProtected ?? true });
     },
   });
 }

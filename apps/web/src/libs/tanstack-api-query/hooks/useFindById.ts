@@ -39,7 +39,10 @@ export function useFindById<Entity, Include = unknown>(
     ...tqOptions,
     queryKey,
     queryFn: async () => {
-      return await get<Entity, Entity, Include>(rest);
+      return await get<Entity, Entity, Include>({
+        ...rest,
+        isProtected: rest.isProtected ?? true,
+      });
     },
   });
 }
