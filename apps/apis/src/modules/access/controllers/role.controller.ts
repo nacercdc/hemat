@@ -31,15 +31,14 @@ import {
   PermissionActionEnum,
   PermissionSubjectEnum,
 } from '../../../shared/enums';
-import {
-  ExceptionResponseDto,
-  QueryManyRequestDto,
-  QueryManyResponseDto,
-  QueryOneRequestDto,
-} from '../../../shared/dtos';
+import { ExceptionResponseDto, FindAllResponseDto } from '../../../shared/dtos';
 import { RoleService } from '../services';
-import { RoleCreateRequestDto, RoleUpdateRequestDto } from '../dtos';
-import { ROLE_FIELD_CONFIG } from '../config/role-field-config';
+import {
+  CreateRoleDto,
+  FindAllRoleDto,
+  FindOneRoleDto,
+  UpdateRoleDto,
+} from '../dtos';
 
 @ApiBearerAuth()
 @ApiTags('Roles')
@@ -69,7 +68,7 @@ export class RoleController {
     summary: 'Find all',
     description: 'Get all roles with pagination',
   })
-  @ApiOkResponse({ description: 'Ok', type: QueryManyResponseDto<Role> })
+  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Role> })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -81,13 +80,13 @@ export class RoleController {
     ],
   })
   @Get()
-  async findAll(@Query() query: QueryManyRequestDto) {
-    query.select ??= ROLE_FIELD_CONFIG.baseFields.join(',');
-    return this.roleService.findAll({ query });
+  async findAll(@Query() query: FindAllRoleDto) {
+    return this.roleService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Find one', description: 'Get a role by ID' })
   @ApiOkResponse({ description: 'Ok', type: Role })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -101,14 +100,17 @@ export class RoleController {
   @Get(':id')
   async findOne(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Query() query: QueryOneRequestDto,
+    @Query() query: FindOneRoleDto,
   ) {
-    query.select ??= ROLE_FIELD_CONFIG.baseFields.join(',');
-    return this.roleService.findOne(id, { query });
+    return this.roleService.findOne(id, query);
   }
 
   @ApiOperation({ summary: 'Create', description: 'Create a new role' })
   @ApiCreatedResponse({ description: 'Created', type: Role })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.CREATED)
   @Abilities({
     isAdmin: true,
@@ -120,13 +122,17 @@ export class RoleController {
     ],
   })
   @Post()
-  async create(@Body() payload: RoleCreateRequestDto) {
+  async create(@Body() payload: CreateRoleDto) {
     return this.roleService.create(payload);
   }
 
   @ApiOperation({ summary: 'Update', description: 'Update a role by ID' })
   @ApiOkResponse({ description: 'Ok', type: Role })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -140,14 +146,18 @@ export class RoleController {
   @Put(':id')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() payload: RoleUpdateRequestDto,
+    @Body() payload: UpdateRoleDto,
   ) {
-    return this.roleService.update({ id }, payload);
+    return this.roleService.update(id, payload);
   }
 
-  @ApiOperation({ summary: 'Delete', description: 'Delete a role by ID' })
+  @ApiOperation({ summary: 'Delete', description: 'Soft delete a role by ID' })
   @ApiOkResponse({ description: 'Ok', type: Role })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -160,12 +170,19 @@ export class RoleController {
   })
   @Delete(':id')
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.roleService.delete({ id });
+    return this.roleService.delete(id);
   }
 
-  @ApiOperation({ summary: 'Restore', description: 'Restore a role by ID' })
+  @ApiOperation({
+    summary: 'Restore',
+    description: 'Restore a soft-deleted role by ID',
+  })
   @ApiOkResponse({ description: 'Ok', type: Role })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -178,6 +195,6 @@ export class RoleController {
   })
   @Post(':id/restore')
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.roleService.restore({ id });
+    return this.roleService.restore(id);
   }
 }
