@@ -18,21 +18,17 @@ import {
   ApiUnprocessableEntityResponse,
   ApiTooManyRequestsResponse,
   ApiOkResponse,
+  ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { Permission } from '../../../database/entities';
-import { Abilities, AuthGuard } from '../../../shared/modules';
-import {
-  ExceptionResponseDto,
-  QueryManyRequestDto,
-  QueryManyResponseDto,
-  QueryOneRequestDto,
-} from '../../../shared/dtos';
-import {
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from '../../../shared/enums';
+import { Permission } from '@database/entities';
+import { Abilities, AuthGuard } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { PermissionService } from '../services';
-import { PERMISSION_FIELD_CONFIG } from '../config/permission-field-config';
+import {
+  FindAllPermissionDto,
+  FindOnePermissionDto,
+} from '../dtos/query-permission.dto';
 
 @ApiBearerAuth()
 @ApiTags('Permissions')
@@ -62,7 +58,8 @@ export class PermissionController {
     summary: 'Find all',
     description: 'Get all permissions with pagination',
   })
-  @ApiOkResponse({ description: 'Ok', type: QueryManyResponseDto<Permission> })
+  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Permission> })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -74,13 +71,13 @@ export class PermissionController {
     ],
   })
   @Get()
-  async findAll(@Query() query: QueryManyRequestDto) {
-    query.select ??= PERMISSION_FIELD_CONFIG.baseFields.join(',');
-    return this.permissionService.findAll({ query });
+  async findAll(@Query() query: FindAllPermissionDto) {
+    return this.permissionService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Find one', description: 'Get a permission by ID' })
   @ApiOkResponse({ description: 'Ok', type: Permission })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -94,9 +91,8 @@ export class PermissionController {
   @Get(':id')
   async findOne(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Query() query: QueryOneRequestDto,
+    @Query() query: FindOnePermissionDto,
   ) {
-    query.select ??= PERMISSION_FIELD_CONFIG.baseFields.join(',');
-    return this.permissionService.findOne(id, { query });
+    return this.permissionService.findOne(id, query);
   }
 }
