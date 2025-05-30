@@ -5,18 +5,59 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { AssessmentComponent } from '@africa-cdc/database/entities';
+import { EntityManager, Repository } from 'typeorm';
+import { AssessmentComponent, Component } from '@africa-cdc/database/entities';
 import { AssessmentComponentDto } from '../dtos';
+import { UUID } from '@africa-cdc/shared';
 
 @Injectable()
 export class AssessmentComponentService {
-  private readonly logger = new Logger(AssessmentComponentService.name);
+  private readonly loggerService = new Logger(AssessmentComponentService.name);
 
   constructor(
     @InjectRepository(AssessmentComponent)
     private readonly assessmentComponentRepository: Repository<AssessmentComponent>,
   ) {}
+
+  async create(
+    manager: EntityManager,
+    assessmentId: string,
+    templateDomainId: Record<string, string>,
+  ): Promise<{
+    components: AssessmentComponent[];
+    templateComponentId: Record<string, string>;
+  }> {
+    const components = await manager.find(Component, {
+      where: { isActive: true },
+    });
+
+    const assessmentComponents: AssessmentComponent[] = [];
+    const templateComponentId: Record<string, string> = {};
+    components.forEach(
+      ({ id, code, name, description, domainId, translations }) => {
+        const parentId = templateDomainId[domainId] ?? null;
+
+        if (parentId) {
+          const component = manager.create(AssessmentComponent, {
+            id: UUID.v4(),
+            code,
+            name,
+            description,
+            assessmentId,
+            domainId: parentId,
+            translations,
+          });
+          templateComponentId[id] = component.id;
+          assessmentComponents.push(component);
+        }
+      },
+    );
+
+    this.loggerService.debug('templateComponentId', templateComponentId);
+    await manager.insert(AssessmentComponent, assessmentComponents);
+
+    return { components: assessmentComponents, templateComponentId };
+  }
 
   async findAll(assessmentId: string): Promise<AssessmentComponent[]> {
     return this.assessmentComponentRepository.find({
@@ -57,7 +98,7 @@ export class AssessmentComponentService {
 
       return { ...component, ...entity };
     } catch (err) {
-      this.logger.error(
+      this.loggerService.error(
         `Failed to update assessment component: ${err.message}`,
         err.stack,
       );

@@ -16,17 +16,9 @@ import {
   Language,
   AssessmentGroup,
   AssessmentMember,
+  MeasurementScaleSubComponent,
 } from '../../database/entities';
-import {
-  AssessmentComponentService,
-  AssessmentDomainService,
-  AssessmentGroupService,
-  AssessmentMeasurementScaleService,
-  AssessmentMeasurementScaleSubComponentService,
-  AssessmentMemberService,
-  AssessmentService,
-  AssessmentSubComponentService,
-} from './services';
+import { ASSESSMENT_SERVICES, AssessmentMemberService, AssessmentService } from './services';
 import {
   AssessmentComponentController,
   AssessmentController,
@@ -38,13 +30,13 @@ import {
   AssessmentSubComponentController,
 } from './controllers';
 import { AuthModule } from '../../shared';
+import { AssessmentUtilityService } from './utils';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Assessment,
       User,
-      Country,
       Domain,
       Component,
       SubComponent,
@@ -52,11 +44,13 @@ import { AuthModule } from '../../shared';
       AssessmentComponent,
       AssessmentSubComponent,
       MeasurementScale,
+      MeasurementScaleSubComponent,
       AssessmentMeasurementScale,
       AssessmentMeasurementScaleSubComponent,
       Language,
       AssessmentGroup,
       AssessmentMember,
+      Country,
     ]),
     AuthModule,
   ],
@@ -71,14 +65,8 @@ import { AuthModule } from '../../shared';
     AssessmentMemberController,
   ],
   providers: [
-    AssessmentService,
-    AssessmentDomainService,
-    AssessmentComponentService,
-    AssessmentSubComponentService,
-    AssessmentMeasurementScaleService,
-    AssessmentMeasurementScaleSubComponentService,
-    AssessmentGroupService,
-    AssessmentMemberService,
+    ...ASSESSMENT_SERVICES,
+    AssessmentUtilityService,
   ],
   exports: [AssessmentService, AssessmentMemberService],
 })

@@ -5,18 +5,52 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { AssessmentDomain } from '@africa-cdc/database/entities';
+import { EntityManager, Repository } from 'typeorm';
+import { AssessmentDomain, Domain } from '@africa-cdc/database/entities';
 import { AssessmentDomainDto } from '../dtos';
+import { UUID } from '@africa-cdc/shared';
 
 @Injectable()
 export class AssessmentDomainService {
-  private readonly logger = new Logger(AssessmentDomainService.name);
+  private readonly loggerService = new Logger(AssessmentDomainService.name);
 
   constructor(
     @InjectRepository(AssessmentDomain)
     private readonly assessmentDomainRepository: Repository<AssessmentDomain>,
   ) {}
+
+  async create(
+    manager: EntityManager,
+    assessmentId: string,
+  ): Promise<{
+    domains: AssessmentDomain[];
+    templateDomainId: Record<string, string>;
+  }> {
+    const domains = await manager.find(Domain, {
+      where: { isActive: true },
+    });
+
+    const assessmentDomains: AssessmentDomain[] = [];
+    const templateDomainId: Record<string, string> = {};
+    domains.forEach(({ id, code, name, description, translations }) => {
+      const domain = manager.create(AssessmentDomain, {
+        id: UUID.v4(),
+        assessmentId,
+        code,
+        name,
+        description,
+        translations,
+      });
+
+      templateDomainId[id] = domain.id;
+      assessmentDomains.push(domain);
+    });
+
+    this.loggerService.debug('templateDomainId', templateDomainId);
+    await manager.insert(AssessmentDomain, assessmentDomains);
+
+    return { domains: assessmentDomains, templateDomainId };
+  }
 
   async findAll(assessmentId: string): Promise<AssessmentDomain[]> {
     return this.assessmentDomainRepository.find({
@@ -54,7 +88,7 @@ export class AssessmentDomainService {
 
       return { ...domain, ...entity };
     } catch (err) {
-      this.logger.error(
+      this.loggerService.error(
         `Failed to update assessment domain: ${err.message}`,
         err.stack,
       );

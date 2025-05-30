@@ -108,6 +108,7 @@ export class SubComponentMeasurementScaleService {
         subComponentId: subComponentId,
         measurementScaleId: payload.measurementScaleId,
         description: payload.description,
+        translations: payload.translations,
         subComponent,
         measurementScale,
       });
