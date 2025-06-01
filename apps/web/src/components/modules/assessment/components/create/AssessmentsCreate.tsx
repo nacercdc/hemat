@@ -14,6 +14,8 @@ import { z } from "zod";
 import { PageContainer } from "~/components/modules/components/PageContainer";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { africanCountries } from "~/utils/Country";
+import { africanLanguages } from "~/utils/Language";
 interface Country {
   code: string;
   name: string;
@@ -136,16 +138,7 @@ export function AssessmentsCreate() {
             displayLabel="Country"
             labelVariant="bold"
             size="xl"
-            options={[
-              {
-                code: "ETH",
-                name: "Ethiopan",
-              },
-              {
-                code: "EGE",
-                name: "fsfsf",
-              },
-            ]}
+            options={africanCountries}
           />
           <Input
             name="organization"
@@ -163,16 +156,7 @@ export function AssessmentsCreate() {
             displayLabel="Language"
             labelVariant="bold"
             size="xl"
-            options={[
-              {
-                code: "ETH",
-                name: "Ethiopan",
-              },
-              {
-                code: "EGE",
-                name: "fsfsf",
-              },
-            ]}
+            options={africanLanguages}
           />
 
           <TextArea
