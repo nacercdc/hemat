@@ -6,10 +6,10 @@ import { IsArrayContains } from '@shared/validators';
 
 export class FindAllAssessmentDto extends FindAllDto {
   @ApiPropertyOptional({
-    description: 'Comma-separated relations (e.g., user,country)',
+    description: 'Comma-separated relations (e.g., user,country,members)',
     type: String,
   })
-  @IsArrayContains(['user', 'country'])
+  @IsArrayContains(['user', 'country', 'members', 'groups'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -20,7 +20,7 @@ export class FindAllAssessmentDto extends FindAllDto {
     description: 'Comma-separated ascending sort fields (e.g., name,createdAt)',
     type: String,
   })
-  @IsArrayContains(['name', 'description', 'createdAt'])
+  @IsArrayContains(['name', 'createdAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -32,7 +32,7 @@ export class FindAllAssessmentDto extends FindAllDto {
       'Comma-separated descending sort fields (e.g., name,createdAt)',
     type: String,
   })
-  @IsArrayContains(['name', 'description', 'createdAt'])
+  @IsArrayContains(['name', 'createdAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -45,7 +45,7 @@ export class FindOneAssessmentDto {
     description: 'Comma-separated relations (e.g., user,country)',
     type: String,
   })
-  @IsArrayContains(['user', 'country'])
+  @IsArrayContains(['user', 'country', 'members', 'groups'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)

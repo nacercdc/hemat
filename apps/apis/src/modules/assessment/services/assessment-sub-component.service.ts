@@ -10,6 +10,7 @@ import { AssessmentSubComponent, SubComponent } from '@database/entities';
 import {
   AssessmentSubComponentDto,
   FindAllAssessmentSubComponentDto,
+  FindOneAssessmentSubComponentDto,
 } from '../dtos';
 import { UUID } from '@shared/helpers';
 import { FindAllResponseDto } from '@shared/dtos';
@@ -73,6 +74,7 @@ export class AssessmentSubComponentService {
     return new QueryService<AssessmentSubComponent>(
       this.assessmentSubComponentRepository,
     )
+      .join(query.include)
       .filter(
         [{ field: 'assessmentId', operator: '=', value: query.assessmentId }],
         {
@@ -89,9 +91,11 @@ export class AssessmentSubComponentService {
   async findOne(
     assessmentId: string,
     id: string,
+    query: FindOneAssessmentSubComponentDto,
   ): Promise<AssessmentSubComponent> {
     const subComponent = await this.assessmentSubComponentRepository.findOne({
       where: { id, assessmentId },
+      relations: query.include,
     });
 
     if (!subComponent) {
@@ -105,7 +109,9 @@ export class AssessmentSubComponentService {
     id: string,
     payload: AssessmentSubComponentDto,
   ): Promise<AssessmentSubComponent> {
-    const subComponent = await this.findOne(assessmentId, id);
+    const subComponent = await this.findOne(assessmentId, id, {
+      include: ['measurementScales'],
+    });
     try {
       const entity = {
         code: payload.code,

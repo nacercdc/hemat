@@ -11,3 +11,5 @@ export * from './query-assessment-domain.dto';
 export * from './query-assessment-component.dto';
 export * from './query-assessment-sub-component.dto';
 export * from './query-assessment-measurement-scale.dto';
+export * from './query-assessment-group.dto';
+export * from './query-assessment-member.dto';

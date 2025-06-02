@@ -28,6 +28,7 @@ import { AssessmentSubComponentService } from '../services';
 import {
   AssessmentSubComponentDto,
   FindAllAssessmentSubComponentDto,
+  FindOneAssessmentSubComponentDto,
 } from '../dtos';
 import { ParseUUIDPipe } from '@nestjs/common';
 
@@ -109,8 +110,9 @@ export class AssessmentSubComponentController {
   async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: FindOneAssessmentSubComponentDto,
   ): Promise<AssessmentSubComponent> {
-    return this.assessmentSubComponentService.findOne(assessmentId, id);
+    return this.assessmentSubComponentService.findOne(assessmentId, id, query);
   }
 
   @ApiOperation({

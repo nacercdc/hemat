@@ -5,12 +5,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, Not } from 'typeorm';
+import { DataSource,Not, Repository } from 'typeorm';
 import { AssessmentGroup, Assessment } from '../../../database/entities';
+import { QueryService } from '../../../shared/services';
 import {
   AssessmentGroupRequestDto,
   AssessmentGroupUpdateRequestDto,
+  FindAllAssessmentGroupDto,
+  FindOneAssessmentGroupDto,
 } from '../dtos';
+import { FindAllResponseDto } from '@shared/dtos';
 
 @Injectable()
 export class AssessmentGroupService {
@@ -24,56 +28,46 @@ export class AssessmentGroupService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async create(
+  async findAll(
     assessmentId: string,
-    payload: AssessmentGroupRequestDto,
-  ): Promise<AssessmentGroup> {
+    query: FindAllAssessmentGroupDto,
+  ): Promise<FindAllResponseDto<AssessmentGroup>> {
     try {
-      const assessment = await this.assessmentRepository.exists({
-        where: { id: assessmentId },
-      });
-
-      if (!assessment) {
-        throw new NotFoundException('Assessment not found');
-      }
-
-      const existingGroup = await this.groupRepository.exists({
-        where: {
-          name: payload.name,
-          assessmentId,
-        },
-      });
-
-      if (existingGroup) {
-        throw new BadRequestException(
-          'Assessment group with this name already exists in the assessment',
-        );
-      }
-
-      const group = this.groupRepository.create({
-        name: payload.name,
-        assessmentId,
-      });
-
-      await this.groupRepository.insert(group);
-      return group;
+      return await new QueryService<AssessmentGroup>(this.groupRepository)
+        .filter([{ field: 'assessmentId', operator: '=', value: assessmentId }])
+        .join(query.include)
+        .filter([], { fields: ['name'], value: query.search })
+        .sort({ ascending: query.ascending, descending: query.descending })
+        .take(query.take)
+        .skip(query.skip)
+        .getManyAndCount();
     } catch (err) {
       this.logger.error(
-        `Failed to create assessment group: ${err.message}`,
+        `Failed to retrieve assessment groups: ${err.message}`,
         err.stack,
       );
-      throw new BadRequestException('Failed to create assessment group');
+      throw new BadRequestException('Failed to retrieve assessment groups');
     }
   }
 
-  async findOne(assessmentId: string, id: string): Promise<AssessmentGroup> {
+  async findOne(
+    assessmentId: string,
+    id: string,
+    query: FindOneAssessmentGroupDto,
+  ): Promise<AssessmentGroup> {
     try {
-      const group = await this.groupRepository.findOne({
-        where: { id, assessmentId },
-      });
+      const group = await new QueryService<AssessmentGroup>(
+        this.groupRepository,
+      )
+        .filter([
+          { field: 'id', operator: '=', value: id },
+          { field: 'assessmentId', operator: '=', value: assessmentId },
+        ])
+        .join(query.include)
+        .getOne();
 
       if (!group) {
-        throw new NotFoundException('Assessment group not found');
+        throw new NotFoundException(`Assessment group ${id} not found`);
       }
 
       return group;
@@ -86,18 +80,49 @@ export class AssessmentGroupService {
     }
   }
 
-  async findAll(assessmentId: string): Promise<AssessmentGroup[]> {
-    try {
-      return this.groupRepository.find({
-        where: { assessmentId },
-      });
-    } catch (err) {
-      this.logger.error(
-        `Failed to retrieve assessment groups: ${err.message}`,
-        err.stack,
-      );
-      throw new BadRequestException('Failed to retrieve assessment groups');
-    }
+  async create(
+    assessmentId: string,
+    payload: AssessmentGroupRequestDto,
+  ): Promise<AssessmentGroup> {
+    return this.dataSource.transaction(async (manager) => {
+      try {
+        const assessment = await manager.getRepository(Assessment).exists({
+          where: { id: assessmentId },
+        });
+
+        if (!assessment) {
+          throw new NotFoundException('Assessment not found');
+        }
+
+        const existingGroup = await manager
+          .getRepository(AssessmentGroup)
+          .exists({
+            where: {
+              name: payload.name,
+              assessmentId,
+            },
+          });
+
+        if (existingGroup) {
+          throw new BadRequestException(
+            'Assessment group with this name already exists in the assessment',
+          );
+        }
+
+        const group = manager.getRepository(AssessmentGroup).create({
+          name: payload.name,
+          assessmentId,
+        });
+
+        return await manager.getRepository(AssessmentGroup).save(group);
+      } catch (err) {
+        this.logger.error(
+          `Failed to create assessment group: ${err.message}`,
+          err.stack,
+        );
+        throw new BadRequestException('Failed to create assessment group');
+      }
+    });
   }
 
   async update(
@@ -105,65 +130,98 @@ export class AssessmentGroupService {
     id: string,
     payload: AssessmentGroupUpdateRequestDto,
   ): Promise<AssessmentGroup> {
-    try {
-      const group = await this.groupRepository.findOne({
-        where: { id, assessmentId },
-      });
+    return this.dataSource.transaction(async (manager) => {
+      try {
+        const group = await manager.getRepository(AssessmentGroup).findOne({
+          where: { id, assessmentId },
+          relations: ['members', 'invitations'],
+        });
 
-      if (!group) {
-        throw new NotFoundException('Assessment group not found');
-      }
+        if (!group) {
+          throw new NotFoundException(`Assessment group ${id} not found`);
+        }
 
-      const groupNameExists = await this.groupRepository.exists({
-        where: {
-          name: payload.name,
-          assessmentId,
-          id: Not(id),
-        },
-      });
+        const groupNameExists = await manager
+          .getRepository(AssessmentGroup)
+          .exists({
+            where: {
+              name: payload.name,
+              assessmentId,
+              id: Not(id),
+            },
+          });
 
-      if (groupNameExists) {
-        throw new BadRequestException(
-          'Assessment group with this name already exists in the assessment',
+        if (groupNameExists) {
+          throw new BadRequestException(
+            'Assessment group with this name already exists in the assessment',
+          );
+        }
+
+        group.name = payload.name;
+        return await manager.getRepository(AssessmentGroup).save(group);
+      } catch (err) {
+        this.logger.error(
+          `Failed to update assessment group: ${err.message}`,
+          err.stack,
         );
+        throw new BadRequestException('Failed to update assessment group');
       }
-
-      const entity = { name: payload.name };
-      await this.groupRepository.update({ id, assessmentId }, entity);
-
-      return { ...group, ...entity };
-    } catch (err) {
-      this.logger.error(
-        `Failed to update assessment group: ${err.message}`,
-        err.stack,
-      );
-      throw new BadRequestException('Failed to update assessment group');
-    }
+    });
   }
 
   async delete(assessmentId: string, id: string): Promise<AssessmentGroup> {
-    try {
-      const group = await this.groupRepository.findOne({
-        where: { id, assessmentId },
-      });
-      if (!group) {
-        throw new NotFoundException('Assessment group not found');
-      }
+    return this.dataSource.transaction(async (manager) => {
+      try {
+        const group = await manager.getRepository(AssessmentGroup).findOne({
+          where: { id, assessmentId },
+          relations: ['members', 'invitations'],
+        });
 
-      if (group.members?.length || group.invitations?.length) {
-        throw new BadRequestException(
-          'Cannot delete assessment group with members or pending invitations',
+        if (!group) {
+          throw new NotFoundException(`Assessment group ${id} not found`);
+        }
+
+        if (group.members?.length || group.invitations?.length) {
+          throw new BadRequestException(
+            'Cannot delete assessment group with members or pending invitations',
+          );
+        }
+
+        await manager
+          .getRepository(AssessmentGroup)
+          .softDelete({ id, assessmentId });
+        return group;
+      } catch (err) {
+        this.logger.error(
+          `Failed to delete assessment group: ${err.message}`,
+          err.stack,
         );
+        throw new BadRequestException('Failed to delete assessment group');
       }
+    });
+  }
 
-      await this.groupRepository.softDelete({ id, assessmentId });
-      return group;
-    } catch (err) {
-      this.logger.error(
-        `Failed to delete assessment group: ${err.message}`,
-        err.stack,
-      );
-      throw new BadRequestException('Failed to delete assessment group');
-    }
+  async restore(assessmentId: string, id: string): Promise<AssessmentGroup> {
+    return this.dataSource.transaction(async (manager) => {
+      try {
+        const group = await manager.getRepository(AssessmentGroup).findOne({
+          where: { id, assessmentId },
+          withDeleted: true,
+        });
+
+        if (!group) {
+          throw new NotFoundException(`Assessment group ${id} not found`);
+        }
+
+        await manager.getRepository(AssessmentGroup).recover(group);
+        return group;
+      } catch (err) {
+        this.logger.error(
+          `Failed to restore assessment group: ${err.message}`,
+          err.stack,
+        );
+        throw new BadRequestException('Failed to restore assessment group');
+      }
+    });
   }
 }
