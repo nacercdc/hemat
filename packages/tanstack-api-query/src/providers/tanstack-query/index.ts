@@ -1,1 +1,0 @@
-export { TanstackQueryProvider } from "./TanstackQueryProvider";
