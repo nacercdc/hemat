@@ -8,7 +8,6 @@ export enum PermissionActionEnum {
   APPROVE = 'approve',
   REJECT = 'reject',
 }
-
 export enum PermissionSubjectEnum {
   ASSESSMENT = 'assessment',
   ASSESSMENT_ANSWER = 'assessment-answer',
@@ -17,6 +16,7 @@ export enum PermissionSubjectEnum {
   ASSESSMENT_GROUP = 'assessment-group',
   ASSESSMENT_LANGUAGE = 'assessment-language',
   ASSESSMENT_MEASUREMENT_SCALE = 'assessment-measurement-scale',
+  ASSESSMENT_MEASUREMENT_SCALE_SUB_COMPONENT = 'assessment-measurement-scale-sub-component',
   ASSESSMENT_MEMBER = 'assessment-member',
   ASSESSMENT_SUB_COMPONENT = 'assessment-sub-component',
   COMMENT = 'comment',
@@ -24,6 +24,7 @@ export enum PermissionSubjectEnum {
   COUNTRY = 'country',
   DASHBOARD = 'dashboard',
   DOMAIN = 'domain',
+  ENTITY = 'entity',
   INVITATION = 'invitation',
   LANGUAGE = 'language',
   MEASUREMENT_SCALE = 'measurement-scale',
