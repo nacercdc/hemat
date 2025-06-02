@@ -2,25 +2,23 @@
   "name": "@etm/utilities",
   "private": true,
   "version": "0.1.0",
-  "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./src/index.ts"
+      "require": "./dist/index.cjs",
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
     },
     "./*": {
-      "types": "./dist/src/*.d.ts",
-      "default": [
-        "./src/*.ts",
-        "./src/*.tsx"
-      ]
+      "require": "./dist/",
+      "import": "./src/*.ts",
+      "types": "./src/*.ts"
     }
   },
-  "license": "MIT",
+  "license": "UNLICENSED",
   "scripts": {
-    "build": "tsc",
+    "build": "tsup",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "tsc",
+    "dev": "tsup --watch",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"

@@ -11,24 +11,18 @@ import { useRouter } from "next/navigation";
 export function Assessment() {
   const router = useRouter();
   return (
-    <PageContainer>
-      <PageHeader
-        pageTitle="Assessments"
-        breadcrumb={false}
-        actions={
-          <Button
-            leftNode={
-              <Icon icon={"material-symbols:add"} className="!w-5 !h-5" />
-            }
-            size="lg"
-            onClick={() => {
-              router.push("/assessment/create");
-            }}
-          >
-            Create
-          </Button>
-        }
-      />
+    <PageContainer pageTitle="Assessments" includeBreadcrumb={false} actionNodes={<Button
+      leftNode={
+        <Icon icon={"material-symbols:add"} className="!w-5 !h-5" />
+      }
+      size="lg"
+      onClick={() => {
+        router.push("/assessment/create");
+      }}
+    >
+      Create
+    </Button>}>
+
       <AssessmentsTable />
     </PageContainer>
   );

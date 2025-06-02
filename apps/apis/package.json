@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",
+    "@etm/utilities": "workspace:*",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",

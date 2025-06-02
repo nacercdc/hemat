@@ -42,9 +42,9 @@ const fileInputVariants = cva(
           "border-warning-500 focus:border-warning-600 focus-visible:ring-warning-500",
       },
       size: {
-        sm: "h-8",
-        md: "h-9",
-        lg: "h-10",
+        sm: "h-9",
+        md: "h-10",
+        lg: "h-11",
       },
     },
     defaultVariants: {

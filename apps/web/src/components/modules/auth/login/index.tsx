@@ -1,13 +1,18 @@
 "use client";
-import { useRouter } from "next/navigation";
+
 import React, { useState } from "react";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Checkbox, InputRHF } from "@etm/web-ui-components";
+import { Button, Checkbox, InputRHF, useToast } from "@etm/web-ui-components";
 import PasswordVisibilityToggler from "../../components/PasswordVisibilityToggler";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import Image from "next/image";
+import { AuthCardHeader } from "../components/AuthCardHeader";
+import Link from "next/link";
+import { useAddMutation as useLogin } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import type { LoginRequestBody } from "~/app/api/types";
+
+type ActionMode = "resetPassword";
 
 const loginFormSchema = z.object({
   email: z
@@ -20,14 +25,15 @@ const loginFormSchema = z.object({
 type LoginFormInputs = z.infer<typeof loginFormSchema>;
 export default function Login() {
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+  const { toast } = useToast();
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { mutate: login, ...loginState } = useLogin<unknown, LoginRequestBody>(
+    "/api/login"
+  );
 
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm<LoginFormInputs>({
+  const { control, handleSubmit } = useForm<LoginFormInputs>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: { email: "", password: "" },
   });
@@ -40,36 +46,63 @@ export default function Login() {
     setPasswordVisible(!passwordVisible);
   };
 
-  const onLoginHandler = (_values: LoginFormInputs) => {
-    //TODO: handle login
-    router.push("/");
+  const onLoginHandler = (values: LoginFormInputs) => {
+    login(
+      {
+        baseURL: window.location.origin,
+        data: {
+          email: values.email,
+          password: values.password,
+        },
+        isProtected: false,
+      },
+      {
+        onSuccess: () => {
+          router.replace("/");
+        },
+        onError: (error) => {
+          toast({
+            message:
+              (JSON.parse(error.message) as { error?: string })?.error ??
+              "Login failed.",
+            title: "Login Error",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
-  return (
-    <div className="flex flex-col gap-10  min-[1925px]:gap-10  ">
+  if (
+    (searchParams.get("mode") as ActionMode) === "resetPassword" &&
+    searchParams.get("oobCode")
+  ) {
+    return redirect(`/reset-password?oobCode=${searchParams.get("oobCode")}`);
+  }
 
-      <div className="flex flex-col">
-        <div className="text-2xl font-bold text-secondary">Sign In</div>
-        <div className="text-xs text-dark-light">Enter your credentials to login to your account</div>
-      </div>
-      <form
-        onSubmit={handleSubmit(onLoginHandler)}
-        className="flex flex-col gap-4"
-      >
+  return (
+    <form
+      onSubmit={handleSubmit(onLoginHandler)}
+      className="flex flex-col gap-8 h-full"
+    >
+      <AuthCardHeader
+        header="Sign In"
+        subHeader="Enter your credentials to login in to your account"
+      />
+      <div className="flex flex-col gap-4">
         <InputRHF
-          type="email"
           label="Email"
           placeholder="Enter email"
-          size="lg"
           control={control}
           name="email"
+          labelVariant="medium"
         />
         <InputRHF
           control={control}
           name="password"
           label="Password"
           placeholder="Enter password"
-          size="lg"
+          labelVariant="medium"
           type={passwordVisible ? "text" : "password"}
           rightNode={
             <PasswordVisibilityToggler
@@ -78,48 +111,37 @@ export default function Login() {
             />
           }
         />
+      </div>
 
-        <div className="flex justify-between  items-center">
-          <Checkbox name="Remember_me" label="Remember me" size="md" />
-          <Button
-            type="button"
-            variant="link"
-            size="sm"
-            color="info"
-            onClick={onForgotPasswordRouteHandler}
-          >
-            Forgot password?
-          </Button>
-        </div>
-
+      <div className="flex justify-end items-center -mt-6">
+        <Checkbox size="md" label="Remember me" />
         <Button
-          type="submit"
-          children={
-            <div className="flex items-center ">
-              <span className="text-base text-card font-[500] ml-2  ">Login</span>
-            </div>
-          }
-          size="lg"
-          disabled={isSubmitting}
-          loading={isSubmitting}
-          color="authButtons"
+          type="button"
+          variant="ghost"
+          size="sm"
+          color="info"
+          onClick={onForgotPasswordRouteHandler}
+        >
+          <span className="underline hover:no-underline text-info-500 !font-medium">
+            Forgot password
+          </span>
+        </Button>
+      </div>
 
-        />
+      <Button
+        type="submit"
+        disabled={loginState.isPending}
+        loading={loginState.isPending}
+      >
+        Sign in
+      </Button>
 
-
-
-
-
-
-
-      </form>
-      <Image
-        src="/images/branding-texture-right.png"
-        width={70}
-        height={30}
-        className=" rounded-br-[8px] absolute bottom-0 right-0 "
-        alt="ACDC Branding texture Image "
-      />
-    </div>
+      <div className="flex flex-row gap-4">
+        <span className="text-sm">Do not have an account?</span>
+        <Link href={""} className="underline text-sm text-info-500">
+          Register
+        </Link>
+      </div>
+    </form>
   );
 }
