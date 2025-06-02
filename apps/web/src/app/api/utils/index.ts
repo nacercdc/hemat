@@ -6,12 +6,12 @@ import { serialize } from "cookie";
 import type { NextResponse } from "next/server";
 
 export const authenticateUser = async ({
-  username,
+  email,
   password,
 }: LoginRequestBody): Promise<LoginResponse> => {
   const res = await fetch(`${env.NEXT_PUBLIC_HOST_URL}auth/login`, {
     method: "POST",
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email, password }),
     headers: {
       "Content-Type": "application/json",
     },

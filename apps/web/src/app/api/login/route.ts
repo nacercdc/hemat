@@ -5,7 +5,7 @@ import { authenticateUser, setAuthCookies } from "../utils";
 export async function POST(req: Request): Promise<NextResponse> {
   try {
     const body = (await req.json()) as LoginRequestBody;
-    if (!body.username || !body.password) {
+    if (!body.email || !body.password) {
       return NextResponse.json(
         { error: "Username and password are required" },
         { status: 400 }

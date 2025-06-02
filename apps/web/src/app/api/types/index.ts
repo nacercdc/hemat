@@ -5,7 +5,7 @@ export interface LoginResponse {
 }
 
 export interface LoginRequestBody {
-  username: string;
+  email: string;
   password: string;
 }
 

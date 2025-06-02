@@ -51,7 +51,7 @@ export default function Login() {
       {
         baseURL: window.location.origin,
         data: {
-          username: values.email,
+          email: values.email,
           password: values.password,
         },
         isProtected: false,
