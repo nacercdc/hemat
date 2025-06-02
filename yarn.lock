@@ -5448,7 +5448,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "apis@workspace:apps/apis"
   dependencies:
-    "@casl/ability": "npm:^6.7.3"
     "@etm/prettier-config": "workspace:*"
     "@etm/utilities": "workspace:*"
     "@nestjs/cli": "npm:^11.0.0"
