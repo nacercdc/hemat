@@ -78,6 +78,7 @@ const AssessmentFormSchema = z.object({
 type AssessmentForm = z.infer<typeof AssessmentFormSchema>;
 
 export function AssessmentsCreate() {
+
   const router = useRouter();
   const { control, handleSubmit, reset } = useForm<AssessmentForm>({
     resolver: zodResolver(AssessmentFormSchema),
@@ -92,9 +93,14 @@ export function AssessmentsCreate() {
       description: "",
     },
   });
+  const loading = false
   const onSubmit: SubmitHandler<Assessment> = (data) => {
     console.log(data)
     // TODO 
+  }
+
+  if (loading) {
+    return <div>Loading...</div>; // TODO replace this with a proper skeleton component if available
   }
   return (
     <PageContainer>
