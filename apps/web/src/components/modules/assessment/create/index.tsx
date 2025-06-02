@@ -75,9 +75,7 @@ const AssessmentFormSchema = z
       .string()
       .max(500, { message: "Description must be at most 500 characters" })
       .optional(),
-    language: z.array(languageSchema).min(1, {
-      message: "Select at least one language",
-    }),
+    language: languageSchema,
   })
   .refine((data) => data.endDate > data.startDate, {
     path: ["endDate"],
@@ -95,7 +93,7 @@ export function AssessmentsCreate() {
       endDate: new Date(),
       country: { code: "", name: "" },
       organization: "",
-      language: [],
+      language: { code: "", name: "" },
       description: "",
     },
   });
