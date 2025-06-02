@@ -14,7 +14,6 @@ const config = {
     "@etm/utilities",
     "@etm/tanstack-web-firebase-query",
     "@etm/api-interfaces",
-    "@etm/tanstack-api-query",
   ],
 
   /** We already do linting and typechecking as separate tasks in CI */
