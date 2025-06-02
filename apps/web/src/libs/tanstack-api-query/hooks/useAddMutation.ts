@@ -2,12 +2,14 @@ import { useMutation } from "@tanstack/react-query";
 import type { RequestConfig } from "../helpers/types";
 import { cleanPath } from "~/utils/string.util";
 import useFetch from "../helpers/hooks/useFetch";
-
+interface PostRequestConfig<Entity> extends RequestConfig {
+  data?: Entity;
+}
 export function useAddMutation<Entity, Mutate = Entity>(path: string) {
   const {
     methods: { post },
   } = useFetch();
-  return useMutation<Entity, Error, RequestConfig & { data: Mutate }>({
+  return useMutation<Entity, Error, PostRequestConfig<Mutate> | undefined>({
     mutationFn: async (request) => {
       let fullPath = cleanPath(path);
       if (request?.id) {
@@ -16,8 +18,8 @@ export function useAddMutation<Entity, Mutate = Entity>(path: string) {
 
       return await post<Entity, Mutate>({
         path: fullPath,
-        isProtected: request.isProtected ?? true,
-        data: request.data,
+        isProtected: request?.isProtected ?? true,
+        data: request?.data,
         configs: {
           baseURL: request?.baseURL,
           headers: request?.headers,
