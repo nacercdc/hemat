@@ -6,7 +6,7 @@
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
   "[typescriptreact]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -20,11 +20,7 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "eslint.workingDirectories": [
-    {
-      "mode": "auto"
-    }
-  ],
+  "eslint.workingDirectories": [{ "mode": "auto" }],
   "eslint.validate": [
     "javascript",
     "javascriptreact",
