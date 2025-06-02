@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { isNill } from "@etm/utilities";
+import { isNill } from "@etm/utilities/string.utils";
 import type {
   Method,
   QueryManyRequest,
