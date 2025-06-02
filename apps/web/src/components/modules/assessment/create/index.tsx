@@ -7,12 +7,13 @@ import {
   SelectRHF,
   TextArea,
 } from "@etm/web-ui-components";
-import { Icon } from "@iconify/react/dist/iconify.js";
+
 import React from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import type { SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { PageContainer } from "~/components/modules/components/PageContainer";
-import { useRouter } from "next/navigation";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { africanCountries } from "~/config/country.config";
 import { africanLanguages } from "~/config/language.config";
@@ -23,17 +24,6 @@ interface Country {
 interface Language {
   code: string;
   name: string;
-}
-interface Assessment {
-  id?: string;
-  name: string;
-  createdBy: string;
-  startDate: Date;
-  endDate: Date;
-  country: Country;
-  organization: string;
-  description?: string | null;
-  language: Language;
 }
 const languageSchema = z.object({
   code: z
@@ -85,7 +75,9 @@ const AssessmentFormSchema = z
       .string()
       .max(500, { message: "Description must be at most 500 characters" })
       .optional(),
-    language: languageSchema,
+    language: z.array(languageSchema).min(1, {
+      message: "Select at least one language",
+    }),
   })
   .refine((data) => data.endDate > data.startDate, {
     path: ["endDate"],
@@ -94,8 +86,7 @@ const AssessmentFormSchema = z
 type AssessmentForm = z.infer<typeof AssessmentFormSchema>;
 
 export function AssessmentsCreate() {
-  const router = useRouter();
-  const { control, handleSubmit, reset } = useForm<AssessmentForm>({
+  const { control, handleSubmit } = useForm<AssessmentForm>({
     resolver: zodResolver(AssessmentFormSchema),
     defaultValues: {
       name: "",
@@ -104,12 +95,12 @@ export function AssessmentsCreate() {
       endDate: new Date(),
       country: { code: "", name: "" },
       organization: "",
-      language: { code: "", name: "" },
+      language: [],
       description: "",
     },
   });
   const loading = false;
-  const onSubmit: SubmitHandler<Assessment> = (data) => {
+  const onSubmit: SubmitHandler<AssessmentForm> = (data) => {
     console.log(data);
     // TODO
   };
@@ -118,29 +109,8 @@ export function AssessmentsCreate() {
     return <div>Loading...</div>; // TODO replace this with a proper skeleton component if available
   }
   return (
-    <PageContainer
-      pageTitle="New Assessment"
-      includeBreadcrumb={false}
-      actionNodes={
-        <button
-          className="flex items-center"
-          onClick={() => {
-            router.push("/assessment");
-          }}
-        >
-          <Icon
-            icon="mdi:chevron-left"
-            role="button"
-            className={`text-2xl  rounded-full font-bold  text-secondary cursor-pointer`}
-          />
-        </button>
-      }
-    >
-      <div className="font-bold  bg-white shadow-md  flex items-start gap-8 -mx-4 -mt-4 pl-4 justify-start">
-        <span className="p-2 bg-layout-bg rounded-full cursor-pointer"></span>
-        <h1 className="text-lg flex items-center p-2">t</h1>
-      </div>
-      <div className="flex flex-col w-96 md:w-[744px]  rounded-xl  overflow-y-auto  mx-auto bg-layout-bg">
+    <PageContainer pageTitle="New Assessment" includeBreadcrumb={false}>
+      <div className="flex flex-col  md:w-[744px]  rounded-md   mx-auto bg-layout-bg">
         <form
           className="flex flex-col gap-6 px-8 pt-8"
           onSubmit={handleSubmit(onSubmit)}
