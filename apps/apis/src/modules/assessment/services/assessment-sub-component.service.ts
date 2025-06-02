@@ -7,8 +7,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { AssessmentSubComponent, SubComponent } from '@database/entities';
-import { AssessmentSubComponentDto } from '../dtos';
+import {
+  AssessmentSubComponentDto,
+  FindAllAssessmentSubComponentDto,
+} from '../dtos';
 import { UUID } from '@shared/helpers';
+import { FindAllResponseDto } from '@shared/dtos';
+import { QueryService } from '@shared/services';
 
 @Injectable()
 export class AssessmentSubComponentService {
@@ -62,10 +67,23 @@ export class AssessmentSubComponentService {
     return { subComponents: assessmentSubComponents, templateSubComponentId };
   }
 
-  async findAll(assessmentId: string): Promise<AssessmentSubComponent[]> {
-    return this.assessmentSubComponentRepository.find({
-      where: { assessmentId },
-    });
+  async findAll(
+    query: FindAllAssessmentSubComponentDto & { assessmentId: string },
+  ): Promise<FindAllResponseDto<AssessmentSubComponent>> {
+    return new QueryService<AssessmentSubComponent>(
+      this.assessmentSubComponentRepository,
+    )
+      .filter(
+        [{ field: 'assessmentId', operator: '=', value: query.assessmentId }],
+        {
+          fields: ['code', 'name'],
+          value: query.search,
+        },
+      )
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   async findOne(
@@ -75,12 +93,13 @@ export class AssessmentSubComponentService {
     const subComponent = await this.assessmentSubComponentRepository.findOne({
       where: { id, assessmentId },
     });
+
     if (!subComponent) {
-      throw new NotFoundException('Assessment sub-component not found');
+      throw new NotFoundException(`Assessment sub-component ${id} not found.`);
     }
+
     return subComponent;
   }
-
   async update(
     assessmentId: string,
     id: string,

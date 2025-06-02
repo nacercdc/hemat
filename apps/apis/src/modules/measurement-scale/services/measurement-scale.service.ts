@@ -31,7 +31,7 @@ export class MeasurementScaleService {
       return await new QueryService<MeasurementScale>(
         this.measurementScaleRepository,
       )
-        .filter([], { fields: ['name', 'rate'], value: query.search })
+        .filter([], { fields: ['name'], value: query.search })
         .sort({ ascending: query.ascending, descending: query.descending })
         .take(query.take)
         .skip(query.skip)

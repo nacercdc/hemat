@@ -6,13 +6,14 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
-import { Component, Domain } from '@database/entities';
+import { Component, Domain, SubComponent } from '@database/entities';
 import { QueryService } from '@shared/services';
 import {
   FindAllComponentDto,
   FindOneComponentDto,
   ComponentCreateRequestDto,
   ComponentUpdateRequestDto,
+  FindAllSubComponentDto,
 } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 
@@ -23,6 +24,8 @@ export class ComponentService {
   constructor(
     @InjectRepository(Component)
     private readonly componentRepository: Repository<Component>,
+    @InjectRepository(SubComponent)
+    private readonly subComponentRepository: Repository<SubComponent>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -132,5 +135,37 @@ export class ComponentService {
     }
 
     return await this.componentRepository.recover(component);
+  }
+
+  async findSubComponents(
+    id: string,
+    query: FindAllSubComponentDto,
+  ): Promise<FindAllResponseDto<SubComponent>> {
+    // Return SubComponent, not Component
+    try {
+      const component = await this.componentRepository.findOne({
+        where: { id },
+      });
+      if (!component) {
+        throw new NotFoundException(`Component ${id} not found.`);
+      }
+
+      return await new QueryService<SubComponent>(this.subComponentRepository) // Use SubComponent repository
+        .filter(
+          [{ field: 'componentId', operator: '=', value: id }], // Filter by componentId
+          {
+            fields: ['code', 'name'],
+            value: query.search,
+          },
+        )
+        .join(query.include)
+        .sort({ ascending: query.ascending, descending: query.descending })
+        .take(query.take)
+        .skip(query.skip)
+        .getManyAndCount();
+    } catch (err) {
+      this.logger.error('findSubComponentsByComponentId:', err);
+      throw new BadRequestException('Failed to fetch subcomponents.');
+    }
   }
 }

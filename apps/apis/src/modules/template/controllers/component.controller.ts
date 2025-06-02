@@ -35,6 +35,7 @@ import {
   FindOneComponentDto,
   ComponentCreateRequestDto,
   ComponentUpdateRequestDto,
+  FindAllSubComponentDto,
 } from '../dtos';
 
 @ApiBearerAuth()
@@ -197,5 +198,30 @@ export class ComponentController {
   @Post(':id/restore')
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.componentService.restore(id);
+  }
+
+  @ApiOperation({
+    summary: 'Find subcomponents',
+    description:
+      'Get all subcomponents for a component by ID with pagination and search',
+  })
+  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Component> })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.SUB_COMPONENT,
+      },
+    ],
+  })
+  @Get(':id/subcomponents')
+  async findSubComponents(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: FindAllSubComponentDto,
+  ) {
+    return this.componentService.findSubComponents(id, query);
   }
 }

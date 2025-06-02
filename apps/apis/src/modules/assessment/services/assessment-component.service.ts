@@ -7,12 +7,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { AssessmentComponent, Component } from '@database/entities';
-import { AssessmentComponentDto } from '../dtos';
+import { QueryService } from '@shared/services';
+import { AssessmentComponentDto, FindAllAssessmentComponentDto } from '../dtos';
+import { FindAllResponseDto } from '@shared/dtos';
 import { UUID } from '@shared/helpers';
 
 @Injectable()
 export class AssessmentComponentService {
-  private readonly loggerService = new Logger(AssessmentComponentService.name);
+  private readonly logger = new Logger(AssessmentComponentService.name);
 
   constructor(
     @InjectRepository(AssessmentComponent)
@@ -33,6 +35,7 @@ export class AssessmentComponentService {
 
     const assessmentComponents: AssessmentComponent[] = [];
     const templateComponentId: Record<string, string> = {};
+
     components.forEach(
       ({ id, code, name, description, domainId, translations }) => {
         const parentId = templateDomainId[domainId] ?? null;
@@ -53,16 +56,33 @@ export class AssessmentComponentService {
       },
     );
 
-    this.loggerService.debug('templateComponentId', templateComponentId);
-    await manager.insert(AssessmentComponent, assessmentComponents);
-
-    return { components: assessmentComponents, templateComponentId };
+    try {
+      await manager.insert(AssessmentComponent, assessmentComponents);
+      this.logger.debug('templateComponentId', templateComponentId);
+      return { components: assessmentComponents, templateComponentId };
+    } catch (err) {
+      this.logger.error('create:', err);
+      throw new BadRequestException('Failed to create assessment components.');
+    }
   }
 
-  async findAll(assessmentId: string): Promise<AssessmentComponent[]> {
-    return this.assessmentComponentRepository.find({
-      where: { assessmentId },
-    });
+  async findAll(
+    query: FindAllAssessmentComponentDto & { assessmentId: string },
+  ): Promise<FindAllResponseDto<AssessmentComponent>> {
+    return new QueryService<AssessmentComponent>(
+      this.assessmentComponentRepository,
+    )
+      .filter(
+        [{ field: 'assessmentId', operator: '=', value: query.assessmentId }],
+        {
+          fields: ['code', 'name'],
+          value: query.search,
+        },
+      )
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   async findOne(
@@ -72,9 +92,11 @@ export class AssessmentComponentService {
     const component = await this.assessmentComponentRepository.findOne({
       where: { id, assessmentId },
     });
+
     if (!component) {
-      throw new NotFoundException('Assessment component not found');
+      throw new NotFoundException(`Assessment component ${id} not found.`);
     }
+
     return component;
   }
 
@@ -83,26 +105,31 @@ export class AssessmentComponentService {
     id: string,
     payload: AssessmentComponentDto,
   ): Promise<AssessmentComponent> {
-    const component = await this.findOne(assessmentId, id);
-    try {
-      const entity = {
-        code: payload.code,
-        name: payload.name,
-        description: payload.description,
-        translations: payload.translations,
-      };
-      await this.assessmentComponentRepository.update(
-        { id, assessmentId },
-        entity,
-      );
+    return this.assessmentComponentRepository.manager.transaction(
+      async (manager) => {
+        const component = await this.findOne(assessmentId, id);
 
-      return { ...component, ...entity };
-    } catch (err) {
-      this.loggerService.error(
-        `Failed to update assessment component: ${err.message}`,
-        err.stack,
-      );
-      throw new BadRequestException('Failed to update assessment component');
-    }
+        const entity = {
+          code: payload.code,
+          name: payload.name,
+          description: payload.description,
+          translations: payload.translations,
+        };
+
+        try {
+          await manager.update(
+            AssessmentComponent,
+            { id, assessmentId },
+            entity,
+          );
+          return { ...component, ...entity };
+        } catch (err) {
+          this.logger.error(`update: ${err.message}`, err.stack);
+          throw new BadRequestException(
+            'Failed to update assessment component.',
+          );
+        }
+      },
+    );
   }
 }

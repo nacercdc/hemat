@@ -10,8 +10,13 @@ import {
   AssessmentMeasurementScale,
   MeasurementScale,
 } from '@database/entities';
-import { AssessmentMeasurementScaleDto } from '../dtos';
+import {
+  AssessmentMeasurementScaleDto,
+  FindAllAssessmentMeasurementScaleDto,
+} from '../dtos';
 import { UUID } from '@shared/helpers';
+import { FindAllResponseDto } from '@shared/dtos';
+import { QueryService } from '@shared/services';
 
 @Injectable()
 export class AssessmentMeasurementScaleService {
@@ -66,10 +71,23 @@ export class AssessmentMeasurementScaleService {
     };
   }
 
-  async findAll(assessmentId: string): Promise<AssessmentMeasurementScale[]> {
-    return this.assessmentMeasurementScaleRepository.find({
-      where: { assessmentId },
-    });
+  async findAll(
+    query: FindAllAssessmentMeasurementScaleDto & { assessmentId: string },
+  ): Promise<FindAllResponseDto<AssessmentMeasurementScale>> {
+    return new QueryService<AssessmentMeasurementScale>(
+      this.assessmentMeasurementScaleRepository,
+    )
+      .filter(
+        [{ field: 'assessmentId', operator: '=', value: query.assessmentId }],
+        {
+          fields: ['name'],
+          value: query.search,
+        },
+      )
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   async findOne(
@@ -80,9 +98,13 @@ export class AssessmentMeasurementScaleService {
       await this.assessmentMeasurementScaleRepository.findOne({
         where: { id, assessmentId },
       });
+
     if (!measurementScale) {
-      throw new NotFoundException('Assessment measurement scale not found');
+      throw new NotFoundException(
+        `Assessment measurement scale ${id} not found.`,
+      );
     }
+
     return measurementScale;
   }
 

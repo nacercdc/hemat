@@ -91,7 +91,7 @@ export class SubComponentService {
     return this.dataSource.transaction(async (manager) => {
       const subComponent = await manager.getRepository(SubComponent).findOne({
         where: { id },
-        relations: ['component'],
+        relations: ['component', 'measurementScales'],
       });
 
       if (!subComponent) {
@@ -122,6 +122,7 @@ export class SubComponentService {
   async delete(id: string): Promise<SubComponent> {
     const subComponent = await this.subComponentRepository.findOne({
       where: { id },
+      relations: ['measurementScales'],
     });
 
     if (!subComponent) {
@@ -135,6 +136,7 @@ export class SubComponentService {
     const subComponent = await this.subComponentRepository.findOne({
       where: { id },
       withDeleted: true,
+      relations: ['measurementScales'],
     });
 
     if (!subComponent) {

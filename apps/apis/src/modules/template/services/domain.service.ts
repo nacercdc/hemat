@@ -12,8 +12,10 @@ import {
   FindAllDomainDto,
   DomainCreateRequestDto,
   DomainUpdateRequestDto,
+  FindAllComponentDto,
 } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
+import { Component } from '@database/entities';
 
 @Injectable()
 export class DomainService {
@@ -22,6 +24,8 @@ export class DomainService {
   constructor(
     @InjectRepository(Domain)
     private readonly domainRepository: Repository<Domain>,
+    @InjectRepository(Component)
+    private readonly componentRepository: Repository<Component>,
   ) {}
 
   async findAll(query: FindAllDomainDto): Promise<FindAllResponseDto<Domain>> {
@@ -40,6 +44,7 @@ export class DomainService {
       throw new BadRequestException('Failed to fetch domains.');
     }
   }
+
   async findOne(id: string): Promise<Domain> {
     const domain = await this.domainRepository.findOne({ where: { id } });
 
@@ -91,5 +96,30 @@ export class DomainService {
     }
 
     return await this.domainRepository.recover(domain);
+  }
+
+  async findComponents(
+    id: string,
+    query: FindAllComponentDto,
+  ): Promise<FindAllResponseDto<Component>> {
+    try {
+      const domain = await this.domainRepository.findOne({ where: { id } });
+      if (!domain) {
+        throw new NotFoundException(`Domain ${id} not found.`);
+      }
+
+      return await new QueryService<Component>(this.componentRepository)
+        .filter([], {
+          fields: ['code', 'name'],
+          value: query.search,
+        })
+        .sort({ ascending: query.ascending, descending: query.descending })
+        .take(query.take)
+        .skip(query.skip)
+        .getManyAndCount();
+    } catch (err) {
+      this.logger.error('findComponentsByDomainId:', err);
+      throw new BadRequestException('Failed to fetch components.');
+    }
   }
 }

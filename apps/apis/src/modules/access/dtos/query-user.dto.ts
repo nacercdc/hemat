@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsBoolean } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { FindAllDto } from '@shared/dtos';
 import { IsArrayContains } from '@shared/validators';
@@ -39,6 +39,15 @@ export class FindAllUserDto extends FindAllDto {
   @Type(() => String)
   @Transform(({ value }) => (value ? value.trim().split(',') : []))
   descending: string[] = [];
+
+  @ApiPropertyOptional({
+    description: 'Filter by isAdmin status',
+    type: Boolean,
+  })
+  @IsBoolean()
+  @IsOptional()
+  @Transform(({ value }) => value === 'true')
+  isAdmin?: boolean;
 }
 
 export class FindOneUserDto {

@@ -7,6 +7,7 @@ import {
   HttpCode,
   UseGuards,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,9 +24,12 @@ import {
 import { AssessmentMeasurementScale } from '@database/entities';
 import { AuthGuard, Abilities } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
-import { ExceptionResponseDto } from '@shared/dtos';
+import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { AssessmentMeasurementScaleService } from '../services';
-import { AssessmentMeasurementScaleDto } from '../dtos';
+import {
+  AssessmentMeasurementScaleDto,
+  FindAllAssessmentMeasurementScaleDto,
+} from '../dtos';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Measurement Scales')
@@ -73,8 +77,12 @@ export class AssessmentMeasurementScaleController {
   @Get()
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-  ): Promise<AssessmentMeasurementScale[]> {
-    return this.assessmentMeasurementScaleService.findAll(assessmentId);
+    @Query() query: FindAllAssessmentMeasurementScaleDto,
+  ): Promise<FindAllResponseDto<AssessmentMeasurementScale>> {
+    return this.assessmentMeasurementScaleService.findAll({
+      ...query,
+      assessmentId,
+    });
   }
 
   @ApiOperation({
@@ -101,7 +109,6 @@ export class AssessmentMeasurementScaleController {
   ): Promise<AssessmentMeasurementScale> {
     return this.assessmentMeasurementScaleService.findOne(assessmentId, id);
   }
-
   @ApiOperation({
     summary: 'Update an assessment measurement scale',
     description:

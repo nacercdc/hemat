@@ -6,3 +6,8 @@ export * from './assessment-measurement-scale.dto';
 export * from './assessment-measurement-scale-sub-component.dto';
 export * from './assessment-group.dto';
 export * from './assessment-member.dto';
+export * from './query-assessment.dto';
+export * from './query-assessment-domain.dto';
+export * from './query-assessment-component.dto';
+export * from './query-assessment-sub-component.dto';
+export * from './query-assessment-measurement-scale.dto';

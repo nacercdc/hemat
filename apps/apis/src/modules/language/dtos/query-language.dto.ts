@@ -4,39 +4,30 @@ import { Transform, Type } from 'class-transformer';
 import { FindAllDto } from '@shared/dtos';
 import { IsArrayContains } from '@shared/validators';
 
-export class FindAllDomainDto extends FindAllDto {
+export class FindAllLanguageDto extends FindAllDto {
   @ApiPropertyOptional({
-    description: 'Comma-separated relations',
+    description:
+      'Comma-separated ascending sort fields (e.g., code,name,createdAt)',
     type: String,
   })
-  @IsArrayContains(['component', 'subComponent'])
+  @IsArrayContains(['code', 'name', 'native', 'createdAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
   @Transform(({ value }) => (value ? value.trim().split(',') : []))
-  include: string[] = [];
+  ascending: string[] = [];
 
   @ApiPropertyOptional({
     description:
-      'Comma-separated ascending sort fields (e.g., code,name,description)',
+      'Comma-separated descending sort fields (e.g., code,name,createdAt)',
     type: String,
   })
-  @IsArrayContains(['code', 'name', 'createdAt'])
+  @IsArrayContains(['code', 'name', 'native', 'createdAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
   @Transform(({ value }) => (value ? value.trim().split(',') : []))
-  ascending?: string[];
-
-  @ApiPropertyOptional({
-    description:
-      'Comma-separated descending sort fields (e.g., code,name,description)',
-    type: String,
-  })
-  @IsArrayContains(['code', 'name', 'createdAt'])
-  @IsString({ each: true })
-  @IsOptional()
-  @Type(() => String)
-  @Transform(({ value }) => (value ? value.trim().split(',') : []))
-  descending?: string[];
+  descending: string[] = [];
 }
+
+export class FindOneLanguageDto {}

@@ -7,12 +7,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { AssessmentDomain, Domain } from '@database/entities';
-import { AssessmentDomainDto } from '../dtos';
+import { QueryService } from '@shared/services';
+import { AssessmentDomainDto, FindAllAssessmentDomainDto } from '../dtos';
+import { FindAllResponseDto } from '@shared/dtos';
 import { UUID } from '@shared/helpers';
 
 @Injectable()
 export class AssessmentDomainService {
-  private readonly loggerService = new Logger(AssessmentDomainService.name);
+  private readonly logger = new Logger(AssessmentDomainService.name);
 
   constructor(
     @InjectRepository(AssessmentDomain)
@@ -32,6 +34,7 @@ export class AssessmentDomainService {
 
     const assessmentDomains: AssessmentDomain[] = [];
     const templateDomainId: Record<string, string> = {};
+
     domains.forEach(({ id, code, name, description, translations }) => {
       const domain = manager.create(AssessmentDomain, {
         id: UUID.v4(),
@@ -46,25 +49,42 @@ export class AssessmentDomainService {
       assessmentDomains.push(domain);
     });
 
-    this.loggerService.debug('templateDomainId', templateDomainId);
-    await manager.insert(AssessmentDomain, assessmentDomains);
-
-    return { domains: assessmentDomains, templateDomainId };
+    try {
+      await manager.insert(AssessmentDomain, assessmentDomains);
+      this.logger.debug('templateDomainId', templateDomainId);
+      return { domains: assessmentDomains, templateDomainId };
+    } catch (err) {
+      this.logger.error('create:', err);
+      throw new BadRequestException('Failed to create assessment domains.');
+    }
   }
 
-  async findAll(assessmentId: string): Promise<AssessmentDomain[]> {
-    return this.assessmentDomainRepository.find({
-      where: { assessmentId },
-    });
+  async findAll(
+    query: FindAllAssessmentDomainDto & { assessmentId: string },
+  ): Promise<FindAllResponseDto<AssessmentDomain>> {
+    return new QueryService<AssessmentDomain>(this.assessmentDomainRepository)
+      .filter(
+        [{ field: 'assessmentId', operator: '=', value: query.assessmentId }],
+        {
+          fields: ['code', 'name'],
+          value: query.search,
+        },
+      )
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   async findOne(assessmentId: string, id: string): Promise<AssessmentDomain> {
     const domain = await this.assessmentDomainRepository.findOne({
       where: { id, assessmentId },
     });
+
     if (!domain) {
-      throw new NotFoundException('Assessment domain not found');
+      throw new NotFoundException(`Assessment domain ${id} not found.`);
     }
+
     return domain;
   }
 
@@ -73,26 +93,25 @@ export class AssessmentDomainService {
     id: string,
     payload: AssessmentDomainDto,
   ): Promise<AssessmentDomain> {
-    const domain = await this.findOne(assessmentId, id);
-    try {
-      const entity = {
-        code: payload.code,
-        name: payload.name,
-        description: payload.description,
-        translations: payload.translations,
-      };
-      await this.assessmentDomainRepository.update(
-        { id, assessmentId },
-        entity,
-      );
+    return this.assessmentDomainRepository.manager.transaction(
+      async (manager) => {
+        const domain = await this.findOne(assessmentId, id);
 
-      return { ...domain, ...entity };
-    } catch (err) {
-      this.loggerService.error(
-        `Failed to update assessment domain: ${err.message}`,
-        err.stack,
-      );
-      throw new BadRequestException('Failed to update assessment domain');
-    }
+        const entity = {
+          code: payload.code,
+          name: payload.name,
+          description: payload.description,
+          translations: payload.translations,
+        };
+
+        try {
+          await manager.update(AssessmentDomain, { id, assessmentId }, entity);
+          return { ...domain, ...entity };
+        } catch (err) {
+          this.logger.error(`update: ${err.message}`, err.stack);
+          throw new BadRequestException('Failed to update assessment domain.');
+        }
+      },
+    );
   }
 }

@@ -25,7 +25,7 @@ import {
   ApiTooManyRequestsResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { Domain } from '@database/entities';
+import { Domain, Component } from '@database/entities';
 import { Abilities, AuthGuard } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
@@ -34,6 +34,7 @@ import {
   FindAllDomainDto,
   DomainCreateRequestDto,
   DomainUpdateRequestDto,
+  FindAllComponentDto,
 } from '../dtos';
 
 @ApiBearerAuth()
@@ -190,5 +191,29 @@ export class DomainController {
   @Post(':id/restore')
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.domainService.restore(id);
+  }
+
+  @ApiOperation({
+    summary: 'Find components',
+    description: 'Get all components for a domain by ID',
+  })
+  @ApiOkResponse({ description: 'Ok', type: [Component] })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.COMPONENT,
+      },
+    ],
+  })
+  @Get(':id/components')
+  async findComponents(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: FindAllComponentDto,
+  ) {
+    return this.domainService.findComponents(id, query);
   }
 }

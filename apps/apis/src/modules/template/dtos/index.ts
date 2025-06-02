@@ -7,3 +7,4 @@ export * from './sub-component-update-request.dto';
 export * from './query-domain.dto';
 export * from './query-component.dto';
 export * from './query-sub-component.dto';
+export * from './query-sub-component-measuremnt-scale.dto';

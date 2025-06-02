@@ -108,6 +108,10 @@ export class SubComponentMeasurementScaleDto {
     type: String,
   })
   @IsNotEmpty({ message: 'validation.measurementScaleId.isNotEmpty' })
+  @IsExists(
+    { tableName: 'measurement_scales', columns: ['id'] },
+    { message: 'validation.measurementScaleId.isExists' },
+  )
   @IsUUID('4', { message: 'validation.measurementScaleId.isUUID' })
   @Type(() => String)
   measurementScaleId: string;

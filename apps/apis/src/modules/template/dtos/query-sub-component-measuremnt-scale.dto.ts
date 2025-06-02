@@ -1,15 +1,18 @@
+// src/sub-components/dtos/find-all-sub-component-measurement-scale.dto.ts
+
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { FindAllDto } from '@shared/dtos';
 import { IsArrayContains } from '@shared/validators';
 
-export class FindAllDomainDto extends FindAllDto {
+export class FindAllSubComponentMeasurementScaleDto extends FindAllDto {
   @ApiPropertyOptional({
-    description: 'Comma-separated relations',
+    description:
+      'Comma-separated relations (e.g., subComponent,measurementScale)',
     type: String,
   })
-  @IsArrayContains(['component', 'subComponent'])
+  @IsArrayContains(['subComponent', 'measurementScale'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -18,10 +21,10 @@ export class FindAllDomainDto extends FindAllDto {
 
   @ApiPropertyOptional({
     description:
-      'Comma-separated ascending sort fields (e.g., code,name,description)',
+      'Comma-separated ascending sort fields (e.g., createdAt,updatedAt)',
     type: String,
   })
-  @IsArrayContains(['code', 'name', 'createdAt'])
+  @IsArrayContains(['createdAt', 'updatedAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -30,10 +33,10 @@ export class FindAllDomainDto extends FindAllDto {
 
   @ApiPropertyOptional({
     description:
-      'Comma-separated descending sort fields (e.g., code,name,description)',
+      'Comma-separated descending sort fields (e.g., createdAt,updatedAt)',
     type: String,
   })
-  @IsArrayContains(['code', 'name', 'createdAt'])
+  @IsArrayContains(['createdAt', 'updatedAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)

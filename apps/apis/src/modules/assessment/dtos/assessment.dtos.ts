@@ -9,9 +9,11 @@ import {
   ArrayNotEmpty,
   ArrayMaxSize,
   IsEnum,
+  Validate,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { AssessmentStatus } from '@shared/enums';
+import { IsExists, IsUnique } from '@shared/validators';
 
 export class AssessmentCreateRequestDto {
   @ApiProperty({
@@ -21,6 +23,10 @@ export class AssessmentCreateRequestDto {
   })
   @IsNotEmpty({ message: 'validation.userId.isNotEmpty' })
   @IsUUID('4', { message: 'validation.userId.isUUID' })
+  @IsExists(
+    { tableName: 'users', columns: ['id'] },
+    { message: 'validation.userId.isExists' },
+  )
   @Type(() => String)
   userId: string;
 
@@ -34,6 +40,10 @@ export class AssessmentCreateRequestDto {
   @IsNotEmpty({ message: 'validation.name.isNotEmpty' })
   @IsString({ message: 'validation.name.isString' })
   @Length(1, 100, { message: 'validation.name.length args: min:1 | max:100' })
+  @IsUnique(
+    { tableName: 'assessments', columns: ['name'] },
+    { message: 'validation.name.isUnique' },
+  )
   @Type(() => String)
   name: string;
 
@@ -62,6 +72,10 @@ export class AssessmentCreateRequestDto {
   @Length(2, 3, {
     message: 'validation.countryCode.length args: min:2 | max:3',
   })
+  @IsExists(
+    { tableName: 'countries', columns: ['code'] },
+    { message: 'validation.countryCode.isExists' },
+  )
   @Type(() => String)
   countryCode: string;
 
@@ -99,14 +113,20 @@ export class AssessmentCreateRequestDto {
   endDate: string;
 
   @ApiProperty({
-    description: 'Language',
+    description: 'Languages for the assessment',
     example: ['en'],
-    type: String,
-    isArray: true,
+    type: [String],
   })
-  @IsString({ each: true })
-  @ArrayNotEmpty()
-  @ArrayMaxSize(12)
+  @IsString({ each: true, message: 'validation.languages.isString' })
+  @ArrayNotEmpty({ message: 'validation.languages.arrayNotEmpty' })
+  @ArrayMaxSize(12, {
+    message: 'validation.languages.arrayMaxSize args: max:12',
+  })
+  @IsExists(
+    { tableName: 'languages', columns: ['code'] },
+    { each: true, message: 'validation.languages.isExists' },
+  )
+  @Type(() => Array)
   languages: string[];
 
   @ApiPropertyOptional({
@@ -115,12 +135,27 @@ export class AssessmentCreateRequestDto {
     enum: AssessmentStatus,
     default: AssessmentStatus.DRAFT,
   })
+  @IsOptional()
   @IsEnum(AssessmentStatus, { message: 'validation.status.isEnum' })
   @Type(() => String)
-  status: AssessmentStatus;
+  status: AssessmentStatus = AssessmentStatus.DRAFT;
 }
 
 export class AssessmentUpdateRequestDto {
+  @ApiPropertyOptional({
+    description: 'ID of the user updating the assessment',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @IsOptional()
+  @IsUUID('4', { message: 'validation.userId.isUUID' })
+  @IsExists(
+    { tableName: 'users', columns: ['id'] },
+    { message: 'validation.userId.isExists' },
+  )
+  @Type(() => String)
+  userId?: string;
+
   @ApiPropertyOptional({
     description: 'Name of the assessment',
     example: 'HIE Governance Assessment 2025',
@@ -131,6 +166,10 @@ export class AssessmentUpdateRequestDto {
   @IsOptional()
   @IsString({ message: 'validation.name.isString' })
   @Length(1, 100, { message: 'validation.name.length args: min:1 | max:100' })
+  @IsUnique(
+    { tableName: 'assessments', columns: ['name'] },
+    { message: 'validation.name.isUnique' },
+  )
   @Type(() => String)
   name?: string;
 
@@ -159,6 +198,10 @@ export class AssessmentUpdateRequestDto {
   @Length(2, 3, {
     message: 'validation.countryCode.length args: min:2 | max:3',
   })
+  @IsExists(
+    { tableName: 'countries', columns: ['code'] },
+    { message: 'validation.countryCode.isExists' },
+  )
   @Type(() => String)
   countryCode?: string;
 
@@ -196,14 +239,30 @@ export class AssessmentUpdateRequestDto {
   endDate?: string;
 
   @ApiPropertyOptional({
+    description: 'Languages for the assessment',
+    example: ['en'],
+    type: [String],
+  })
+  @IsOptional()
+  @IsString({ each: true, message: 'validation.languages.isString' })
+  @ArrayNotEmpty({ message: 'validation.languages.arrayNotEmpty' })
+  @ArrayMaxSize(12, {
+    message: 'validation.languages.arrayMaxSize args: max:12',
+  })
+  @IsExists(
+    { tableName: 'languages', columns: ['code'] },
+    { each: true, message: 'validation.languages.isExists' },
+  )
+  @Type(() => Array)
+  languages?: string[];
+
+  @ApiPropertyOptional({
     description: 'Status of the assessment',
     example: AssessmentStatus.DRAFT,
     enum: AssessmentStatus,
-    default: AssessmentStatus.DRAFT,
   })
   @IsOptional()
   @IsEnum(AssessmentStatus, { message: 'validation.status.isEnum' })
   @Type(() => String)
   status?: AssessmentStatus;
 }
-
