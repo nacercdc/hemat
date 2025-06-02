@@ -38,9 +38,9 @@ const selectVariants = cva("w-full font-normal", {
       warning: "text-warning-foreground border border-warning",
     },
     size: {
-      sm: "px-2 h-8 py-1 text-xs",
-      md: "px-3 h-9 py-2 text-xs",
-      lg: "px-4 h-10 py-2 text-xs",
+      sm: "px-2 h-9 py-1 text-xs",
+      md: "px-3 h-10 py-2 text-xs",
+      lg: "px-4 h-11 py-2 text-xs",
       xl: "px-4 h-12 rounded-2 border-[1px] text-sm max-[770px]:text-sm",
     },
   },
