@@ -20,6 +20,7 @@ import { AssessmentComponent } from './assessment-component.entity';
 import { AssessmentMeasurementScale } from './assessment-measurement-scale.entity';
 import { Country } from './country.entity';
 import { AssessmentStatus } from '../../shared';
+import { AssessmentGroup } from './assessment-group.entity';
 
 @Entity('assessments')
 export class Assessment extends BaseEntityWithSoftDelete {
@@ -164,6 +165,16 @@ export class Assessment extends BaseEntityWithSoftDelete {
     (assessmentMember) => assessmentMember.assessment,
   )
   members: AssessmentMember[] | null;
+
+  @ApiPropertyOptional({
+    description: 'Assessment member group',
+    type: () => [AssessmentGroup],
+  })
+  @OneToMany(
+    () => AssessmentGroup,
+    (assessmentGroup) => assessmentGroup.assessment,
+  )
+  groups: AssessmentGroup[] | null;
 
   @ApiPropertyOptional({
     description: 'Assessment answer of the assessment',

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 
 import { cn } from "../../shadcn-ui/utils/cn";
 import { Button } from "../../shadcn-ui/button";
@@ -13,6 +13,7 @@ import {
 } from "../../shadcn-ui/popover";
 import type { FormControlVariants } from "../form-control";
 import { FormControl } from "../form-control";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 type SizeType = "sm" | "md" | "lg" | "xl";
 
@@ -57,8 +58,7 @@ export const DateTimePicker = ({
   labelSize,
 }: DateTimePickerProps) => {
   const [date, setDate] = React.useState<Date | undefined>(value);
-
-  const ButtonIcon = <CalendarIcon className="mr-2 h-4 w-4" />;
+  const ButtonIcon = <Icon icon="clarity:date-outline-badged" width={18} height={18} className="text-primary"/>
 
   const handleSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {

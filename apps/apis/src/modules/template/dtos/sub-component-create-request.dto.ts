@@ -5,8 +5,13 @@ import {
   Length,
   IsUUID,
   IsBoolean,
+  IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import {
+  MeasurementScaleSubcomponentTranslationDto,
+  SubcomponenttanslationDto,
+} from '@africa-cdc/shared/dtos';
 
 export class SubComponentCreateRequestDto {
   @ApiProperty({
@@ -69,6 +74,22 @@ export class SubComponentCreateRequestDto {
   @IsUUID('4', { message: 'validation.componentId.isUUID' })
   @Type(() => String)
   componentId: string;
+
+  @ApiProperty({
+    description: 'Translations for the domain',
+    example: {
+      en: {
+        code: '1',
+        name: 'Public Health',
+        description: 'Domain covering public health initiatives',
+      },
+    },
+    type: () => Object,
+  })
+  @IsNotEmpty({ message: 'validation.translations.isNotEmpty' })
+  @IsObject({ message: 'validation.translations.isObject' })
+  @Type(() => Object)
+  translations: Record<string, SubcomponenttanslationDto>;
 }
 
 export class SubComponentMeasurementScaleDto {
@@ -97,4 +118,18 @@ export class SubComponentMeasurementScaleDto {
   })
   @Type(() => String)
   description: string;
+
+  @ApiProperty({
+    description: 'Translations for the description',
+    example: {
+      en: {
+        description: 'Domain covering public health initiatives',
+      },
+    },
+    type: () => Object,
+  })
+  @IsNotEmpty({ message: 'validation.translations.isNotEmpty' })
+  @IsObject({ message: 'validation.translations.isObject' })
+  @Type(() => Object)
+  translations: Record<string, MeasurementScaleSubcomponentTranslationDto>;
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import type { Table, PaginationState } from "@tanstack/react-table";
-import { Icon } from "@iconify/react";
 import {
   Pagination,
   PaginationContent,
@@ -16,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../shadcn-ui";
+import { cn } from "../../shadcn-ui/utils/cn";
 
 interface ManualPaginationProps<TData> {
   table: Table<TData>;
@@ -33,7 +33,11 @@ export function TablePagination<TData>({
   pageSizeOptions = [10, 20, 30, 50, 100],
 }: ManualPaginationProps<TData>) {
   const currentPage = table.getState().pagination.pageIndex + 1;
-  const pageSize = table.getState().pagination.pageSize;
+  const pageSize =
+    totalItems < 5
+      ? 5
+      : pageSizeOptions.find((size) => size <= totalItems) ||
+        table.getState().pagination.pageSize;
   const totalPages = Math.ceil(totalItems / pageSize);
 
   const handlePageChange = (newPage: number) => {
@@ -85,7 +89,7 @@ export function TablePagination<TData>({
   };
 
   return (
-    <div className="flex items-center justify-between bg-tbaccent py-4 px-2 my-3 rounded-md">
+    <div className="flex items-center justify-between bg-tbaccent px-2 rounded-md">
       <Pagination className="mx-0 w-auto">
         <PaginationContent>
           <PaginationItem>
@@ -94,15 +98,18 @@ export function TablePagination<TData>({
               disabled={currentPage <= 1 || disabled}
               onClick={() => handlePageChange(currentPage - 1)}
             >
-              <Icon icon="lucide:chevron-left" /> Previous
+              <span className="text-sm font-bold">Prev</span>
             </Button>
           </PaginationItem>
 
           {getPageNumbers().map((page, index) => {
             if (page === "ellipsis-left" || page === "ellipsis-right") {
               return (
-                <PaginationItem key={`${page}-${index}`}>
-                  <PaginationEllipsis />
+                <PaginationItem
+                  key={`${page}-${index}`}
+                  className="px-0 mx-0  w-fit"
+                >
+                  <PaginationEllipsis className="px-0 mx-0 items-end w-fit" />
                 </PaginationItem>
               );
             }
@@ -110,12 +117,15 @@ export function TablePagination<TData>({
             return (
               <PaginationItem key={page}>
                 <Button
-                  variant={page === currentPage ? "outline" : "ghost"}
-                  size="sm"
+                  variant={page === currentPage ? "default" : "outline"}
                   disabled={disabled}
                   onClick={() => handlePageChange(page as number)}
+                  className={cn("h-6 w-6 rounded-[2px] p-0 ", {
+                    "bg-card": page !== currentPage,
+                    "bg-primary text-bold text-card": page === currentPage,
+                  })}
                 >
-                  {page}
+                  <span className="text-xs p-0">{page}</span>
                 </Button>
               </PaginationItem>
             );
@@ -127,29 +137,35 @@ export function TablePagination<TData>({
               disabled={currentPage >= totalPages || disabled}
               onClick={() => handlePageChange(currentPage + 1)}
             >
-              Next <Icon icon="lucide:chevron-right" />
+              <span className="text-sm font-bold">Next</span>
             </Button>
           </PaginationItem>
         </PaginationContent>
       </Pagination>
-      <div className="flex items-center space-x-2">
-        <p className="text-sm font-medium">Rows per page</p>
+      <div className="flex items-center gap-4">
         <Select
           value={pageSize.toString()}
           onValueChange={(value: string) => handlePageSizeChange(Number(value))}
           disabled={disabled}
         >
-          <SelectTrigger className="h-8 w-[70px]">
+          <SelectTrigger className="h-6 w-fit">
             <SelectValue placeholder={pageSize} />
           </SelectTrigger>
           <SelectContent>
-            {pageSizeOptions.map((size) => (
-              <SelectItem key={size} value={size.toString()}>
-                {size}
-              </SelectItem>
-            ))}
+            {pageSizeOptions.filter((size) => size <= totalItems).length > 0 ? (
+              pageSizeOptions
+                .filter((size) => size <= totalItems)
+                .map((size) => (
+                  <SelectItem key={size} value={size.toString()}>
+                    {`${size} / page`}
+                  </SelectItem>
+                ))
+            ) : (
+              <SelectItem value="5">{`5 / page`}</SelectItem>
+            )}
           </SelectContent>
         </Select>
+        <p className="text-xs font-bold">{`1-${pageSize < totalItems ? pageSize : totalItems} of ${totalItems}`}</p>
       </div>
     </div>
   );

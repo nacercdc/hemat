@@ -70,6 +70,7 @@
     "next-themes": "^0.4.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "quill-image-resize": "^3.0.9",
+    "react-colorful": "^5.6.1",
     "react-day-picker": "8.10.1",
     "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.53.2",

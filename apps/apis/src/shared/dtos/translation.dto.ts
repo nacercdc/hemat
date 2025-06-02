@@ -1,11 +1,25 @@
-export class DescriptionTranslationDto {
-  description: Record<string, string>;
+export class MeasurementScaleTranslationDto {
+  name: string;
+  description: string;
 }
 
-export class NameDescriptionDto extends DescriptionTranslationDto {
-  name: Record<string, string>;
+export class MeasurementScaleSubcomponentTranslationDto {
+  description: string;
+}
+export class DomaintranslationDto {
+  code: string;
+  name: string;
+  description: string;
 }
 
-export class AssessmentTranslationDto extends NameDescriptionDto {
-  code: Record<string, string>;
+export class ComponenttanslationDto {
+  code: string;
+  name: string;
+  description: string;
+}
+
+export class SubcomponenttanslationDto {
+  code: string;
+  name: string;
+  description: string;
 }

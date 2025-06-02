@@ -23,7 +23,7 @@ export function Avatar({ src, alt, fallback, size = "md" }: Props) {
   return (
     <ShadcnAvatar className={cn(sizesClasses[size])}>
       <AvatarImage src={src} alt={alt} />
-      <AvatarFallback className="bg-secondary text-white font-bold">
+      <AvatarFallback className="bg-primary text-card font-bold">
         {fallback}
       </AvatarFallback>
     </ShadcnAvatar>

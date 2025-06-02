@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, InputRHF } from "@etm/web-ui-components";
+import { Button, Checkbox, InputRHF } from "@etm/web-ui-components";
 import PasswordVisibilityToggler from "../../components/PasswordVisibilityToggler";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import Image from "next/image";
 
 const loginFormSchema = z.object({
   email: z
@@ -45,10 +46,11 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col gap-10 h-full min-[1925px]:gap-10">
+    <div className="flex flex-col gap-10  min-[1925px]:gap-10  ">
+
       <div className="flex flex-col">
         <div className="text-2xl font-bold text-secondary">Sign In</div>
-        <div className="text-xs text-dark-light">To Vital Work Life</div>
+        <div className="text-xs text-dark-light">Enter your credentials to login to your account</div>
       </div>
       <form
         onSubmit={handleSubmit(onLoginHandler)}
@@ -77,7 +79,8 @@ export default function Login() {
           }
         />
 
-        <div className="flex justify-end items-center">
+        <div className="flex justify-between  items-center">
+          <Checkbox name="Remember_me" label="Remember me" size="md" />
           <Button
             type="button"
             variant="link"
@@ -88,32 +91,35 @@ export default function Login() {
             Forgot password?
           </Button>
         </div>
+
         <Button
           type="submit"
           children={
             <div className="flex items-center ">
-              <span className="text-base text-card font-[500] ml-2">Login</span>
+              <span className="text-base text-card font-[500] ml-2  ">Login</span>
             </div>
           }
           size="lg"
           disabled={isSubmitting}
           loading={isSubmitting}
           color="authButtons"
-        />
-        <fieldset className="border-t border-basic-300">
-          <legend className="mx-auto px-4 text-foreground text-xs">
-            Or Sign in with
-          </legend>
-        </fieldset>
 
-        <Button
-          variant="outline"
-          size="lg"
-          leftNode={<Icon icon="logos:microsoft-icon" className="w-6" />}
-        >
-          Sign in with Microsoft
-        </Button>
+        />
+
+
+
+
+
+
+
       </form>
+      <Image
+        src="/images/branding-texture-right.png"
+        width={70}
+        height={30}
+        className=" rounded-br-[8px] absolute bottom-0 right-0 "
+        alt="ACDC Branding texture Image "
+      />
     </div>
   );
 }

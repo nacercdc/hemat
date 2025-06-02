@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon, ChevronsUpDown } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import * as RPNInput from "react-phone-number-input";
-import flags from "react-phone-number-input/flags";
 import { cn } from "../../shadcn-ui/utils/cn";
 import {
   Button,
@@ -65,7 +64,7 @@ export const PhoneNumberInput: React.ForwardRefExoticComponent<Props> =
           <RPNInput.default
             ref={ref}
             className={cn("flex")}
-            flagComponent={FlagComponent}
+            flagComponent={CodeComponent}
             countries={options?.map((v) => v.value)}
             countrySelectComponent={({ ...csProps }: CountrySelectProps) => (
               <div className="relative">
@@ -75,7 +74,6 @@ export const PhoneNumberInput: React.ForwardRefExoticComponent<Props> =
                   size={props.size}
                   error={props.error ?? ""}
                 />
-
                 {loading && (
                   <>
                     <span className="absolute inset-0 bg-basic-800 opacity-40 rounded-md" />
@@ -133,20 +131,20 @@ const CountrySelect = ({
           className={cn(
             inputVariants({ size }),
             error && error && "border-destructive-500",
-            "flex gap-1 rounded-e-none rounded-s-lg border-r-0 focus:z-10 text-lg w-fit"
+            "flex gap-1 rounded-e-none border-r-0 shadow-none focus:z-10 text-lg w-fit pr-0"
           )}
           disabled={disabled}
         >
-          <FlagComponent
+          <CodeComponent
             country={selectedCountry}
             countryName={selectedCountry}
           />
-          <ChevronsUpDown
+          {/* <ChevronsUpDown
             className={cn(
               "-mr-2 size-4 opacity-50",
               disabled ? "hidden" : "opacity-100"
             )}
-          />
+          /> */}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
@@ -189,7 +187,7 @@ const CountrySelectOption = ({
 }: CountrySelectOptionProps) => {
   return (
     <CommandItem className="gap-2" onSelect={() => onChange(country)}>
-      <FlagComponent country={country} countryName={countryName} />
+      <CodeComponent country={country} countryName={countryName} />
       <span className="flex-1 text-sm">{countryName}</span>
       <span className="text-sm text-foreground/50">{`+${RPNInput.getCountryCallingCode(country)}`}</span>
       <CheckIcon
@@ -199,12 +197,17 @@ const CountrySelectOption = ({
   );
 };
 
-const FlagComponent = ({ country, countryName }: RPNInput.FlagProps) => {
-  const Flag = flags[country];
+const CodeComponent = ({ country }: RPNInput.FlagProps) => {
+  const callingCode = country ? RPNInput.getCountryCallingCode(country) : "";
 
   return (
-    <span className="flex h-4 w-6 overflow-hidden rounded-sm bg-foreground/20 [&_svg]:size-full">
-      {Flag && <Flag title={countryName} />}
+    <span className="flex items-center justify-between gap-4">
+      <span className="flex h-4 w-6 items-center justify-between text-sm font-medium">
+        +{callingCode}
+      </span>
+      <span className="text-[10px] font-medium items-center text-dark-light">
+        |
+      </span>
     </span>
   );
 };

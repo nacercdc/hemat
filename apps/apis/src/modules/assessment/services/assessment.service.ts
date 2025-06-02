@@ -1,25 +1,16 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, In } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { CrudService } from '../../../shared/services';
-import {
-  User,
-  Country,
-  Assessment,
-  Domain,
-  Component,
-  SubComponent,
-  AssessmentDomain,
-  AssessmentComponent,
-  AssessmentSubComponent,
-  MeasurementScale,
-  AssessmentMeasurementScale,
-  AssessmentMeasurementScaleSubComponent,
-  Language,
-} from '../../../database/entities';
+import { Assessment, User, Country } from '../../../database/entities';
 import { ASSESSMENT_FIELD_CONFIG } from '../config/assessment-field-config';
 import { AssessmentCreateRequestDto } from '../dtos';
-import { AssessmentStatus } from '../../../shared';
+import { AssessmentDomainService } from './assessment-domain.service';
+import { AssessmentComponentService } from './assessment-component.service';
+import { AssessmentSubComponentService } from './assessment-sub-component.service';
+import { AssessmentMeasurementScaleService } from './assessment-measuremnt-scale.service';
+import { AssessmentMeasurementScaleSubComponentService } from './assessment-measuremnt-scale-sub-component.service';
+import { AssessmentUtilityService } from '../utils';
 
 @Injectable()
 export class AssessmentService extends CrudService<Assessment> {
@@ -32,49 +23,22 @@ export class AssessmentService extends CrudService<Assessment> {
   constructor(
     @InjectRepository(Assessment)
     private readonly assessmentRepository: Repository<Assessment>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    @InjectRepository(Language)
-    private readonly languageRepository: Repository<Language>,
-    @InjectRepository(Country)
-    private readonly countryRepository: Repository<Country>,
-    @InjectRepository(MeasurementScale)
-    private readonly measurementScaleRepository: Repository<MeasurementScale>,
     private readonly dataSource: DataSource,
+    private readonly assessmentUtilityService: AssessmentUtilityService,
+    private readonly assessmentDomainService: AssessmentDomainService,
+    private readonly assessmentComponentService: AssessmentComponentService,
+    private readonly assessmentSubComponentService: AssessmentSubComponentService,
+    private readonly assessmentMeasurementScaleService: AssessmentMeasurementScaleService,
+    private readonly assessmentMeasurementScaleSubComponentService: AssessmentMeasurementScaleSubComponentService,
   ) {
     super(assessmentRepository);
   }
 
   async create(payload: AssessmentCreateRequestDto): Promise<Assessment> {
     try {
-      const user = await this.userRepository.findOne({
-        where: { id: payload.userId },
-      });
-
-      if (!user) {
-        throw new BadRequestException('User not found');
-      }
-
-      const country = await this.countryRepository.findOne({
-        where: { code: payload.countryCode },
-      });
-
-      if (!country) {
-        throw new BadRequestException('Country not found');
-      }
-
-      const languages = (
-        await this.languageRepository.find({
-          where: { code: In(payload.languages) },
-          select: { code: true },
-        })
-      ).map(({ code }) => code);
-
-      for (const language of payload.languages) {
-        if (!languages.includes(language)) {
-          throw new BadRequestException(`Language ${language} not found`);
-        }
-      }
+      await this.assessmentUtilityService.validateUser(payload.userId);
+      await this.assessmentUtilityService.validateCountry(payload.countryCode);
+      await this.assessmentUtilityService.validateLanguages(payload.languages);
 
       if (new Date(payload.endDate) < new Date(payload.startDate)) {
         throw new BadRequestException('End date cannot be before start date');
@@ -82,231 +46,35 @@ export class AssessmentService extends CrudService<Assessment> {
 
       const savedAssessment = await this.dataSource.transaction(
         async (manager) => {
-          const assessment = manager.create(Assessment, {
-            userId: payload.userId,
-            name: payload.name,
-            description: payload.description,
-            countryCode: payload.countryCode,
-            organization: payload.organization,
-            startDate: payload.startDate,
-            endDate: payload.endDate,
-            languages: payload.languages,
-            status: payload.status ?? AssessmentStatus.DRAFT,
-          });
-
+          const assessment = manager.create(Assessment, payload);
           await manager.insert(Assessment, assessment);
+          const { domains, templateDomainId } =
+            await this.assessmentDomainService.create(manager, assessment.id);
 
-          // Create AssessmentDomains
-          const domains = await manager.find(Domain, {
-            where: { isActive: true },
-            select: { id: true, code: true, name: true, description: true },
-          });
+          const { components, templateComponentId } =
+            await this.assessmentComponentService.create(
+              manager,
+              assessment.id,
+              templateDomainId,
+            );
 
-          const assessmentDomains: AssessmentDomain[] = [];
-          const templateDomainId: Record<string, string> = {};
-          domains.forEach(({ id, code, name, description }) => {
-            const domain = manager.create(AssessmentDomain, {
-              code,
-              name,
-              description,
-              assessmentId: assessment.id,
-              translations: {
-                code: { en: code },
-                name: { en: name },
-                description: { en: description },
-              },
-            });
-            assessmentDomains.push(domain);
-          });
+          const { subComponents, templateSubComponentId } =
+            await this.assessmentSubComponentService.create(
+              manager,
+              assessment.id,
+              templateComponentId,
+            );
 
-          const insertedDomains = await manager.insert(
-            AssessmentDomain,
-            assessmentDomains,
-          );
-          insertedDomains.generatedMaps.forEach((generated, index) => {
-            templateDomainId[domains[index].id] = generated.id as string;
-          });
+          const { measurementScales, templateMeasurementScaleId } =
+            await this.assessmentMeasurementScaleService.create(
+              manager,
+              assessment.id,
+            );
 
-          Logger.debug('templateDomainId', templateDomainId);
-
-          // Create AssessmentComponents
-          const components = await manager.find(Component, {
-            where: { isActive: true },
-            select: {
-              id: true,
-              code: true,
-              name: true,
-              description: true,
-              domainId: true,
-            },
-          });
-
-          const assessmentComponents: AssessmentComponent[] = [];
-          const templateComponentId: Record<string, string> = {};
-          components.forEach(({ id, code, name, description, domainId }) => {
-            const parentId = templateDomainId[domainId] ?? null;
-
-            if (parentId) {
-              const component = manager.create(AssessmentComponent, {
-                code,
-                name,
-                description,
-                assessmentId: assessment.id,
-                domainId: parentId,
-                translations: {
-                  code: { en: code },
-                  name: { en: name },
-                  description: { en: description },
-                },
-              });
-              assessmentComponents.push(component);
-            }
-          });
-
-          const insertedComponents = await manager.insert(
-            AssessmentComponent,
-            assessmentComponents,
-          );
-          insertedComponents.generatedMaps.forEach((generated, index) => {
-            templateComponentId[components[index].id] = generated.id as string;
-          });
-
-          Logger.debug('templateComponentId', templateComponentId);
-
-          // Create AssessmentSubComponents
-          const subComponents = await manager.find(SubComponent, {
-            where: { isActive: true },
-            select: {
-              id: true,
-              code: true,
-              name: true,
-              description: true,
-              componentId: true,
-            },
-            relations: { measurementScales: { measurementScale: true } },
-          });
-
-          const assessmentSubComponents: AssessmentSubComponent[] = [];
-          const templateSubComponentId: Record<string, string> = {};
-          subComponents.forEach(
-            ({ id, code, name, description, componentId }) => {
-              const parentId = templateComponentId[componentId] ?? null;
-
-              if (parentId) {
-                const subComponent = manager.create(AssessmentSubComponent, {
-                  code,
-                  name,
-                  description,
-                  assessmentId: assessment.id,
-                  componentId: parentId,
-                  translations: {
-                    code: { en: code },
-                    name: { en: name },
-                    description: { en: description },
-                  },
-                });
-                assessmentSubComponents.push(subComponent);
-              }
-            },
-          );
-
-          const insertedSubComponents = await manager.insert(
-            AssessmentSubComponent,
-            assessmentSubComponents,
-          );
-          insertedSubComponents.generatedMaps.forEach((generated, index) => {
-            templateSubComponentId[subComponents[index].id] =
-              generated.id as string;
-          });
-
-          Logger.debug('templateSubComponentId', templateSubComponentId);
-
-          // Create AssessmentMeasurementScales
-          const measurementScales = await manager.find(MeasurementScale, {
-            select: {
-              id: true,
-              name: true,
-              description: true,
-              color: true,
-              rate: true,
-            },
-          });
-
-          const assessmentMeasurementScales: AssessmentMeasurementScale[] = [];
-          const templateMeasurementScaleId: Record<string, string> = {};
-          measurementScales.forEach(
-            ({ id, name, description, color, rate }) => {
-              const measurementScale = manager.create(
-                AssessmentMeasurementScale,
-                {
-                  name,
-                  description,
-                  color,
-                  rate,
-                  assessmentId: assessment.id,
-                  translations: {
-                    name: { en: name },
-                    description: { en: description },
-                  },
-                },
-              );
-              assessmentMeasurementScales.push(measurementScale);
-            },
-          );
-
-          const insertedMeasurementScales = await manager.insert(
-            AssessmentMeasurementScale,
-            assessmentMeasurementScales,
-          );
-          insertedMeasurementScales.generatedMaps.forEach(
-            (generated, index) => {
-              templateMeasurementScaleId[measurementScales[index].id] =
-                generated.id as string;
-            },
-          );
-
-          Logger.debug(
-            'templateMeasurementScaleId',
+          await this.assessmentMeasurementScaleSubComponentService.create(
+            manager,
+            templateSubComponentId,
             templateMeasurementScaleId,
-          );
-
-          // Create AssessmentMeasurementScaleSubComponents
-          const measurementScaleSubComponents: AssessmentMeasurementScaleSubComponent[] =
-            [];
-          subComponents.forEach(
-            ({ id: subComponentId, measurementScales: ms }) => {
-              const assessmentSubComponentId =
-                templateSubComponentId[subComponentId];
-              if (assessmentSubComponentId && ms?.length) {
-                ms.forEach(({ measurementScale }) => {
-                  const assessmentMeasurementScaleId =
-                    templateMeasurementScaleId[measurementScale.id];
-                  if (assessmentMeasurementScaleId) {
-                    const measurementScaleSubComponent = manager.create(
-                      AssessmentMeasurementScaleSubComponent,
-                      {
-                        subComponentId: assessmentSubComponentId,
-                        measurementScaleId: assessmentMeasurementScaleId,
-                        description: `Measurement scale for ${measurementScale.name}`,
-                        translations: {
-                          description: {
-                            en: `Measurement scale for ${measurementScale.name}`,
-                          },
-                        },
-                      },
-                    );
-                    measurementScaleSubComponents.push(
-                      measurementScaleSubComponent,
-                    );
-                  }
-                });
-              }
-            },
-          );
-
-          await manager.insert(
-            AssessmentMeasurementScaleSubComponent,
-            measurementScaleSubComponents,
           );
 
           return assessment;
@@ -315,23 +83,29 @@ export class AssessmentService extends CrudService<Assessment> {
 
       const fullAssessment = await this.assessmentRepository.findOne({
         where: { id: savedAssessment.id },
+        relations: { country: true, user: true },
       });
 
       if (!fullAssessment) {
         throw new BadRequestException('Failed to retrieve created assessment');
       }
 
+      this.loggerService.log(
+        `Successfully created assessment with ID: ${fullAssessment.id}`,
+      );
       return fullAssessment;
     } catch (err) {
-      this.loggerService.error('Failed to create assessment', err.stack || err);
-      Logger.error(err);
+      this.loggerService.error(
+        `Failed to create assessment: ${err.message}`,
+        err.stack,
+      );
       if (err.code === '23505') {
         throw new BadRequestException(
           'Assessment with this name already exists',
         );
       }
       throw new BadRequestException(
-        'Failed to create assessment: ' + (err.message || err),
+        `Failed to create assessment: ${err.message}`,
       );
     }
   }
