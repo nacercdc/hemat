@@ -1,6 +1,11 @@
 "use client";
 
-import { Button, ColorPickerRHF, InputRHF, TextAreaRHF } from "@etm/web-ui-components";
+import {
+  Button,
+  ColorPickerRHF,
+  InputRHF,
+  TextAreaRHF,
+} from "@etm/web-ui-components";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,8 +27,12 @@ interface Props {
   scale?: Scale;
 }
 
-export function ScaleForm({ onSubmitScaleFormHandler,onCancelScaleFormHandler, isLoading = false,scale }: Props) {
-
+export function ScaleForm({
+  onSubmitScaleFormHandler,
+  onCancelScaleFormHandler,
+  isLoading = false,
+  scale,
+}: Props) {
   const { control, handleSubmit, reset } = useForm<ScaleFormData>({
     defaultValues: {
       name: scale?.name ?? "",
@@ -46,11 +55,13 @@ export function ScaleForm({ onSubmitScaleFormHandler,onCancelScaleFormHandler, i
 
   return (
     <form
-        onSubmit={handleSubmit((values) => {
-          onSubmitScaleFormHandler(values);
-          reset();
-        })} className="flex flex-col w-full md:w-[744px] min-h-96 md:min-h-[557px] bg-card rounded-xl relative">
-      <div className="text-xl font-bold px-8 pt-8">{`${scale? "Edit":"Add"} Measurement Scale`}</div>
+      onSubmit={handleSubmit((values) => {
+        onSubmitScaleFormHandler(values);
+        reset();
+      })}
+      className="flex flex-col w-full  min-h-96 md:min-h-[557px] bg-card rounded-xl relative"
+    >
+      <div className="text-xl font-bold px-8 pt-8">{`${scale ? "Edit" : "Add"} Measurement Scale`}</div>
       <div className="flex flex-col gap-6 px-8 flex-1 pb-20 w-full">
         <InputRHF<ScaleFormData>
           control={control}
@@ -97,7 +108,7 @@ export function ScaleForm({ onSubmitScaleFormHandler,onCancelScaleFormHandler, i
           Cancel
         </Button>
         <Button size="lg" type="submit">
-         {scale ?  "Edit":"Save"}
+          {scale ? "Edit" : "Save"}
         </Button>
       </div>
     </form>
