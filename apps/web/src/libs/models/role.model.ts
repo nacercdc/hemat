@@ -5,4 +5,6 @@ export interface Role {
   name: string;
   description: string;
   permissions: Permission[];
+  createdAt: string;
+  updatedAt: string;
 }
