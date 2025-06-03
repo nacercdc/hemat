@@ -41,30 +41,30 @@ const metrics: Pick<Scale, "name" | "rate" | "color">[] = [
 
 export default function Dashboard() {
   // TODO: Replace with real API call
- 
-    const fetchedData: Record<string, Pick<Scale, "name" | "rate" | "color">> = {
-      "Ethiopia": { name: "Developing", rate: 4, color: "#FFA50080" },
-      "Kenya": { name: "Defined", rate: 3, color: "#FFFF0080" },
-      "Chad": { name: "Initial", rate: 4, color: "#FF000080" },
-      "Sudan": { name: "Managed", rate: 2, color: "#000FF990" },
-      "South Africa": { name: "Optimized", rate: 5, color: "#00FF0080" },
-    };
 
+  const fetchedData: Record<string, Pick<Scale, "name" | "rate" | "color">> = {
+    Ethiopia: { name: "Developing", rate: 4, color: "#FFA50080" },
+    Kenya: { name: "Defined", rate: 3, color: "#FFFF0080" },
+    Chad: { name: "Initial", rate: 4, color: "#FF000080" },
+    Sudan: { name: "Managed", rate: 2, color: "#000FF990" },
+    "South Africa": { name: "Optimized", rate: 5, color: "#00FF0080" },
+  };
 
-  const handleCountryClick = (countryName: string) => {
+  const handleCountryClick = (_countryName: string) => {
     // TODO: handle country click event
-    console.log(countryName, "selected");
   };
 
-  const handleDomainSelect = (value?: unknown) => {
-    console.log(value, "Selected");
+  const handleDomainSelect = (_value?: unknown) => {
+    // TODO: handle domain select event
   };
 
-  const handleCountrySelect = (value?: unknown) => {
-    console.log(value, "Selected");
+  const handleCountrySelect = (_value?: unknown) => {
+    // TODO: handle country select event
   };
 
-  const countryOptions = Object.keys(fetchedData).map((country) => ({ name: country }));
+  const countryOptions = Object.keys(fetchedData).map((country) => ({
+    name: country,
+  }));
 
   return (
     <ContentLayout>
@@ -74,14 +74,25 @@ export default function Dashboard() {
           <div className="flex flex-col-reverse items-start sm:flex-row justify-between sm:items-center">
             <div className="flex flex-wrap gap-8 w-3/5 py-5 sm:px-8">
               {metrics.map((metric, index) => (
-                <MetricsCard key={index} name={metric.name} rate={metric.rate} color={metric.color} />
+                <MetricsCard
+                  key={index}
+                  name={metric.name}
+                  rate={metric.rate}
+                  color={metric.color}
+                />
               ))}
             </div>
             <div className="flex flex-col gap-3">
-              <span className="font-bold text-4xl text-primary">Africa CDC</span>
+              <span className="font-bold text-4xl text-primary">
+                Africa CDC
+              </span>
               <div className="flex flex-col pr-4">
-                <span className="text-sm font-normal">Centers for Disease Control and Prevention</span>
-                <span className="text-xs font-semibold text-secondary">Safeguarding Africa's Health</span>
+                <span className="text-sm font-normal">
+                  Centers for Disease Control and Prevention
+                </span>
+                <span className="text-xs font-semibold text-secondary">
+                  Safeguarding Africa's Health
+                </span>
               </div>
             </div>
           </div>
@@ -89,7 +100,11 @@ export default function Dashboard() {
         <MetricsContainer title="Over All Domains Metrics">
           <div className="flex flex-row gap-3 w-full py-5 overflow-x-auto sm:overflow-hidden">
             {metrics.map((metric, index) => (
-              <DomainMetricsCard key={index} scale={metric} domain={`Domain ${index + 1}`} />
+              <DomainMetricsCard
+                key={index}
+                scale={metric}
+                domain={`Domain ${index + 1}`}
+              />
             ))}
           </div>
         </MetricsContainer>

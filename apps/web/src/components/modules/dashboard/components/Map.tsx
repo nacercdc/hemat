@@ -1,8 +1,14 @@
 "use client";
-import React from 'react';
-import { ComposableMap, Geographies, Geography, ZoomableGroup, Annotation } from 'react-simple-maps';
-import { geoData } from '../constants/africa-map';
-import { geoCentroid } from 'd3-geo';
+import React from "react";
+import {
+  ComposableMap,
+  Geographies,
+  Geography,
+  ZoomableGroup,
+  Annotation,
+} from "react-simple-maps";
+import { geoData } from "../constants/africa-map";
+import { geoCentroid } from "d3-geo";
 
 interface Metric {
   name: string;
@@ -62,11 +68,11 @@ export const Map = ({
   isLoading = false,
   error = null,
   countryStatuses = {},
-  onCountryClick
+  onCountryClick,
 }: MapProps) => {
   if (isLoading) {
     return (
-      <div 
+      <div
         className={`bg-card shadow-lg rounded-lg p-4 flex items-center justify-center ${className}`}
         style={{ width, height }}
       >
@@ -76,7 +82,7 @@ export const Map = ({
   }
   if (error) {
     return (
-      <div 
+      <div
         className={`bg-card shadow-lg rounded-lg p-4 flex items-center justify-center ${className}`}
         style={{ width, height }}
       >
@@ -85,14 +91,12 @@ export const Map = ({
     );
   }
 
-  console.log("Rendedederrr")
-
   return (
-    <div 
-      className={`rounded-md overflow-hidden relative ${className}`} 
+    <div
+      className={`rounded-md overflow-hidden relative ${className}`}
       style={{ width, height, backgroundColor: "#AFBBC2" }}
     >
-      <div className='w-full h-full overflow-hidden relative'>
+      <div className="w-full h-full overflow-hidden relative">
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
@@ -105,7 +109,9 @@ export const Map = ({
               {({ geographies }) =>
                 geographies.map((geo) => {
                   const countryName = geo.properties.name;
-                  const status = countryStatuses[countryName as string ] || { color: "#F3F4F6" };
+                  const status = countryStatuses[countryName as string] || {
+                    color: "#F3F4F6",
+                  };
                   const fillColor = status.color;
                   const centroid = geoCentroid(geo);
 
@@ -113,21 +119,28 @@ export const Map = ({
                     <React.Fragment key={geo.rsmKey}>
                       <Geography
                         geography={geo}
-                        onClick={interactive ? () => onCountryClick?.(countryName) : undefined}
+                        onClick={
+                          interactive
+                            ? () => onCountryClick?.(countryName)
+                            : undefined
+                        }
                         fill={fillColor}
                         stroke={strokeColor}
                         strokeWidth={strokeWidth}
                         className={`
-                          ${interactive ? 'cursor-pointer' : 'cursor-default'}
-                          ${showHoverEffects && interactive ? 'transition-colors' : ''}
+                          ${interactive ? "cursor-pointer" : "cursor-default"}
+                          ${showHoverEffects && interactive ? "transition-colors" : ""}
                         `}
                         style={{
-                          default: { outline: 'none' },
-                          hover: showHoverEffects && interactive ? { 
-                            fill: hoverColor,
-                            outline: 'none'
-                          } : { outline: 'none' },
-                          pressed: { outline: 'none' }
+                          default: { outline: "none" },
+                          hover:
+                            showHoverEffects && interactive
+                              ? {
+                                  fill: hoverColor,
+                                  outline: "none",
+                                }
+                              : { outline: "none" },
+                          pressed: { outline: "none" },
                         }}
                       />
                       <Annotation
@@ -138,11 +151,16 @@ export const Map = ({
                           type: "authority",
                           stroke: "#000",
                           strokeWidth: 0.5,
-                          strokeLinecap: "round"
+                          strokeLinecap: "round",
                         }}
-                        style={{ textAnchor: 'middle' }}
+                        style={{ textAnchor: "middle" }}
                       >
-                        <text x={0} y={0} textAnchor="middle" className="font-medium text-[6px] text-dark">
+                        <text
+                          x={0}
+                          y={0}
+                          textAnchor="middle"
+                          className="font-medium text-[6px] text-dark"
+                        >
                           {countryName}
                         </text>
                       </Annotation>
