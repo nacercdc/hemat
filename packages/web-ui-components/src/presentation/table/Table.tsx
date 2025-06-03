@@ -171,7 +171,9 @@ export function Table<TData extends object>({
 
   const loadingRows = Array.from({ length: 10 }).map((_, i) => (
     <tr key={`skeleton-${i}`}>
-      {Array.from({ length: columns.length + 1 }).map((_, ci) => (
+      {Array.from({
+        length: columns.length + (enableRowSelection ? 1 : 0),
+      }).map((_, ci) => (
         <td key={`skeleton-cell-${i}-${ci}`}>
           <Skeleton className="h-[30px] w-[95%] rounded-md bg-primary-50 my-1 mx-z" />
         </td>
@@ -192,7 +194,6 @@ export function Table<TData extends object>({
                 <Input
                   type="search"
                   name="filter"
-                  variant="search"
                   size="md"
                   leftNode={
                     <Icon icon="mynaui:search" className="ml-3 text-xl" />
