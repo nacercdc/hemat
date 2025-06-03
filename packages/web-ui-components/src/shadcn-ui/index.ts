@@ -25,3 +25,4 @@ export * from "./switch";
 export * from "./tabs";
 export * from "./select";
 export * from "./breadcrumb";
+export * from "./progress";

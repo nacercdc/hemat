@@ -5,7 +5,7 @@ import "~/app/styles.css";
 import { Providers } from "~/providers";
 import { cn } from "~/utils/cn.util";
 import { Toaster } from "@etm/web-ui-components";
-import { constructMetadata } from "~/utils/metadata.util";
+// import { constructMetadata } from "~/utils/metadata.util";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,13 +14,13 @@ const inter = Inter({
   variable: "--font-roboto",
 });
 
-export function generateMetadata(): Metadata {
-  return constructMetadata({
-    title: "Yarn monorepo starter",
-    description: "Yarn monorepo starter",
-    path: `/`,
-  });
-}
+// export function generateMetadata(): Metadata {
+//   return constructMetadata({
+//     title: "Yarn monorepo starter",
+//     description: "Yarn monorepo starter",
+//     path: `/`,
+//   });
+// }
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
