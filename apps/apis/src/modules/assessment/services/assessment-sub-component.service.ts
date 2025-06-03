@@ -5,18 +5,65 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { AssessmentSubComponent } from '@africa-cdc/database/entities';
+import { EntityManager, Repository } from 'typeorm';
+import {
+  AssessmentSubComponent,
+  SubComponent,
+} from '@africa-cdc/database/entities';
 import { AssessmentSubComponentDto } from '../dtos';
+import { UUID } from '@africa-cdc/shared';
 
 @Injectable()
 export class AssessmentSubComponentService {
-  private readonly logger = new Logger(AssessmentSubComponentService.name);
+  private readonly loggerService = new Logger(
+    AssessmentSubComponentService.name,
+  );
 
   constructor(
     @InjectRepository(AssessmentSubComponent)
     private readonly assessmentSubComponentRepository: Repository<AssessmentSubComponent>,
   ) {}
+
+  async create(
+    manager: EntityManager,
+    assessmentId: string,
+    templateComponentId: Record<string, string>,
+  ): Promise<{
+    subComponents: AssessmentSubComponent[];
+    templateSubComponentId: Record<string, string>;
+  }> {
+    const subComponents = await manager.find(SubComponent, {
+      where: { isActive: true },
+      relations: { measurementScales: { measurementScale: true } },
+    });
+
+    const assessmentSubComponents: AssessmentSubComponent[] = [];
+    const templateSubComponentId: Record<string, string> = {};
+    subComponents.forEach(
+      ({ id, code, name, description, componentId, translations }) => {
+        const parentId = templateComponentId[componentId] ?? null;
+
+        if (parentId) {
+          const subComponent = manager.create(AssessmentSubComponent, {
+            id: UUID.v4(),
+            code,
+            name,
+            description,
+            assessmentId,
+            componentId: parentId,
+            translations,
+          });
+          templateSubComponentId[id] = subComponent.id;
+          assessmentSubComponents.push(subComponent);
+        }
+      },
+    );
+
+    this.loggerService.debug('templateSubComponentId', templateSubComponentId);
+    await manager.insert(AssessmentSubComponent, assessmentSubComponents);
+
+    return { subComponents: assessmentSubComponents, templateSubComponentId };
+  }
 
   async findAll(assessmentId: string): Promise<AssessmentSubComponent[]> {
     return this.assessmentSubComponentRepository.find({
@@ -57,7 +104,7 @@ export class AssessmentSubComponentService {
 
       return { ...subComponent, ...entity };
     } catch (err) {
-      this.logger.error(
+      this.loggerService.error(
         `Failed to update assessment sub-component: ${err.message}`,
         err.stack,
       );

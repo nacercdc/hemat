@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, Length, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsBoolean, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
+import { DomaintranslationDto } from '@africa-cdc/shared/dtos';
 
 export class DomainCreateRequestDto {
   @ApiProperty({
@@ -53,4 +54,20 @@ export class DomainCreateRequestDto {
   @IsBoolean({ message: 'validation.isActive.isBoolean' })
   @Type(() => Boolean)
   isActive: boolean;
+
+  @ApiProperty({
+    description: 'Translations for the domain',
+    example: {
+      en: {
+        code: '1',
+        name: 'Public Health',
+        description: 'Domain covering public health initiatives',
+      },
+    },
+    type: () => Object,
+  })
+  @IsNotEmpty({ message: 'validation.translations.isNotEmpty' })
+  @IsObject({ message: 'validation.translations.isObject' })
+  @Type(() => Object)
+  translations: Record<string, DomaintranslationDto>;
 }

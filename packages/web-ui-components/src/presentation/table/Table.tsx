@@ -180,10 +180,7 @@ export function Table<TData extends object>({
   ));
 
   return (
-    <div
-      className={cn("w-full flex flex-col h-full overflow-hidden")}
-      ref={tableContainerRef}
-    >
+    <div className={cn("w-full flex flex-col h-full")} ref={tableContainerRef}>
       {onSearchFilterChange ? (
         <div className="flex w-full justify-between items-center mb-2">
           {collectionName && (
@@ -213,10 +210,10 @@ export function Table<TData extends object>({
       ) : (
         <div className="flex mb-2"> {toolbar}</div>
       )}
-      <div className="flex flex-col min-h-[650px] justify-between bg-transparent rounded-sm">
-        <div className="overflow-auto  p-0 rounded-sm rounded-b-none border-[1px] border-basic-300">
+      <div className="flex flex-col min-h-[650px] justify-between bg-transparent rounded-sm h-full">
+        <div className=" p-0 rounded-sm rounded-b-none border-[1px] border-basic-300">
           <table className="w-full">
-            <thead className="bg-basic-200 w-full sticky top-0 h-">
+            <thead className="bg-basic-200 w-full">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (

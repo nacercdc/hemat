@@ -116,7 +116,7 @@ export function Sidebar({
         tooltip={item.label}
         onClick={() => toggleCollapsible(item.id)}
         className={cn(
-          "font-medium text-foreground hover:bg-tbsidebar-accent hover:text-secondary py-[20px] text-sm",
+          "font-medium text-foreground hover:bg-tbsidebar-accent hover:text-secondary py-[20px] text-[13px]",
           "data-[state=open]:hover:bg-tbsidebar-accent data-[state=open]:hover:text-secondary active:bg-secondary/5 active:text-secondary-950",
           isActive && "!text-secondary font-bold bg-success/5 rounded-md",
         )}
@@ -228,7 +228,7 @@ export function Sidebar({
                             e.preventDefault();
                             onNavigate(subItem.path);
                           }}
-                          className="font-medium hover:bg-transparent hover:text-secondary px-0 py-4 text-sm"
+                          className="font-medium hover:bg-transparent hover:text-secondary px-0 py-4 text-[13px]"
                         >
                           <span className="cursor-pointer flex items-center">
                             {isSubItemActive && (
@@ -315,7 +315,7 @@ export function Sidebar({
             onNavigate(item.path);
           }}
           className={cn(
-            "font-medium text-foreground hover:bg-tbsidebar-accent hover:text-secondary active:bg-secondary/5 active:text-secondary-950 py-[20px] text-sm",
+            "font-medium text-foreground hover:bg-tbsidebar-accent hover:text-secondary active:bg-secondary/5 active:text-secondary-950 py-[20px] text-[13px]",
             isItemActive(item.path)
               ? item.depth === 0
                 ? "bg-secondary/5"
@@ -398,12 +398,7 @@ export function Sidebar({
       >
         <SidebarMenu className="flex flex-col h-full overflow-hidden">
           <SidebarMenuItem
-            className={cn(
-              "mb-6 mt-4",
-              open && "px-4",
-              !open && "px-3.5",
-              "cursor-pointer",
-            )}
+            className={cn(open && "px-4", !open && "px-3.5", "cursor-pointer")}
             onClick={toggleSidebar}
           >
             {open ? header.expand : header.collapse}
@@ -414,9 +409,7 @@ export function Sidebar({
             </div>
           )}
           {isLoading && (
-            <div className="flex flex-col gap-2 px-2 mt-6">
-              {SidebarSkeleton()}
-            </div>
+            <div className="flex flex-col gap-2 px-2">{SidebarSkeleton()}</div>
           )}
           {open && (
             <SidebarMenuItem className="self-center w-full">

@@ -13,7 +13,7 @@ export const inputVariants = cva(
     variants: {
       variant: {
         default:
-          "focus-visible:ring-basic-100  bg-white focus:bg-white active:bg-white",
+          "focus-visible:ring-basic-100 bg-white focus:bg-white active:bg-white",
         destructive:
           "border-destructive-500 focus:border-destructive-600 focus-visible:ring-destructive-500",
         success:
@@ -25,9 +25,9 @@ export const inputVariants = cva(
       },
 
       size: {
-        sm: "h-8 text-sm max-[770px]:text-xs",
-        md: "h-9 text-base max-[770px]:text-sm",
-        lg: "h-10 text-lg",
+        sm: "h-9 text-sm max-[770px]:text-xs",
+        md: "h-10 text-base max-[770px]:text-sm",
+        lg: "h-11 text-lg",
         xl: "h-12 rounded-2 border-[1px] text-lg max-[770px]:text-sm",
       },
     },
@@ -81,8 +81,8 @@ export const Input = forwardRef<HTMLInputElement, Props>(
           "grid grid-cols-[auto_1fr_auto] items-center",
           inputVariants({ variant, size }),
           error && "border-destructive-500",
-          isPhone && "rounded-s-none border-s-0 focus-visible:ring-0",
-          props.type === "search" && "border-none",
+          isPhone && "rounded-s-none border-s-0 focus-visible:ring-0 fill",
+          props.type === "search" && "border-none"
         )}
       >
         {leftNode && <div className="bg-transparent">{leftNode}</div>}

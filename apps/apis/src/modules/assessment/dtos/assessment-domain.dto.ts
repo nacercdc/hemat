@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsOptional, Length, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
-import { AssessmentTranslationDto } from '../../../shared/dtos';
+import { DomaintranslationDto } from '../../../shared/dtos';
 
 export class AssessmentDomainDto {
   @ApiPropertyOptional({
@@ -39,9 +39,9 @@ export class AssessmentDomainDto {
 
   @ApiPropertyOptional({
     description: 'Translations for the domain',
-    type: () => AssessmentTranslationDto,
+    type: () => DomaintranslationDto,
   })
   @IsOptional()
-  @Type(() => AssessmentTranslationDto)
-  translations: AssessmentTranslationDto;
+  @Type(() => DomaintranslationDto)
+  translations: Record<string, DomaintranslationDto> = {};
 }

@@ -11,7 +11,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentComponent } from './assessment-component.entity';
-import { AssessmentTranslationDto } from '../../shared/dtos';
+import { DomaintranslationDto } from '../../shared/dtos';
 
 @Entity('assessment-domains')
 @Unique(['code', 'assessmentId'])
@@ -66,8 +66,8 @@ export class AssessmentDomain extends BaseEntityWithSoftDelete {
 
   @ApiPropertyOptional({
     description: 'Assessments related to this domain',
-    type: () => AssessmentTranslationDto,
+    type: () => DomaintranslationDto,
   })
   @Column('jsonb')
-  translations: AssessmentTranslationDto;
+  translations: Record<string, DomaintranslationDto> = {};
 }

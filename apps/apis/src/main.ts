@@ -16,6 +16,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle(`${appName} API`)
+    .addServer('/api')
     .setDescription(
       'The HIEMAT platform by Africa CDC enables countries to evaluate and improve health data exchange systems. It manages users, roles, assessments, and roadmaps for health information exchange.',
     )
