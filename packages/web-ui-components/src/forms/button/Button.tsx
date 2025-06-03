@@ -24,8 +24,7 @@ export const colorVariants = {
   warning:
     "bg-warning-500 hover:bg-warning-600 text-background border-warning-500",
   lightGray: "bg-card border-[1px]",
-  authButtons:
-    "bg-secondary text-card border-secondary hover:bg-primary hover:border-primary",
+  card: "bg-card text-dark ",
 };
 
 export const variantVariants = {
@@ -150,7 +149,7 @@ export const defaultVariants = {
 };
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-sm text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: variantVariants,
@@ -159,7 +158,7 @@ export const buttonVariants = cva(
     },
     compoundVariants: compoundVariants as any,
     defaultVariants: defaultVariants as any,
-  }
+  },
 );
 
 export type ButtonVariants = VariantProps<typeof buttonVariants>;
@@ -192,14 +191,14 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       rightNode,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <ShadcnButton
         {...props}
         className={cn(
           buttonVariants({ variant, size, color }),
-          variant === "link" && "h-auto px-0"
+          variant === "link" && "h-auto px-0",
         )}
         variant={variant}
         disabled={loading || disabled}
@@ -217,5 +216,5 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
         {rightNode}
       </ShadcnButton>
     );
-  }
+  },
 );

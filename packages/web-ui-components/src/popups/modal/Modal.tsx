@@ -1,17 +1,19 @@
 "use client";
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
+import { Icon } from "@iconify/react";
+
 import type { ReactNode } from "react";
+import * as RDialog from "@radix-ui/react-dialog";
 import {
-  Dialog,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
   Button,
+  DialogClose,
 } from "../../shadcn-ui";
 import { cn } from "../../shadcn-ui/utils/cn";
 
@@ -34,13 +36,18 @@ const actionVariantClasses: Record<ActionVariant, string> = {
     "bg-success text-success-100 shadow-sm hover:bg-success/90 hover:text-success",
 };
 
+export interface ModalRef {
+  openModal: () => void;
+  closeModal: () => void;
+}
+
 interface Props {
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   defaultOpen?: boolean;
   trigger?: ReactNode;
-  title?: string;
-  description?: string;
+  title?: ReactNode;
+  description?: ReactNode;
   children: ReactNode;
   onAction?: () => void;
   actionLabel?: string;
@@ -48,58 +55,89 @@ interface Props {
   onOpenChange?: (open: boolean) => void;
 }
 
-export function Modal({
-  open,
-  setOpen,
-  defaultOpen = false,
-  trigger,
-  title,
-  description,
-  children,
-  onAction,
-  actionLabel,
-  actionVariant,
-  onOpenChange,
-}: Props) {
-  const [isModalOpen, setIsModalOpen] = useState(defaultOpen);
-  const onOpenChangeHandler = (newOpenState: boolean) => {
-    if (onOpenChange) {
-      onOpenChange(newOpenState);
-    }
-    setIsModalOpen(newOpenState);
-    setOpen?.(newOpenState);
-  };
-  return (
-    <Dialog open={open ?? isModalOpen} onOpenChange={onOpenChangeHandler}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="min-w-fit max-h-fit overflow-auto p-0 bg-card border border-secondary rounded-none">
-        {title ? (
-          <DialogHeader className="p-4 pb-0 flex flex-col gap-0 max-h-fit">
-            <DialogTitle className="p-0">{title}</DialogTitle>
-            <DialogDescription className="p-0">{description}</DialogDescription>
-          </DialogHeader>
-        ) : (
-          <VisuallyHidden>
-            <DialogHeader className="p-6 pb-0 ">
-              <DialogTitle>{title}</DialogTitle>
-              <DialogDescription>{description}</DialogDescription>
-            </DialogHeader>
-          </VisuallyHidden>
-        )}
+export const Modal = forwardRef<ModalRef, Props>(
+  (
+    {
+      open,
+      setOpen,
+      defaultOpen = false,
+      trigger,
+      title,
+      description,
+      children,
+      onAction,
+      actionLabel,
+      actionVariant,
+      onOpenChange,
+    },
+    ref,
+  ) => {
+    const [isModalOpen, setIsModalOpen] = useState(defaultOpen);
 
-        {children}
-        {actionLabel && actionVariant ? (
-          <DialogFooter className="p-6 ">
-            <Button
-              type="submit"
-              onClick={onAction}
-              className={cn(actionVariantClasses[actionVariant ?? "default"])}
+    useImperativeHandle(ref, () => {
+      return {
+        openModal: () => setIsModalOpen(true),
+        closeModal: () => setIsModalOpen(false),
+      };
+    }, []);
+
+    const onOpenChangeHandler = (newOpenState: boolean) => {
+      if (onOpenChange) {
+        onOpenChange(newOpenState);
+      }
+      setIsModalOpen(newOpenState);
+      setOpen?.(newOpenState);
+    };
+    return (
+      <RDialog.Root
+        open={open ?? isModalOpen}
+        onOpenChange={onOpenChangeHandler}
+      >
+        {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+        <RDialog.Portal>
+          <RDialog.Overlay className="fixed inset-0 z-50 !bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+          <RDialog.Content className="fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border-none shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-[700px] max-h-fit overflow-auto p-0 bg-card border-secondary !rounded-xl [&>button]:hidden">
+            {title ? (
+              <DialogHeader className="p-7 pb-0 flex flex-col gap-0 max-h-fit">
+                <DialogTitle className="p-0">{title}</DialogTitle>
+                <DialogDescription className="p-0">
+                  {description}
+                </DialogDescription>
+              </DialogHeader>
+            ) : (
+              <VisuallyHidden>
+                <DialogHeader className="p-6 pb-0 ">
+                  <DialogTitle>{title}</DialogTitle>
+                  <DialogDescription>{description}</DialogDescription>
+                </DialogHeader>
+              </VisuallyHidden>
+            )}
+            {children}
+            {actionLabel && actionVariant ? (
+              <DialogFooter className="p-6">
+                <Button
+                  type="submit"
+                  onClick={onAction}
+                  className={cn(
+                    actionVariantClasses[actionVariant ?? "default"],
+                  )}
+                >
+                  {actionLabel}
+                </Button>
+              </DialogFooter>
+            ) : null}
+            <DialogClose
+              asChild
+              className="absolute right-4 top-4 cursor-pointer"
             >
-              {actionLabel}
-            </Button>
-          </DialogFooter>
-        ) : null}
-      </DialogContent>
-    </Dialog>
-  );
-}
+              <Icon
+                icon="material-symbols:close"
+                className="!w-8 !h-8 hover:bg-basic/10 rounded-full p-1"
+              />
+            </DialogClose>
+          </RDialog.Content>
+        </RDialog.Portal>
+      </RDialog.Root>
+    );
+  },
+);

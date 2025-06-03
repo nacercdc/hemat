@@ -33,11 +33,7 @@ export function TablePagination<TData>({
   pageSizeOptions = [10, 20, 30, 50, 100],
 }: ManualPaginationProps<TData>) {
   const currentPage = table.getState().pagination.pageIndex + 1;
-  const pageSize =
-    totalItems < 5
-      ? 5
-      : pageSizeOptions.find((size) => size <= totalItems) ||
-        table.getState().pagination.pageSize;
+  const pageSize = table.getState().pagination.pageSize;
   const totalPages = Math.ceil(totalItems / pageSize);
 
   const handlePageChange = (newPage: number) => {
@@ -152,17 +148,11 @@ export function TablePagination<TData>({
             <SelectValue placeholder={pageSize} />
           </SelectTrigger>
           <SelectContent>
-            {pageSizeOptions.filter((size) => size <= totalItems).length > 0 ? (
-              pageSizeOptions
-                .filter((size) => size <= totalItems)
-                .map((size) => (
-                  <SelectItem key={size} value={size.toString()}>
-                    {`${size} / page`}
-                  </SelectItem>
-                ))
-            ) : (
-              <SelectItem value="5">{`5 / page`}</SelectItem>
-            )}
+            {pageSizeOptions.map((size) => (
+              <SelectItem key={size} value={size.toString()}>
+                {`${size} / page`}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <p className="text-xs font-bold">{`1-${pageSize < totalItems ? pageSize : totalItems} of ${totalItems}`}</p>

@@ -32,7 +32,7 @@ const textAreaVariants = cva(
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 export interface Props
@@ -61,7 +61,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, Props>(
       labelSize,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <FormControl
@@ -78,7 +78,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, Props>(
             id={name}
             className={cn(
               textAreaVariants({ variant, size }),
-              error && "border-destructive-500"
+              error && "border-destructive-500",
             )}
             aria-invalid={error ? "true" : "false"}
             ref={ref}
@@ -86,5 +86,5 @@ export const TextArea = forwardRef<HTMLTextAreaElement, Props>(
         </div>
       </FormControl>
     );
-  }
+  },
 );

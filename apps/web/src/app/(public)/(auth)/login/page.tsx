@@ -1,6 +1,10 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Login from "~/components/modules/auth/login";
 
 export default function LoginPage() {
-  return <Login />;
+  return (
+    <Suspense>
+      <Login />
+    </Suspense>
+  );
 }

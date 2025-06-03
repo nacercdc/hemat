@@ -27,7 +27,7 @@ export function UpsideDownInvertedTabs({ defaultValue, options }: Props) {
               value={op.value}
               className="group flex flex-col gap-2 data-[state=active]:shadow-none data-[state=active]:text-primary data-[state=active]:font-bold !bg-transparent !ring-offset-transparent justify-start text-basic px-0"
             >
-              <div className="w-32 h-4 rounded-lg border-b-8 border-transparent data-[state=active]:shadow-none group-data-[state=active]:!border-primary"></div>
+              <div className="w-32 h-4 rounded-sm border-b-4 border-transparent data-[state=active]:shadow-none group-data-[state=active]:!border-primary"></div>
 
               {op.label}
             </TabsTrigger>

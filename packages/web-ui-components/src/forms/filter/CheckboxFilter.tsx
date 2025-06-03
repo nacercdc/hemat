@@ -27,7 +27,7 @@ const buttonVariants = cva(
     },
     compoundVariants: compoundVariants as any,
     defaultVariants: defaultVariants as any,
-  }
+  },
 );
 
 interface Props<T> {
@@ -67,7 +67,7 @@ export default function CheckboxFilter<T>({
               size,
               color,
             }),
-            "flex items-center gap-2 px-2 border-dark-lighter"
+            "flex items-center gap-2 px-2 border-dark-lighter",
           )}
         >
           <span className="flex items-center gap-1.5">

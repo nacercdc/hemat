@@ -2,7 +2,6 @@ import { IS_APPLE } from "@lexical/utils";
 import { isModifierMatch } from "lexical";
 
 //disable eslint sorting rule for quick reference to shortcuts
-/* eslint-disable sort-keys-fix/sort-keys-fix */
 export const SHORTCUTS = Object.freeze({
   // (Ctrl|⌘) + (Alt|Option) + <key> shortcuts
   NORMAL: IS_APPLE ? "⌘+Opt+0" : "Ctrl+Alt+0",
@@ -58,14 +57,14 @@ export function isFormatHeading(event: KeyboardEvent): boolean {
   const { code } = event;
 
   // Apple pencil keyboard events don't have a code property
-  if (!code) {
+  if (!code || code.length === 0) {
     return false;
   }
 
-  const keyNumber = code[code.length - 1];
+  const keyNumber = code[code.length - 1]!;
 
   return (
-    ["1", "2", "3"].includes(keyNumber) &&
+    ["1", "2", "3"].includes(keyNumber ?? "") &&
     isModifierMatch(event, { ...CONTROL_OR_META, altKey: true })
   );
 }

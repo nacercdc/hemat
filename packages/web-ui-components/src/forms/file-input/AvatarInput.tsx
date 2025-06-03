@@ -78,5 +78,5 @@ export const AvatarInput = forwardRef<HTMLInputElement, Props>(
         </div>
       </div>
     );
-  }
+  },
 );

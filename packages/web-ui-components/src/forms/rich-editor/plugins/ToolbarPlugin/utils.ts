@@ -42,7 +42,7 @@ export enum UpdateFontSizeType {
  */
 export const calculateNextFontSize = (
   currentFontSize: number,
-  updateType: UpdateFontSizeType | null
+  updateType: UpdateFontSizeType | null,
 ) => {
   if (!updateType) {
     return currentFontSize;
@@ -108,7 +108,7 @@ export const calculateNextFontSize = (
 export const updateFontSizeInSelection = (
   editor: LexicalEditor,
   newFontSize: string | null,
-  updateType: UpdateFontSizeType | null
+  updateType: UpdateFontSizeType | null,
 ) => {
   const getNextFontSize = (prevFontSize: string | null): string => {
     if (!prevFontSize) {
@@ -117,7 +117,7 @@ export const updateFontSizeInSelection = (
     prevFontSize = prevFontSize.slice(0, -2);
     const nextFontSize = calculateNextFontSize(
       Number(prevFontSize),
-      updateType
+      updateType,
     );
     return `${nextFontSize}px`;
   };
@@ -137,7 +137,7 @@ export const updateFontSizeInSelection = (
 export const updateFontSize = (
   editor: LexicalEditor,
   updateType: UpdateFontSizeType,
-  inputValue: string
+  inputValue: string,
 ) => {
   if (inputValue !== "") {
     const nextFontSize = calculateNextFontSize(Number(inputValue), updateType);
@@ -157,7 +157,7 @@ export const formatParagraph = (editor: LexicalEditor) => {
 export const formatHeading = (
   editor: LexicalEditor,
   blockType: string,
-  headingSize: HeadingTagType
+  headingSize: HeadingTagType,
 ) => {
   if (blockType !== headingSize) {
     editor.update(() => {
@@ -185,7 +185,7 @@ export const formatCheckList = (editor: LexicalEditor, blockType: string) => {
 
 export const formatNumberedList = (
   editor: LexicalEditor,
-  blockType: string
+  blockType: string,
 ) => {
   if (blockType !== "number") {
     editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);

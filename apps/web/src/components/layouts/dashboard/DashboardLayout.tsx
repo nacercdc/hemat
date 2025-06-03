@@ -13,8 +13,10 @@ export function DashboardLayout({ children }: Props) {
     <UserAbilityProvider>
       <div className="flex w-full h-full gap-2 bg-basic-200">
         <Sidebar />
-        <div className="flex flex-col flex-1 gap-1 w-full h-full px-5 min-[1920px]:px-72 overflow-hidden py-6">
-          <NavBar />
+        <div className="flex flex-col flex-1 gap-1 w-full h-full px-5 min-[2160px]:px-72 overflow-hidden py-6">
+          <Suspense fallback={<Loading />}>
+            <NavBar />
+          </Suspense>
           <Suspense fallback={<Loading />}>
             <main className="w-full h-full rounded-md">{children}</main>
           </Suspense>

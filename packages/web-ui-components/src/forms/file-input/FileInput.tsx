@@ -42,16 +42,16 @@ const fileInputVariants = cva(
           "border-warning-500 focus:border-warning-600 focus-visible:ring-warning-500",
       },
       size: {
-        sm: "h-8",
-        md: "h-9",
-        lg: "h-10",
+        sm: "h-9",
+        md: "h-10",
+        lg: "h-11",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 type fileInputVariants = VariantProps<typeof fileInputVariants>;
@@ -95,7 +95,7 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       showPreview = true,
       onChange,
     },
-    ref
+    ref,
   ) => {
     const [preview, setPreview] = useState<PreviewFile[]>([]);
     const [files, setFiles] = useState<File[]>();
@@ -140,7 +140,7 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
       setPreview(preview.filter((p) => p.url !== url));
 
       const filteredFiles = Array.from(files || []).filter(
-        (f) => f.name !== fileName
+        (f) => f.name !== fileName,
       );
 
       setFiles(filteredFiles);
@@ -238,5 +238,5 @@ export const FileInput = forwardRef<FileInputRef, FileInputProps>(
         </div>
       </FormControl>
     );
-  }
+  },
 );

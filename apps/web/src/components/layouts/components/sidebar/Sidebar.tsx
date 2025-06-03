@@ -41,7 +41,7 @@ export default function Sidebar() {
                 alt="logo"
                 width={159}
                 height={84}
-                className="w-auto h-auto"
+                className="w-auto h-auto -ml-2"
               />
               <Icon
                 icon="carbon:row-collapse"
@@ -55,7 +55,7 @@ export default function Sidebar() {
               alt="logo"
               width={30}
               height={30}
-              className="w-auto h-auto"
+              className="w-auto h-auto mt-[2.75rem]"
             />
           ),
         }}

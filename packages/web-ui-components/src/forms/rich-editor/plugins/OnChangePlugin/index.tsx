@@ -22,7 +22,7 @@ export default function OnChangePlugin({
 
   useEffect(() => {
     return editor.registerUpdateListener(async () =>
-      onChange(JSON.stringify(await getEditorStateAsHTML()))
+      onChange(JSON.stringify(await getEditorStateAsHTML())),
     );
   }, [editor, getEditorStateAsHTML, onChange]);
 

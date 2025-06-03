@@ -46,7 +46,7 @@ const switchVariants = cva(
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 export type SwitchVariants = VariantProps<typeof switchVariants>;
@@ -98,7 +98,7 @@ export const Switch = ({
           aria-invalid={!!error}
           className={cn(
             switchVariants({ variant, size }),
-            error && "border-destructive-500"
+            error && "border-destructive-500",
           )}
         />
         {label && (
@@ -107,7 +107,7 @@ export const Switch = ({
             className={cn(
               "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
               error && "text-destructive-500",
-              disabled && "opacity-50"
+              disabled && "opacity-50",
             )}
           >
             {label}

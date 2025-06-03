@@ -26,13 +26,14 @@ const colorPickerVariants = cva(
         sm: " h-8 text-xs",
         md: " h-9 text-sm",
         lg: " h-10 text-base",
+        xl: "h-12 rounded-2 border-[1px] text-lg max-[770px]:text-sm",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 const colorPickerInputVariants = cva(
@@ -43,21 +44,23 @@ const colorPickerInputVariants = cva(
         sm: " h-7 text-xs",
         md: " h-8 text-sm",
         lg: " h-9 text-base",
+        xl: "h-11 rounded-2 border-[1px] text-lg max-[770px]:text-sm",
       },
     },
     defaultVariants: {
       size: "md",
     },
-  }
+  },
 );
 
 const pickerSizes = {
   sm: { width: 98, height: 100 },
   md: { width: 178, height: 150 },
   lg: { width: 258, height: 200 },
+  xl: { width: 338, height: 250 },
 };
 
-export interface Props
+interface Props
   extends Omit<
       React.HTMLAttributes<HTMLDivElement>,
       "size" | "className" | "style" | "onChange"
@@ -120,7 +123,7 @@ export const ColorPicker = ({
             className={cn(
               colorPickerVariants({ variant, size }),
               error && "border-destructive-500",
-              "cursor-pointer"
+              "cursor-pointer",
             )}
             {...props}
           >
@@ -134,7 +137,7 @@ export const ColorPicker = ({
               onChange={handleChange}
               className={cn(
                 colorPickerInputVariants({ size }),
-                "flex-1 border-none focus:outline-none focus:ring-0 w-full"
+                "flex-1 border-none focus:outline-none focus:ring-0 w-full",
               )}
               placeholder={defaultValue || ""}
               aria-invalid={error ? "true" : "false"}
