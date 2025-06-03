@@ -67,7 +67,7 @@ export const Dialog = forwardRef<DialogRef, Props>(
       onAction,
       onOpenChange,
     },
-    ref
+    ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -116,5 +116,5 @@ export const Dialog = forwardRef<DialogRef, Props>(
         </AlertDialogContent>
       </AlertDialog>
     );
-  }
+  },
 );

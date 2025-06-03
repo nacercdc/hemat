@@ -83,7 +83,7 @@ export function DropdownMenu({
             <div
               className={cn(
                 `min-w-12 min-h-12 flex items-center justify-${triggerTextAlign}`,
-                triggerTextAlign === "end" && "w-full"
+                triggerTextAlign === "end" && "w-full",
               )}
             >
               {trigger}

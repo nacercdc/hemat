@@ -78,7 +78,7 @@ interface ContextShape {
   toolbarState: ToolbarState;
   updateToolbarState<Key extends ToolbarStateKey>(
     key: Key,
-    value: ToolbarStateValue<Key>
+    value: ToolbarStateValue<Key>,
   ): void;
 }
 
@@ -99,7 +99,7 @@ export const ToolbarContext = ({
         [key]: value,
       }));
     },
-    []
+    [],
   );
 
   useEffect(() => {

@@ -29,7 +29,7 @@ export const InputRHF = <T extends FieldValues>({
             field.onChange(
               props.type === "number"
                 ? parseFloat(e.target.value) || 0
-                : e.target.value
+                : e.target.value,
             )
           }
           name={name as string}

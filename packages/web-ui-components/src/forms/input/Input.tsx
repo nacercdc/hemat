@@ -35,7 +35,7 @@ export const inputVariants = cva(
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 export type InputVariantProps = VariantProps<typeof inputVariants>;
@@ -73,7 +73,7 @@ export const Input = forwardRef<HTMLInputElement, Props>(
       isPhone = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     const InputComponent = (
       <div
@@ -82,7 +82,7 @@ export const Input = forwardRef<HTMLInputElement, Props>(
           inputVariants({ variant, size }),
           error && "border-destructive-500",
           isPhone && "rounded-s-none border-s-0 focus-visible:ring-0",
-          props.type === "search" && "border-none"
+          props.type === "search" && "border-none",
         )}
       >
         {leftNode && <div className="bg-transparent">{leftNode}</div>}
@@ -118,7 +118,7 @@ export const Input = forwardRef<HTMLInputElement, Props>(
         {isPhone && InputComponent}
       </>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

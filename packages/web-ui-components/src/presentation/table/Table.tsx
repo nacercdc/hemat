@@ -89,7 +89,7 @@ export function Table<TData extends object>({
             ...columns,
           ]
         : [...columns],
-    [columns, enableRowSelection]
+    [columns, enableRowSelection],
   );
 
   const table = useReactTable({
@@ -127,7 +127,7 @@ export function Table<TData extends object>({
 
   React.useEffect(() => {
     const selectedRowIds = Object.keys(rowSelection).filter(
-      (id) => rowSelection[id] === true
+      (id) => rowSelection[id] === true,
     );
     onRowSelectionChange?.(selectedRowIds);
   }, [rowSelection, onRowSelectionChange]);
@@ -164,9 +164,9 @@ export function Table<TData extends object>({
             }
             return;
           })
-          .filter((item) => item !== undefined)
+          .filter((item) => item !== undefined),
       ),
-    [table]
+    [table],
   );
 
   const loadingRows = Array.from({ length: 10 }).map((_, i) => (
@@ -227,12 +227,12 @@ export function Table<TData extends object>({
                         "text-left py-4 px-2 font-bold text-[13px]",
                         "cursor-pointer",
                         header.id === "select" && "w-0",
-                        header.id === "Action" && "text-right"
+                        header.id === "Action" && "text-right",
                       )}
                     >
                       {flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                       {{
                         asc: (
@@ -296,7 +296,7 @@ export function Table<TData extends object>({
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     ))}

@@ -58,7 +58,14 @@ export const DateTimePicker = ({
   labelSize,
 }: DateTimePickerProps) => {
   const [date, setDate] = React.useState<Date | undefined>(value);
-  const ButtonIcon = <Icon icon="clarity:date-outline-badged" width={18} height={18} className="text-primary"/>
+  const ButtonIcon = (
+    <Icon
+      icon="clarity:date-outline-badged"
+      width={18}
+      height={18}
+      className="text-primary"
+    />
+  );
 
   const handleSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
@@ -108,7 +115,7 @@ export const DateTimePicker = ({
               iconDirection === "right" && "justify-between",
               !date && "text-muted-foreground",
               error && "border-destructive focus:ring-destructive",
-              SizeClasses[size]
+              SizeClasses[size],
             )}
             disabled={disabled}
           >
@@ -135,7 +142,7 @@ export const DateTimePicker = ({
                 disabled={disabled}
                 required={required}
                 className={cn(
-                  error && "border-destructive focus:ring-destructive"
+                  error && "border-destructive focus:ring-destructive",
                 )}
               />
             </div>

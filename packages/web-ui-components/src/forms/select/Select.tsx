@@ -107,11 +107,11 @@ export function Select<T>({
   const filteredOptions = options.filter((option) =>
     String(get(option, labelKey))
       .toLowerCase()
-      .includes(String(searchValue).toLowerCase())
+      .includes(String(searchValue).toLowerCase()),
   );
 
   const selectedOption = options.find(
-    (option) => String(get(option, valueKey)) === String(get(value, valueKey))
+    (option) => String(get(option, valueKey)) === String(get(value, valueKey)),
   );
 
   const onSelectHandler = (option: T) => {
@@ -148,7 +148,7 @@ export function Select<T>({
             className={cn(
               selectVariants({ variant, size }),
               error && "border-destructive-500",
-              "justify-between text-sm relative flex"
+              "justify-between text-sm relative flex",
             )}
           >
             <div className="flex items-center gap-2">

@@ -58,7 +58,7 @@ export const FormControl = ({
           htmlFor={name}
           className={cn(
             "text-sm font-medium",
-            formControlVariants({ variant, size })
+            formControlVariants({ variant, size }),
           )}
         >
           {label} {required && <span className="text-destructive-500">*</span>}
