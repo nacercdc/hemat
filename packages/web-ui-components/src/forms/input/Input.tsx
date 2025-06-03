@@ -35,7 +35,7 @@ export const inputVariants = cva(
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 export type InputVariantProps = VariantProps<typeof inputVariants>;
@@ -73,7 +73,7 @@ export const Input = forwardRef<HTMLInputElement, Props>(
       isPhone = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     const InputComponent = (
       <div
@@ -118,7 +118,7 @@ export const Input = forwardRef<HTMLInputElement, Props>(
         {isPhone && InputComponent}
       </>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

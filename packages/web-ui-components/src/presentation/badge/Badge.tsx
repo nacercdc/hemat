@@ -41,7 +41,7 @@ export function Badge({ text, icon, onAction, variant, shape }: Props) {
       className={cn(
         badgeVariants({ variant, shape }),
         "flex items-center gap-1 max-h-7 w-fit text-xs font-medium",
-        !onAction && "justify-center"
+        !onAction && "justify-center",
       )}
     >
       {text}
@@ -49,7 +49,7 @@ export function Badge({ text, icon, onAction, variant, shape }: Props) {
         <div
           className={cn(
             "flex items-center cursor-pointer",
-            variant === "outlined" ? "text-basic" : `text-${variant}-100`
+            variant === "outlined" ? "text-basic" : `text-${variant}-100`,
           )}
           onClick={onAction}
         >

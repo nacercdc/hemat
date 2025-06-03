@@ -51,7 +51,7 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
       showRejectedFiles = true,
       onFilesChange,
     },
-    ref
+    ref,
   ) => {
     const [files, setFiles] = useState<FileWithPreview[]>([]);
     const [rejected, setRejected] = useState<RejectedFile[]>([]);
@@ -80,7 +80,7 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
                 preview: file.type.startsWith("image/")
                   ? URL.createObjectURL(file)
                   : null,
-              })
+              }),
             ),
           ]);
         }
@@ -89,7 +89,7 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
           setRejected((previousFiles) => [...previousFiles, ...rejectedFiles]);
         }
       },
-      []
+      [],
     );
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -134,7 +134,7 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
             "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors flex items-center justify-center bg-card",
             isDragActive
               ? "border-primary bg-primary-50"
-              : "border-dark-light hover:border-dark"
+              : "border-dark-light hover:border-dark",
           )}
           style={{ height: `${dragAreaHeight}px` }}
         >
@@ -258,5 +258,5 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
         )}
       </div>
     );
-  }
+  },
 );

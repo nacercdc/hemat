@@ -63,7 +63,7 @@ const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
           $insertNodes(nodes);
         });
       },
-      [editor]
+      [editor],
     );
 
     const isEmpty = React.useCallback(() => {
@@ -129,7 +129,7 @@ const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
         </div>
       </>
     );
-  }
+  },
 );
 
 interface Props {
@@ -141,7 +141,7 @@ interface Props {
 export const ETMEditor = forwardRef<ETMEditorRef, Props>(
   (
     { onEditorStateChange, initialEditorState, isEditorEnabled = true },
-    ref
+    ref,
   ) => {
     const [isMounted, setIsMounted] = useState(false);
 
@@ -173,5 +173,5 @@ export const ETMEditor = forwardRef<ETMEditorRef, Props>(
         </ToolbarContext>
       </LexicalComposer>
     );
-  }
+  },
 );

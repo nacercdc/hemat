@@ -70,7 +70,7 @@ export const Modal = forwardRef<ModalRef, Props>(
       actionVariant,
       onOpenChange,
     },
-    ref
+    ref,
   ) => {
     const [isModalOpen, setIsModalOpen] = useState(defaultOpen);
 
@@ -119,7 +119,7 @@ export const Modal = forwardRef<ModalRef, Props>(
                   type="submit"
                   onClick={onAction}
                   className={cn(
-                    actionVariantClasses[actionVariant ?? "default"]
+                    actionVariantClasses[actionVariant ?? "default"],
                   )}
                 >
                   {actionLabel}
@@ -139,5 +139,5 @@ export const Modal = forwardRef<ModalRef, Props>(
         </RDialog.Portal>
       </RDialog.Root>
     );
-  }
+  },
 );

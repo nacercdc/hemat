@@ -108,6 +108,6 @@ export default function Modal({
     >
       {children}
     </PortalImpl>,
-    document.body
+    document.body,
   );
 }

@@ -17,7 +17,7 @@ interface Props<T extends FieldValues>
 export const FileInputRHF = React.forwardRef(
   <T extends FieldValues>(
     { name, control, ...props }: Props<T>,
-    ref: React.ForwardedRef<FileInputRef>
+    ref: React.ForwardedRef<FileInputRef>,
   ) => {
     return (
       <Controller
@@ -47,9 +47,9 @@ export const FileInputRHF = React.forwardRef(
         )}
       />
     );
-  }
+  },
 ) as <T extends FieldValues>(
   props: Props<T> & {
     ref?: React.ForwardedRef<FileInputRef>;
-  }
+  },
 ) => React.ReactElement;

@@ -1,6 +1,6 @@
 export function getDOMRangeRect(
   nativeSelection: Selection,
-  rootElement: HTMLElement
+  rootElement: HTMLElement,
 ): DOMRect {
   const domRange = nativeSelection.getRangeAt(0);
 

@@ -20,7 +20,7 @@ export const SharedHistoryContext = ({
 }): JSX.Element => {
   const historyContext = useMemo(
     () => ({ historyState: createEmptyHistoryState() }),
-    []
+    [],
   );
   return <Context.Provider value={historyContext}>{children}</Context.Provider>;
 };

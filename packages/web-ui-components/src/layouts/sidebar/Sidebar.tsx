@@ -73,7 +73,7 @@ export function Sidebar({
   onNavigate,
 }: Props) {
   const [activeCollapsible, setActiveCollapsible] = useState<string | null>(
-    null
+    null,
   );
   const { toggleSidebar, open } = useSidebar();
 
@@ -118,7 +118,7 @@ export function Sidebar({
         className={cn(
           "font-medium text-foreground hover:bg-tbsidebar-accent hover:text-secondary py-[20px] text-[13px]",
           "data-[state=open]:hover:bg-tbsidebar-accent data-[state=open]:hover:text-secondary active:bg-secondary/5 active:text-secondary-950",
-          isActive && "!text-secondary font-bold bg-success/5 rounded-md"
+          isActive && "!text-secondary font-bold bg-success/5 rounded-md",
         )}
       >
         {item.icon && (
@@ -126,7 +126,7 @@ export function Sidebar({
             className={cn(
               "text-xl",
               !open && "text-lg",
-              isActive && "text-success-700"
+              isActive && "text-success-700",
             )}
           >
             {item.icon}
@@ -152,7 +152,7 @@ export function Sidebar({
 
   const renderGroups = (
     { menuItems, label, isCollapsible }: Group,
-    index: number
+    index: number,
   ) => {
     return (
       <div key={index}>
@@ -202,7 +202,7 @@ export function Sidebar({
           }}
           className={cn(
             `group/mcollapsible${item.id}`,
-            isActive && "rounded-md"
+            isActive && "rounded-md",
           )}
         >
           {open && (
@@ -215,7 +215,7 @@ export function Sidebar({
                   className={cn(
                     "relative border-l-0",
                     "before:absolute before:left-0 before:top-[10px]",
-                    `before:h-[calc(100%-20px)] before:w-[1px] before:bg-warning-500`
+                    `before:h-[calc(100%-20px)] before:w-[1px] before:bg-warning-500`,
                   )}
                 >
                   {item.children?.map((subItem) => {
@@ -240,7 +240,7 @@ export function Sidebar({
                             <span
                               className={cn(
                                 isSubItemActive && "text-warning-700 font-bold",
-                                !isSubItemActive && "pl-[15px]"
+                                !isSubItemActive && "pl-[15px]",
                               )}
                             >
                               {subItem.label}
@@ -289,7 +289,7 @@ export function Sidebar({
                           className={cn(
                             isSubItemActive
                               ? "text-warning-500 font-medium"
-                              : "text-foreground"
+                              : "text-foreground",
                           )}
                         >
                           {subItem.label}
@@ -323,13 +323,13 @@ export function Sidebar({
               : "",
             item.depth !== 0 &&
               "hover:bg-transparent hover:text-secondary active:bg-transparent",
-            !open && "p-0 m-0"
+            !open && "p-0 m-0",
           )}
         >
           <span
             className={cn(
               "cursor-pointer",
-              isItemActive(item.path) && "font-semibold text-secondary-950"
+              isItemActive(item.path) && "font-semibold text-secondary-950",
             )}
           >
             {item.icon && item.depth === 0 && (
@@ -342,7 +342,7 @@ export function Sidebar({
                 className={cn(
                   "text-lg",
                   !open && "hidden",
-                  isItemActive(item.path) && "text-secondary"
+                  isItemActive(item.path) && "text-secondary",
                 )}
               >
                 {item.icon}
@@ -350,7 +350,7 @@ export function Sidebar({
             )}
             <span
               className={cn(
-                isItemActive(item.path) && item.depth !== 0 && "text-secondary"
+                isItemActive(item.path) && item.depth !== 0 && "text-secondary",
               )}
             >
               {item.label}
@@ -360,7 +360,7 @@ export function Sidebar({
                 <span
                   className={cn(
                     "w-2 h-2 rounded-full bg-secondary invisible justify-self-end",
-                    isItemActive(item.path) && "visible"
+                    isItemActive(item.path) && "visible",
                   )}
                 ></span>
               </div>
@@ -378,7 +378,7 @@ export function Sidebar({
         className={cn(
           "h-[30px] rounded-lg bg-sidebar-accent opacity-10",
           index % 2 === 0 ? "w-[180px]" : "w-[200px]",
-          !open && "w-8"
+          !open && "w-8",
         )}
       />
     ));
@@ -388,7 +388,7 @@ export function Sidebar({
     <ShadcnSidebar collapsible="icon" className="border-r border-basic-200/10">
       <SidebarContent
         className={cn(
-          backgroundImagePath ? "bg-cover bg-no-repeat" : `bg-${bgColor}`
+          backgroundImagePath ? "bg-cover bg-no-repeat" : `bg-${bgColor}`,
         )}
         style={
           backgroundImagePath

@@ -77,7 +77,7 @@ const InsertImageDialog = dynamic(
   () => import("../ImagesPlugin").then((mod) => mod.InsertImageDialog),
   {
     ssr: false,
-  }
+  },
 );
 
 const rootTypeToRootName = {
@@ -89,7 +89,7 @@ function getCodeLanguageOptions(): [string, string][] {
   const options: [string, string][] = [];
 
   for (const [lang, friendlyName] of Object.entries(
-    CODE_LANGUAGE_FRIENDLY_NAME_MAP
+    CODE_LANGUAGE_FRIENDLY_NAME_MAP,
   )) {
     options.push([lang, friendlyName]);
   }
@@ -356,7 +356,7 @@ function FontDropDown({
         }
       });
     },
-    [editor, style]
+    [editor, style],
   );
 
   const buttonAriaLabel =
@@ -388,7 +388,7 @@ function FontDropDown({
           >
             <span className="text">{text}</span>
           </DropDownItem>
-        )
+        ),
       )}
     </DropDown>
   );
@@ -480,7 +480,7 @@ export default function ToolbarPlugin({
   setActiveEditor: Dispatch<LexicalEditor>;
 }): React.ReactNode {
   const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(
-    null
+    null,
   );
   const [modal, showModal] = useModal();
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
@@ -494,8 +494,8 @@ export default function ToolbarPlugin({
         updateToolbarState(
           "isImageCaption",
           !!rootElement?.parentElement?.classList.contains(
-            "image-caption-container"
-          )
+            "image-caption-container",
+          ),
         );
       } else {
         updateToolbarState("isImageCaption", false);
@@ -537,7 +537,7 @@ export default function ToolbarPlugin({
         if ($isListNode(element)) {
           const parentList = $getNearestNodeOfType<ListNode>(
             anchorNode,
-            ListNode
+            ListNode,
           );
           const type = parentList
             ? parentList.getListType()
@@ -551,14 +551,14 @@ export default function ToolbarPlugin({
           if (type in blockTypeToBlockName) {
             updateToolbarState(
               "blockType",
-              type as keyof typeof blockTypeToBlockName
+              type as keyof typeof blockTypeToBlockName,
             );
           }
           if ($isCodeNode(element)) {
             const language = element.getLanguage()!;
             updateToolbarState(
               "codeLanguage",
-              language ? CODE_LANGUAGE_MAP[language] || language : ""
+              language ? CODE_LANGUAGE_MAP[language] || language : "",
             );
             return;
           }
@@ -567,26 +567,26 @@ export default function ToolbarPlugin({
       // Handle buttons
       updateToolbarState(
         "fontColor",
-        $getSelectionStyleValueForProperty(selection, "color", "#000")
+        $getSelectionStyleValueForProperty(selection, "color", "#000"),
       );
       updateToolbarState(
         "bgColor",
         $getSelectionStyleValueForProperty(
           selection,
           "background-color",
-          "#fff"
-        )
+          "#fff",
+        ),
       );
       updateToolbarState(
         "fontFamily",
-        $getSelectionStyleValueForProperty(selection, "font-family", "Arial")
+        $getSelectionStyleValueForProperty(selection, "font-family", "Arial"),
       );
       let matchingParent;
       if ($isLinkNode(parent)) {
         // If node is a link, we need to fetch the parent paragraph node to set format
         matchingParent = $findMatchingParent(
           node,
-          (parentNode) => $isElementNode(parentNode) && !parentNode.isInline()
+          (parentNode) => $isElementNode(parentNode) && !parentNode.isInline(),
         );
       }
 
@@ -597,7 +597,7 @@ export default function ToolbarPlugin({
           ? matchingParent.getFormatType()
           : $isElementNode(node)
             ? node.getFormatType()
-            : parent?.getFormatType() || "left"
+            : parent?.getFormatType() || "left",
       );
     }
     if ($isRangeSelection(selection) || $isTableSelection(selection)) {
@@ -607,7 +607,7 @@ export default function ToolbarPlugin({
       updateToolbarState("isUnderline", selection.hasFormat("underline"));
       updateToolbarState(
         "isStrikethrough",
-        selection.hasFormat("strikethrough")
+        selection.hasFormat("strikethrough"),
       );
       updateToolbarState("isSubscript", selection.hasFormat("subscript"));
       updateToolbarState("isSuperscript", selection.hasFormat("superscript"));
@@ -615,7 +615,7 @@ export default function ToolbarPlugin({
       updateToolbarState("isCode", selection.hasFormat("code"));
       updateToolbarState(
         "fontSize",
-        $getSelectionStyleValueForProperty(selection, "font-size", "15px")
+        $getSelectionStyleValueForProperty(selection, "font-size", "15px"),
       );
       updateToolbarState("isLowercase", selection.hasFormat("lowercase"));
       updateToolbarState("isUppercase", selection.hasFormat("uppercase"));
@@ -631,7 +631,7 @@ export default function ToolbarPlugin({
         $updateToolbar();
         return false;
       },
-      COMMAND_PRIORITY_CRITICAL
+      COMMAND_PRIORITY_CRITICAL,
     );
   }, [editor, $updateToolbar, setActiveEditor]);
 
@@ -657,7 +657,7 @@ export default function ToolbarPlugin({
           updateToolbarState("canUndo", payload);
           return false;
         },
-        COMMAND_PRIORITY_CRITICAL
+        COMMAND_PRIORITY_CRITICAL,
       ),
       activeEditor.registerCommand<boolean>(
         CAN_REDO_COMMAND,
@@ -665,8 +665,8 @@ export default function ToolbarPlugin({
           updateToolbarState("canRedo", payload);
           return false;
         },
-        COMMAND_PRIORITY_CRITICAL
-      )
+        COMMAND_PRIORITY_CRITICAL,
+      ),
     );
   }, [$updateToolbar, activeEditor, editor, updateToolbarState]);
 
@@ -681,7 +681,7 @@ export default function ToolbarPlugin({
         }
       });
     },
-    [activeEditor, selectedElementKey]
+    [activeEditor, selectedElementKey],
   );
 
   const canViewerSeeInsertDropdown = !toolbarState.isImageCaption;
@@ -745,7 +745,7 @@ export default function ToolbarPlugin({
             return (
               <DropDownItem
                 className={`item ${dropDownActiveClass(
-                  value === toolbarState.codeLanguage
+                  value === toolbarState.codeLanguage,
                 )}`}
                 onClick={() => onCodeLanguageSelect(value)}
                 key={value}
@@ -896,7 +896,7 @@ export default function ToolbarPlugin({
               onClick={() => {
                 activeEditor.dispatchCommand(
                   FORMAT_TEXT_COMMAND,
-                  "strikethrough"
+                  "strikethrough",
                 );
               }}
               className={
@@ -931,7 +931,7 @@ export default function ToolbarPlugin({
               onClick={() => {
                 activeEditor.dispatchCommand(
                   FORMAT_TEXT_COMMAND,
-                  "superscript"
+                  "superscript",
                 );
               }}
               className={

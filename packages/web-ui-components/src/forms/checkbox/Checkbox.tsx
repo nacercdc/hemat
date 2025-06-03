@@ -33,7 +33,7 @@ const checkboxVariants = cva(
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 export type CheckboxVariants = VariantProps<typeof checkboxVariants>;
@@ -85,7 +85,7 @@ export const Checkbox = ({
           required={required}
           className={cn(
             checkboxVariants({ variant, size }),
-            error && "border-destructive-500"
+            error && "border-destructive-500",
           )}
         />
         {label && (
@@ -94,7 +94,7 @@ export const Checkbox = ({
             className={cn(
               "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
               error && "text-destructive-500",
-              disabled && "opacity-50"
+              disabled && "opacity-50",
             )}
           >
             {label}

@@ -72,7 +72,7 @@ export function useToast() {
           <div
             className={cn(
               "flex gap-4 w-[420px] rounded-md border px-3 py-2",
-              toastVariants({ variant })
+              toastVariants({ variant }),
             )}
           >
             {iconMap[variant]}
@@ -94,7 +94,7 @@ export function useToast() {
         ),
         className: cn(
           toastVariants({ position }),
-          `w-[420px] flex fixed p-0 border-none text-${variant}-500`
+          `w-[420px] flex fixed p-0 border-none text-${variant}-500`,
         ),
         duration,
       }),

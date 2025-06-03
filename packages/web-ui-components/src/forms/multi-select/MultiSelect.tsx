@@ -49,13 +49,13 @@ export function MultiSelect<T>({
 
   const isItemSelected = (item: T) =>
     values?.some(
-      (selected: T) => get(selected, valueKey) === get(item, valueKey)
+      (selected: T) => get(selected, valueKey) === get(item, valueKey),
     );
 
   const onSelectHandler = (item: T) => {
     const newValue = isItemSelected(item)
       ? values?.filter(
-          (selected: T) => get(selected, valueKey) !== get(item, valueKey)
+          (selected: T) => get(selected, valueKey) !== get(item, valueKey),
         )
       : [...(values ?? []), item];
 
@@ -83,13 +83,13 @@ export function MultiSelect<T>({
               "relative flex flex-wrap overflow-hidden border",
               error
                 ? "border-destructive-500 focus:ring-destructive-500"
-                : "border-basic-300"
+                : "border-basic-300",
             )}
           >
             <div
               className={cn(
                 "mr-1 flex flex-1 items-center self-start overflow-hidden",
-                values?.length === 0 && "text-basic-400"
+                values?.length === 0 && "text-basic-400",
               )}
             >
               {leftNode && leftNode}
@@ -132,7 +132,7 @@ export function MultiSelect<T>({
                           icon="lucide:check"
                           className={cn(
                             "mr-2 h-4 w-4 text-basic",
-                            isItemSelected(item) ? "opacity-100" : "opacity-0"
+                            isItemSelected(item) ? "opacity-100" : "opacity-0",
                           )}
                         />
                       </CommandItem>

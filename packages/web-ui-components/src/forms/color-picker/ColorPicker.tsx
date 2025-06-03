@@ -33,7 +33,7 @@ const colorPickerVariants = cva(
       variant: "default",
       size: "md",
     },
-  }
+  },
 );
 
 const colorPickerInputVariants = cva(
@@ -50,7 +50,7 @@ const colorPickerInputVariants = cva(
     defaultVariants: {
       size: "md",
     },
-  }
+  },
 );
 
 const pickerSizes = {
@@ -123,7 +123,7 @@ export const ColorPicker = ({
             className={cn(
               colorPickerVariants({ variant, size }),
               error && "border-destructive-500",
-              "cursor-pointer"
+              "cursor-pointer",
             )}
             {...props}
           >
@@ -137,7 +137,7 @@ export const ColorPicker = ({
               onChange={handleChange}
               className={cn(
                 colorPickerInputVariants({ size }),
-                "flex-1 border-none focus:outline-none focus:ring-0 w-full"
+                "flex-1 border-none focus:outline-none focus:ring-0 w-full",
               )}
               placeholder={defaultValue || ""}
               aria-invalid={error ? "true" : "false"}
