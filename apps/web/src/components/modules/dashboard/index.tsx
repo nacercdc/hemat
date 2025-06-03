@@ -70,7 +70,7 @@ export default function Dashboard() {
       <div className="flex flex-col gap-3">
         <MetricsContainer title="Measurement Metrics">
           <div className="flex flex-col-reverse items-start sm:flex-row justify-between sm:items-center">
-            <div className="flex flex-wrap gap-8 w-3/5 py-5 sm:px-8">
+            <div className="grid w-full max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 px-4 sm:px-6 lg:px-8 py-6">
               {metrics.map((metric, index) => (
                 <MetricsCard
                   key={index}
