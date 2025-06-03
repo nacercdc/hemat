@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { MultiSelect, Select } from "@etm/web-ui-components";
+import { Select } from "@etm/web-ui-components";
 
 interface FilterSectionProps {
   countryOptions: { name: string }[];
@@ -10,7 +10,11 @@ interface FilterSectionProps {
   onCountrySelect: (value?: unknown) => void;
 }
 
-export const FilterSection = ({ countryOptions, onDomainSelect, onCountrySelect }: FilterSectionProps) => {
+export const FilterSection = ({
+  countryOptions,
+  onDomainSelect,
+  onCountrySelect,
+}: FilterSectionProps) => {
   return (
     <div className="flex flex-col sm:flex-row gap-9 bg-layout-bg/15 py-4 px-5 rounded-md w-full min-h-28">
       <div className="flex flex-col gap-2 sm:min-w-96">
@@ -18,7 +22,7 @@ export const FilterSection = ({ countryOptions, onDomainSelect, onCountrySelect 
           <Icon icon="material-symbols-light:domain-rounded" />
           <span className="text-sm font-bold">Domains</span>
         </div>
-        <MultiSelect<{ name: string }>
+        <Select<{ name: string }>
           placeholder="Leadership and Governance"
           options={[{ name: "Leadership and Governance" }]}
           valueKey="name"
