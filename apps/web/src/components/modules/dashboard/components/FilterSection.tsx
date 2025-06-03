@@ -4,7 +4,7 @@ import React from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Select } from "@etm/web-ui-components";
 
-interface FilterSectionProps {
+interface Props {
   countryOptions: { name: string }[];
   onDomainSelect: (value?: unknown) => void;
   onCountrySelect: (value?: unknown) => void;
@@ -14,7 +14,7 @@ export const FilterSection = ({
   countryOptions,
   onDomainSelect,
   onCountrySelect,
-}: FilterSectionProps) => {
+}: Props) => {
   return (
     <div className="flex flex-col sm:flex-row gap-9 bg-layout-bg/15 py-4 px-5 rounded-md w-full min-h-28">
       <div className="flex flex-col gap-2 sm:min-w-96">

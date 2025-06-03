@@ -1,7 +1,5 @@
 "use client";
 
-import { ContentLayout } from "~/components/layouts/dashboard/components/content-layout";
-import TitleBar from "~/components/layouts/dashboard/components/title-bar";
 import MetricsContainer from "./components/MetricsContainer";
 import MetricsCard from "./components/MetricsCard";
 import type { Scale } from "~/libs/models/scale.model";
@@ -9,6 +7,7 @@ import DomainMetricsCard from "./components/DomainMetricsCard";
 import { Map } from "./components/Map";
 import { CountriesAccordion } from "./components/CountriesAccordion";
 import { FilterSection } from "./components/FilterSection";
+import { PageContainer } from "../components/PageContainer";
 
 // TODO: replace with real scale data
 const metrics: Pick<Scale, "name" | "rate" | "color">[] = [
@@ -67,8 +66,7 @@ export default function Dashboard() {
   }));
 
   return (
-    <ContentLayout>
-      <TitleBar title="Dashboard" />
+    <PageContainer pageTitle="Dashboard">
       <div className="flex flex-col gap-3">
         <MetricsContainer title="Measurement Metrics">
           <div className="flex flex-col-reverse items-start sm:flex-row justify-between sm:items-center">
@@ -127,6 +125,6 @@ export default function Dashboard() {
           <CountriesAccordion countryStatuses={fetchedData} />
         </div>
       </div>
-    </ContentLayout>
+    </PageContainer>
   );
 }

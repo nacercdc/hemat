@@ -9,6 +9,7 @@ import {
 } from "react-simple-maps";
 import { geoData } from "../constants/africa-map";
 import { geoCentroid } from "d3-geo";
+import { cn } from "~/utils/cn.util";
 
 interface Metric {
   name: string;
@@ -57,8 +58,8 @@ export const Map = ({
   width = "100%",
   height = "500px",
   className,
-  scale = 300,
-  center = [25, -15],
+  scale = 250,
+  center = [25, -20],
   zoom = 1,
   interactive = true,
   strokeColor = "#000",
@@ -73,105 +74,108 @@ export const Map = ({
   if (isLoading) {
     return (
       <div
-        className={`bg-card shadow-lg rounded-lg p-4 flex items-center justify-center ${className}`}
+        className={cn(
+          "bg-card shadow-lg rounded-lg p-4 flex items-center justify-center text-basic-500",
+          className
+        )}
         style={{ width, height }}
       >
-        <div className="text-basic-500">Loading map...</div>
+        Loading map...
       </div>
     );
   }
   if (error) {
     return (
       <div
-        className={`bg-card shadow-lg rounded-lg p-4 flex items-center justify-center ${className}`}
+        className={cn(
+          "bg-card shadow-lg rounded-lg p-4 flex items-center justify-center text-destructive-500",
+          className
+        )}
         style={{ width, height }}
       >
-        <div className="text-destructive-500">Error: {error}</div>
+        Error: {error}
       </div>
     );
   }
 
   return (
     <div
-      className={`rounded-md overflow-hidden relative ${className}`}
-      style={{ width, height, backgroundColor: "#AFBBC2" }}
+      className={cn(
+        "relative overflow-hidden rounded-md bg-[#AFBBC2]",
+        className
+      )}
+      style={{ width, height }}
     >
-      <div className="w-full h-full overflow-hidden relative">
-        <ComposableMap
-          projection="geoMercator"
-          projectionConfig={{
-            scale,
-            center,
-          }}
-        >
-          <ZoomableGroup zoom={zoom}>
-            <Geographies geography={geoData}>
-              {({ geographies }) =>
-                geographies.map((geo) => {
-                  const countryName = geo.properties.name;
-                  const status = countryStatuses[countryName as string] || {
-                    color: "#F3F4F6",
-                  };
-                  const fillColor = status.color;
-                  const centroid = geoCentroid(geo);
+      <ComposableMap
+        projection="geoMercator"
+        projectionConfig={{ scale, center }}
+      >
+        <ZoomableGroup zoom={zoom}>
+          <Geographies geography={geoData}>
+            {({ geographies }) =>
+              geographies.map((geo) => {
+                const countryName = geo.properties.name;
+                const status = countryStatuses[countryName as string] || {
+                  color: "#F3F4F6",
+                };
+                const fillColor = status.color;
+                const centroid = geoCentroid(geo);
 
-                  return (
-                    <React.Fragment key={geo.rsmKey}>
-                      <Geography
-                        geography={geo}
-                        onClick={
-                          interactive
-                            ? () => onCountryClick?.(countryName)
-                            : undefined
-                        }
-                        fill={fillColor}
-                        stroke={strokeColor}
-                        strokeWidth={strokeWidth}
-                        className={`
-                          ${interactive ? "cursor-pointer" : "cursor-default"}
-                          ${showHoverEffects && interactive ? "transition-colors" : ""}
-                        `}
-                        style={{
-                          default: { outline: "none" },
-                          hover:
-                            showHoverEffects && interactive
-                              ? {
-                                  fill: hoverColor,
-                                  outline: "none",
-                                }
-                              : { outline: "none" },
-                          pressed: { outline: "none" },
-                        }}
-                      />
-                      <Annotation
-                        subject={centroid}
-                        dx={0}
-                        dy={0}
-                        connectorProps={{
-                          type: "authority",
-                          stroke: "#000",
-                          strokeWidth: 0.5,
-                          strokeLinecap: "round",
-                        }}
-                        style={{ textAnchor: "middle" }}
+                return (
+                  <React.Fragment key={geo.rsmKey}>
+                    <Geography
+                      geography={geo}
+                      onClick={
+                        interactive
+                          ? () => onCountryClick?.(countryName)
+                          : undefined
+                      }
+                      fill={fillColor}
+                      stroke={strokeColor}
+                      strokeWidth={strokeWidth}
+                      className={cn(
+                        interactive ? "cursor-pointer" : "cursor-default",
+                        showHoverEffects && interactive
+                          ? "transition-colors"
+                          : ""
+                      )}
+                      style={{
+                        default: { outline: "none" },
+                        hover:
+                          showHoverEffects && interactive
+                            ? { fill: hoverColor, outline: "none" }
+                            : { outline: "none" },
+                        pressed: { outline: "none" },
+                      }}
+                    />
+                    <Annotation
+                      subject={centroid}
+                      dx={0}
+                      dy={0}
+                      connectorProps={{
+                        type: "authority",
+                        stroke: "#000",
+                        strokeWidth: 0.5,
+                        strokeLinecap: "round",
+                      }}
+                      style={{ textAnchor: "middle" }}
+                    >
+                      <text
+                        x={0}
+                        y={0}
+                        textAnchor="middle"
+                        className="font-medium text-[6px] text-dark"
                       >
-                        <text
-                          x={0}
-                          y={0}
-                          textAnchor="middle"
-                          className="font-medium text-[6px] text-dark"
-                        >
-                          {countryName}
-                        </text>
-                      </Annotation>
-                    </React.Fragment>
-                  );
-                })
-              }
-            </Geographies>
-          </ZoomableGroup>
-        </ComposableMap>
-      </div>
+                        {countryName}
+                      </text>
+                    </Annotation>
+                  </React.Fragment>
+                );
+              })
+            }
+          </Geographies>
+        </ZoomableGroup>
+      </ComposableMap>
     </div>
   );
 };
