@@ -3,39 +3,47 @@
 import type { ModalRef } from "@etm/web-ui-components";
 import { Button, Modal } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { ContentLayout } from "~/components/layouts/dashboard/components/content-layout";
-import TitleBar from "~/components/layouts/dashboard/components/title-bar";
+
 import { ScaleTable } from "./components/table";
 import { useRef } from "react";
 import type { ScaleFormData } from "./components/form";
 import { ScaleForm } from "./components/form";
+import { PageContainer } from "../components/PageContainer";
 
 export default function MeasurementScale() {
   const addScaleModalRef = useRef<ModalRef>(null);
 
-  const openAddScaleModal = () => addScaleModalRef.current.openModal(); ;
-  const onCancelScaleFormHandler = () =>  addScaleModalRef.current?.closeModal();
-  const onSubmitScaleFormHandler = (_value:ScaleFormData) => {
+  const openAddScaleModal = () => addScaleModalRef.current.openModal();
+  const onCancelScaleFormHandler = () => addScaleModalRef.current?.closeModal();
+  const onSubmitScaleFormHandler = (_value: ScaleFormData) => {
     //TODO: Add submit logic here
-  }
+  };
 
   return (
-    <ContentLayout>
-      <TitleBar title="Measurement Scale">
+    <PageContainer
+      pageTitle="Measurement Scale"
+      includeBreadcrumb={false}
+      actionNodes={
         <Button
-          leftNode={<Icon icon={"material-symbols:add"} />}
+          leftNode={
+            <Icon icon={"material-symbols:add"} className="!w-5 !h-5" />
+          }
           size="lg"
           onClick={openAddScaleModal}
         >
-          Add
+          Create
         </Button>
-      </TitleBar>
+      }
+    >
       <ScaleTable />
       <Modal ref={addScaleModalRef}>
         <div className="flex flex-col gap-4">
-          <ScaleForm onSubmitScaleFormHandler={onSubmitScaleFormHandler} onCancelScaleFormHandler={onCancelScaleFormHandler} />
+          <ScaleForm
+            onSubmitScaleFormHandler={onSubmitScaleFormHandler}
+            onCancelScaleFormHandler={onCancelScaleFormHandler}
+          />
         </div>
       </Modal>
-    </ContentLayout>
+    </PageContainer>
   );
 }

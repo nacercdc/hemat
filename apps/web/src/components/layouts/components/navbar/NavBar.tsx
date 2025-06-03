@@ -5,15 +5,15 @@ import { Icon } from "@iconify/react";
 import { Avatar, DropdownMenu, Input, Spinner } from "@etm/web-ui-components";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getInitials } from "~/utils/string.util";
-import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import { useAddMutation as useLogout } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 export function NavBar() {
   const [searchValue, setSearchValue] = useState<string>("");
   const router = useRouter();
   const searchParams = useSearchParams();
   const { mutate: logoutFromServer, ...logoutFromServerState } =
-    useAddMutation("/auth/logout");
+    useLogout("/auth/logout");
   const { mutate: logoutFromLocal, ...logoutFromLocalState } =
-    useAddMutation("/api/logout");
+    useLogout("/api/logout");
 
   const onNotificationClickHandler = () => {
     //  TODO: handle notification click

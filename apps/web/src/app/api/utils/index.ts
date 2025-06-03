@@ -29,6 +29,36 @@ export const authenticateUser = async ({
   return rawResult as LoginResponse;
 };
 
+export async function refreshAccessToken(
+  refreshToken: string
+): Promise<TokenResponse> {
+  const url = new URL("/api/auth/refresh-token", env.NEXT_PUBLIC_HOST_URL);
+
+  try {
+    const response = await fetch(url.toString(), {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${refreshToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to refresh token");
+    }
+
+    const data = (await response.json()) as TokenResponse;
+
+    return {
+      token: data.token,
+      refreshToken: data.refreshToken,
+      expires: data.expires,
+    };
+  } catch (err) {
+    console.error("refreshAccessToken error:", err);
+    throw new Error("RefreshTokenError");
+  }
+}
+
 export function setAuthCookies(
   response: NextResponse,
   tokens: TokenResponse

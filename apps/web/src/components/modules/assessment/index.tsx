@@ -1,12 +1,13 @@
 "use client";
 
-import React from "react";
 import { Icon } from "@iconify/react";
 import { Button } from "@etm/web-ui-components";
 import { AssessmentsTable } from "./components/table";
 import { PageContainer } from "../components/PageContainer";
+import { useRouter } from "next/navigation";
 
 export function Assessment() {
+  const router = useRouter();
   return (
     <PageContainer
       pageTitle="Assessments"
@@ -18,7 +19,7 @@ export function Assessment() {
           }
           size="lg"
           onClick={() => {
-            //TODO: Implement add assessment
+            router.push("/assessment/create");
           }}
         >
           Create
