@@ -4,7 +4,7 @@ import {
   InsertEvent,
   UpdateEvent,
 } from 'typeorm';
-import { User } from '../../database/entities';
+import { User } from '../entities';
 import { HashHelper } from '../../shared/helpers';
 
 @EventSubscriber()
