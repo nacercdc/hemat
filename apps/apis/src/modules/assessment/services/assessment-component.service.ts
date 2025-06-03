@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { AssessmentComponent, Component } from '@database/entities';
-import { QueryService } from '@shared/services';
+import { Filter, QueryService } from '@shared/services';
 import { AssessmentComponentDto, FindAllAssessmentComponentDto } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 import { UUID } from '@shared/helpers';
@@ -72,13 +72,10 @@ export class AssessmentComponentService {
     return new QueryService<AssessmentComponent>(
       this.assessmentComponentRepository,
     )
-      .filter(
-        [{ field: 'assessmentId', operator: '=', value: query.assessmentId }],
-        {
-          fields: ['code', 'name'],
-          value: query.search,
-        },
-      )
+      .filter(this.filters(query), {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
       .sort({ ascending: query.ascending, descending: query.descending })
       .take(query.take)
       .skip(query.skip)
@@ -131,5 +128,18 @@ export class AssessmentComponentService {
         }
       },
     );
+  }
+
+  private filters(query: FindAllAssessmentComponentDto): Filter[] {
+    const filters: Filter[] = [];
+    if (typeof query.isActive === 'boolean') {
+      filters.push({
+        field: 'isActive',
+        operator: '=',
+        value: query.isActive,
+      });
+    }
+
+    return filters;
   }
 }

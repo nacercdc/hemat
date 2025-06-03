@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { AssessmentDomain, Domain } from '@database/entities';
-import { QueryService } from '@shared/services';
+import { Filter, QueryService } from '@shared/services';
 import { AssessmentDomainDto, FindAllAssessmentDomainDto } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 import { UUID } from '@shared/helpers';
@@ -63,13 +63,10 @@ export class AssessmentDomainService {
     query: FindAllAssessmentDomainDto & { assessmentId: string },
   ): Promise<FindAllResponseDto<AssessmentDomain>> {
     return new QueryService<AssessmentDomain>(this.assessmentDomainRepository)
-      .filter(
-        [{ field: 'assessmentId', operator: '=', value: query.assessmentId }],
-        {
-          fields: ['code', 'name'],
-          value: query.search,
-        },
-      )
+      .filter(this.filters(query), {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
       .sort({ ascending: query.ascending, descending: query.descending })
       .take(query.take)
       .skip(query.skip)
@@ -113,5 +110,18 @@ export class AssessmentDomainService {
         }
       },
     );
+  }
+
+  private filters(query: FindAllAssessmentDomainDto): Filter[] {
+    const filters: Filter[] = [];
+    if (typeof query.isActive === 'boolean') {
+      filters.push({
+        field: 'isActive',
+        operator: '=',
+        value: query.isActive,
+      });
+    }
+
+    return filters;
   }
 }

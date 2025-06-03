@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Assessment } from '@database/entities';
-import { QueryService } from '@shared/services';
+import { Filter, QueryService } from '@shared/services';
 import {
   FindAllAssessmentDto,
   FindOneAssessmentDto,
@@ -41,7 +41,7 @@ export class AssessmentService {
   ): Promise<FindAllResponseDto<Assessment>> {
     return await new QueryService<Assessment>(this.assessmentRepository)
       .join(query.include)
-      .filter([], { fields: ['name'], value: query.search })
+      .filter(this.filters(query), { fields: ['name'], value: query.search })
       .sort({ ascending: query.ascending, descending: query.descending })
       .take(query.take)
       .skip(query.skip)
@@ -162,5 +162,18 @@ export class AssessmentService {
     }
 
     return await this.assessmentRepository.recover(assessment);
+  }
+
+  private filters(query: FindAllAssessmentDto): Filter[] {
+    const filters: Filter[] = [];
+    if (query.status) {
+      filters.push({
+        field: 'status',
+        operator: '=',
+        value: query.status,
+      });
+    }
+
+    return filters;
   }
 }

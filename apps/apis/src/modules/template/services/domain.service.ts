@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Domain } from '@database/entities';
-import { QueryService } from '@shared/services';
+import { Filter, QueryService } from '@shared/services';
 import {
   FindAllDomainDto,
   DomainCreateRequestDto,
@@ -31,7 +31,7 @@ export class DomainService {
   async findAll(query: FindAllDomainDto): Promise<FindAllResponseDto<Domain>> {
     try {
       return await new QueryService<Domain>(this.domainRepository)
-        .filter([{ field: 'isActive', operator: '=', value: true || false }], {
+        .filter(this.filters(query), {
           fields: ['code', 'name'],
           value: query.search,
         })
@@ -121,5 +121,18 @@ export class DomainService {
       this.logger.error('findComponentsByDomainId:', err);
       throw new BadRequestException('Failed to fetch components.');
     }
+  }
+
+  private filters(query: FindAllDomainDto): Filter[] {
+    const filters: Filter[] = [];
+    if (typeof query.isActive === 'boolean') {
+      filters.push({
+        field: 'isActive',
+        operator: '=',
+        value: query.isActive,
+      });
+    }
+
+    return filters;
   }
 }

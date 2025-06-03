@@ -7,13 +7,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { SubComponent, Component, MeasurementScale } from '@database/entities';
-import { QueryService } from '@shared/services';
+import { Filter, QueryService } from '@shared/services';
 import {
   FindAllSubComponentDto,
   FindOneSubComponentDto,
   SubComponentCreateRequestDto,
   SubComponentUpdateRequestDto,
-  SubComponentMeasurementScaleDto,
+  FindAllDomainDto,
 } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 
@@ -33,7 +33,7 @@ export class SubComponentService {
     try {
       return await new QueryService<SubComponent>(this.subComponentRepository)
         .join(query.include)
-        .filter([], {
+        .filter(this.filters(query), {
           fields: ['code', 'name'],
           value: query.search,
         })
@@ -144,5 +144,18 @@ export class SubComponentService {
     }
 
     return await this.subComponentRepository.recover(subComponent);
+  }
+
+  private filters(query: FindAllDomainDto): Filter[] {
+    const filters: Filter[] = [];
+    if (typeof query.isActive === 'boolean') {
+      filters.push({
+        field: 'isActive',
+        operator: '=',
+        value: query.isActive,
+      });
+    }
+
+    return filters;
   }
 }

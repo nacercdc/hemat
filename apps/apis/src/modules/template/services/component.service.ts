@@ -7,13 +7,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Component, Domain, SubComponent } from '@database/entities';
-import { QueryService } from '@shared/services';
+import { Filter, QueryService } from '@shared/services';
 import {
   FindAllComponentDto,
   FindOneComponentDto,
   ComponentCreateRequestDto,
   ComponentUpdateRequestDto,
   FindAllSubComponentDto,
+  FindAllDomainDto,
 } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 
@@ -35,7 +36,7 @@ export class ComponentService {
     try {
       return await new QueryService<Component>(this.componentRepository)
         .join(query.include)
-        .filter([], {
+        .filter(this.filters(query), {
           fields: ['code', 'name'],
           value: query.search,
         })
@@ -141,7 +142,6 @@ export class ComponentService {
     id: string,
     query: FindAllSubComponentDto,
   ): Promise<FindAllResponseDto<SubComponent>> {
-    // Return SubComponent, not Component
     try {
       const component = await this.componentRepository.findOne({
         where: { id },
@@ -150,14 +150,11 @@ export class ComponentService {
         throw new NotFoundException(`Component ${id} not found.`);
       }
 
-      return await new QueryService<SubComponent>(this.subComponentRepository) // Use SubComponent repository
-        .filter(
-          [{ field: 'componentId', operator: '=', value: id }], // Filter by componentId
-          {
-            fields: ['code', 'name'],
-            value: query.search,
-          },
-        )
+      return await new QueryService<SubComponent>(this.subComponentRepository)
+        .filter([], {
+          fields: ['code', 'name'],
+          value: query.search,
+        })
         .join(query.include)
         .sort({ ascending: query.ascending, descending: query.descending })
         .take(query.take)
@@ -167,5 +164,18 @@ export class ComponentService {
       this.logger.error('findSubComponentsByComponentId:', err);
       throw new BadRequestException('Failed to fetch subcomponents.');
     }
+  }
+
+  private filters(query: FindAllDomainDto): Filter[] {
+    const filters: Filter[] = [];
+    if (typeof query.isActive === 'boolean') {
+      filters.push({
+        field: 'isActive',
+        operator: '=',
+        value: query.isActive,
+      });
+    }
+
+    return filters;
   }
 }

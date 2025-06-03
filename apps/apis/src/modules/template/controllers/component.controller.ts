@@ -25,7 +25,7 @@ import {
   ApiTooManyRequestsResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { Component } from '@database/entities';
+import { Component, SubComponent } from '@database/entities';
 import { Abilities, AuthGuard } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
@@ -201,11 +201,10 @@ export class ComponentController {
   }
 
   @ApiOperation({
-    summary: 'Find subcomponents',
-    description:
-      'Get all subcomponents for a component by ID with pagination and search',
+    summary: 'Find sub components',
+    description: 'Get all sub components for a component by ID',
   })
-  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Component> })
+  @ApiOkResponse({ description: 'Ok', type: [SubComponent] })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
   @Abilities({
