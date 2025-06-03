@@ -60,7 +60,7 @@ const AssessmentFormSchema = z
       .string()
       .min(2, { message: "Assessment name must be at least 2 characters" })
       .max(50, { message: "Assessment name must be at most 50 characters" }),
-    createdBy: z.string().uuid({ message: "CreatedBy must be a valid Vuser" }),
+    createdBy: z.string().uuid({ message: "Created by must be a valid user" }),
     startDate: z.date(),
     endDate: z.date(),
     country: countrySchema,
