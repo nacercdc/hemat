@@ -4,9 +4,8 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-import { refreshAccessToken } from "~/app/actions/refresh-token.actions";
 import { getTokenExpireMilliseconds } from "@etm/utilities/date.utils";
-import { clearAuthCookies, setAuthCookies } from "../utils";
+import { clearAuthCookies, refreshAccessToken, setAuthCookies } from "../utils";
 
 export async function GET(): Promise<NextResponse> {
   const cookieStore = await cookies();
