@@ -2,7 +2,13 @@
 
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
-import { Avatar, DropdownMenu, Input, Spinner } from "@etm/web-ui-components";
+import {
+  Avatar,
+  DropdownMenu,
+  Input,
+  Spinner,
+  useSidebar,
+} from "@etm/web-ui-components";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getInitials } from "~/utils/string.util";
 import { useAddMutation as useLogout } from "~/libs/tanstack-api-query/hooks/useAddMutation";
@@ -10,6 +16,8 @@ export function NavBar() {
   const [searchValue, setSearchValue] = useState<string>("");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isMobile, setOpenMobile } = useSidebar();
+
   const { mutate: logoutFromServer, ...logoutFromServerState } =
     useLogout("/auth/logout");
   const { mutate: logoutFromLocal, ...logoutFromLocalState } =
@@ -45,7 +53,14 @@ export function NavBar() {
   };
   return (
     <nav className="flex items-center justify-between py-2 mb-1 w-full">
-      <div className="flex-1 max-w-sm mr-7">
+      <div className="flex-1 flex gap-3 items-center max-w-sm mr-7">
+        {isMobile && (
+          <Icon
+            icon="proicons:panel-right-expand"
+            className="w-10 h-10 rotate-180 cursor-pointer bg-white p-1 px-2 mb-2 hover:bg-primary-50 rounded-full"
+            onClick={() => setOpenMobile(true)}
+          />
+        )}
         <Input
           size="lg"
           name="search"

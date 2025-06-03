@@ -12,7 +12,7 @@ export const groups = (
       {
         id: "dashboard",
         label: "Dashboard",
-        icon: <Icon icon="mage:dashboard-2" className="!w-[24px] !h-[24px]" />,
+        icon: <Icon icon="mage:dashboard-2" className="!w-[18px] !h-[18px]" />,
         path: "/",
         permission: isLoading ? false : true,
         depth: 0,
@@ -23,7 +23,7 @@ export const groups = (
         icon: (
           <Icon
             icon="fluent-mdl2:assessment-group"
-            className="!w-[24px] !h-[24px]"
+            className="!w-[18px] !h-[18px]"
           />
         ),
         path: "/assessment",
@@ -34,7 +34,7 @@ export const groups = (
         id: "roadmap",
         label: "Roadmap",
         icon: (
-          <Icon icon="hugeicons:floor-plan" className="!w-[24px] !h-[24px]" />
+          <Icon icon="hugeicons:floor-plan" className="!w-[18px] !h-[18px]" />
         ),
         path: "/roadmap",
         permission: isLoading ? false : true,
@@ -46,7 +46,7 @@ export const groups = (
         icon: (
           <Icon
             icon="material-symbols-light:domain-rounded"
-            className="!w-[24px] !h-[24px]"
+            className="!w-[18px] !h-[18px]"
           />
         ),
         path: "/domains",
@@ -56,7 +56,7 @@ export const groups = (
       {
         id: "measurement-scale",
         label: "Measurement scale",
-        icon: <Icon icon="oui:scale" className="!w-[24px] !h-[24px]" />,
+        icon: <Icon icon="oui:scale" className="!w-[18px] !h-[18px]" />,
         path: "/measurement-scale",
         permission: isLoading ? false : true,
         depth: 0,
@@ -68,7 +68,7 @@ export const groups = (
         icon: (
           <Icon
             icon="radix-icons:activity-log"
-            className="!w-[23px] !h-[23px] pr-1"
+            className="!w-[22x] !h-[22x] pr-1"
           />
         ),
         permission: [true].some(Boolean),
@@ -94,7 +94,7 @@ export const groups = (
         id: "settings",
         label: "Settings",
         icon: (
-          <Icon icon="solar:settings-linear" className="!w-[24px] !h-[24px]" />
+          <Icon icon="solar:settings-linear" className="!w-[18px] !h-[18px]" />
         ),
         permission: [true].some(Boolean),
         depth: 0,
@@ -130,7 +130,7 @@ export const groups = (
         icon: (
           <Icon
             icon="clarity:administrator-line"
-            className="!w-[24px] !h-[24px]"
+            className="!w-[18px] !h-[18px]"
           />
         ),
         path: "/administration",
@@ -144,7 +144,7 @@ export const groups = (
         icon: (
           <Icon
             icon="fluent:person-support-28-regular"
-            className="!w-[24px] !h-[24px]"
+            className="!w-[18px] !h-[18px]"
           />
         ),
         path: "/support",
