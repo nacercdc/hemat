@@ -8,6 +8,7 @@ import { Map } from "./components/Map";
 import { CountriesAccordion } from "./components/CountriesAccordion";
 import { FilterSection } from "./components/FilterSection";
 import { PageContainer } from "../components/PageContainer";
+// import { useState } from "react";
 
 // TODO: replace with real scale data
 const metrics: Pick<Scale, "name" | "rate" | "color">[] = [
@@ -39,6 +40,7 @@ const metrics: Pick<Scale, "name" | "rate" | "color">[] = [
 ];
 
 export default function Dashboard() {
+  // const [selectedValue, setSelectedValue] = useState<unknown>();
   // TODO: Replace with real API call
 
   const fetchedData: Record<string, Pick<Scale, "name" | "rate" | "color">> = {
@@ -53,9 +55,10 @@ export default function Dashboard() {
     // TODO: handle country click event
   };
 
-  const handleDomainSelect = (_value?: unknown) => {
-    // TODO: handle domain select event
-  };
+  // const handleDomainSelect = (value?: unknown) => {
+  //   // TODO: handle domain select event
+  //   setSelectedValue(value);
+  // };
 
   const handleCountrySelect = (_value?: unknown) => {
     // TODO: handle country select event
@@ -108,8 +111,9 @@ export default function Dashboard() {
         </MetricsContainer>
 
         <FilterSection
+          // domain={selectedValue as string}
           countryOptions={countryOptions}
-          onDomainSelect={handleDomainSelect}
+          // onDomainSelect={handleDomainSelect}
           onCountrySelect={handleCountrySelect}
         />
 
