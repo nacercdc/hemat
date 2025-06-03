@@ -57,11 +57,11 @@ export function isFormatHeading(event: KeyboardEvent): boolean {
   const { code } = event;
 
   // Apple pencil keyboard events don't have a code property
-  if (!code) {
+  if (!code || code.length === 0) {
     return false;
   }
 
-  const keyNumber = code[code.length - 1];
+  const keyNumber = code[code.length - 1]!;
 
   return (
     ["1", "2", "3"].includes(keyNumber ?? "") &&
