@@ -65,7 +65,7 @@ export class UserController {
 
   @ApiOperation({
     summary: 'Find all',
-    description: 'Get all admin users with pagination',
+    description: 'Get all users with pagination',
   })
   @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<User> })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -84,7 +84,7 @@ export class UserController {
     return this.userService.findAll(query);
   }
 
-  @ApiOperation({ summary: 'Find one', description: 'Get an admin user by ID' })
+  @ApiOperation({ summary: 'Find one', description: 'Get user by ID' })
   @ApiOkResponse({ description: 'Ok', type: User })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
@@ -105,7 +105,7 @@ export class UserController {
     return this.userService.findOne(id, query);
   }
 
-  @ApiOperation({ summary: 'Create', description: 'Create a new admin user' })
+  @ApiOperation({ summary: 'Create', description: 'Create a new user' })
   @ApiCreatedResponse({ description: 'Created', type: User })
   @ApiBadRequestResponse({
     description: 'Bad Request',
@@ -128,7 +128,7 @@ export class UserController {
 
   @ApiOperation({
     summary: 'Update',
-    description: 'Update an admin user by ID',
+    description: 'Update user by ID',
   })
   @ApiOkResponse({ description: 'Ok', type: User })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -156,7 +156,7 @@ export class UserController {
 
   @ApiOperation({
     summary: 'Update password',
-    description: "Update admin user's password by ID",
+    description: "Update user's password by ID",
   })
   @ApiOkResponse({ description: 'Ok', type: User })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -184,7 +184,7 @@ export class UserController {
 
   @ApiOperation({
     summary: 'Delete',
-    description: 'Soft delete an admin user by ID',
+    description: 'Soft delete user by ID',
   })
   @ApiOkResponse({ description: 'Ok', type: User })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -209,7 +209,7 @@ export class UserController {
 
   @ApiOperation({
     summary: 'Restore',
-    description: 'Restore an admin user by ID',
+    description: 'Restore user by ID',
   })
   @ApiOkResponse({ description: 'Ok', type: User })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })

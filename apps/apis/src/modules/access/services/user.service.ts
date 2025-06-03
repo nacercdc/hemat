@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import { ConfigType } from '@config/types';
 import { User, Role, Profile, Permission } from '@database/entities';
-import { QueryService } from '@shared/services';
+import { Filter, QueryService } from '@shared/services';
 import {
   FindAllUserDto,
   FindOneUserDto,
@@ -36,7 +36,7 @@ export class UserService {
     try {
       return await new QueryService<User>(this.userRepository)
         .join(query.include)
-        .filter([{ field: 'isAdmin', operator: '=', value: true }], {
+        .filter(this.filters(query), {
           fields: ['name', 'email'],
           value: query.search,
         })
@@ -248,5 +248,18 @@ export class UserService {
         throw new BadRequestException('Failed to restore user.');
       }
     });
+  }
+
+  private filters(query: FindAllUserDto): Filter[] {
+    const filters: Filter[] = [];
+    if (query.status) {
+      filters.push({
+        field: 'status',
+        operator: '=',
+        value: query.status,
+      });
+    }
+
+    return filters;
   }
 }
