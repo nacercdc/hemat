@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsIn, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { FindAllDto } from '@shared/dtos';
 import { IsArrayContains } from '@shared/validators';
@@ -17,11 +17,10 @@ export class FindAllDomainDto extends FindAllDto {
   include: string[] = [];
 
   @ApiPropertyOptional({
-    description:
-      'Comma-separated ascending sort fields (e.g., code,name,description)',
+    description: 'Comma-separated ascending sort fields (e.g., code,name)',
     type: String,
   })
-  @IsArrayContains(['code', 'name', 'createdAt'])
+  @IsArrayContains(['code', 'name', 'createdAt', 'updatedAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -29,14 +28,38 @@ export class FindAllDomainDto extends FindAllDto {
   ascending?: string[];
 
   @ApiPropertyOptional({
-    description:
-      'Comma-separated descending sort fields (e.g., code,name,description)',
+    description: 'Comma-separated descending sort fields (e.g., code,name)',
     type: String,
   })
-  @IsArrayContains(['code', 'name', 'createdAt'])
+  @IsArrayContains(['code', 'name', 'createdAt', 'updatedAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
   @Transform(({ value }) => (value ? value.trim().split(',') : []))
   descending?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Filter records by active/inactive status',
+    type: Boolean,
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'validation.isActive.isBoolean' })
+  @Transform(({ value }) =>
+    !['true', 'false'].includes(value) ? null : value === 'true',
+  )
+  isActive: boolean | null = null;
+}
+
+export class FindOneDomainDto {
+  @ApiPropertyOptional({
+    description: 'Comma-separated relations (e.g., Component)',
+    type: String,
+  })
+  @IsArrayContains(['component'])
+  @IsString({ each: true })
+  @IsOptional()
+  @Type(() => String)
+  @Transform(({ value }) => (value ? value.trim().split(',') : []))
+  include: string[] = [];
 }

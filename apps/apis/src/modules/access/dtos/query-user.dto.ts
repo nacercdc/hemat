@@ -1,15 +1,16 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsBoolean } from 'class-validator';
+import { IsOptional, IsString, IsBoolean, IsEnum } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { FindAllDto } from '@shared/dtos';
 import { IsArrayContains } from '@shared/validators';
+import { UserStatusEnum } from '@shared/enums';
 
 export class FindAllUserDto extends FindAllDto {
   @ApiPropertyOptional({
     description: 'Comma-separated relations (e.g., roles,profile,permissions)',
     type: String,
   })
-  @IsArrayContains(['roles', 'profile', 'permissions'])
+  @IsArrayContains(['roles', 'profile', 'permissions', 'assessments'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -41,13 +42,15 @@ export class FindAllUserDto extends FindAllDto {
   descending: string[] = [];
 
   @ApiPropertyOptional({
-    description: 'Filter by isAdmin status',
-    type: Boolean,
+    description: 'Filter records by user status',
+    enum: UserStatusEnum,
+    example: UserStatusEnum.ACTIVE,
   })
-  @IsBoolean()
   @IsOptional()
-  @Transform(({ value }) => value === 'true')
-  isAdmin?: boolean;
+  @IsEnum(UserStatusEnum, { message: 'validation.status.isEnum' })
+  @Type(() => String)
+  @Transform(({ value }) => (value ? value.trim() : undefined))
+  status?: UserStatusEnum;
 }
 
 export class FindOneUserDto {
@@ -55,7 +58,7 @@ export class FindOneUserDto {
     description: 'Comma-separated relations (e.g., roles,profile,permissions)',
     type: String,
   })
-  @IsArrayContains(['roles', 'profile', 'permissions'])
+  @IsArrayContains(['roles', 'profile', 'permissions', 'assessments'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)

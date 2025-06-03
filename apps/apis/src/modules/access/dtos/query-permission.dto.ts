@@ -46,7 +46,7 @@ export class FindOnePermissionDto {
     description: 'Comma-separated relations (e.g., roles)',
     type: String,
   })
-  @IsArrayContains(['roles'])
+  @IsArrayContains(['roles', 'users'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)

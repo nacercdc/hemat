@@ -1,6 +1,6 @@
 // src/assessment-sub-component/dtos/find-all-assessment-sub-component.dto.ts
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { FindAllDto } from '@shared/dtos';
 import { IsArrayContains } from '@shared/validators';
@@ -38,6 +38,18 @@ export class FindAllAssessmentSubComponentDto extends FindAllDto {
   @Type(() => String)
   @Transform(({ value }) => (value ? value.trim().split(',') : []))
   descending: string[] = [];
+
+  @ApiPropertyOptional({
+    description: 'Filter records by active/inactive status',
+    type: Boolean,
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'validation.isActive.isBoolean' })
+  @Transform(({ value }) =>
+    !['true', 'false'].includes(value) ? null : value === 'true',
+  )
+  isActive: boolean | null = null;
 }
 
 export class FindOneAssessmentSubComponentDto {

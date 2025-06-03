@@ -9,7 +9,7 @@ export class FindAllRoleDto extends FindAllDto {
     description: 'Comma separated relations',
     type: String,
   })
-  @IsArrayContains(['users'])
+  @IsArrayContains(['users', 'permissions'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -44,7 +44,7 @@ export class FindOneRoleDto {
     description: 'Comma separated relations',
     type: String,
   })
-  @IsArrayContains(['users'])
+  @IsArrayContains(['users', 'permissions'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)

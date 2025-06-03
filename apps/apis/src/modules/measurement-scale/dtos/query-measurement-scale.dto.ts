@@ -9,7 +9,7 @@ export class FindAllMeasurementScaleDto extends FindAllDto {
     description: 'Comma-separated ascending sort fields (e.g., name,rate)',
     type: String,
   })
-  @IsArrayContains(['name', 'rate', 'createdAt'])
+  @IsArrayContains(['name', 'rate', 'createdAt', 'updatedAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -20,7 +20,7 @@ export class FindAllMeasurementScaleDto extends FindAllDto {
     description: 'Comma-separated descending sort fields (e.g., name,rate)',
     type: String,
   })
-  @IsArrayContains(['name', 'rate', 'createdAt'])
+  @IsArrayContains(['name', 'rate', 'createdAt', 'updatedAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
