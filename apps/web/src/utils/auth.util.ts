@@ -8,16 +8,27 @@ const fetchJSON = async <T>(url: string, errorMessage: string): Promise<T> => {
   return response.json() as Promise<T>;
 };
 
+let refreshTokenPromise: Promise<LoginResponse> | null = null;
+
 export const refreshAccessToken = async (): Promise<LoginResponse> => {
-  try {
-    return await fetchJSON<LoginResponse>(
-      "/api/refresh-token",
-      "Unable to refresh token."
-    );
-  } catch (error) {
-    console.error("Token refresh error:", error);
-    throw new Error("Token refresh failed.");
+  if (!refreshTokenPromise) {
+    refreshTokenPromise = (async () => {
+      try {
+        const refreshed = await fetchJSON<LoginResponse>(
+          "/api/refresh-token",
+          "Unable to refresh token."
+        );
+        return refreshed;
+      } catch (error) {
+        console.error("Token refresh error:", error);
+        throw new Error("Token refresh failed.");
+      } finally {
+        refreshTokenPromise = null;
+      }
+    })();
   }
+
+  return refreshTokenPromise;
 };
 
 export const getSession = async (): Promise<LoginResponse> => {
