@@ -42,13 +42,11 @@ export async function refreshAccessToken(
       },
     });
 
-    const data = (await response.json()) as TokenResponse;
-
     if (!response.ok) {
-      console.log(data, "data");
-
       throw new Error("Failed to refresh token");
     }
+
+    const data = (await response.json()) as TokenResponse;
 
     return {
       token: data.token,
