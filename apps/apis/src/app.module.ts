@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { SentryModule } from '@sentry/nestjs/setup';
 import { appConfig, authConfig, databaseConfig } from './config';
 import { DatabaseModule } from './database';
 import {
@@ -14,6 +15,7 @@ import {
 import { ExistConstraint, UniqueConstraint } from './shared/validators';
 @Module({
   imports: [
+    SentryModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig, authConfig, databaseConfig],

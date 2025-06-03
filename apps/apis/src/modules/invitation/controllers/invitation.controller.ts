@@ -8,6 +8,7 @@ import {
   HttpCode,
   UseGuards,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,19 +22,16 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import {
-  AuthGuard,
-  Abilities,
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from '@africa-cdc/shared';
-import { ExceptionResponseDto } from '@africa-cdc/shared/dtos';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { InvitationService } from '../services';
 import {
+  FindAllInvitationDto,
   InvitationCreateRequestDto,
   InvitationUpdateRequestDto,
 } from '../dtos';
-import { Invitation } from '@africa-cdc/database/entities';
+import { Invitation } from '@database/entities';
+import { Abilities, AuthGuard } from '@shared/modules';
 
 @ApiBearerAuth()
 @ApiTags('Invitations')
@@ -101,8 +99,9 @@ export class InvitationController {
   @Get()
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-  ): Promise<Invitation[]> {
-    return this.invitationService.findAll(assessmentId);
+    @Query() query: FindAllInvitationDto,
+  ): Promise<FindAllResponseDto<Invitation>> {
+    return this.invitationService.findAll(assessmentId, query);
   }
 
   @ApiOperation({

@@ -8,12 +8,14 @@ import {
   Body,
   Query,
   HttpCode,
+  HttpStatus,
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
+  ApiOkResponse,
   ApiCreatedResponse,
   ApiBearerAuth,
   ApiBadRequestResponse,
@@ -21,27 +23,19 @@ import {
   ApiForbiddenResponse,
   ApiUnprocessableEntityResponse,
   ApiTooManyRequestsResponse,
-  ApiOkResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { Assessment } from '../../../database/entities';
-import { Abilities, AuthGuard } from '../../../shared/modules';
-import {
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from '../../../shared/enums';
-import {
-  ExceptionResponseDto,
-  QueryManyRequestDto,
-  QueryManyResponseDto,
-  QueryOneRequestDto,
-} from '../../../shared/dtos';
+import { Assessment } from '@database/entities';
+import { Abilities, AuthGuard } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { AssessmentService } from '../services';
 import {
+  FindAllAssessmentDto,
+  FindOneAssessmentDto,
   AssessmentCreateRequestDto,
   AssessmentUpdateRequestDto,
 } from '../dtos';
-import { ASSESSMENT_FIELD_CONFIG } from '../config/assessment-field-config';
 
 @ApiBearerAuth()
 @ApiTags('Assessments')
@@ -71,8 +65,9 @@ export class AssessmentController {
     summary: 'Find all',
     description: 'Get all assessments with pagination',
   })
-  @ApiOkResponse({ description: 'Ok', type: QueryManyResponseDto<Assessment> })
-  @HttpCode(200)
+  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Assessment> })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -83,14 +78,14 @@ export class AssessmentController {
     ],
   })
   @Get()
-  async findAll(@Query() query: QueryManyRequestDto) {
-    query.select ??= ASSESSMENT_FIELD_CONFIG.baseFields.join(',');
-    return this.assessmentService.findAll({ query });
+  async findAll(@Query() query: FindAllAssessmentDto) {
+    return this.assessmentService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Find one', description: 'Get an assessment by ID' })
   @ApiOkResponse({ description: 'Ok', type: Assessment })
-  @HttpCode(200)
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -103,15 +98,18 @@ export class AssessmentController {
   @Get(':id')
   async findOne(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Query() query: QueryOneRequestDto,
+    @Query() query: FindOneAssessmentDto,
   ) {
-    query.select ??= ASSESSMENT_FIELD_CONFIG.baseFields.join(',');
-    return this.assessmentService.findOne(id, { query });
+    return this.assessmentService.findOne(id, query);
   }
 
   @ApiOperation({ summary: 'Create', description: 'Create a new assessment' })
   @ApiCreatedResponse({ description: 'Created', type: Assessment })
-  @HttpCode(201)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.CREATED)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -132,7 +130,11 @@ export class AssessmentController {
   })
   @ApiOkResponse({ description: 'Ok', type: Assessment })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -147,16 +149,20 @@ export class AssessmentController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: AssessmentUpdateRequestDto,
   ) {
-    return this.assessmentService.update({ id }, payload);
+    return this.assessmentService.update(id, payload);
   }
 
   @ApiOperation({
     summary: 'Delete',
-    description: 'Delete an assessment by ID',
+    description: 'Soft delete an assessment by ID',
   })
-  @ApiOkResponse({ description: 'Ok', type: Object })
+  @ApiOkResponse({ description: 'Ok', type: Assessment })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -168,17 +174,20 @@ export class AssessmentController {
   })
   @Delete(':id')
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {
-    const deletedEntity = await this.assessmentService.delete({ id });
-    return { message: 'Assessment deleted successfully', data: deletedEntity };
+    return this.assessmentService.delete(id);
   }
 
   @ApiOperation({
     summary: 'Restore',
-    description: 'Restore an assessment by ID',
+    description: 'Restore a soft-deleted assessment by ID',
   })
-  @ApiOkResponse({ description: 'Ok', type: Object })
+  @ApiOkResponse({ description: 'Ok', type: Assessment })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -190,10 +199,6 @@ export class AssessmentController {
   })
   @Post(':id/restore')
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
-    const restoredEntity = await this.assessmentService.restore({ id });
-    return {
-      message: 'Assessment restored successfully',
-      data: restoredEntity,
-    };
+    return this.assessmentService.restore(id);
   }
 }

@@ -12,7 +12,7 @@ import { BaseEntityWithSoftDelete } from './entity';
 import { Profile } from './profile.entity';
 import { Role } from './role.entity';
 import { Permission } from './permission.entity';
-import { UserStatusEnum, LanguageEnum } from '../../shared';
+import { UserStatusEnum, LanguageEnum } from '@shared/enums';
 import { AssessmentMember } from './assessment-member.entity';
 import { AssessmentAnswer } from './assessment-answer.entity';
 import { Assessment } from './assessment.entity';
@@ -43,6 +43,7 @@ export class User extends BaseEntityWithSoftDelete {
     description: 'Hashed password (not exposed in API responses)',
     example: '$2b$10$...',
   })
+  @Exclude()
   @Column({ type: 'text' })
   password: string;
 

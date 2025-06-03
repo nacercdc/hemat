@@ -1,54 +1,50 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Permission } from '../../../database/entities';
-import { CrudService } from '../../../shared/services';
-import { PERMISSION_FIELD_CONFIG } from '../config/permission-field-config';
-import { PermissionActionEnum, PermissionSubjectEnum } from '../../../shared';
+import { Permission } from '@database/entities';
+import { QueryService } from '@shared/services';
+import {
+  FindAllPermissionDto,
+  FindOnePermissionDto,
+} from '../dtos/query-permission.dto';
+import { FindAllResponseDto } from '@shared/dtos';
 
 @Injectable()
-export class PermissionService extends CrudService<Permission> {
-  private readonly loggerService = new Logger(PermissionService.name);
-  protected includes = PERMISSION_FIELD_CONFIG.includeRelations;
-  protected selectable = PERMISSION_FIELD_CONFIG.selectableFields;
-  protected searchable = PERMISSION_FIELD_CONFIG.searchableFields;
-  protected filterable = PERMISSION_FIELD_CONFIG.filterableFields;
-  protected sortable = PERMISSION_FIELD_CONFIG.sortableFields;
+export class PermissionService {
+  private readonly logger = new Logger(PermissionService.name);
+
   constructor(
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
-  ) {
-    super(permissionRepository);
+  ) {}
+
+  async findAll(
+    query: FindAllPermissionDto,
+  ): Promise<FindAllResponseDto<Permission>> {
+    try {
+      return await new QueryService<Permission>(this.permissionRepository)
+        .join(query.include)
+        .filter([], { fields: ['action', 'subject'], value: query.search })
+        .sort({ ascending: query.ascending, descending: query.descending })
+        .take(query.take)
+        .skip(query.skip)
+        .getManyAndCount();
+    } catch (err) {
+      this.logger.error('findAll:', err);
+      throw new NotFoundException('Failed to fetch permissions.');
+    }
   }
 
-  async initializePermissions(): Promise<Permission[]> {
-    const actions = Object.values(PermissionActionEnum);
-    const subjects = Object.values(PermissionSubjectEnum);
-    const permissions: Permission[] = [];
+  async findOne(id: string, query: FindOnePermissionDto): Promise<Permission> {
+    const permission = await this.permissionRepository.findOne({
+      where: { id },
+      relations: query.include,
+    });
 
-    for (const action of actions) {
-      for (const subject of subjects) {
-        let permission = await this.permissionRepository.findOne({
-          where: { action, subject },
-        });
-        if (!permission) {
-          permission = this.permissionRepository.create({
-            action,
-            subject,
-            description: `${action} permission on ${subject}`,
-          });
-          await this.permissionRepository.save(permission).catch((err) => {
-            this.loggerService.error(
-              `initializePermissions: ${action}-${subject}`,
-              err,
-            );
-            throw new Error(`Failed to create permission ${action}-${subject}`);
-          });
-        }
-        permissions.push(permission);
-      }
+    if (!permission) {
+      throw new NotFoundException(`Permission ${id} not found.`);
     }
 
-    return permissions;
+    return permission;
   }
 }

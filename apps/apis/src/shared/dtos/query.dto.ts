@@ -3,6 +3,7 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -24,6 +25,50 @@ import {
   FilterTypeEnum,
   SortDirectionEnum,
 } from '../enums';
+
+export class FindAllDto {
+  @ApiPropertyOptional({
+    description: 'Search value',
+    type: String,
+  })
+  @IsString({ message: 'validation.search.isString' })
+  @IsOptional()
+  @Type(() => String)
+  search: string | null = null;
+
+  @ApiPropertyOptional({
+    description: 'Limit',
+    type: Number,
+  })
+  @IsInt({ message: 'validation.limit.isInt' })
+  @Min(1, { message: 'validation.limit.min args: min:1' })
+  @Max(100, { message: 'validation.limit.max args: max:1000' })
+  @IsOptional()
+  @Type(() => Number)
+  @Transform(({ value }) => parseInt(value))
+  take: number = 25;
+
+  @ApiPropertyOptional({
+    description: 'Page',
+    type: Number,
+  })
+  @IsInt({ message: 'validation.page.isInt' })
+  @Min(0, { message: 'validation.page.min args: min:1' })
+  @IsOptional()
+  @Type(() => Number)
+  @Transform(({ value }) => parseInt(value))
+  skip: number = 0;
+}
+
+export class FindAllResponseDto<Entity> {
+  @ApiProperty({ description: 'Data', type: Object, isArray: true })
+  data: Entity[];
+
+  @ApiProperty({ description: 'Total number of entities', type: Number })
+  total: number;
+}
+
+// TODO: To be removed
 
 export class FilterDto implements Filter {
   @ApiProperty({
@@ -178,7 +223,7 @@ export class QueryManyRequestDto
   page?: number = 1;
 }
 
-export class QueryManyResponseDto<Entity> implements QueryManyResponse<Entity> {
+export class QueryManyResponseDto<Entity> {
   @ApiProperty({ description: 'Data', type: Object, isArray: true })
   data: Entity[];
 

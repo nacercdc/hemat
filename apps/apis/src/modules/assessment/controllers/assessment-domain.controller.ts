@@ -6,7 +6,7 @@ import {
   Body,
   HttpCode,
   UseGuards,
-  ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,15 +20,13 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AssessmentDomain } from '@africa-cdc/database/entities';
-import { AuthGuard, Abilities } from '@africa-cdc/shared/modules';
-import {
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from '@africa-cdc/shared/enums';
-import { ExceptionResponseDto } from '@africa-cdc/shared/dtos';
+import { AssessmentDomain } from '@database/entities';
+import { AuthGuard, Abilities } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { AssessmentDomainService } from '../services';
-import { AssessmentDomainDto } from '../dtos';
+import { AssessmentDomainDto, FindAllAssessmentDomainDto } from '../dtos';
+import { ParseUUIDPipe } from '@nestjs/common';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Domains')
@@ -58,9 +56,13 @@ export class AssessmentDomainController {
 
   @ApiOperation({
     summary: 'Get all assessment domains',
-    description: 'Retrieve all domains for a specific assessment',
+    description:
+      'Retrieve all domains for a specific assessment with pagination, sorting, and search',
   })
-  @ApiOkResponse({ description: 'Ok', type: [AssessmentDomain] })
+  @ApiOkResponse({
+    description: 'Ok',
+    type: FindAllResponseDto<AssessmentDomain>,
+  })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -75,8 +77,9 @@ export class AssessmentDomainController {
   @Get()
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-  ): Promise<AssessmentDomain[]> {
-    return this.assessmentDomainService.findAll(assessmentId);
+    @Query() query: FindAllAssessmentDomainDto,
+  ): Promise<FindAllResponseDto<AssessmentDomain>> {
+    return this.assessmentDomainService.findAll({ ...query, assessmentId });
   }
 
   @ApiOperation({

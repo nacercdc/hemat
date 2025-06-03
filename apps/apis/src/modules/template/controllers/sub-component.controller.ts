@@ -8,12 +8,14 @@ import {
   Body,
   Query,
   HttpCode,
+  HttpStatus,
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
+  ApiOkResponse,
   ApiCreatedResponse,
   ApiBearerAuth,
   ApiBadRequestResponse,
@@ -21,27 +23,20 @@ import {
   ApiForbiddenResponse,
   ApiUnprocessableEntityResponse,
   ApiTooManyRequestsResponse,
-  ApiOkResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { SubComponent } from '../../../database/entities';
-import { Abilities, AuthGuard } from '../../../shared/modules';
-import {
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from '../../../shared/enums';
-import {
-  ExceptionResponseDto,
-  QueryManyRequestDto,
-  QueryManyResponseDto,
-  QueryOneRequestDto,
-} from '../../../shared/dtos';
+import { SubComponent } from '@database/entities';
+import { Abilities, AuthGuard } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { SubComponentService } from '../services';
 import {
+  FindAllSubComponentDto,
+  FindOneSubComponentDto,
   SubComponentCreateRequestDto,
   SubComponentUpdateRequestDto,
+  SubComponentMeasurementScaleDto,
 } from '../dtos';
-import { SUB_COMPONENT_FIELD_CONFIG } from '../config/sub-component-field-config';
 
 @ApiBearerAuth()
 @ApiTags('SubComponents')
@@ -71,11 +66,9 @@ export class SubComponentController {
     summary: 'Find all',
     description: 'Get all sub-components with pagination',
   })
-  @ApiOkResponse({
-    description: 'Ok',
-    type: QueryManyResponseDto<SubComponent>,
-  })
-  @HttpCode(200)
+  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<SubComponent> })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -86,9 +79,8 @@ export class SubComponentController {
     ],
   })
   @Get()
-  async findAll(@Query() query: QueryManyRequestDto) {
-    query.select ??= SUB_COMPONENT_FIELD_CONFIG.baseFields.join(',');
-    return this.subComponentService.findAll({ query });
+  async findAll(@Query() query: FindAllSubComponentDto) {
+    return this.subComponentService.findAll(query);
   }
 
   @ApiOperation({
@@ -96,7 +88,8 @@ export class SubComponentController {
     description: 'Get a sub-component by ID',
   })
   @ApiOkResponse({ description: 'Ok', type: SubComponent })
-  @HttpCode(200)
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -109,10 +102,9 @@ export class SubComponentController {
   @Get(':id')
   async findOne(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Query() query: QueryOneRequestDto,
+    @Query() query: FindOneSubComponentDto,
   ) {
-    query.select ??= SUB_COMPONENT_FIELD_CONFIG.baseFields.join(',');
-    return this.subComponentService.findOne(id, { query });
+    return this.subComponentService.findOne(id, query);
   }
 
   @ApiOperation({
@@ -120,7 +112,11 @@ export class SubComponentController {
     description: 'Create a new sub-component',
   })
   @ApiCreatedResponse({ description: 'Created', type: SubComponent })
-  @HttpCode(201)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.CREATED)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -141,7 +137,11 @@ export class SubComponentController {
   })
   @ApiOkResponse({ description: 'Ok', type: SubComponent })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -156,16 +156,20 @@ export class SubComponentController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: SubComponentUpdateRequestDto,
   ) {
-    return this.subComponentService.update({ id }, payload);
+    return this.subComponentService.update(id, payload);
   }
 
   @ApiOperation({
     summary: 'Delete',
-    description: 'Delete a sub-component by ID',
+    description: 'Soft delete a sub-component by ID',
   })
-  @ApiOkResponse({ description: 'Ok', type: Object })
+  @ApiOkResponse({ description: 'Ok', type: SubComponent })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -177,20 +181,20 @@ export class SubComponentController {
   })
   @Delete(':id')
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {
-    const deletedEntity = await this.subComponentService.delete({ id });
-    return {
-      message: 'Sub-component deleted successfully',
-      data: deletedEntity,
-    };
+    return this.subComponentService.delete(id);
   }
 
   @ApiOperation({
     summary: 'Restore',
     description: 'Restore a sub-component by ID',
   })
-  @ApiOkResponse({ description: 'Ok', type: Object })
+  @ApiOkResponse({ description: 'Ok', type: SubComponent })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -202,10 +206,6 @@ export class SubComponentController {
   })
   @Post(':id/restore')
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
-    const restoredEntity = await this.subComponentService.restore({ id });
-    return {
-      message: 'Sub-component restored successfully',
-      data: restoredEntity,
-    };
+    return this.subComponentService.restore(id);
   }
 }

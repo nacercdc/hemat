@@ -9,19 +9,10 @@ import {
   IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SubcomponenttanslationDto } from '@africa-cdc/shared/dtos';
+import { SubcomponenttanslationDto } from '@shared/dtos';
+import { IsExists, IsUnique } from '@shared/validators';
 
 export class SubComponentUpdateRequestDto {
-  @ApiProperty({
-    description: 'ID of the sub-component',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.id.isNotEmpty' })
-  @IsString({ message: 'validation.id.isString' })
-  @Type(() => String)
-  id: string;
-
   @ApiPropertyOptional({
     description: 'Unique code of the sub-component',
     example: '1.A.1',
@@ -32,6 +23,10 @@ export class SubComponentUpdateRequestDto {
   @IsOptional()
   @IsString({ message: 'validation.code.isString' })
   @Length(1, 50, { message: 'validation.code.length args: min:1 | max:50' })
+  @IsUnique(
+    { tableName: 'sub_components', columns: ['code']},
+    { message: 'validation.code.isUnique' },
+  )
   @Type(() => String)
   code?: string;
 
@@ -80,19 +75,23 @@ export class SubComponentUpdateRequestDto {
   })
   @IsOptional()
   @IsUUID('4', { message: 'validation.componentId.isUUID' })
+  @IsExists(
+    { tableName: 'components', columns: ['id'] },
+    { message: 'validation.componentId.isExists' },
+  )
   @Type(() => String)
   componentId?: string;
 
   @ApiPropertyOptional({
-    description: 'Translations for the domain',
+    description: 'Translations for the sub-component',
     example: {
       en: {
-        code: '1',
-        name: 'Public Health',
-        description: 'Domain covering public health initiatives',
+        code: '1.A.1',
+        name: 'Vaccine Distribution',
+        description: 'Sub-component for vaccine distribution',
       },
     },
-    type: () => Object,
+    type: String,
   })
   @IsOptional()
   @IsObject({ message: 'validation.translations.isObject' })

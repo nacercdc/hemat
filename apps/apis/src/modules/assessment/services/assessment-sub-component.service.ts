@@ -6,12 +6,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
+import { AssessmentSubComponent, SubComponent } from '@database/entities';
 import {
-  AssessmentSubComponent,
-  SubComponent,
-} from '@africa-cdc/database/entities';
-import { AssessmentSubComponentDto } from '../dtos';
-import { UUID } from '@africa-cdc/shared';
+  AssessmentSubComponentDto,
+  FindAllAssessmentSubComponentDto,
+  FindOneAssessmentSubComponentDto,
+} from '../dtos';
+import { UUID } from '@shared/helpers';
+import { FindAllResponseDto } from '@shared/dtos';
+import { Filter, QueryService } from '@shared/services';
 
 @Injectable()
 export class AssessmentSubComponentService {
@@ -65,31 +68,47 @@ export class AssessmentSubComponentService {
     return { subComponents: assessmentSubComponents, templateSubComponentId };
   }
 
-  async findAll(assessmentId: string): Promise<AssessmentSubComponent[]> {
-    return this.assessmentSubComponentRepository.find({
-      where: { assessmentId },
-    });
+  async findAll(
+    query: FindAllAssessmentSubComponentDto & { assessmentId: string },
+  ): Promise<FindAllResponseDto<AssessmentSubComponent>> {
+    return new QueryService<AssessmentSubComponent>(
+      this.assessmentSubComponentRepository,
+    )
+      .join(query.include)
+      .filter(this.filters(query), {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   async findOne(
     assessmentId: string,
     id: string,
+    query: FindOneAssessmentSubComponentDto,
   ): Promise<AssessmentSubComponent> {
     const subComponent = await this.assessmentSubComponentRepository.findOne({
       where: { id, assessmentId },
+      relations: query.include,
     });
+
     if (!subComponent) {
-      throw new NotFoundException('Assessment sub-component not found');
+      throw new NotFoundException(`Assessment sub-component ${id} not found.`);
     }
+
     return subComponent;
   }
-
   async update(
     assessmentId: string,
     id: string,
     payload: AssessmentSubComponentDto,
   ): Promise<AssessmentSubComponent> {
-    const subComponent = await this.findOne(assessmentId, id);
+    const subComponent = await this.findOne(assessmentId, id, {
+      include: ['measurementScales'],
+    });
     try {
       const entity = {
         code: payload.code,
@@ -112,5 +131,17 @@ export class AssessmentSubComponentService {
         'Failed to update assessment sub-component',
       );
     }
+  }
+  private filters(query: FindAllAssessmentSubComponentDto): Filter[] {
+    const filters: Filter[] = [];
+    if (typeof query.isActive === 'boolean') {
+      filters.push({
+        field: 'isActive',
+        operator: '=',
+        value: query.isActive,
+      });
+    }
+
+    return filters;
   }
 }

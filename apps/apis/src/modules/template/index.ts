@@ -1,4 +1,3 @@
-export * from './config';
 export * from './dtos';
 export * from './services';
 export * from './controllers';

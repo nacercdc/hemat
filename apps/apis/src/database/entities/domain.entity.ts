@@ -2,7 +2,7 @@ import { Entity, Column, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Component } from './component.entity';
-import { DomaintranslationDto } from '@africa-cdc/shared/dtos';
+import { DomaintranslationDto } from '@shared/dtos';
 
 @Entity('domains')
 export class Domain extends BaseEntityWithSoftDelete {

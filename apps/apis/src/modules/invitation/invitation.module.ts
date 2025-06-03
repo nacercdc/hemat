@@ -9,7 +9,7 @@ import {
 } from '../../database/entities';
 import { InvitationService } from './services';
 import { InvitationController } from './controllers';
-import { AuthModule } from '../../shared';
+import { AuthModule } from '@shared/modules';
 import { AssessmentModule } from '../assessment';
 
 @Module({

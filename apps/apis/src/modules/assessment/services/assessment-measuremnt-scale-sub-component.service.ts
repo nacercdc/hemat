@@ -9,9 +9,8 @@ import { Repository, EntityManager } from 'typeorm';
 import {
   AssessmentMeasurementScaleSubComponent,
   MeasurementScaleSubComponent,
-} from '@africa-cdc/database/entities';
+} from '@database/entities';
 import { AssessmentMeasurementScaleSubComponentDto } from '../dtos';
-import { UUID } from '../../../shared';
 
 @Injectable()
 export class AssessmentMeasurementScaleSubComponentService {

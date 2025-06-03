@@ -6,13 +6,13 @@ import {
   PermissionActionEnum,
   PermissionSubjectEnum,
   UserStatusEnum,
-} from '../../shared/enums';
-import { ucWord } from '../../shared';
+} from '@shared/enums';
+import { ucWord } from '@shared/transformers';
 import {
   COMMON_PERMISSION_ACTIONS,
   PERMISSION_SUBJECTS,
   DEFAULT_ROLES,
-} from '../../shared/constants';
+} from '@shared/constants';
 
 config({ path: '.env' });
 

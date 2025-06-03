@@ -14,17 +14,21 @@ import {
   AssessmentGroup,
   User,
   AssessmentMember,
-} from '@africa-cdc/database/entities';
+} from '@database/entities';
 import {
+  FindAllInvitationDto,
+  FindOneInvitationDto,
   InvitationCreateRequestDto,
   InvitationUpdateRequestDto,
 } from '../dtos';
-import { AssessmentMemberService } from '@africa-cdc/modules/assessment/services';
-import { InvitationStatus, MemberRole } from '@africa-cdc/shared';
+import { AssessmentMemberService } from '@modules/assessment/services';
+import { InvitationStatus, MemberRole } from '@shared/enums';
 import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
-import { AppConfig } from '@africa-cdc/config';
-import { generateRandomToken } from '@africa-cdc/shared/helpers/token.helper';
+import { AppConfig } from '../../../config';
+import { generateRandomToken } from '@shared/helpers/token.helper';
+import { FindAllResponseDto } from '@shared/dtos';
+import { QueryService } from '@shared/services';
 
 @Injectable()
 export class InvitationService {
@@ -134,18 +138,72 @@ export class InvitationService {
     }
   }
 
-  async findAll(assessmentId: string): Promise<Invitation[]> {
+  async findAll(
+    assessmentId: string,
+    query: FindAllInvitationDto,
+  ): Promise<FindAllResponseDto<Invitation>> {
     try {
-      return this.invitationRepository.find({
-        where: { assessmentId },
-        relations: { group: true },
+      const assessment = await this.assessmentRepository.exists({
+        where: { id: assessmentId },
       });
+      if (!assessment) {
+        throw new NotFoundException('Assessment not found');
+      }
+
+      return await new QueryService<Invitation>(this.invitationRepository)
+        .filter([{ field: 'assessmentId', operator: '=', value: assessmentId }])
+        .join(query.include)
+        .filter([], {
+          fields: ['email', 'role', 'status'],
+          value: query.search,
+        })
+        .sort({ ascending: query.ascending, descending: query.descending })
+        .take(query.take)
+        .skip(query.skip)
+        .getManyAndCount();
     } catch (err) {
       this.logger.error(
         `Failed to retrieve invitations: ${err.message}`,
         err.stack,
       );
       throw new InternalServerErrorException('Failed to retrieve invitations');
+    }
+  }
+
+  async findOne(
+    assessmentId: string,
+    id: string,
+    query: FindOneInvitationDto,
+  ): Promise<Invitation> {
+    try {
+      const assessment = await this.assessmentRepository.exists({
+        where: { id: assessmentId },
+      });
+      if (!assessment) {
+        throw new NotFoundException('Assessment not found');
+      }
+
+      const invitation = await new QueryService<Invitation>(
+        this.invitationRepository,
+      )
+        .filter([
+          { field: 'id', operator: '=', value: id },
+          { field: 'assessmentId', operator: '=', value: assessmentId },
+        ])
+        .join(query.include)
+        .getOne();
+
+      if (!invitation) {
+        throw new NotFoundException(`Invitation ${id} not found`);
+      }
+
+      return invitation;
+    } catch (err) {
+      this.logger.error(
+        `Failed to retrieve invitation: ${err.message}`,
+        err.stack,
+      );
+      throw new InternalServerErrorException('Failed to retrieve invitation');
     }
   }
 
@@ -210,7 +268,9 @@ export class InvitationService {
       if (user) {
         await this.dataSource.transaction(async (manager) => {
           const existingMember = await this.memberService
-            .findOne(invitation.assessmentId, invitation.groupId, user.id)
+            .findOne(invitation.assessmentId, invitation.groupId, user.id, {
+              include: [],
+            })
             .catch(() => null);
 
           if (existingMember) {

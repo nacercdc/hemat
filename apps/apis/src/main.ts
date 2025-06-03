@@ -1,3 +1,4 @@
+import './sentry';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
@@ -7,6 +8,7 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { ConfigType } from './config/types';
 import { validationOptions } from './shared/helpers';
+import { GlobalExceptionFilter } from '@shared/filters';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -47,6 +49,7 @@ async function bootstrap() {
     },
   );
   app.useGlobalPipes(new ValidationPipe(validationOptions));
+  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   await app.listen(configService.getOrThrow('app.port', { infer: true }));

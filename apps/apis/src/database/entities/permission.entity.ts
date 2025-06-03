@@ -3,7 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Role } from './role.entity';
 import { User } from './user.entity';
-import { PermissionActionEnum, PermissionSubjectEnum } from '../../shared';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 
 @Entity('permissions')
 export class Permission extends BaseEntityWithSoftDelete {

@@ -23,7 +23,7 @@ import {
   ChangePasswordRequestDto,
   AccountResponseDto,
 } from '../dtos';
-import { AuthGuard, AuthRefreshGuard } from '../../../shared';
+import { AuthGuard, AuthRefreshGuard } from '@shared/modules';
 import { AuthDto, LoginResponseDto } from '../../../shared/modules';
 import { SuccessResponseDto } from '../../../shared/dtos';
 

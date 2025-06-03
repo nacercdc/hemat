@@ -11,7 +11,8 @@ import { Type } from 'class-transformer';
 import {
   MeasurementScaleSubcomponentTranslationDto,
   SubcomponenttanslationDto,
-} from '@africa-cdc/shared/dtos';
+} from '@shared/dtos';
+import { IsExists, IsUnique } from '@shared/validators';
 
 export class SubComponentCreateRequestDto {
   @ApiProperty({
@@ -24,6 +25,10 @@ export class SubComponentCreateRequestDto {
   @IsNotEmpty({ message: 'validation.code.isNotEmpty' })
   @IsString({ message: 'validation.code.isString' })
   @Length(1, 50, { message: 'validation.code.length args: min:1 | max:50' })
+  @IsUnique(
+    { tableName: 'sub_components', columns: ['code'] },
+    { message: 'validation.code.isUnique' },
+  )
   @Type(() => String)
   code: string;
 
@@ -72,6 +77,10 @@ export class SubComponentCreateRequestDto {
   })
   @IsNotEmpty({ message: 'validation.componentId.isNotEmpty' })
   @IsUUID('4', { message: 'validation.componentId.isUUID' })
+  @IsExists(
+    { tableName: 'components', columns: ['id'] },
+    { message: 'validation.componentId.isExists' },
+  )
   @Type(() => String)
   componentId: string;
 
@@ -99,6 +108,10 @@ export class SubComponentMeasurementScaleDto {
     type: String,
   })
   @IsNotEmpty({ message: 'validation.measurementScaleId.isNotEmpty' })
+  @IsExists(
+    { tableName: 'measurement_scales', columns: ['id'] },
+    { message: 'validation.measurementScaleId.isExists' },
+  )
   @IsUUID('4', { message: 'validation.measurementScaleId.isUUID' })
   @Type(() => String)
   measurementScaleId: string;

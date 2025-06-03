@@ -2,7 +2,7 @@ import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { User } from './user.entity';
-import { GenderEnum } from '../../shared';
+import { GenderEnum } from '@shared/enums';
 
 @Entity('profiles')
 export class Profile extends BaseEntityWithSoftDelete {

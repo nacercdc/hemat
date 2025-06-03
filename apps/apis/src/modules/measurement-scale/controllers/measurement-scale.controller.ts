@@ -8,13 +8,14 @@ import {
   Body,
   Query,
   HttpCode,
+  HttpStatus,
   UseGuards,
   ParseUUIDPipe,
-  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
+  ApiOkResponse,
   ApiCreatedResponse,
   ApiBearerAuth,
   ApiBadRequestResponse,
@@ -22,27 +23,18 @@ import {
   ApiForbiddenResponse,
   ApiUnprocessableEntityResponse,
   ApiTooManyRequestsResponse,
-  ApiOkResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { MeasurementScale } from '../../../database/entities';
-import { Abilities, AuthGuard } from '../../../shared/modules';
-import {
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from '../../../shared/enums';
-import {
-  ExceptionResponseDto,
-  QueryManyRequestDto,
-  QueryManyResponseDto,
-  QueryOneRequestDto,
-} from '../../../shared/dtos';
+import { MeasurementScale } from '@database/entities';
+import { Abilities, AuthGuard } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { MeasurementScaleService } from '../services';
 import {
+  FindAllMeasurementScaleDto,
   MeasurementScaleCreateRequestDto,
   MeasurementScaleUpdateRequestDto,
 } from '../dtos';
-import { MEASUREMENT_SCALE_FIELD_CONFIG } from '../configs';
 
 @ApiBearerAuth()
 @ApiTags('Measurement Scales')
@@ -75,9 +67,10 @@ export class MeasurementScaleController {
     description: 'Get all measurement scales with pagination',
   })
   @ApiOkResponse({
-    description: 'Successfully retrieved measurement scales',
-    type: QueryManyResponseDto<MeasurementScale>,
+    description: 'Ok',
+    type: FindAllResponseDto<MeasurementScale>,
   })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -89,19 +82,16 @@ export class MeasurementScaleController {
     ],
   })
   @Get()
-  async findAll(@Query() query: QueryManyRequestDto) {
-    query.select ??= MEASUREMENT_SCALE_FIELD_CONFIG.baseFields.join(',');
-    return this.measurementScaleService.findAll({ query });
+  async findAll(@Query() query: FindAllMeasurementScaleDto) {
+    return this.measurementScaleService.findAll(query);
   }
 
   @ApiOperation({
     summary: 'Find one',
     description: 'Get a measurement scale by ID',
   })
-  @ApiOkResponse({
-    description: 'Successfully retrieved measurement scale',
-    type: MeasurementScale,
-  })
+  @ApiOkResponse({ description: 'Ok', type: MeasurementScale })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -113,23 +103,20 @@ export class MeasurementScaleController {
     ],
   })
   @Get(':id')
-  async findOne(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Query() query: QueryOneRequestDto,
-  ) {
-    query.select ??= MEASUREMENT_SCALE_FIELD_CONFIG.baseFields.join(',');
-    return this.measurementScaleService.findOne(id, { query });
+  async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.measurementScaleService.findOne(id);
   }
 
   @ApiOperation({
     summary: 'Create',
     description: 'Create a new measurement scale',
   })
-  @ApiCreatedResponse({
-    description: 'Successfully created measurement scale',
-    type: MeasurementScale,
+  @ApiCreatedResponse({ description: 'Created', type: MeasurementScale })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
   })
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -148,11 +135,12 @@ export class MeasurementScaleController {
     summary: 'Update',
     description: 'Update a measurement scale by ID',
   })
-  @ApiOkResponse({
-    description: 'Successfully updated measurement scale',
-    type: MeasurementScale,
-  })
+  @ApiOkResponse({ description: 'Ok', type: MeasurementScale })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -168,18 +156,19 @@ export class MeasurementScaleController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: MeasurementScaleUpdateRequestDto,
   ) {
-    return this.measurementScaleService.update({ id }, payload);
+    return this.measurementScaleService.update(id, payload);
   }
 
   @ApiOperation({
     summary: 'Delete',
-    description: 'Delete a measurement scale by ID',
+    description: 'Soft delete a measurement scale by ID',
   })
-  @ApiOkResponse({
-    description: 'Successfully deleted measurement scale',
-    type: MeasurementScale,
-  })
+  @ApiOkResponse({ description: 'Ok', type: MeasurementScale })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -192,18 +181,19 @@ export class MeasurementScaleController {
   })
   @Delete(':id')
   async delete(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.measurementScaleService.delete({ id });
+    return this.measurementScaleService.delete(id);
   }
 
   @ApiOperation({
     summary: 'Restore',
     description: 'Restore a measurement scale by ID',
   })
-  @ApiOkResponse({
-    description: 'Successfully restored measurement scale',
-    type: MeasurementScale,
-  })
+  @ApiOkResponse({ description: 'Ok', type: MeasurementScale })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -216,6 +206,6 @@ export class MeasurementScaleController {
   })
   @Post(':id/restore')
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.measurementScaleService.restore({ id });
+    return this.measurementScaleService.restore(id);
   }
 }

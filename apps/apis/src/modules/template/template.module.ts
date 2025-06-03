@@ -18,7 +18,7 @@ import {
   ComponentController,
   SubComponentController,
 } from './controllers';
-import { AuthModule } from '../../shared';
+import { AuthModule } from '@shared/modules';
 import { SubComponentMeasurementScaleController } from './controllers/sub-component-measurement-scale.controller';
 
 @Module({

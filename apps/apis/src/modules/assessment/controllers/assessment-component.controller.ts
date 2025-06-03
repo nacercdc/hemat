@@ -6,7 +6,7 @@ import {
   Body,
   HttpCode,
   UseGuards,
-  ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,15 +20,13 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AssessmentComponent } from '@africa-cdc/database/entities';
-import { AuthGuard, Abilities } from '@africa-cdc/shared/modules';
-import {
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from '@africa-cdc/shared/enums';
-import { ExceptionResponseDto } from '@africa-cdc/shared/dtos';
+import { AssessmentComponent } from '@database/entities';
+import { AuthGuard, Abilities } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { AssessmentComponentService } from '../services';
-import { AssessmentComponentDto } from '../dtos';
+import { AssessmentComponentDto, FindAllAssessmentComponentDto } from '../dtos';
+import { ParseUUIDPipe } from '@nestjs/common';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Components')
@@ -58,9 +56,13 @@ export class AssessmentComponentController {
 
   @ApiOperation({
     summary: 'Get all assessment components',
-    description: 'Retrieve all components for a specific assessment',
+    description:
+      'Retrieve all components for a specific assessment with pagination, sorting, and search',
   })
-  @ApiOkResponse({ description: 'Ok', type: [AssessmentComponent] })
+  @ApiOkResponse({
+    description: 'Ok',
+    type: FindAllResponseDto<AssessmentComponent>,
+  })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -75,8 +77,9 @@ export class AssessmentComponentController {
   @Get()
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-  ): Promise<AssessmentComponent[]> {
-    return this.assessmentComponentService.findAll(assessmentId);
+    @Query() query: FindAllAssessmentComponentDto,
+  ): Promise<FindAllResponseDto<AssessmentComponent>> {
+    return this.assessmentComponentService.findAll({ ...query, assessmentId });
   }
 
   @ApiOperation({

@@ -24,21 +24,17 @@ import {
   ApiTooManyRequestsResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { Language } from '../../../database/entities';
-import { Abilities, AuthGuard } from '../../../shared/modules';
-import {
-  PermissionActionEnum,
-  PermissionSubjectEnum,
-} from '../../../shared/enums';
-import {
-  ExceptionResponseDto,
-  QueryManyRequestDto,
-  QueryManyResponseDto,
-  QueryOneRequestDto,
-} from '../../../shared/dtos';
+import { Language } from '@database/entities';
+import { Abilities, AuthGuard } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { LanguageService } from '../services';
-import { LanguageCreateRequestDto, LanguageUpdateRequestDto } from '../dtos';
-import { LANGUAGE_FIELD_CONFIG } from '../config/language-field-config';
+import {
+  FindAllLanguageDto,
+  FindOneLanguageDto,
+  LanguageCreateRequestDto,
+  LanguageUpdateRequestDto,
+} from '../dtos';
 
 @ApiBearerAuth()
 @ApiTags('Languages')
@@ -68,7 +64,8 @@ export class LanguageController {
     summary: 'Find all',
     description: 'Get all languages with pagination',
   })
-  @ApiOkResponse({ description: 'Ok', type: QueryManyResponseDto<Language> })
+  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Language> })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -80,11 +77,8 @@ export class LanguageController {
     ],
   })
   @Get()
-  async findAll(@Query() query: QueryManyRequestDto) {
-    query.select ??= LANGUAGE_FIELD_CONFIG.baseFields.join(',');
-    query.page = query.page ?? 1;
-    query.limit = query.limit ?? 10;
-    return this.languageService.findAll({ query });
+  async findAll(@Query() query: FindAllLanguageDto) {
+    return this.languageService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Find one', description: 'Get a language by code' })
@@ -101,16 +95,16 @@ export class LanguageController {
     ],
   })
   @Get(':code')
-  async findOne(
-    @Param('code') code: string,
-    @Query() query: QueryOneRequestDto,
-  ) {
-    query.select ??= LANGUAGE_FIELD_CONFIG.baseFields.join(',');
-    return this.languageService.findOne(code, { query });
+  async findOne(@Param('code') code: string) {
+    return this.languageService.findOne(code);
   }
 
   @ApiOperation({ summary: 'Create', description: 'Create a new language' })
   @ApiCreatedResponse({ description: 'Created', type: Language })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.CREATED)
   @Abilities({
     isAdmin: true,
@@ -132,6 +126,10 @@ export class LanguageController {
   })
   @ApiOkResponse({ description: 'Ok', type: Language })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -147,7 +145,7 @@ export class LanguageController {
     @Param('code') code: string,
     @Body() payload: LanguageUpdateRequestDto,
   ) {
-    return this.languageService.update({ code }, payload);
+    return this.languageService.update(code, payload);
   }
 
   @ApiOperation({
@@ -156,6 +154,10 @@ export class LanguageController {
   })
   @ApiOkResponse({ description: 'Ok', type: Language })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -168,7 +170,7 @@ export class LanguageController {
   })
   @Delete(':code')
   async delete(@Param('code') code: string) {
-    return this.languageService.delete({ code });
+    return this.languageService.delete(code);
   }
 
   @ApiOperation({
@@ -177,6 +179,10 @@ export class LanguageController {
   })
   @ApiOkResponse({ description: 'Ok', type: Language })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -189,6 +195,6 @@ export class LanguageController {
   })
   @Post(':code/restore')
   async restore(@Param('code') code: string) {
-    return this.languageService.restore({ code });
+    return this.languageService.restore(code);
   }
 }

@@ -1,7 +1,7 @@
 import { Entity, Column } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
-import { AssessmentStatus } from '../../shared';
+import { AssessmentStatus } from '@shared/enums';
 
 @Entity('dashboard')
 export class Dashboard extends BaseEntityWithSoftDelete {

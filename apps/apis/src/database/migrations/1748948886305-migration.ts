@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1748516522503 implements MigrationInterface {
-    name = 'Migration1748516522503'
+export class Migration1748948886305 implements MigrationInterface {
+    name = 'Migration1748948886305'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "domains" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "code" character varying NOT NULL, "name" character varying NOT NULL, "description" character varying NOT NULL, "isActive" boolean NOT NULL DEFAULT true, "translations" jsonb NOT NULL, CONSTRAINT "UQ_c1eacbd811cc699e0854b4090e1" UNIQUE ("code"), CONSTRAINT "PK_05a6b087662191c2ea7f7ddfc4d" PRIMARY KEY ("id"))`);
@@ -50,8 +50,8 @@ export class Migration1748516522503 implements MigrationInterface {
         await queryRunner.query(`CREATE INDEX "IDX_d50cfe323c72819e9b520ac627" ON "assessment_members" ("assessmentId") `);
         await queryRunner.query(`CREATE INDEX "IDX_bf3972e5e3ec701ff2acacf0cc" ON "assessment_members" ("groupId") `);
         await queryRunner.query(`CREATE TABLE "countries" ("code" character varying(2) NOT NULL, "name" character varying(100) NOT NULL, "numericCode" character varying(3) NOT NULL, "phoneCode" character varying(10) NOT NULL, "native" character varying(100) NOT NULL, "translations" jsonb NOT NULL DEFAULT '{}', "latitude" character varying(20) NOT NULL, "longitude" character varying(20) NOT NULL, "emoji" character varying(10) NOT NULL, "emojiU" character varying(20) NOT NULL, "description" text, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), CONSTRAINT "PK_b47cbb5311bad9c9ae17b8c1eda" PRIMARY KEY ("code"))`);
-        await queryRunner.query(`CREATE TYPE "public"."assessments_status_enum" AS ENUM('DRAFT', 'PENDING', 'READY', 'in_progress', 'CLOSED', 'COMPLETED')`);
-        await queryRunner.query(`CREATE TABLE "assessments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" uuid NOT NULL, "name" character varying NOT NULL, "description" text NOT NULL, "countryCode" character varying NOT NULL, "organization" text, "startDate" TIMESTAMP NOT NULL, "endDate" TIMESTAMP NOT NULL, "languages" text array NOT NULL DEFAULT '{en}', "status" "public"."assessments_status_enum" NOT NULL DEFAULT 'DRAFT', CONSTRAINT "PK_a3442bd80a00e9111cefca57f6c" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TYPE "public"."assessments_status_enum" AS ENUM('draft', 'pending', 'ready', 'in_progress', 'closed', 'completed')`);
+        await queryRunner.query(`CREATE TABLE "assessments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" uuid NOT NULL, "name" character varying NOT NULL, "description" text NOT NULL, "countryCode" character varying NOT NULL, "organization" text, "startDate" TIMESTAMP NOT NULL, "endDate" TIMESTAMP NOT NULL, "languages" text array NOT NULL DEFAULT '{en}', "status" "public"."assessments_status_enum" NOT NULL DEFAULT 'draft', CONSTRAINT "PK_a3442bd80a00e9111cefca57f6c" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_a6aab0d30090866bb9cc0c61c7" ON "assessments" ("userId") `);
         await queryRunner.query(`CREATE UNIQUE INDEX "IDX_c594c233d1ab51a91894162e5e" ON "assessments" ("name") `);
         await queryRunner.query(`CREATE INDEX "IDX_9ab7298e30eb3ca865d6d96ff8" ON "assessments" ("countryCode") `);
@@ -59,7 +59,7 @@ export class Migration1748516522503 implements MigrationInterface {
         await queryRunner.query(`CREATE INDEX "IDX_eacc7a81de6c88f3f229271fa5" ON "assessment_answers" ("assessmentId") `);
         await queryRunner.query(`CREATE INDEX "IDX_db08dfb3de5f16cfc6a41240e9" ON "assessment_answers" ("userId") `);
         await queryRunner.query(`CREATE INDEX "IDX_4d502f7ff718afc7403fe3ffd1" ON "assessment_answers" ("subComponentId") `);
-        await queryRunner.query(`CREATE TYPE "public"."dashboard_assessmentstatus_enum" AS ENUM('DRAFT', 'PENDING', 'READY', 'in_progress', 'CLOSED', 'COMPLETED')`);
+        await queryRunner.query(`CREATE TYPE "public"."dashboard_assessmentstatus_enum" AS ENUM('draft', 'pending', 'ready', 'in_progress', 'closed', 'completed')`);
         await queryRunner.query(`CREATE TABLE "dashboard" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "country" character varying NOT NULL, "assessmentStatus" "public"."dashboard_assessmentstatus_enum" NOT NULL, "externalReport" text, CONSTRAINT "PK_233ed28fa3a1f9fbe743f571f75" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "languages" ("code" character varying NOT NULL, "name" character varying NOT NULL, "native" character varying NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_7397752718d1c9eb873722ec9b2" PRIMARY KEY ("code"))`);
         await queryRunner.query(`CREATE TABLE "permissions_users_users" ("permissionsId" uuid NOT NULL, "usersId" uuid NOT NULL, CONSTRAINT "PK_9afd76fbb1b7b9e72bcfb72e957" PRIMARY KEY ("permissionsId", "usersId"))`);

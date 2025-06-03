@@ -8,7 +8,7 @@ import {
   IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DomaintranslationDto } from '@africa-cdc/shared/dtos';
+import { DomaintranslationDto } from '@shared/dtos';
 
 export class DomainUpdateRequestDto {
   @ApiProperty({

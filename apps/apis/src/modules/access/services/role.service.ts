@@ -3,136 +3,152 @@ import {
   ForbiddenException,
   Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, FindOptionsWhere, In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { Role, Permission } from '../../../database/entities';
-import { CrudService } from '../../../shared/services';
-import { RoleCreateRequestDto, RoleUpdateRequestDto } from '../dtos';
-import { pick } from '../../../shared/helpers';
+import { QueryService } from '../../../shared/services';
+import {
+  CreateRoleDto,
+  FindAllRoleDto,
+  FindOneRoleDto,
+  UpdateRoleDto,
+} from '../dtos';
+import { FindAllResponseDto } from '@shared/dtos';
 import { DEFAULT_ROLES } from '../../../shared/constants';
-import { ROLE_FIELD_CONFIG } from '../config/role-field-config';
 
 @Injectable()
-export class RoleService extends CrudService<Role> {
-  private readonly loggerService = new Logger(RoleService.name);
-  protected includes = ROLE_FIELD_CONFIG.includeRelations;
-  protected selectable = ROLE_FIELD_CONFIG.selectableFields;
-  protected searchable = ROLE_FIELD_CONFIG.searchableFields;
-  protected filterable = ROLE_FIELD_CONFIG.filterableFields;
-  protected sortable = ROLE_FIELD_CONFIG.sortableFields;
+export class RoleService {
+  private readonly logger = new Logger(RoleService.name);
+
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
     private readonly dataSource: DataSource,
-  ) {
-    super(roleRepository);
+  ) {}
+
+  async findAll(query: FindAllRoleDto): Promise<FindAllResponseDto<Role>> {
+    return new QueryService<Role>(this.roleRepository)
+      .join(query.include)
+      .filter([], { fields: ['name'], value: query.search })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
-  async create(payload: RoleCreateRequestDto): Promise<Role> {
+  async findOne(id: string, query: FindOneRoleDto): Promise<Role> {
+    const role = await this.roleRepository.findOne({
+      where: { id },
+      relations: query.include,
+    });
+
+    if (!role) {
+      throw new NotFoundException(`Role ${id} not found.`);
+    }
+
+    return role;
+  }
+
+  async create(payload: CreateRoleDto): Promise<Role> {
     return this.dataSource.transaction(async (manager) => {
       const permissions = await manager
         .getRepository(Permission)
         .findBy({ id: In(payload.permissionsIds) });
-      if (permissions.length !== payload.permissionsIds.length) {
-        throw new BadRequestException('access.exception.invalidPermissionIds');
-      }
 
-      const roleRepository = manager.getRepository(Role);
-      const role = roleRepository.create({
-        ...pick(payload, 'name', 'description'),
+      const role = manager.getRepository(Role).create({
+        name: payload.name,
+        description: payload.description,
         permissions,
       });
 
-      await roleRepository.save(role).catch((err) => {
-        this.loggerService.error('create:', err);
-        throw new BadRequestException('access.exception.failedToCreateRole');
-      });
-
-      return role;
+      try {
+        return await manager.getRepository(Role).save(role);
+      } catch (err) {
+        this.logger.error('create:', err);
+        throw new BadRequestException('Failed to create role.');
+      }
     });
   }
 
-  async update(
-    where: FindOptionsWhere<Role>,
-    payload: RoleUpdateRequestDto,
-  ): Promise<Role> {
+  async update(id: string, payload: UpdateRoleDto): Promise<Role> {
     return this.dataSource.transaction(async (manager) => {
-      const roleRepository = manager.getRepository(Role);
-      const role = await roleRepository
-        .findOneOrFail({
-          where,
-          relations: { permissions: true },
-        })
-        .catch((err) => {
-          this.loggerService.error('update:', err);
-          throw new BadRequestException('access.exception.roleNotFound');
-        });
+      const role = await manager.getRepository(Role).findOne({
+        where: { id },
+        relations: ['permissions'],
+      });
 
-      if (role.name === DEFAULT_ROLES.SUPER_ADMIN) {
-        this.loggerService.log('update: Super admin role cannot be updated');
-        throw new ForbiddenException('common.exception.accessDenied');
+      if (!role) {
+        throw new NotFoundException(`Role ${id} not found.`);
       }
 
-      const input = pick(payload, 'name', 'description');
-      await roleRepository.update(role.id, input).catch((err) => {
-        this.loggerService.error('update:', err);
-        throw new BadRequestException('access.exception.failedToUpdateRole');
-      });
+      if (role.name === DEFAULT_ROLES.SUPER_ADMIN) {
+        throw new ForbiddenException('Cannot update super admin role.');
+      }
 
       const permissions = await manager
         .getRepository(Permission)
         .findBy({ id: In(payload.permissionsIds) });
-      if (permissions.length !== payload.permissionsIds.length) {
-        throw new BadRequestException('access.exception.invalidPermissionIds');
+
+      role.name = payload.name;
+      role.description = payload.description;
+      role.permissions = permissions;
+
+      try {
+        return await manager.getRepository(Role).save(role);
+      } catch (err) {
+        this.logger.error('update:', err);
+        throw new BadRequestException('Failed to update role.');
+      }
+    });
+  }
+
+  async delete(id: string): Promise<Role> {
+    return this.dataSource.transaction(async (manager) => {
+      const role = await manager.getRepository(Role).findOne({
+        where: { id },
+        relations: ['users'],
+      });
+
+      if (!role) {
+        throw new NotFoundException(`Role ${id} not found.`);
       }
 
-      await roleRepository
-        .createQueryBuilder()
-        .relation('permissions')
-        .of(role)
-        .addAndRemove(permissions, role.permissions)
-        .catch((err) => {
-          this.loggerService.error('update permissions:', err);
-          throw new BadRequestException(
-            'access.exception.failedToUpdateRolePermissions',
-          );
-        });
+      if (role.name === DEFAULT_ROLES.SUPER_ADMIN) {
+        throw new ForbiddenException('Cannot delete super admin role.');
+      }
 
-      return roleRepository.findOneOrFail({
-        where: { id: role.id },
-        relations: { permissions: true },
+      try {
+        return await manager.getRepository(Role).softRemove(role);
+      } catch (err) {
+        this.logger.error('delete:', err);
+        throw new BadRequestException('Failed to delete role.');
+      }
+    });
+  }
+
+  async restore(id: string): Promise<Role> {
+    return this.dataSource.transaction(async (manager) => {
+      const role = await manager.getRepository(Role).findOne({
+        where: { id },
+        withDeleted: true,
       });
+
+      if (!role) {
+        throw new NotFoundException(`Role ${id} not found.`);
+      }
+
+      if (role.name === DEFAULT_ROLES.SUPER_ADMIN) {
+        throw new ForbiddenException('Cannot restore super admin role.');
+      }
+
+      try {
+        return await manager.getRepository(Role).recover(role);
+      } catch (err) {
+        this.logger.error('restore:', err);
+        throw new BadRequestException('Failed to restore role.');
+      }
     });
-  }
-
-  async delete(where: FindOptionsWhere<Role>): Promise<Role> {
-    const role = await this.findOrFail({ where });
-    if (role.name === DEFAULT_ROLES.SUPER_ADMIN) {
-      this.loggerService.log('delete: Super admin role cannot be deleted');
-      throw new ForbiddenException('common.exception.accessDenied');
-    }
-
-    await this.roleRepository.softRemove(role).catch((err) => {
-      this.loggerService.error('delete:', err);
-      throw new BadRequestException('common.exception.failedToDeleteRole');
-    });
-
-    return role;
-  }
-
-  async restore(where: FindOptionsWhere<Role>): Promise<Role> {
-    const role = await this.findOrFail({ where, withDeleted: true });
-    if (role.name === DEFAULT_ROLES.SUPER_ADMIN) {
-      this.loggerService.log('restore: Super admin role cannot be restored');
-      throw new ForbiddenException('common.exception.accessDenied');
-    }
-
-    await this.roleRepository.recover(role).catch((err) => {
-      this.loggerService.error('restore:', err);
-      throw new BadRequestException('common.exception.failedToRestoreRole');
-    });
-
-    return role;
   }
 }

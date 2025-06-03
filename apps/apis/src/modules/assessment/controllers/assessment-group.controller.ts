@@ -9,6 +9,7 @@ import {
   HttpCode,
   UseGuards,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -27,9 +28,9 @@ import {
   PermissionActionEnum,
   PermissionSubjectEnum,
 } from '../../../shared/enums';
-import { ExceptionResponseDto } from '../../../shared/dtos';
+import { ExceptionResponseDto, FindAllResponseDto } from '../../../shared/dtos';
 import { AssessmentGroupService } from '../services';
-import { AssessmentGroupRequestDto } from '../dtos';
+import { AssessmentGroupRequestDto, FindAllAssessmentGroupDto, FindOneAssessmentGroupDto } from '../dtos';
 import { AssessmentGroup } from '../../../database/entities';
 
 @ApiBearerAuth()
@@ -102,8 +103,9 @@ export class AssessmentGroupController {
   async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: FindOneAssessmentGroupDto,
   ): Promise<AssessmentGroup> {
-    return this.assessmentGroupService.findOne(assessmentId, id);
+    return this.assessmentGroupService.findOne(assessmentId, id, query);
   }
 
   @ApiOperation({
@@ -125,8 +127,9 @@ export class AssessmentGroupController {
   @Get()
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-  ): Promise<AssessmentGroup[]> {
-    return this.assessmentGroupService.findAll(assessmentId);
+    @Query() query: FindAllAssessmentGroupDto,
+  ): Promise<FindAllResponseDto<AssessmentGroup>> {
+    return this.assessmentGroupService.findAll(assessmentId, query);
   }
 
   @ApiOperation({
