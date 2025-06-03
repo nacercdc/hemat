@@ -43,6 +43,7 @@ export class User extends BaseEntityWithSoftDelete {
     description: 'Hashed password (not exposed in API responses)',
     example: '$2b$10$...',
   })
+  @Exclude()
   @Column({ type: 'text' })
   password: string;
 
