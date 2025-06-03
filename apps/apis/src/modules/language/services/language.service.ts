@@ -28,20 +28,15 @@ export class LanguageService {
   async findAll(
     query: FindAllLanguageDto,
   ): Promise<FindAllResponseDto<Language>> {
-    try {
-      return await new QueryService<Language>(this.languageRepository)
-        .filter([], { fields: ['name', 'native'], value: query.search })
-        .sort({ ascending: query.ascending, descending: query.descending })
-        .take(query.take)
-        .skip(query.skip)
-        .getManyAndCount();
-    } catch (err) {
-      this.logger.error('findAll:', err);
-      throw new BadRequestException('Failed to fetch languages.');
-    }
+    return new QueryService<Language>(this.languageRepository)
+      .filter([], { fields: ['code', 'name', 'native'], value: query.search })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
-  async findOne(_: FindOneLanguageDto, code: string): Promise<Language> {
+  async findOne(code: string): Promise<Language> {
     const language = await this.languageRepository.findOne({
       where: { code },
     });

@@ -95,11 +95,8 @@ export class LanguageController {
     ],
   })
   @Get(':code')
-  async findOne(
-    @Param('code') code: string,
-    @Query() query: FindOneLanguageDto,
-  ) {
-    return this.languageService.findOne(query, code);
+  async findOne(@Param('code') code: string) {
+    return this.languageService.findOne(code);
   }
 
   @ApiOperation({ summary: 'Create', description: 'Create a new language' })
