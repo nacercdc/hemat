@@ -1,5 +1,5 @@
 {
-  "name": "apis",
+  "name": "hemat-api",
   "version": "0.0.1",
   "description": "Africa CDC Backend APIs using NestJS and PostgreSQL",
   "author": "",
