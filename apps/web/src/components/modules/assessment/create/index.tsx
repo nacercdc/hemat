@@ -98,9 +98,8 @@ export function AssessmentsCreate() {
     },
   });
   const loading = false;
-  const onSubmit: SubmitHandler<AssessmentForm> = (data) => {
-    console.log(data);
-    // TODO
+  const onSubmit: SubmitHandler<AssessmentForm> = (_data) => {
+    // TODO implement submit logic
   };
 
   if (loading) {

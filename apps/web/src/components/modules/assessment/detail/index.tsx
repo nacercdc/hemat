@@ -7,10 +7,7 @@ import { Tabs } from "@etm/web-ui-components";
 export function AssessmentDetail() {
   const assessmentName = "Assessment 1";
   return (
-    <PageContainer
-      pageTitle={`Assessment ${assessmentName}`}
-      includeBreadcrumb={false}
-    >
+    <PageContainer pageTitle={`${assessmentName}`} includeBreadcrumb={false}>
       <div className="px-8">
         <Tabs
           options={[
