@@ -1,3 +1,4 @@
+import type { Filter, Sort } from "../tanstack-api-query/helpers/types";
 import type { Permission } from "./permission.model";
 
 export interface Role {
@@ -8,3 +9,16 @@ export interface Role {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CreateRole {
+  name: string;
+  description?: string;
+  permissionIds: string[];
+}
+
+export type RoleSortable = "name" | "created_at";
+export type RoleFilterable = "is_active" | "created_at";
+export type RoleIncludable = "permissions";
+
+export type RoleSorts = Sort<RoleSortable>[];
+export type RoleFilters = Filter<RoleFilterable>[];
