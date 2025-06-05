@@ -1,6 +1,5 @@
-import React from "react";
-import AssessmentDetailPage from "~/components/modules/assessment/detail";
+import { AssessmentDetail } from "~/components/modules/assessment/detail";
 
-export default function page() {
-  return <AssessmentDetailPage />;
+export default function AssessmentDetailPage() {
+  return <AssessmentDetail />;
 }
