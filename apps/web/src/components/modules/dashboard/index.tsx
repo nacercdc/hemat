@@ -48,15 +48,15 @@ export default function Dashboard() {
     "South Africa": { name: "Optimized", rate: 5, color: "#00FF0080" },
   };
 
-  const handleCountryClick = (_countryName: string) => {
+  const onCountryClickHandler = (_countryName: string) => {
     // TODO: handle country click event
   };
 
-  const handleDomainSelect = (_value?: unknown) => {
+  const onDomainSelectHandler = (_value?: unknown) => {
     // TODO: handle domain select event
   };
 
-  const handleCountrySelect = (_value?: unknown) => {
+  const onCountrySelectHandler = (_value?: unknown) => {
     // TODO: handle country select event
   };
 
@@ -108,14 +108,14 @@ export default function Dashboard() {
 
         <FilterSection
           countryOptions={countryOptions}
-          onDomainSelect={handleDomainSelect}
-          onCountrySelect={handleCountrySelect}
+          onDomainSelect={onDomainSelectHandler}
+          onCountrySelect={onCountrySelectHandler}
         />
 
         <div className="p-4 bg-layout-bg/15 rounded-md">
           <Map
             countryStatuses={fetchedData}
-            onCountryClick={handleCountryClick}
+            onCountryClick={onCountryClickHandler}
             width="100%"
             height={600}
           />
