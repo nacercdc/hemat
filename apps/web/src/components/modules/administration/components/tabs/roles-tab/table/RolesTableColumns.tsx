@@ -15,12 +15,12 @@ export const RolesTableColumns = ({ refetch }: Props): ColumnDef<Role>[] => [
     accessorFn: (row) => row.name ?? "--",
   },
 
-  // {
-  //   header: "Permissions",
-  //   enableSorting: true,
-  //   id: "permissions",
-  //   accessorFn: (row) => row.permissions?.length.toString() ?? "--",
-  // },
+  {
+    header: "Permissions",
+    enableSorting: true,
+    id: "permissions",
+    accessorFn: (row) => row.permissions?.length.toString() ?? "--",
+  },
 
   {
     header: "Date Created",

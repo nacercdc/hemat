@@ -1,27 +1,26 @@
 "use client";
 
 import React, { useRef } from "react";
+import { Icon } from "@iconify/react";
 import type { DialogRef, ModalRef } from "@etm/web-ui-components";
 import { Dialog, DropdownMenu, Modal } from "@etm/web-ui-components";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import type { Role } from "~/libs/models/role.model";
-import { RoleForm } from "../form";
+import type { User } from "~/libs/models/user.model";
+import type { UserFormData } from "../form";
+import { UserForm } from "../form";
 import type { PermissionType } from "~/components/modules/administration/types";
 
 interface Props {
-  role: Role;
-  onRefetch?: () => void;
+  user: Partial<User>;
+  refetch?: () => void;
 }
+export default function UserAction({ user }: Props) {
+  const updateUserModalRef = useRef<ModalRef>(null);
+  const deleteUserDialogRef = useRef<DialogRef>(null);
 
-export default function RolesAction({ role: _, onRefetch }: Props) {
-  const updateRoleModalRef = useRef<ModalRef>(null);
-  const deleteRoleDialogRef = useRef<DialogRef>(null);
-
-  const onUpdateRoleFormSubmitHandler = (
-    _roleName: string,
-    _modulePermissions: Record<string, Record<PermissionType, boolean>>
+  const onUpdateUserFormSubmitHandler = (
+    _permissions: Record<string, Record<PermissionType, boolean>>
   ) => {
-    //TODO: implement update role
+    //TODO: implement update user
   };
 
   return (
@@ -46,7 +45,7 @@ export default function RolesAction({ role: _, onRefetch }: Props) {
               />
             ),
             onClick: () => {
-              updateRoleModalRef.current?.openModal();
+              updateUserModalRef.current?.openModal();
             },
           },
           {
@@ -59,34 +58,36 @@ export default function RolesAction({ role: _, onRefetch }: Props) {
               />
             ),
             onClick: () => {
-              deleteRoleDialogRef.current?.openDialog();
+              deleteUserDialogRef.current?.openDialog();
             },
           },
         ]}
       />
-      <Modal ref={updateRoleModalRef} title="Edit User">
-        <RoleForm
-          onSubmitRoleFormHandler={onUpdateRoleFormSubmitHandler}
+      <Modal ref={updateUserModalRef} title="Edit User">
+        <UserForm
+          onSubmitUserFormHandler={onUpdateUserFormSubmitHandler}
           rolePermissions={{ users: { create: true }, roles: { create: true } }}
           modules={[
             { name: "users", label: "Users" },
             { name: "roles", label: "Roles" },
           ]}
-          onCloseModal={() => updateRoleModalRef.current?.closeModal()}
-          onRefetch={onRefetch}
-          role={{ name: "super-administrator" }}
+          onCloseModal={() => updateUserModalRef.current?.closeModal()}
+          onRefetch={() => {
+            //TODO: Implement on refectch func
+          }}
+          user={user as UserFormData}
           loading={false}
         />
       </Modal>
       <Dialog
-        ref={deleteRoleDialogRef}
+        ref={deleteUserDialogRef}
         actionLabel="Yes"
         onAction={() => {
-          //TODO: implement on delete role action
+          //TODO: implement on delete user action
         }}
-        title="Delete Role"
+        title="Delete User"
       >
-        Are you sure you want to delete this role?
+        Are you sure you want to delete this user?
       </Dialog>
     </>
   );
