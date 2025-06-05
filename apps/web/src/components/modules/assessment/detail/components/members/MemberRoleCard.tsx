@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "@iconify/react";
 
-interface MemberRoleCardProps {
+interface Props {
   title: string;
   icon: string;
   placeholderText: string;
@@ -11,7 +11,7 @@ export default function MemberRoleCard({
   title,
   icon,
   placeholderText,
-}: MemberRoleCardProps) {
+}: Props) {
   return (
     <div className="p-2 bg-white rounded-sm flex flex-col gap-3">
       <h1 className="text-sm font-bold items-start">{title}</h1>

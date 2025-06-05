@@ -2,7 +2,7 @@ import React from "react";
 import { Avatar } from "@etm/web-ui-components";
 import { getInitials } from "~/utils/string.util";
 
-interface GroupMemberCardProps {
+interface Props {
   name: string;
   email: string;
   isLeader?: boolean;
@@ -14,7 +14,7 @@ export default function GroupMemberCard({
   email,
   isLeader = false,
   avatarUrl,
-}: GroupMemberCardProps) {
+}: Props) {
   return (
     <div className="flex gap-2 justify-between px-2">
       <div className="flex gap-2">

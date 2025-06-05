@@ -15,7 +15,7 @@ export default function CustomerAction({ assessment }: Props) {
 
   const router = useRouter();
 
-  const onDeleteAssessmentHandler = () => {
+  const onGotoUpdateAssessmentHandler = () => {
     //TODO: Implement delete assessment logic
   };
 
@@ -23,7 +23,7 @@ export default function CustomerAction({ assessment }: Props) {
     router.push(`/assessment/${assessment.id}/update`);
   };
 
-  const onGotDetailAssessment = () => {
+  const onGotDetailAssessmentHandler = () => {
     router.push(`/assessment/${assessment.id}/detail`);
   };
 
@@ -45,7 +45,7 @@ export default function CustomerAction({ assessment }: Props) {
             leftNode: (
               <Icon icon="solar:eye-outline" className="text-lg text-dark" />
             ),
-            onClick: onGotDetailAssessment,
+            onClick: onGotDetailAssessmentHandler,
           },
           {
             value: "edit",
@@ -73,7 +73,7 @@ export default function CustomerAction({ assessment }: Props) {
         title="Delete Assessment"
         actionLabel="Delete"
         actionVariant="destructive"
-        onAction={onDeleteAssessmentHandler}
+        onAction={onGotoUpdateAssessmentHandler}
         autoClosable={false}
         actionLoading={false}
       >
