@@ -158,7 +158,7 @@ export const buttonVariants = cva(
     },
     compoundVariants: compoundVariants as any,
     defaultVariants: defaultVariants as any,
-  },
+  }
 );
 
 export type ButtonVariants = VariantProps<typeof buttonVariants>;
@@ -191,14 +191,14 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       rightNode,
       ...props
     },
-    ref,
+    ref
   ) => {
     return (
       <ShadcnButton
         {...props}
         className={cn(
           buttonVariants({ variant, size, color }),
-          variant === "link" && "h-auto px-0",
+          variant === "link" && "h-auto px-0"
         )}
         variant={variant}
         disabled={loading || disabled}
@@ -216,5 +216,5 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
         {rightNode}
       </ShadcnButton>
     );
-  },
+  }
 );
