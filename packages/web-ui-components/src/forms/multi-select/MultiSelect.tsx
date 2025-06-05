@@ -3,7 +3,9 @@ import * as React from "react";
 import { Icon } from "@iconify/react";
 import get from "lodash.get";
 
+import type { VariantProps } from "class-variance-authority";
 import type { Props as SelectProps } from "../select";
+import { selectVariants } from "../select";
 import {
   Button,
   Command,
@@ -19,15 +21,16 @@ import {
 } from "../../shadcn-ui";
 import { cn } from "../../shadcn-ui/utils/cn";
 import { FormControl } from "../form-control";
-import { Spinner } from "../../presentation";
+import { Badge, Spinner } from "../../presentation";
 import { useState } from "react";
+import { Checkbox } from "../checkbox/Checkbox";
 
 export interface Props<T>
-  extends Omit<SelectProps<T>, "defaultValue" | "onSelect"> {
+  extends Omit<SelectProps<T>, "defaultValue" | "onSelect">,
+    VariantProps<typeof selectVariants> {
   values?: T[];
   onSelect: (value?: T[]) => void;
 }
-
 export function MultiSelect<T>({
   name,
   displayLabel,
@@ -39,7 +42,11 @@ export function MultiSelect<T>({
   error,
   loading,
   leftNode,
-  placeholder = "Select an option",
+  size,
+  variant,
+  labelVariant,
+  labelSize,
+  placeholder = "Select language",
   searchPlaceholder = "Search...",
   emptyText = "No results found.",
   onOpenChange,
@@ -49,13 +56,13 @@ export function MultiSelect<T>({
 
   const isItemSelected = (item: T) =>
     values?.some(
-      (selected: T) => get(selected, valueKey) === get(item, valueKey),
+      (selected: T) => get(selected, valueKey) === get(item, valueKey)
     );
 
   const onSelectHandler = (item: T) => {
     const newValue = isItemSelected(item)
       ? values?.filter(
-          (selected: T) => get(selected, valueKey) !== get(item, valueKey),
+          (selected: T) => get(selected, valueKey) !== get(item, valueKey)
         )
       : [...(values ?? []), item];
 
@@ -68,33 +75,62 @@ export function MultiSelect<T>({
       onOpenChange?.();
     }
   };
+
+  const handleChipRemove = (itemToRemove: T) => {
+    console.log(itemToRemove, "REmoeosm");
+    const newValue = values?.filter(
+      (selected: T) => get(selected, valueKey) !== get(itemToRemove, valueKey)
+    );
+    onSelect(newValue);
+  };
+
   return (
     <FormControl
       name={name}
       label={displayLabel}
       error={error}
       description={displayDescription}
+      variant={labelVariant}
+      size={labelSize}
     >
       <Popover open={open} onOpenChange={onOpenChangeHandler}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             className={cn(
-              "relative flex flex-wrap overflow-hidden border",
+              selectVariants({ variant, size }),
+              "flex flex-grow-0 max-w-full overflow-x-auto p-1",
               error
                 ? "border-destructive-500 focus:ring-destructive-500"
-                : "border-basic-300",
+                : "border-basic-300"
             )}
           >
             <div
               className={cn(
-                "mr-1 flex flex-1 items-center self-start overflow-hidden",
-                values?.length === 0 && "text-basic-400",
+                "mr-1 flex flex-1 items-center self-start overflow-x-auto ",
+                values?.length === 0 && "text-basic-400"
               )}
             >
               {leftNode && leftNode}
               {Array.isArray(values) && values.length > 0 ? (
-                values.map((item: T) => String(get(item, labelKey))).join(", ")
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide whitespace-nowrap ">
+                  {values.map((item: T) => (
+                    <span key={String(get(item, valueKey))}>
+                      <Badge
+                        variant="outlined"
+                        shape="circular"
+                        text={String(get(item, labelKey))}
+                        icon={
+                          <Icon
+                            icon={"lucide:x"}
+                            className="h-3 w-3 text-dark-light"
+                          />
+                        }
+                        onAction={() => handleChipRemove(item)}
+                      />
+                    </span>
+                  ))}
+                </div>
               ) : (
                 <span className="text-dark-light text-sm">
                   {placeholder ?? "Select options"}
@@ -102,7 +138,7 @@ export function MultiSelect<T>({
               )}
             </div>
             <Icon
-              icon={"lucide:chevrons-up-down"}
+              icon={"lucide:chevron-down"}
               className="z-50 h-4 w-4 shrink-0 opacity-100"
             />
           </Button>
@@ -111,6 +147,12 @@ export function MultiSelect<T>({
         <PopoverContent className="w-fit p-0">
           <ScrollArea>
             <Command>
+              <div className="flex flex-col items-start gap-1 px-3 pt-2">
+                <span className="text-sm text-dark">{placeholder}</span>
+                <span className="text-xs text-dark-light">
+                  {searchPlaceholder}
+                </span>
+              </div>
               <CommandInput placeholder={searchPlaceholder} />
               <CommandList>
                 {loading && (
@@ -125,16 +167,17 @@ export function MultiSelect<T>({
                       <CommandItem
                         key={String(get(item, valueKey))}
                         onSelect={() => onSelectHandler(item)}
-                        className="flex flex-row items-center justify-between w-full"
+                        className="flex flex-row items-center justify-between w-full min-h-10 bg-card border-[1px] border-dark-lighter mb-2 relative"
                       >
-                        {String(get(item, labelKey))}
-                        <Icon
-                          icon="lucide:check"
-                          className={cn(
-                            "mr-2 h-4 w-4 text-basic",
-                            isItemSelected(item) ? "opacity-100" : "opacity-0",
-                          )}
-                        />
+                        <div className="flex items-center justify-between">
+                          <span>{String(get(item, labelKey))}</span>
+                          <span className="flex right-2 absolute">
+                            <Checkbox
+                              checked={isItemSelected(item)}
+                              onCheckedChange={() => onSelectHandler(item)}
+                            />
+                          </span>
+                        </div>
                       </CommandItem>
                     );
                   })}

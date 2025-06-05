@@ -47,7 +47,7 @@ export function DomainComponentForm({
       onSubmit={handleSubmit(onSubmitHandler)}
       className="flex flex-col gap-6 w-full"
     >
-      <div className="flex flex-col gap-4 p-4 px-7 max-h-[700px] overflow-scroll">
+      <div className="flex flex-col gap-4 p-4 px-7 max-h-[700px] overflow-x-hidden overflow-y-auto">
         <InputRHF
           control={control}
           name="name"
