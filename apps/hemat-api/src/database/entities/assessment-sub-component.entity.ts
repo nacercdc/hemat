@@ -92,11 +92,11 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
     description: 'Assessment roadmap object',
     type: () => Roadmap,
   })
-  @OneToMany(() => Roadmap, (roadmap) => roadmap.subComponents, {
+  @OneToMany(() => Roadmap, (roadmap) => roadmap.subComponent, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  roadmap: Roadmap | null;
+  roadmaps: Roadmap | null;
 
   @ApiPropertyOptional({
     description: 'Assessments related to this domain',

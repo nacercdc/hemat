@@ -17,17 +17,27 @@ import {
   AssessmentGroup,
   AssessmentMember,
   MeasurementScaleSubComponent,
+  AssessmentAnswer,
+  Roadmap,
 } from '../../database/entities';
-import { ASSESSMENT_SERVICES, AssessmentMemberService, AssessmentService } from './services';
 import {
-  AssessmentComponentController,
+  ASSESSMENT_SERVICES,
+  AssessmentMemberService,
+  AssessmentService,
+  AssessmentAnswerService,
+  RoadmapService,
+} from './services';
+import {
   AssessmentController,
   AssessmentDomainController,
-  AssessmentGroupController,
+  AssessmentComponentController,
+  AssessmentSubComponentController,
   AssessmentMeasurementScaleController,
   AssessmentMeasurementScaleSubComponentController,
+  AssessmentGroupController,
   AssessmentMemberController,
-  AssessmentSubComponentController,
+  AssessmentAnswerController,
+  RoadmapController,
 } from './controllers';
 import { AuthModule } from '@shared/modules';
 import { AssessmentUtilityService } from './utils';
@@ -51,6 +61,8 @@ import { AssessmentUtilityService } from './utils';
       AssessmentGroup,
       AssessmentMember,
       Country,
+      AssessmentAnswer,
+      Roadmap,
     ]),
     AuthModule,
   ],
@@ -63,11 +75,15 @@ import { AssessmentUtilityService } from './utils';
     AssessmentMeasurementScaleSubComponentController,
     AssessmentGroupController,
     AssessmentMemberController,
+    AssessmentAnswerController,
+    RoadmapController,
   ],
-  providers: [
-    ...ASSESSMENT_SERVICES,
-    AssessmentUtilityService,
+  providers: [...ASSESSMENT_SERVICES],
+  exports: [
+    AssessmentService,
+    AssessmentMemberService,
+    AssessmentAnswerService,
+    RoadmapService,
   ],
-  exports: [AssessmentService, AssessmentMemberService],
 })
 export class AssessmentModule {}

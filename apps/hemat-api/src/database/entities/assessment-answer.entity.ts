@@ -113,6 +113,6 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
     description: 'Roadmaps linked to this answer',
     type: () => [Roadmap],
   })
-  @OneToMany(() => Roadmap, (roadmap) => roadmap.answers)
+  @OneToMany(() => Roadmap, (roadmap) => roadmap.assessmentAnswer)
   roadmaps: Roadmap[];
 }
