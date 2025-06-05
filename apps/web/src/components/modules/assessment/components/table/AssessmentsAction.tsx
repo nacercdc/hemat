@@ -10,7 +10,7 @@ interface Props {
   assessment: Assessment;
   refetch?: () => void;
 }
-export default function CustomerAction({ assessment }: Props) {
+export default function AssessmentAction({ assessment }: Props) {
   const deleteDialogRef = useRef<DialogRef>(null);
 
   const router = useRouter();

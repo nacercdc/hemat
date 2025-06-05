@@ -1,6 +1,6 @@
 import React from "react";
 import { Badge } from "@etm/web-ui-components";
-import CustomerAction from "./AssessmentsAction";
+import AssessmentAction from "./AssessmentsAction";
 
 import type { BadgeVariants, ColumnDef } from "@etm/web-ui-components";
 import type { Assessment, StatusType } from "~/libs/models/assessment.model";
@@ -94,7 +94,7 @@ export const AssessmentsTableColumns = ({
     enableColumnFilter: false,
     enableSorting: false,
     cell: ({ row }) => (
-      <CustomerAction assessment={row.original} refetch={refetch} />
+      <AssessmentAction assessment={row.original} refetch={refetch} />
     ),
   },
 ];
