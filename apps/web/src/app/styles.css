@@ -143,6 +143,6 @@ html {
     --sidebar-accent: 240 4.8% 95.9%; /* hsl( 240 4.8% 95.9%) */
     --sidebar-accent-foreground: 240 5.9% 10%; /* hsl( 240 5.9% 10%) */
     --sidebar-border: 220 13% 91%; /* hsl( 220 13% 91%) */
-    --sidebar-ring: var(--color-secondary-900);
+    --sidebar-ring: var(--color-primary-900);
   }
 }

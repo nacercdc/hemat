@@ -266,10 +266,10 @@ export function Table<TData extends object>({
                           <div className="flex items-center justify-center w-32 h-32 rounded-full bg-tbaccent">
                             <Icon
                               icon="fluent:collections-empty-20-regular"
-                              className="w-16 h-16 text-secondary"
+                              className="w-16 h-16 text-primary"
                             />
                           </div>
-                          <h6 className="text-secondary text-sm">
+                          <h6 className="text-primary text-sm">
                             Sorry, no results found
                           </h6>
                         </div>
