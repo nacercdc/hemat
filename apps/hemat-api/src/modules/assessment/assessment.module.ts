@@ -79,11 +79,6 @@ import { AssessmentUtilityService } from './utils';
     RoadmapController,
   ],
   providers: [...ASSESSMENT_SERVICES],
-  exports: [
-    AssessmentService,
-    AssessmentMemberService,
-    AssessmentAnswerService,
-    RoadmapService,
-  ],
+  exports: [AssessmentService, AssessmentMemberService],
 })
 export class AssessmentModule {}

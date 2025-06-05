@@ -80,46 +80,31 @@ export class AssessmentMemberService {
   async findOne(
     assessmentId: string,
     groupId: string,
-    id: string,
+    userId: string,
     query: FindOneAssessmentMemberDto,
   ): Promise<AssessmentMember> {
     try {
-      const assessment = await this.assessmentRepository.exists({
-        where: { id: assessmentId },
+      const relations = query.include || [];
+      const member = await this.memberRepository.findOne({
+        where: {
+          assessmentId,
+          groupId,
+          userId,
+        },
+        relations,
       });
-      if (!assessment) {
-        throw new NotFoundException('Assessment not found');
-      }
-
-      const group = await this.groupRepository.exists({
-        where: { id: groupId, assessmentId },
-      });
-      if (!group) {
-        throw new NotFoundException('Assessment group not found');
-      }
-
-      const member = await new QueryService<AssessmentMember>(
-        this.memberRepository,
-      )
-        .filter([
-          { field: 'id', operator: '=', value: id },
-          { field: 'assessmentId', operator: '=', value: assessmentId },
-          { field: 'groupId', operator: '=', value: groupId },
-        ])
-        .join(query.include)
-        .getOne();
 
       if (!member) {
-        throw new NotFoundException(`Assessment member ${id} not found`);
+        this.logger.error(
+          `Member not found for user ${userId} in group ${groupId}`,
+        );
+        throw new NotFoundException('Member not found');
       }
 
       return member;
     } catch (err) {
-      this.logger.error(
-        `Failed to retrieve assessment member: ${err.message}`,
-        err.stack,
-      );
-      throw new BadRequestException('Failed to retrieve assessment member');
+      this.logger.error(`Failed to find member: ${err.message}`, err.stack);
+      throw err;
     }
   }
 

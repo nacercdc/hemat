@@ -48,7 +48,7 @@ export class RoadmapCreateRequestDto {
   @IsNotEmpty({ message: 'validation.measurementScaleId.isNotEmpty' })
   @IsUUID('4', { message: 'validation.measurementScaleId.isUUID' })
   @IsExists(
-    { tableName: 'assessment_measurement_scales', columns: ['id'] },
+    { tableName: 'assessment_measurement_scale', columns: ['id'] },
     { message: 'validation.measurementScaleId.isExists' },
   )
   @Type(() => String)
