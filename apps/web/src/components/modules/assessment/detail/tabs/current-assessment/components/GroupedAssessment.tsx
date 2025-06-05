@@ -17,7 +17,7 @@ export interface FilterOption {
   year: number;
 }
 
-interface GroupedAssessmentProps {
+interface Props {
   title: string;
   subtitle: string;
   domains: Domain[];
@@ -25,12 +25,12 @@ interface GroupedAssessmentProps {
   groupId: string;
 }
 
-const GroupedAssessment: React.FC<GroupedAssessmentProps> = ({
+export function GroupedAssessment({
   title,
   subtitle,
   domains,
   filterOptions,
-}) => {
+}: Props) {
   const router = useRouter();
 
   const handleSelect = (_value?: FilterOption) => {
@@ -40,8 +40,9 @@ const GroupedAssessment: React.FC<GroupedAssessmentProps> = ({
     //TODO: Implement navigation to the domain detail page
     router.push(`/assessment/detail/domain/${id}`);
   };
-  const handleFill = () => {
+  const handleFill = (id: string) => {
     //TODO: Implement filling the domain with domain id
+    router.push(`/assessment/domain/${id}/fill`);
   };
 
   return (
@@ -105,7 +106,11 @@ const GroupedAssessment: React.FC<GroupedAssessmentProps> = ({
                   shape="circular"
                 />
                 <div className="flex w-full items-center mt-4">
-                  <Button size="fullSm" variant="outline" onClick={handleFill}>
+                  <Button
+                    size="fullSm"
+                    variant="outline"
+                    onClick={() => handleFill(domain.id)}
+                  >
                     <div className="flex items-center justify-center gap-4">
                       Fill
                       <Icon icon={"lucide:chevron-right"} />
@@ -119,5 +124,4 @@ const GroupedAssessment: React.FC<GroupedAssessmentProps> = ({
       </div>
     </div>
   );
-};
-export default GroupedAssessment;
+}

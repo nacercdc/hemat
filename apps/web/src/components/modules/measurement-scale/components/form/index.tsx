@@ -98,7 +98,7 @@ export function ScaleForm({
           rows={4}
         />
       </div>
-      <div className="flex justify-between items-center w-full bg-layout-bg p-4 rounded-b-lg px-8 mt-auto">
+      <div className="flex justify-between items-center w-full bg-dark-lighter/10 p-4 rounded-b-lg px-8 mt-auto">
         <Button
           variant="outline"
           color="card"

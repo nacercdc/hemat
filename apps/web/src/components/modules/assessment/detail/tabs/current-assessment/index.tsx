@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import GroupedAssessment from "./components/GroupedAssessment";
+import { GroupedAssessment } from "./components/GroupedAssessment";
 export interface Domain {
   id: string;
   name: string;
