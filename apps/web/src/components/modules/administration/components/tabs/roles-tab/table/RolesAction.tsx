@@ -19,6 +19,7 @@ export default function RolesAction({ role: _, onRefetch }: Props) {
 
   const onUpdateRoleFormSubmitHandler = (
     _roleName: string,
+    _roleDescription: string,
     _modulePermissions: Record<string, Record<PermissionType, boolean>>
   ) => {
     //TODO: implement update role
@@ -74,7 +75,10 @@ export default function RolesAction({ role: _, onRefetch }: Props) {
           ]}
           onCloseModal={() => updateRoleModalRef.current?.closeModal()}
           onRefetch={onRefetch}
-          role={{ name: "super-administrator" }}
+          role={{
+            name: "super-administrator",
+            description: "super-administrator role description",
+          }}
           loading={false}
         />
       </Modal>
