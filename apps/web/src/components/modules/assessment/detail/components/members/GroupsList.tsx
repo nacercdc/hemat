@@ -1,28 +1,54 @@
-import { Avatar } from "@etm/web-ui-components";
 import React from "react";
-import { getInitials } from "~/utils/string.util";
+import GroupCard from "./GroupCard";
 
 export default function GroupsList() {
+  //TODO this is dummy data
+  const groups = [
+    {
+      groupName: "Group A",
+      members: [
+        {
+          name: "Dr.Kebede Alemu",
+          email: "kebede@gmail.com",
+          isLeader: true,
+          avatarUrl: "http://path-that-goes-no-where.com",
+        },
+        {
+          name: "Sara Mengistu",
+          email: "sara@gmail.com",
+          isLeader: false,
+          avatarUrl: "http://path-that-goes-no-where.com",
+        },
+      ],
+    },
+    {
+      groupName: "Group B",
+      members: [
+        {
+          name: "Tadesse Worku",
+          email: "tadesse@gmail.com",
+          isLeader: true,
+          avatarUrl: "http://path-that-goes-no-where.com",
+        },
+        {
+          name: "Hanna Bekele",
+          email: "hanna@gmail.com",
+          isLeader: false,
+          avatarUrl: "http://path-that-goes-no-where.com",
+        },
+      ],
+    },
+  ];
+
   return (
-    <div className="p-2 bg-white rounded-sm flex flex-col gap-3">
-      <h1 className="text-sm font-bold">Group A</h1>
-      <div className="w-full flex flex-col gap-4">
-        <div className="flex gap-2 justify-between px-2">
-          <div className="flex gap-2">
-            <Avatar
-              src={"http://path-that-goes-no-where.com"}
-              alt="user_profile_image"
-              fallback={getInitials("ETM ABC")}
-              size="md"
-            />
-            <div className="flex flex-col text-xs py-1">
-              <span className="font-bold">Dr. Kebede Alemu</span>
-              <span> kebede@gmail.com</span>
-            </div>
-          </div>
-          <span className="text-xs font-bold items-center"> Leader </span>
-        </div>
-      </div>
+    <div className="flex flex-col gap-4">
+      {groups.map((group, index) => (
+        <GroupCard
+          key={index}
+          groupName={group.groupName}
+          members={group.members}
+        />
+      ))}
     </div>
   );
 }

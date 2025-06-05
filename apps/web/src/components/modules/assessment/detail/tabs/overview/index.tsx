@@ -4,11 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Assessment, StatusType } from "~/libs/models/assessment.model";
 import { Badge, BadgeVariants } from "@etm/web-ui-components";
-import { PageContainer } from "~/components/modules/components/PageContainer";
 import SkeletonForDetail from "./components/SkeletonForDetail";
-import GroupsLeaderDefault from "../../components/members/GroupsLeaderDefault";
-import TeamLeaderDefault from "../../components/members/TeamLeaderDefault";
 import GroupsList from "../../components/members/GroupsList";
+import LabeledValue from "./components/LabeledValue";
+import MemberRoleCard from "../../components/members/MemberRoleCard";
 
 export default function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
@@ -53,41 +52,23 @@ export default function AssessmentOverview() {
         </div>
         <div className="bg-dark-lighter/5 p-4 rounded-sm  flex gap-10">
           <div className="flex flex-col gap-3">
-            <div className="flex gap-4">
-              <span className="text-sm font-bold">Name :</span>
-              <span className="text-sm font-thin">{assessmentData?.name}</span>
-            </div>
-
-            <div className="flex gap-4">
-              <span className="text-sm font-bold">Created By :</span>
-              <span className="text-sm font-thin">{`${assessmentData?.createdBy.firstName} ${assessmentData?.createdBy.lastName}`}</span>
-            </div>
-            <div className="flex gap-4">
-              <span className="text-sm font-bold">Country </span>
-              <span className="text-sm font-thin">
-                {assessmentData?.country.name}
-              </span>
-            </div>
-
-            <div className="flex gap-4">
-              <span className="text-sm font-bold">Organization </span>
-              <span className="text-sm font-thin">HCI</span>
-            </div>
+            <LabeledValue label="Name :" value={assessmentData?.name} />
+            <LabeledValue
+              label="Created By :"
+              value={`${assessmentData?.createdBy.firstName} ${assessmentData?.createdBy.lastName}`}
+            />
+            <LabeledValue
+              label="Country :"
+              value={assessmentData?.country.name}
+            />
+            <LabeledValue label="Organization :" value="HCI" />
           </div>
           <div className="flex flex-col gap-3">
-            <div className="flex gap-4">
-              <span className="text-sm font-bold">Start Date :</span>
-              <span className="text-sm font-thin">
-                {assessmentData?.startDate}
-              </span>
-            </div>
-
-            <div className="flex gap-4">
-              <span className="text-sm font-bold">End Date :</span>
-              <span className="text-sm font-thin">
-                {assessmentData?.endDate}
-              </span>
-            </div>
+            <LabeledValue
+              label="Start Date :"
+              value={assessmentData?.startDate}
+            />
+            <LabeledValue label="End Date :" value={assessmentData?.endDate} />
           </div>
         </div>
         <div className="bg-dark-lighter/5 p-4 rounded-sm flex flex-col gap-3">
@@ -102,8 +83,16 @@ export default function AssessmentOverview() {
         </div>
       </div>
       <div className="flex-1 bg-dark-lighter/5 p-2 rounded-sm gap-2 flex flex-col">
-        <GroupsLeaderDefault />
-        <TeamLeaderDefault />
+        <MemberRoleCard
+          title="Groups Leader"
+          icon="meteor-icons:user"
+          placeholderText="Group leader here"
+        />
+        <MemberRoleCard
+          title="Team Leader"
+          icon="mdi:group-add-outline"
+          placeholderText="Team leader here"
+        />
         <GroupsList />
       </div>
     </div>

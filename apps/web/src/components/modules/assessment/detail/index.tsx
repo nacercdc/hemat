@@ -1,5 +1,4 @@
 import React from "react";
-// import { UpsideDownInvertedTabs } from "~/components/ui/upside-down-inverted-tabs";
 import { PageContainer } from "../../components/PageContainer";
 import { Tabs } from "@etm/web-ui-components";
 import AssessmentOverview from "./tabs/overview";
