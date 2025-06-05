@@ -14,17 +14,23 @@ interface TabOption {
 interface Props {
   defaultValue: string;
   options: TabOption[];
+  onTabClick?: (tabValue: string) => void;
 }
 
-export function UpsideDownInvertedTabs({ defaultValue, options }: Props) {
+export function UpsideDownInvertedTabs({
+  defaultValue,
+  options,
+  onTabClick,
+}: Props) {
   return (
     <ShadcnTabs defaultValue={defaultValue} className="px-0">
-      <TabsList className="flex w-full !bg-transparent justify-start">
+      <TabsList className="flex w-full !bg-transparent justify-start gap-4">
         {options.map((op) => (
           <div className="flex flex-col items-center gap-4" key={op.value}>
             <TabsTrigger
               key={op.value}
               value={op.value}
+              onClick={() => onTabClick?.(op.value)}
               className="group flex flex-col gap-2 data-[state=active]:shadow-none data-[state=active]:text-primary data-[state=active]:font-bold !bg-transparent !ring-offset-transparent justify-start text-basic px-0"
             >
               <div className="w-32 h-4 rounded-sm border-b-4 border-transparent data-[state=active]:shadow-none group-data-[state=active]:!border-primary"></div>
