@@ -8,20 +8,20 @@ import { FormControl } from "../form-control";
 import { Label } from "../../shadcn-ui";
 
 const checkboxVariants = cva(
-  "h-4 w-4 rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+  "h-4 w-4 rounded-[2px] border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-text data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:ring-primary bg-white",
+          "border-dark data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:ring-primary bg-white",
         destructive:
-          "border-text data-[state=checked]:bg-destructive data-[state=checked]:border-destructive focus-visible:ring-destructive",
+          "border-destructive data-[state=checked]:bg-destructive data-[state=checked]:border-destructive focus-visible:ring-destructive",
         success:
-          "border-text data-[state=checked]:bg-success data-[state=checked]:border-success focus-visible:ring-success",
-        info: "border-text data-[state=checked]:bg-info data-[state=checked]:border-info focus-visible:ring-info",
-        dark: "border-text data-[state=checked]:bg-basic data-[state=checked]:border-basic focus-visible:ring-basic",
+          "border-success data-[state=checked]:bg-success data-[state=checked]:border-success focus-visible:ring-success",
+        info: "border-info data-[state=checked]:bg-info data-[state=checked]:border-info focus-visible:ring-info",
+        dark: "border-dark data-[state=checked]:bg-basic data-[state=checked]:border-basic focus-visible:ring-basic",
         warning:
-          "border-text data-[state=checked]:bg-warning data-[state=checked]:border-warning focus-visible:ring-warning",
+          "border-warning data-[state=checked]:bg-warning data-[state=checked]:border-warning focus-visible:ring-warning",
       },
       size: {
         sm: "h-3 w-3",
