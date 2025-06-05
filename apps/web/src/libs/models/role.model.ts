@@ -13,7 +13,7 @@ export interface Role {
 export interface CreateRole {
   name: string;
   description?: string;
-  permissionIds: string[];
+  permissionsIds: string[];
 }
 
 export type RoleSortable = "name" | "created_at";

@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Button, Checkbox, InputRHF } from "@etm/web-ui-components";
+import {
+  Button,
+  Checkbox,
+  InputRHF,
+  TextAreaRHF,
+} from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -22,6 +27,7 @@ export const permissionTypes: PermissionType[] = [
 
 const RoleFormSchema = z.object({
   name: z.string().min(1, { message: "Role name is required" }),
+  description: z.string().min(1, { message: "Role description is required" }),
 });
 
 export type RoleFormData = z.infer<typeof RoleFormSchema>;
@@ -34,6 +40,7 @@ interface Props {
   modules: PermissionModule[];
   onSubmitRoleFormHandler: (
     roleName: string,
+    roleDescription: string,
     permissions: Record<string, Record<PermissionType, boolean>>
   ) => void;
   onCloseModal?: () => void;
@@ -51,6 +58,7 @@ export function RoleForm({
   const { control, handleSubmit, reset } = useForm<RoleFormData>({
     defaultValues: {
       name: "",
+      description: "",
     },
     resolver: zodResolver(RoleFormSchema),
     mode: "onChange",
@@ -84,7 +92,7 @@ export function RoleForm({
 
       return;
     }
-    onSubmitRoleFormHandler(values.name, permissionState);
+    onSubmitRoleFormHandler(values.name, values.description, permissionState);
   };
 
   const handleCheckboxChange = (moduleName: string, type: PermissionType) => {
@@ -178,6 +186,14 @@ export function RoleForm({
           size="xl"
           labelVariant="medium"
           placeholder="Enter role name"
+        />
+        <TextAreaRHF
+          name="description"
+          control={control}
+          label="Description"
+          rows={4}
+          labelVariant="medium"
+          placeholder="Enter role description"
         />
         <div className="self-end">
           <Checkbox
