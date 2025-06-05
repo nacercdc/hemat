@@ -26,8 +26,6 @@ export class PermissionService {
         .join(query.include)
         .filter([], { fields: ['action', 'subject'], value: query.search })
         .sort({ ascending: query.ascending, descending: query.descending })
-        .take(query.take)
-        .skip(query.skip)
         .getManyAndCount();
     } catch (err) {
       this.logger.error('findAll:', err);
