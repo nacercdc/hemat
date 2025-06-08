@@ -20,6 +20,7 @@ import {
   FindOneAssessmentMemberDto,
 } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
+import { MemberRole } from '@shared/enums';
 
 @Injectable()
 export class AssessmentMemberService {
@@ -114,54 +115,72 @@ export class AssessmentMemberService {
     payload: AssessmentMemberCreateRequestDto,
   ): Promise<AssessmentMember> {
     return this.dataSource.transaction(async (manager) => {
-      try {
-        const assessment = await manager
-          .getRepository(Assessment)
-          .exists({ where: { id: assessmentId } });
-        if (!assessment) {
-          throw new NotFoundException('Assessment not found');
-        }
+      const assessment = await manager
+        .getRepository(Assessment)
+        .exists({ where: { id: assessmentId } });
+      if (!assessment) {
+        throw new NotFoundException('Assessment not found');
+      }
 
-        const group = await manager
-          .getRepository(AssessmentGroup)
-          .exists({ where: { id: groupId, assessmentId } });
-        if (!group) {
-          throw new NotFoundException('Assessment group not found');
-        }
+      const group = await manager
+        .getRepository(AssessmentGroup)
+        .exists({ where: { id: groupId, assessmentId } });
+      if (!group) {
+        throw new NotFoundException('Assessment group not found');
+      }
 
-        const user = await manager
-          .getRepository(User)
-          .exists({ where: { id: payload.userId } });
-        if (!user) {
-          throw new NotFoundException('User not found');
-        }
+      const user = await manager
+        .getRepository(User)
+        .exists({ where: { id: payload.userId } });
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
 
-        const existingMember = await manager
+      const existingMember = await manager
+        .getRepository(AssessmentMember)
+        .exists({
+          where: { userId: payload.userId, assessmentId, groupId },
+        });
+      if (existingMember) {
+        throw new BadRequestException(
+          'User is already a member of this assessment group',
+        );
+      }
+
+      if (payload.role === MemberRole.PRIMARY) {
+        const primaryCount = await manager
           .getRepository(AssessmentMember)
-          .exists({
-            where: { userId: payload.userId, assessmentId, groupId },
+          .count({
+            where: { groupId, assessmentId, role: MemberRole.PRIMARY },
           });
-        if (existingMember) {
+        if (primaryCount > 0) {
           throw new BadRequestException(
-            'User is already a member of this assessment group',
+            'Each group can have only one PRIMARY member',
           );
         }
-
-        const newMember = manager.getRepository(AssessmentMember).create({
-          userId: payload.userId,
-          assessmentId,
-          groupId,
-          role: payload.role,
-        });
-
-        return await manager.getRepository(AssessmentMember).save(newMember);
-      } catch (err) {
-        this.logger.error(
-          `Failed to create assessment member: ${err.message}`,
-          err.stack,
-        );
-        throw new BadRequestException('Failed to create assessment member');
       }
+
+      if (payload.role === MemberRole.TEAM_LEADER) {
+        const teamLeaderCount = await manager
+          .getRepository(AssessmentMember)
+          .count({
+            where: { assessmentId, role: MemberRole.TEAM_LEADER },
+          });
+        if (teamLeaderCount > 0) {
+          throw new BadRequestException(
+            'Only one TEAM_LEADER is allowed per assessment',
+          );
+        }
+      }
+
+      const newMember = manager.getRepository(AssessmentMember).create({
+        userId: payload.userId,
+        assessmentId,
+        groupId,
+        role: payload.role,
+      });
+
+      return await manager.getRepository(AssessmentMember).save(newMember);
     });
   }
 
@@ -179,6 +198,42 @@ export class AssessmentMemberService {
         });
         if (!member) {
           throw new NotFoundException(`Assessment member ${id} not found`);
+        }
+
+        if (payload.role) {
+          // Check PRIMARY role constraint
+          if (
+            payload.role === MemberRole.PRIMARY &&
+            member.role !== MemberRole.PRIMARY
+          ) {
+            const primaryCount = await manager
+              .getRepository(AssessmentMember)
+              .count({
+                where: { groupId, assessmentId, role: MemberRole.PRIMARY },
+              });
+            if (primaryCount > 0) {
+              throw new BadRequestException(
+                'Each group can have only one PRIMARY member',
+              );
+            }
+          }
+
+          // Check TEAM_LEADER role constraint
+          if (
+            payload.role === MemberRole.TEAM_LEADER &&
+            member.role !== MemberRole.TEAM_LEADER
+          ) {
+            const teamLeaderCount = await manager
+              .getRepository(AssessmentMember)
+              .count({
+                where: { assessmentId, role: MemberRole.TEAM_LEADER },
+              });
+            if (teamLeaderCount > 0) {
+              throw new BadRequestException(
+                'Only one TEAM_LEADER is allowed per assessment',
+              );
+            }
+          }
         }
 
         member.role = payload.role ?? member.role;

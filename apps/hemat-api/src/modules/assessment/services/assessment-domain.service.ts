@@ -6,9 +6,17 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { AssessmentDomain, Domain } from '@database/entities';
+import {
+  AssessmentComponent,
+  AssessmentDomain,
+  Domain,
+} from '@database/entities';
 import { Filter, QueryService } from '@shared/services';
-import { AssessmentDomainDto, FindAllAssessmentDomainDto } from '../dtos';
+import {
+  AssessmentDomainDto,
+  FindAllAssessmentComponentDto,
+  FindAllAssessmentDomainDto,
+} from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 import { UUID } from '@shared/helpers';
 
@@ -19,6 +27,8 @@ export class AssessmentDomainService {
   constructor(
     @InjectRepository(AssessmentDomain)
     private readonly assessmentDomainRepository: Repository<AssessmentDomain>,
+    @InjectRepository(AssessmentComponent)
+    private readonly assessmentComponentRepository: Repository<AssessmentComponent>,
   ) {}
 
   async create(
@@ -110,6 +120,30 @@ export class AssessmentDomainService {
         }
       },
     );
+  }
+
+  async findComponents(
+    id: string,
+    query: FindAllAssessmentComponentDto,
+  ): Promise<FindAllResponseDto<AssessmentComponent>> {
+    const domain = await this.assessmentDomainRepository.findOne({
+      where: { id },
+    });
+    if (!domain) {
+      throw new NotFoundException(`Domain ${id} not found.`);
+    }
+
+    return await new QueryService<AssessmentComponent>(
+      this.assessmentComponentRepository,
+    )
+      .filter([], {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   private filters(query: FindAllAssessmentDomainDto): Filter[] {

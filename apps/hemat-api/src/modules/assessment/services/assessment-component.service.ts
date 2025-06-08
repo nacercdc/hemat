@@ -6,9 +6,17 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { AssessmentComponent, Component } from '@database/entities';
+import {
+  AssessmentComponent,
+  AssessmentSubComponent,
+  Component,
+} from '@database/entities';
 import { Filter, QueryService } from '@shared/services';
-import { AssessmentComponentDto, FindAllAssessmentComponentDto } from '../dtos';
+import {
+  AssessmentComponentDto,
+  FindAllAssessmentComponentDto,
+  FindAllAssessmentSubComponentDto,
+} from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 import { UUID } from '@shared/helpers';
 
@@ -19,6 +27,8 @@ export class AssessmentComponentService {
   constructor(
     @InjectRepository(AssessmentComponent)
     private readonly assessmentComponentRepository: Repository<AssessmentComponent>,
+    @InjectRepository(AssessmentSubComponent)
+    private readonly assessmentSubComponentRepository: Repository<AssessmentSubComponent>,
   ) {}
 
   async create(
@@ -128,6 +138,31 @@ export class AssessmentComponentService {
         }
       },
     );
+  }
+
+  async findSubComponents(
+    id: string,
+    query: FindAllAssessmentSubComponentDto,
+  ): Promise<FindAllResponseDto<AssessmentSubComponent>> {
+    const component = await this.assessmentComponentRepository.findOne({
+      where: { id },
+    });
+    if (!component) {
+      throw new NotFoundException(`Component ${id} not found.`);
+    }
+
+    return await new QueryService<AssessmentSubComponent>(
+      this.assessmentSubComponentRepository,
+    )
+      .filter([], {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
+      .join(query.include)
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   private filters(query: FindAllAssessmentComponentDto): Filter[] {
