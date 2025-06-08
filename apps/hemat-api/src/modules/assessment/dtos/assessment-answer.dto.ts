@@ -25,20 +25,6 @@ export class AssessmentAnswerCreateRequestDto {
   assessmentId: string;
 
   @ApiProperty({
-    description: 'ID of the user submitting the answer',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.userId.isNotEmpty' })
-  @IsUUID('4', { message: 'validation.userId.isUUID' })
-  @IsExists(
-    { tableName: 'users', columns: ['id'] },
-    { message: 'validation.userId.isExists' },
-  )
-  @Type(() => String)
-  userId: string;
-
-  @ApiProperty({
     description: 'ID of the associated sub-component',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
@@ -106,7 +92,6 @@ export class AssessmentAnswerCreateRequestDto {
   @Type(() => String)
   notes?: string;
 }
-
 export class AssessmentAnswerUpdateRequestDto {
   @ApiPropertyOptional({
     description: 'ID of the associated assessment',
@@ -121,20 +106,6 @@ export class AssessmentAnswerUpdateRequestDto {
   )
   @Type(() => String)
   assessmentId?: string;
-
-  @ApiPropertyOptional({
-    description: 'ID of the user submitting the answer',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsOptional()
-  @IsUUID('4', { message: 'validation.userId.isUUID' })
-  @IsExists(
-    { tableName: 'users', columns: ['id'] },
-    { message: 'validation.userId.isExists' },
-  )
-  @Type(() => String)
-  userId?: string;
 
   @ApiPropertyOptional({
     description: 'ID of the associated sub-component',

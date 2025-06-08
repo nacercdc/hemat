@@ -16,3 +16,4 @@ export * from './query-assessment-measurement-scale.dto';
 export * from './query-assessment-group.dto';
 export * from './query-assessment-answer.dto';
 export * from './query-assessment-member.dto';
+export * from './query-assessment-measurement-scale-sub-component.dto';
