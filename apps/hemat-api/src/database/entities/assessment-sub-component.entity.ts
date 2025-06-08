@@ -82,11 +82,11 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
     description: 'Assessment answer object',
     type: () => AssessmentAnswer,
   })
-  @OneToOne(() => AssessmentAnswer, (answer) => answer.subComponent, {
+  @OneToMany(() => AssessmentAnswer, (answer) => answer.subComponent, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  answer: AssessmentAnswer | null;
+  answers: AssessmentAnswer[];
 
   @ApiPropertyOptional({
     description: 'Assessment roadmap object',

@@ -64,7 +64,10 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
     description: 'SubComponent object',
     type: () => AssessmentSubComponent,
   })
-  @OneToOne(() => AssessmentSubComponent, (subComponent) => subComponent.answer)
+  @ManyToOne(
+    () => AssessmentSubComponent,
+    (subComponent) => subComponent.answers,
+  )
   @JoinColumn({ name: 'subComponentId' })
   subComponent: AssessmentSubComponent | null;
 
@@ -73,16 +76,17 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  @Column()
+  @Index()
+  @Column({ type: 'uuid' })
   measurementScaleId: string;
 
   @ApiPropertyOptional({
     description: 'Measurement scale object',
     type: () => AssessmentMeasurementScale,
   })
-  @OneToOne(
+  @ManyToOne(
     () => AssessmentMeasurementScale,
-    (measurement) => measurement.answer,
+    (measurementScale) => measurementScale.answers,
   )
   @JoinColumn({ name: 'measurementScaleId' })
   measurementScale: AssessmentMeasurementScale | null;

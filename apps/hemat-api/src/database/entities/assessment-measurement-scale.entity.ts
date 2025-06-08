@@ -87,11 +87,11 @@ export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
     description: 'Assessment answer object',
     type: () => AssessmentAnswer,
   })
-  @OneToOne(() => AssessmentAnswer, (answer) => answer.measurementScale, {
+  @OneToMany(() => AssessmentAnswer, (answer) => answer.measurementScale, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  answer: AssessmentAnswer | null;
+  answers: AssessmentAnswer[];
 
   @ApiPropertyOptional({
     description: 'Associated roadmaps',

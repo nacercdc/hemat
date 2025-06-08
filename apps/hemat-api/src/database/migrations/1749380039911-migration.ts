@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1749105521249 implements MigrationInterface {
-    name = 'Migration1749105521249'
+export class Migration1749380039911 implements MigrationInterface {
+    name = 'Migration1749380039911'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "comments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" character varying NOT NULL, "comment" text NOT NULL, "responseId" uuid NOT NULL, CONSTRAINT "PK_8bf68bc960f2b69e818bdb90dcb" PRIMARY KEY ("id"))`);
@@ -58,10 +58,11 @@ export class Migration1749105521249 implements MigrationInterface {
         await queryRunner.query(`CREATE INDEX "IDX_3301bc9bd5210c318b714c65a1" ON "roadmaps" ("assessmentAnswerId") `);
         await queryRunner.query(`CREATE INDEX "IDX_bf403fa995741d8fdab78c60b1" ON "roadmaps" ("subComponentId") `);
         await queryRunner.query(`CREATE INDEX "IDX_564a6d992ed9e51aaa5ea4a7e9" ON "roadmaps" ("measurementScaleId") `);
-        await queryRunner.query(`CREATE TABLE "assessment_answers" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "assessmentId" uuid NOT NULL, "userId" uuid NOT NULL, "subComponentId" uuid NOT NULL, "measurementScaleId" uuid NOT NULL, "evidence" text NOT NULL, "reference" text NOT NULL, "notes" text, CONSTRAINT "REL_4d502f7ff718afc7403fe3ffd1" UNIQUE ("subComponentId"), CONSTRAINT "REL_a61f7a72324191c2f48b5789eb" UNIQUE ("measurementScaleId"), CONSTRAINT "PK_4d2f9295a8a339ac0df29b1835b" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "assessment_answers" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "assessmentId" uuid NOT NULL, "userId" uuid NOT NULL, "subComponentId" uuid NOT NULL, "measurementScaleId" uuid NOT NULL, "evidence" text NOT NULL, "reference" text NOT NULL, "notes" text, CONSTRAINT "PK_4d2f9295a8a339ac0df29b1835b" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_eacc7a81de6c88f3f229271fa5" ON "assessment_answers" ("assessmentId") `);
         await queryRunner.query(`CREATE INDEX "IDX_db08dfb3de5f16cfc6a41240e9" ON "assessment_answers" ("userId") `);
         await queryRunner.query(`CREATE INDEX "IDX_4d502f7ff718afc7403fe3ffd1" ON "assessment_answers" ("subComponentId") `);
+        await queryRunner.query(`CREATE INDEX "IDX_a61f7a72324191c2f48b5789eb" ON "assessment_answers" ("measurementScaleId") `);
         await queryRunner.query(`CREATE TYPE "public"."dashboard_assessmentstatus_enum" AS ENUM('draft', 'pending', 'ready', 'in_progress', 'closed', 'completed')`);
         await queryRunner.query(`CREATE TABLE "dashboard" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "country" character varying NOT NULL, "assessmentStatus" "public"."dashboard_assessmentstatus_enum" NOT NULL, "externalReport" text, CONSTRAINT "PK_233ed28fa3a1f9fbe743f571f75" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "languages" ("code" character varying NOT NULL, "name" character varying NOT NULL, "native" character varying NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_7397752718d1c9eb873722ec9b2" PRIMARY KEY ("code"))`);
@@ -179,6 +180,7 @@ export class Migration1749105521249 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "languages"`);
         await queryRunner.query(`DROP TABLE "dashboard"`);
         await queryRunner.query(`DROP TYPE "public"."dashboard_assessmentstatus_enum"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_a61f7a72324191c2f48b5789eb"`);
         await queryRunner.query(`DROP INDEX "public"."IDX_4d502f7ff718afc7403fe3ffd1"`);
         await queryRunner.query(`DROP INDEX "public"."IDX_db08dfb3de5f16cfc6a41240e9"`);
         await queryRunner.query(`DROP INDEX "public"."IDX_eacc7a81de6c88f3f229271fa5"`);
