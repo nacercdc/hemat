@@ -8,9 +8,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
 import {
   AssessmentMeasurementScaleSubComponent,
+  AssessmentSubComponent,
   MeasurementScaleSubComponent,
 } from '@database/entities';
-import { AssessmentMeasurementScaleSubComponentDto } from '../dtos';
+import { QueryService } from '@shared/services';
+import { FindAllResponseDto } from '@shared/dtos';
+import {
+  AssessmentMeasurementScaleSubComponentDto,
+  FindAllAssessmentMeasurementScaleSubComponentDto,
+} from '../dtos';
 
 @Injectable()
 export class AssessmentMeasurementScaleSubComponentService {
@@ -21,6 +27,8 @@ export class AssessmentMeasurementScaleSubComponentService {
   constructor(
     @InjectRepository(AssessmentMeasurementScaleSubComponent)
     private readonly assessmentMeasurementScaleSubComponentRepository: Repository<AssessmentMeasurementScaleSubComponent>,
+    @InjectRepository(AssessmentSubComponent)
+    private readonly assessmentSubComponentRepository: Repository<AssessmentSubComponent>,
   ) {}
 
   async create(
@@ -71,53 +79,41 @@ export class AssessmentMeasurementScaleSubComponentService {
   }
 
   async findAll(
-    subComponentId: string,
-  ): Promise<AssessmentMeasurementScaleSubComponent[]> {
-    try {
-      return await this.assessmentMeasurementScaleSubComponentRepository.find({
-        relations: { measurementScale: true },
-        where: { subComponentId },
-      });
-    } catch (err) {
-      this.loggerService.error(
-        `Failed to retrieve assessment measurement scale sub-components for subComponentId: ${subComponentId}`,
-        err.stack || err,
-      );
-      throw new BadRequestException(
-        'Failed to retrieve assessment measurement scale sub-components',
-      );
-    }
+    query: FindAllAssessmentMeasurementScaleSubComponentDto,
+  ): Promise<FindAllResponseDto<AssessmentMeasurementScaleSubComponent>> {
+    return new QueryService<AssessmentMeasurementScaleSubComponent>(
+      this.assessmentMeasurementScaleSubComponentRepository,
+    )
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   async findOne(
     subComponentId: string,
     measurementScaleId: string,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
-    try {
-      const measurementScaleSubComponent =
-        await this.assessmentMeasurementScaleSubComponentRepository.findOne({
-          relations: { measurementScale: true },
-          where: { subComponentId, measurementScaleId },
-        });
-
-      if (!measurementScaleSubComponent) {
-        throw new NotFoundException(
-          'Assessment measurement scale sub-component not found',
-        );
-      }
-
-      return measurementScaleSubComponent;
-    } catch (err) {
-      this.loggerService.error(
-        `Failed to retrieve assessment measurement scale sub-component for subComponentId: ${subComponentId}, measurementScaleId: ${measurementScaleId}`,
-        err.stack || err,
-      );
-      throw err instanceof NotFoundException
-        ? err
-        : new BadRequestException(
-            'Failed to retrieve assessment measurement scale sub-component',
-          );
+    const subComponent = await this.assessmentSubComponentRepository.findOne({
+      where: { id: subComponentId },
+    });
+    if (!subComponent) {
+      throw new NotFoundException(`Sub-component ${subComponentId} not found`);
     }
+
+    const measurementScaleSubComponent =
+      await this.assessmentMeasurementScaleSubComponentRepository.findOne({
+        where: { subComponentId, measurementScaleId },
+        relations: ['measurementScale'],
+      });
+
+    if (!measurementScaleSubComponent) {
+      throw new NotFoundException(
+        `Measurement scale ${measurementScaleId} not found for sub-component ${subComponentId}`,
+      );
+    }
+
+    return measurementScaleSubComponent;
   }
 
   async update(

@@ -6,11 +6,24 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { AssessmentDomain, Domain } from '@database/entities';
-import { Filter, QueryService } from '@shared/services';
-import { AssessmentDomainDto, FindAllAssessmentDomainDto } from '../dtos';
-import { FindAllResponseDto } from '@shared/dtos';
+import {
+  AssessmentComponent,
+  AssessmentDomain,
+  Domain,
+} from '@database/entities';
 import { UUID } from '@shared/helpers';
+import { Filter, QueryService } from '@shared/services';
+import { FindAllResponseDto } from '@shared/dtos';
+import {
+  AssessmentDomainDto,
+  FindAllAssessmentComponentDto,
+  FindAllAssessmentDomainDto,
+} from '../dtos';
+
+interface AssessmentDomainWithCounts extends AssessmentDomain {
+  componentsCount: number;
+  subComponentsCount: number;
+}
 
 @Injectable()
 export class AssessmentDomainService {
@@ -19,6 +32,8 @@ export class AssessmentDomainService {
   constructor(
     @InjectRepository(AssessmentDomain)
     private readonly assessmentDomainRepository: Repository<AssessmentDomain>,
+    @InjectRepository(AssessmentComponent)
+    private readonly assessmentComponentRepository: Repository<AssessmentComponent>,
   ) {}
 
   async create(
@@ -61,16 +76,48 @@ export class AssessmentDomainService {
 
   async findAll(
     query: FindAllAssessmentDomainDto & { assessmentId: string },
-  ): Promise<FindAllResponseDto<AssessmentDomain>> {
-    return new QueryService<AssessmentDomain>(this.assessmentDomainRepository)
+  ): Promise<FindAllResponseDto<AssessmentDomainWithCounts>> {
+    const domainQuery = new QueryService<AssessmentDomain>(
+      this.assessmentDomainRepository,
+    )
       .filter(this.filters(query), {
         fields: ['code', 'name'],
         value: query.search,
       })
       .sort({ ascending: query.ascending, descending: query.descending })
       .take(query.take)
-      .skip(query.skip)
-      .getManyAndCount();
+      .skip(query.skip);
+
+    const [domains, total] = await Promise.all([
+      domainQuery.getMany(),
+      domainQuery.getManyAndCount().then((result) => result.total),
+    ]);
+
+    const counts = await this.assessmentComponentRepository
+      .createQueryBuilder('component')
+      .select('component.domainId', 'domainId')
+      .addSelect('COUNT(DISTINCT component.id)', 'componentsCount')
+      .addSelect('COUNT(DISTINCT subComponent.id)', 'subComponentsCount')
+      .leftJoin('component.subComponents', 'subComponent')
+      .where('component.domainId IN (:...domainIds)', {
+        domainIds: domains.map((d) => d.id),
+      })
+      .groupBy('component.domainId')
+      .getRawMany();
+
+    return {
+      data: domains.map((domain) => ({
+        ...domain,
+        componentsCount: parseInt(
+          counts.find((c) => c.domainId === domain.id)?.componentsCount || '0',
+        ),
+        subComponentsCount: parseInt(
+          counts.find((c) => c.domainId === domain.id)?.subComponentsCount ||
+            '0',
+        ),
+      })),
+      total,
+    };
   }
 
   async findOne(assessmentId: string, id: string): Promise<AssessmentDomain> {
@@ -110,6 +157,30 @@ export class AssessmentDomainService {
         }
       },
     );
+  }
+
+  async findComponents(
+    id: string,
+    query: FindAllAssessmentComponentDto,
+  ): Promise<FindAllResponseDto<AssessmentComponent>> {
+    const domain = await this.assessmentDomainRepository.findOne({
+      where: { id },
+    });
+    if (!domain) {
+      throw new NotFoundException(`Domain ${id} not found.`);
+    }
+
+    return await new QueryService<AssessmentComponent>(
+      this.assessmentComponentRepository,
+    )
+      .filter([], {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   private filters(query: FindAllAssessmentDomainDto): Filter[] {
