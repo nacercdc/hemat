@@ -1,10 +1,19 @@
-import { Entity, Column, ManyToOne, Index, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  Index,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentAnswer } from './assessment-answer.entity';
 import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
 import { MeasurementScaleTranslationDto } from 'src/shared/dtos';
+import { Roadmap } from './roadmap.entity';
 
 @Entity('assessment_measurement_scale')
 export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
@@ -78,9 +87,16 @@ export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
     description: 'Assessment answer object',
     type: () => AssessmentAnswer,
   })
-  @OneToOne(() => AssessmentAnswer, (answer) => answer.measurementScale, {
+  @OneToMany(() => AssessmentAnswer, (answer) => answer.measurementScale, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  answer: AssessmentAnswer | null;
+  answers: AssessmentAnswer[];
+
+  @ApiPropertyOptional({
+    description: 'Associated roadmaps',
+    type: () => [Roadmap],
+  })
+  @OneToMany(() => Roadmap, (roadmap) => roadmap.measurementScale)
+  roadmaps: Roadmap[];
 }

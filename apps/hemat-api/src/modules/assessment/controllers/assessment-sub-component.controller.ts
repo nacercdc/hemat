@@ -7,6 +7,7 @@ import {
   HttpCode,
   UseGuards,
   Query,
+  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,17 +21,22 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AssessmentSubComponent } from '@database/entities';
+import { AssessmentSubComponent, AssessmentAnswer } from '@database/entities';
 import { AuthGuard, Abilities } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
-import { AssessmentSubComponentService } from '../services';
+import { ParseUUIDPipe } from '@nestjs/common';
+import { AuthDto } from '@shared/modules';
+import {
+  AssessmentSubComponentService,
+  AssessmentAnswerService,
+} from '../services';
 import {
   AssessmentSubComponentDto,
   FindAllAssessmentSubComponentDto,
   FindOneAssessmentSubComponentDto,
+  FindAllAssessmentAnswerDto,
 } from '../dtos';
-import { ParseUUIDPipe } from '@nestjs/common';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Sub-Components')
@@ -56,6 +62,7 @@ import { ParseUUIDPipe } from '@nestjs/common';
 export class AssessmentSubComponentController {
   constructor(
     private readonly assessmentSubComponentService: AssessmentSubComponentService,
+    private readonly assessmentAnswerService: AssessmentAnswerService,
   ) {}
 
   @ApiOperation({
@@ -138,5 +145,38 @@ export class AssessmentSubComponentController {
     @Body() payload: AssessmentSubComponentDto,
   ): Promise<AssessmentSubComponent> {
     return this.assessmentSubComponentService.update(assessmentId, id, payload);
+  }
+
+  @ApiOperation({
+    summary: 'Get all answers for a sub-component',
+    description: 'Retrieve all answers for a specific sub-component',
+  })
+  @ApiOkResponse({
+    description: 'Ok',
+    type: FindAllResponseDto<AssessmentAnswer>,
+  })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT_ANSWER,
+      },
+    ],
+  })
+  @Get(':id/answers')
+  async findAnswers(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Request() req: { user: AuthDto },
+    @Query() query: FindAllAssessmentAnswerDto,
+  ): Promise<FindAllResponseDto<AssessmentAnswer>> {
+    return this.assessmentAnswerService.findAllBySubComponent(
+      id,
+      req.user.id,
+      query,
+    );
   }
 }

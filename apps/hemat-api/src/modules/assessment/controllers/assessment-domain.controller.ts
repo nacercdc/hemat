@@ -20,12 +20,16 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AssessmentDomain } from '@database/entities';
+import { AssessmentComponent, AssessmentDomain } from '@database/entities';
 import { AuthGuard, Abilities } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { AssessmentDomainService } from '../services';
-import { AssessmentDomainDto, FindAllAssessmentDomainDto } from '../dtos';
+import {
+  AssessmentDomainDto,
+  FindAllAssessmentComponentDto,
+  FindAllAssessmentDomainDto,
+} from '../dtos';
 import { ParseUUIDPipe } from '@nestjs/common';
 
 @ApiBearerAuth()
@@ -48,7 +52,7 @@ import { ParseUUIDPipe } from '@nestjs/common';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('assessments/:assessmentId/domains')
+@Controller()
 export class AssessmentDomainController {
   constructor(
     private readonly assessmentDomainService: AssessmentDomainService,
@@ -74,7 +78,7 @@ export class AssessmentDomainController {
       },
     ],
   })
-  @Get()
+  @Get('assessments/:assessmentId/domains')
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query() query: FindAllAssessmentDomainDto,
@@ -98,7 +102,7 @@ export class AssessmentDomainController {
       },
     ],
   })
-  @Get(':id')
+  @Get('assessments/:assessmentId/domains/:id')
   async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -122,12 +126,40 @@ export class AssessmentDomainController {
       },
     ],
   })
-  @Put(':id')
+  @Put('assessments/:assessmentId/domains/:id')
   async update(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: AssessmentDomainDto,
   ): Promise<AssessmentDomain> {
     return this.assessmentDomainService.update(assessmentId, id, payload);
+  }
+
+  @ApiOperation({
+    summary: 'Get all assessment components for a domain',
+    description:
+      'Retrieve all components for a specific assessment domain with pagination, sorting, and search',
+  })
+  @ApiOkResponse({
+    description: 'Ok',
+    type: FindAllResponseDto<AssessmentComponent>,
+  })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT_COMPONENT,
+      },
+    ],
+  })
+  @Get('assessmentDomains/:id/components')
+  async findComponents(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: FindAllAssessmentComponentDto,
+  ) {
+    return this.assessmentDomainService.findComponents(id, query);
   }
 }

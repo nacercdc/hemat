@@ -56,14 +56,4 @@ export class MeasurementScale extends BaseEntityWithSoftDelete {
       measurementScaleSubComponent.measurementScale,
   )
   measurementScaleSubComponents: MeasurementScaleSubComponent[];
-
-  @ApiPropertyOptional({
-    description: 'Assessment roadmap object',
-    type: () => Roadmap,
-  })
-  @OneToMany(() => Roadmap, (roadmap) => roadmap.measurementScales, {
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
-  })
-  roadmap: Roadmap | null;
 }
