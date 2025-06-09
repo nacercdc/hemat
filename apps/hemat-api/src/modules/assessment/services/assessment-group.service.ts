@@ -6,15 +6,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource,Not, Repository } from 'typeorm';
-import { AssessmentGroup, Assessment } from '../../../database/entities';
-import { QueryService } from '../../../shared/services';
+import { AssessmentGroup, Assessment } from '@database/entities';
+import { QueryService } from '@shared/services';
+import { FindAllResponseDto } from '@shared/dtos';
 import {
   AssessmentGroupRequestDto,
   AssessmentGroupUpdateRequestDto,
   FindAllAssessmentGroupDto,
   FindOneAssessmentGroupDto,
 } from '../dtos';
-import { FindAllResponseDto } from '@shared/dtos';
 
 @Injectable()
 export class AssessmentGroupService {
@@ -85,43 +85,35 @@ export class AssessmentGroupService {
     payload: AssessmentGroupRequestDto,
   ): Promise<AssessmentGroup> {
     return this.dataSource.transaction(async (manager) => {
-      try {
-        const assessment = await manager.getRepository(Assessment).exists({
-          where: { id: assessmentId },
-        });
+      const assessment = await manager.getRepository(Assessment).exists({
+        where: { id: assessmentId },
+      });
 
-        if (!assessment) {
-          throw new NotFoundException('Assessment not found');
-        }
-
-        const existingGroup = await manager
-          .getRepository(AssessmentGroup)
-          .exists({
-            where: {
-              name: payload.name,
-              assessmentId,
-            },
-          });
-
-        if (existingGroup) {
-          throw new BadRequestException(
-            'Assessment group with this name already exists in the assessment',
-          );
-        }
-
-        const group = manager.getRepository(AssessmentGroup).create({
-          name: payload.name,
-          assessmentId,
-        });
-
-        return await manager.getRepository(AssessmentGroup).save(group);
-      } catch (err) {
-        this.logger.error(
-          `Failed to create assessment group: ${err.message}`,
-          err.stack,
-        );
-        throw new BadRequestException('Failed to create assessment group');
+      if (!assessment) {
+        throw new NotFoundException('Assessment not found');
       }
+
+      const existingGroup = await manager
+        .getRepository(AssessmentGroup)
+        .exists({
+          where: {
+            name: payload.name,
+            assessmentId,
+          },
+        });
+
+      if (existingGroup) {
+        throw new BadRequestException(
+          'Assessment group with this name already exists in the assessment',
+        );
+      }
+
+      const group = manager.getRepository(AssessmentGroup).create({
+        name: payload.name,
+        assessmentId,
+      });
+
+      return await manager.getRepository(AssessmentGroup).save(group);
     });
   }
 

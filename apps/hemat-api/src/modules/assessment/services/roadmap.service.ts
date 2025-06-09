@@ -8,19 +8,19 @@ import { Repository, DataSource } from 'typeorm';
 import {
   Roadmap,
   Assessment,
-  AssessmentGroup,
   AssessmentAnswer,
+  AssessmentMeasurementScale,
+  AssessmentMember,
 } from '@database/entities';
 import { QueryService } from '@shared/services';
+import { FindAllResponseDto } from '@shared/dtos';
+import { MemberRole } from '@shared/enums';
 import {
   RoadmapCreateRequestDto,
   RoadmapUpdateRequestDto,
   FindAllRoadmapDto,
   FindOneRoadmapDto,
 } from '../dtos';
-import { FindAllResponseDto } from '@shared/dtos';
-import { MemberRole } from '@shared/enums';
-import { AssessmentMemberService } from '@modules/assessment/services';
 
 @Injectable()
 export class RoadmapService {
@@ -29,48 +29,18 @@ export class RoadmapService {
     private readonly roadmapRepository: Repository<Roadmap>,
     @InjectRepository(Assessment)
     private readonly assessmentRepository: Repository<Assessment>,
-    @InjectRepository(AssessmentGroup)
-    private readonly groupRepository: Repository<AssessmentGroup>,
-    private readonly assessmentMemberService: AssessmentMemberService,
+    @InjectRepository(AssessmentMember)
+    private readonly memberRepository: Repository<AssessmentMember>,
     private readonly dataSource: DataSource,
   ) {}
 
-  private async validateAssessmentAndGroup(
-    assessmentId: string,
-    groupId: string,
-  ) {
-    if (
-      !(await this.assessmentRepository.exists({ where: { id: assessmentId } }))
-    ) {
-      throw new NotFoundException('Assessment not found');
-    }
-    if (
-      !(await this.groupRepository.exists({
-        where: { id: groupId, assessmentId },
-      }))
-    ) {
-      throw new NotFoundException('Assessment group not found');
-    }
-  }
-
   async findAll(
     assessmentId: string,
-    groupId: string,
     query: FindAllRoadmapDto,
   ): Promise<FindAllResponseDto<Roadmap>> {
-    await this.validateAssessmentAndGroup(assessmentId, groupId);
+    await this.validateAssessment(assessmentId);
     return new QueryService<Roadmap>(this.roadmapRepository)
       .join(query.include)
-      .filter([], {
-        fields: [
-          'target',
-          'activities',
-          'responsible',
-          'resources',
-          'documentation',
-        ],
-        value: query.search,
-      })
       .sort({ ascending: query.ascending, descending: query.descending })
       .take(query.take)
       .skip(query.skip)
@@ -79,11 +49,10 @@ export class RoadmapService {
 
   async findOne(
     assessmentId: string,
-    groupId: string,
     id: string,
     query: FindOneRoadmapDto,
   ): Promise<Roadmap> {
-    await this.validateAssessmentAndGroup(assessmentId, groupId);
+    await this.validateAssessment(assessmentId);
     const roadmap = await new QueryService<Roadmap>(this.roadmapRepository)
       .join(query.include)
       .getOne();
@@ -93,8 +62,8 @@ export class RoadmapService {
 
   async create(
     assessmentId: string,
-    groupId: string,
     payload: RoadmapCreateRequestDto,
+    userId: string,
   ): Promise<Roadmap> {
     return this.dataSource.transaction(async (manager) => {
       const answer = await manager.findOne(AssessmentAnswer, {
@@ -102,17 +71,7 @@ export class RoadmapService {
       });
       if (!answer) throw new NotFoundException('Assessment answer not found');
 
-      const member = await this.assessmentMemberService.findOne(
-        assessmentId,
-        groupId,
-        answer.userId,
-        { include: [] },
-      );
-      if (member.role !== MemberRole.PRIMARY) {
-        throw new BadRequestException(
-          'Only primary role members can create roadmap',
-        );
-      }
+      await this.validateMemberAccess(assessmentId, userId);
 
       const existingRoadmap = await manager.findOne(Roadmap, {
         where: {
@@ -126,8 +85,19 @@ export class RoadmapService {
           'Roadmap with these details already exists',
         );
 
+      const measurementScale = await manager.findOne(
+        AssessmentMeasurementScale,
+        {
+          where: { id: payload.measurementScaleId },
+        },
+      );
+      if (!measurementScale) {
+        throw new NotFoundException('Measurement scale not found');
+      }
+
       const roadmap = manager.create(Roadmap, {
         ...payload,
+        currentState: measurementScale.rate,
         startTime: new Date(payload.startTime),
         endTime: new Date(payload.endTime),
       });
@@ -137,9 +107,9 @@ export class RoadmapService {
 
   async update(
     assessmentId: string,
-    groupId: string,
     id: string,
     payload: RoadmapUpdateRequestDto,
+    userId: string,
   ): Promise<Roadmap> {
     return this.dataSource.transaction(async (manager) => {
       const roadmap = await manager.findOne(Roadmap, {
@@ -147,40 +117,33 @@ export class RoadmapService {
         relations: ['assessmentAnswer'],
       });
       if (!roadmap) throw new NotFoundException(`Roadmap ${id} not found`);
-
-      const member = await this.assessmentMemberService.findOne(
-        assessmentId,
-        groupId,
-        roadmap.assessmentAnswer.userId,
-        { include: [] },
-      );
-      if (member.role !== MemberRole.PRIMARY) {
-        throw new BadRequestException(
-          'Only primary role members can update roadmap',
-        );
-      }
+      await this.validateMemberAccess(assessmentId, userId);
 
       if (payload.assessmentAnswerId) {
         const answer = await manager.findOne(AssessmentAnswer, {
           where: { id: payload.assessmentAnswerId, assessmentId },
         });
         if (!answer) throw new NotFoundException('Assessment answer not found');
-        const newMember = await this.assessmentMemberService.findOne(
-          assessmentId,
-          groupId,
-          answer.userId,
-          { include: [] },
+      }
+
+      let currentState = roadmap.currentState;
+      if (payload.measurementScaleId) {
+        const measurementScale = await manager.findOne(
+          AssessmentMeasurementScale,
+          {
+            where: { id: payload.measurementScaleId },
+          },
         );
-        if (newMember.role !== MemberRole.PRIMARY) {
-          throw new BadRequestException(
-            'Only primary role members can update roadmap',
-          );
+        if (!measurementScale) {
+          throw new NotFoundException('Measurement scale not found');
         }
+        currentState = measurementScale.rate;
       }
 
       return manager.save(Roadmap, {
         ...roadmap,
         ...payload,
+        currentState,
         startTime: payload.startTime
           ? new Date(payload.startTime)
           : roadmap.startTime,
@@ -191,8 +154,8 @@ export class RoadmapService {
 
   async delete(
     assessmentId: string,
-    groupId: string,
     id: string,
+    userId: string,
   ): Promise<Roadmap> {
     return this.dataSource.transaction(async (manager) => {
       const roadmap = await manager.findOne(Roadmap, {
@@ -201,17 +164,7 @@ export class RoadmapService {
       });
       if (!roadmap) throw new NotFoundException(`Roadmap ${id} not found`);
 
-      const member = await this.assessmentMemberService.findOne(
-        assessmentId,
-        groupId,
-        roadmap.assessmentAnswer.userId,
-        { include: [] },
-      );
-      if (member.role !== MemberRole.PRIMARY) {
-        throw new BadRequestException(
-          'Only primary role members can delete roadmap',
-        );
-      }
+      await this.validateMemberAccess(assessmentId, userId);
 
       return manager.softRemove(Roadmap, roadmap);
     });
@@ -219,8 +172,8 @@ export class RoadmapService {
 
   async restore(
     assessmentId: string,
-    groupId: string,
     id: string,
+    userId: string,
   ): Promise<Roadmap> {
     return this.dataSource.transaction(async (manager) => {
       const roadmap = await manager.findOne(Roadmap, {
@@ -230,19 +183,36 @@ export class RoadmapService {
       });
       if (!roadmap) throw new NotFoundException(`Roadmap ${id} not found`);
 
-      const member = await this.assessmentMemberService.findOne(
-        assessmentId,
-        groupId,
-        roadmap.assessmentAnswer.userId,
-        { include: [] },
-      );
-      if (member.role !== MemberRole.PRIMARY) {
-        throw new BadRequestException(
-          'Only primary role members can restore roadmap',
-        );
-      }
+      await this.validateMemberAccess(assessmentId, userId);
 
       return manager.recover(Roadmap, roadmap);
     });
+  }
+
+  private async validateAssessment(assessmentId: string) {
+    if (
+      !(await this.assessmentRepository.exists({ where: { id: assessmentId } }))
+    ) {
+      throw new NotFoundException('Assessment not found');
+    }
+  }
+
+  private async validateMemberAccess(
+    assessmentId: string,
+    userId: string,
+    requiredRole: MemberRole = MemberRole.PRIMARY,
+  ) {
+    const member = await this.memberRepository.findOne({
+      where: { assessmentId, userId },
+    });
+    if (!member) {
+      throw new NotFoundException('Assessment member not found');
+    }
+    if (member.role !== requiredRole) {
+      throw new BadRequestException(
+        `Only ${requiredRole} role members can perform this action`,
+      );
+    }
+    return member;
   }
 }

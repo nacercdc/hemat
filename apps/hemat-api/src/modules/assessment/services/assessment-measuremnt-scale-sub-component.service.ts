@@ -11,12 +11,12 @@ import {
   AssessmentSubComponent,
   MeasurementScaleSubComponent,
 } from '@database/entities';
+import { QueryService } from '@shared/services';
+import { FindAllResponseDto } from '@shared/dtos';
 import {
   AssessmentMeasurementScaleSubComponentDto,
   FindAllAssessmentMeasurementScaleSubComponentDto,
 } from '../dtos';
-import { QueryService } from '@shared/services';
-import { FindAllResponseDto } from '@shared/dtos';
 
 @Injectable()
 export class AssessmentMeasurementScaleSubComponentService {

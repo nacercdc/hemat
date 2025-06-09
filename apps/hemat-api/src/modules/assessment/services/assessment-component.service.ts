@@ -11,14 +11,14 @@ import {
   AssessmentSubComponent,
   Component,
 } from '@database/entities';
+import { UUID } from '@shared/helpers';
 import { Filter, QueryService } from '@shared/services';
+import { FindAllResponseDto } from '@shared/dtos';
 import {
   AssessmentComponentDto,
   FindAllAssessmentComponentDto,
   FindAllAssessmentSubComponentDto,
 } from '../dtos';
-import { FindAllResponseDto } from '@shared/dtos';
-import { UUID } from '@shared/helpers';
 
 @Injectable()
 export class AssessmentComponentService {

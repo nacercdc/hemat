@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { DataSource, Repository, In } from 'typeorm';
 import {
   AssessmentAnswer,
   Assessment,
@@ -13,17 +13,14 @@ import {
   AssessmentSubComponent,
 } from '@database/entities';
 import { QueryService } from '@shared/services';
+import { FindAllResponseDto } from '@shared/dtos';
+import { MemberRole } from '@shared/enums';
 import {
   AssessmentAnswerCreateRequestDto,
   AssessmentAnswerUpdateRequestDto,
   FindAllAssessmentAnswerDto,
   FindOneAssessmentAnswerDto,
 } from '../dtos';
-import { FindAllResponseDto } from '@shared/dtos';
-import { MemberRole } from '@shared/enums';
-import { AssessmentMemberService } from '@modules/assessment/services';
-import { DataSource } from 'typeorm';
-import { Filter } from '@shared/services/query';
 
 @Injectable()
 export class AssessmentAnswerService {
@@ -36,7 +33,6 @@ export class AssessmentAnswerService {
     private readonly memberRepository: Repository<AssessmentMember>,
     @InjectRepository(AssessmentGroup)
     private readonly groupRepository: Repository<AssessmentGroup>,
-    private readonly assessmentMemberService: AssessmentMemberService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -55,10 +51,6 @@ export class AssessmentAnswerService {
       this.assessmentAnswerRepository,
     )
       .join(query.include)
-      .filter([], {
-        fields: ['evidence', 'reference', 'notes'],
-        value: query.search,
-      })
       .sort({ ascending: query.ascending, descending: query.descending })
       .take(query.take)
       .skip(query.skip);
@@ -70,9 +62,7 @@ export class AssessmentAnswerService {
       if (!group) {
         throw new NotFoundException('Group not found for this user');
       }
-      queryService.filter([{ field: 'userId', operator: '=', value: userId }]);
     }
-
     return queryService.getManyAndCount();
   }
 

@@ -13,14 +13,14 @@ import {
   User,
 } from '../../../database/entities';
 import { QueryService } from '../../../shared/services';
+import { FindAllResponseDto } from '@shared/dtos';
+import { MemberRole } from '@shared/enums';
 import {
   AssessmentMemberCreateRequestDto,
   AssessmentMemberUpdateRequestDto,
   FindAllAssessmentMemberDto,
   FindOneAssessmentMemberDto,
 } from '../dtos';
-import { FindAllResponseDto } from '@shared/dtos';
-import { MemberRole } from '@shared/enums';
 
 @Injectable()
 export class AssessmentMemberService {
