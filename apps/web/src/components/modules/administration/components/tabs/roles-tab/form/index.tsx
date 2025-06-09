@@ -176,7 +176,7 @@ export function RoleForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmitHandler)}
-      className="rounded-md flex flex-col w-full gap-5 max-h-[700px] overflow-y-auto"
+      className="rounded-md flex flex-col w-full gap-5 max-h-[80vh] overflow-y-auto"
     >
       <div className="flex flex-col gap-5 px-7">
         <InputRHF
@@ -204,7 +204,7 @@ export function RoleForm({
           />
         </div>
       </div>
-      <div className="relative overflow-x-auto w-full px-7">
+      <div className="relative w-full px-7">
         <div
           className="grid gap-3 items-center py-4 px-2 w-full rounded-sm rounded-b-none bg-dark-lighter/5"
           style={{ gridTemplateColumns }}

@@ -16,6 +16,10 @@ export interface CreateRole {
   permissionsIds: string[];
 }
 
+export interface UpdateRole extends CreateRole {
+  id: string;
+}
+
 export type RoleSortable = "name" | "created_at";
 export type RoleFilterable = "is_active" | "created_at";
 export type RoleIncludable = "permissions";

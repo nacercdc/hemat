@@ -17,7 +17,7 @@ export function usePutMutation<Entity, Mutate = Entity>(path: string) {
       return await put<Entity, Mutate>({
         path: fullPath,
         isProtected: request?.isProtected ?? true,
-        data: request.data,
+        data: request?.data,
         configs: {
           baseURL: request?.baseURL,
           headers: request?.headers,
