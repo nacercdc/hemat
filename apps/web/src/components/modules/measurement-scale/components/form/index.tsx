@@ -13,9 +13,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ScaleCreate } from "~/libs/models/scale.model";
 import { useMemo, useState } from "react";
-
-// TODO: Replace with actual language data
-import { LANGUAGE_OPTIONS } from "../../constants";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import type { Language } from "~/libs/models/language.model";
 
 interface Props {
   onSubmitScaleFormHandler: (values: ScaleCreate) => void;
@@ -32,6 +32,17 @@ export function ScaleForm({
 }: Props) {
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
     scale?.translations ? Object.keys(scale.translations) : ["en"]
+  );
+
+  const { data: languages, ...languagesState } = useFindAll<
+    QueryManyResponse<Language>
+  >({
+    path: "/languages",
+  });
+
+  const languageOptions = useMemo(
+    () => (languages?.data as unknown as Language[]) ?? [],
+    [languages?.data]
   );
 
   const ScaleFormSchema = z
@@ -78,7 +89,7 @@ export function ScaleForm({
 
   const defaultTranslations = useMemo(() => {
     return Object.fromEntries(
-      LANGUAGE_OPTIONS.map((lang) => [
+      languageOptions.map((lang) => [
         lang.code,
         {
           name: scale?.translations?.[lang.code]?.name ?? "",
@@ -86,7 +97,7 @@ export function ScaleForm({
         },
       ])
     );
-  }, [scale]);
+  }, [languageOptions, scale?.translations]);
 
   const {
     control,
@@ -109,7 +120,7 @@ export function ScaleForm({
 
   const onLanguageSelect = (lang?: { name: string }) => {
     if (!lang) return;
-    const langCode = LANGUAGE_OPTIONS.find((l) => l.name === lang.name)?.code;
+    const langCode = languageOptions.find((l) => l.name === lang.name)?.code;
     if (langCode && !selectedLanguages.includes(langCode)) {
       setSelectedLanguages([...selectedLanguages, langCode]);
       if (!defaultTranslations[langCode]) {
@@ -127,25 +138,27 @@ export function ScaleForm({
     setSelectedLanguages(["en"]);
   };
 
+  const onSubmitHandler = (values: ScaleFormData) => {
+    const filteredTranslations = Object.fromEntries(
+      Object.entries(values.translations || {})
+        .filter(([key]) => values.selectedLanguages.includes(key))
+        .map(([key, value]) => [
+          key,
+          {
+            name: value.name || "",
+            description: value.description || "",
+          },
+        ])
+    );
+    onSubmitScaleFormHandler({
+      ...values,
+      translations: filteredTranslations,
+    });
+  };
+
   return (
     <form
-      onSubmit={handleSubmit((values) => {
-        const filteredTranslations = Object.fromEntries(
-          Object.entries(values.translations || {})
-            .filter(([key]) => values.selectedLanguages.includes(key))
-            .map(([key, value]) => [
-              key,
-              {
-                name: value.name || "",
-                description: value.description || "",
-              },
-            ])
-        );
-        onSubmitScaleFormHandler({
-          ...values,
-          translations: filteredTranslations,
-        });
-      })}
+      onSubmit={handleSubmit(onSubmitHandler)}
       className="flex flex-col w-full h-[557px] bg-card rounded-xl relative"
     >
       <div className="sticky top-0 z-10 bg-card px-8 pt-8 mb-6">
@@ -179,12 +192,13 @@ export function ScaleForm({
           </div>
           <Select<{ name: string }>
             placeholder="Select Language"
-            options={LANGUAGE_OPTIONS.filter(
-              (lang) => !selectedLanguages.includes(lang.code)
-            ).map((lang) => ({ name: lang.name }))}
+            options={languageOptions
+              .filter((lang) => !selectedLanguages.includes(lang.code))
+              .map((lang) => ({ name: lang.name }))}
             valueKey="name"
             labelKey="name"
             onSelect={onLanguageSelect}
+            loading={languagesState.isLoading}
             size="lg"
           />
           <InputRHF<ScaleFormData>
@@ -197,7 +211,7 @@ export function ScaleForm({
             error={errors.name?.message}
           />
           {selectedLanguages.map((langCode) => {
-            const lang = LANGUAGE_OPTIONS.find((l) => l.code === langCode);
+            const lang = languageOptions.find((l) => l.code === langCode);
             return (
               <div key={langCode} className="flex gap-2">
                 <div className="text-sm font-medium">{`${lang?.code.toUpperCase()}:`}</div>
@@ -226,7 +240,7 @@ export function ScaleForm({
             error={errors.description?.message}
           />
           {selectedLanguages.map((langCode) => {
-            const lang = LANGUAGE_OPTIONS.find((l) => l.code === langCode);
+            const lang = languageOptions.find((l) => l.code === langCode);
             return (
               <div key={langCode} className="flex gap-2">
                 <div className="text-sm font-medium">{`${lang?.code.toUpperCase()}:`}</div>
