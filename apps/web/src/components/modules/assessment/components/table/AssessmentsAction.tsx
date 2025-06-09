@@ -10,17 +10,21 @@ interface Props {
   assessment: Assessment;
   refetch?: () => void;
 }
-export default function CustomerAction({ assessment }: Props) {
+export default function AssessmentAction({ assessment }: Props) {
   const deleteDialogRef = useRef<DialogRef>(null);
 
   const router = useRouter();
 
-  const onDeleteAssessmentHandler = () => {
+  const onGotoUpdateAssessmentHandler = () => {
     //TODO: Implement delete assessment logic
   };
 
-  const onGotoUpdateCustomer = () => {
-    router.push(`/assessments/${assessment.id}/update`);
+  const onGotoUpdateAssessment = () => {
+    router.push(`/assessment/${assessment.id}/update`);
+  };
+
+  const onGotDetailAssessmentHandler = () => {
+    router.push(`/assessment/${assessment.id}/detail`);
   };
 
   return (
@@ -41,9 +45,7 @@ export default function CustomerAction({ assessment }: Props) {
             leftNode: (
               <Icon icon="solar:eye-outline" className="text-lg text-dark" />
             ),
-            onClick: () => {
-              console.log("Route to assessment detail");
-            },
+            onClick: onGotDetailAssessmentHandler,
           },
           {
             value: "edit",
@@ -51,7 +53,7 @@ export default function CustomerAction({ assessment }: Props) {
             leftNode: (
               <Icon icon="iconamoon:edit-light" className="text-lg text-dark" />
             ),
-            onClick: onGotoUpdateCustomer,
+            onClick: onGotoUpdateAssessment,
           },
           {
             value: "delete",
@@ -71,7 +73,7 @@ export default function CustomerAction({ assessment }: Props) {
         title="Delete Assessment"
         actionLabel="Delete"
         actionVariant="destructive"
-        onAction={onDeleteAssessmentHandler}
+        onAction={onGotoUpdateAssessmentHandler}
         autoClosable={false}
         actionLoading={false}
       >

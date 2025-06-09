@@ -158,7 +158,7 @@ export const buttonVariants = cva(
     },
     compoundVariants: compoundVariants as any,
     defaultVariants: defaultVariants as any,
-  },
+  }
 );
 
 export type ButtonVariants = VariantProps<typeof buttonVariants>;
@@ -175,6 +175,7 @@ interface Props extends ShadcnButtonPropsWithoutColor {
   variant?: ButtonVariants["variant"];
   size?: ButtonVariants["size"];
   color?: ButtonVariants["color"];
+  full?: boolean;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, Props>(
@@ -189,9 +190,10 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       disabled,
       leftNode,
       rightNode,
+      full = false,
       ...props
     },
-    ref,
+    ref
   ) => {
     return (
       <ShadcnButton
@@ -199,6 +201,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
         className={cn(
           buttonVariants({ variant, size, color }),
           variant === "link" && "h-auto px-0",
+          full && "w-full"
         )}
         variant={variant}
         disabled={loading || disabled}
@@ -216,5 +219,5 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
         {rightNode}
       </ShadcnButton>
     );
-  },
+  }
 );

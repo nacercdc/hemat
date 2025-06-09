@@ -82,21 +82,21 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
     description: 'Assessment answer object',
     type: () => AssessmentAnswer,
   })
-  @OneToOne(() => AssessmentAnswer, (answer) => answer.subComponent, {
+  @OneToMany(() => AssessmentAnswer, (answer) => answer.subComponent, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  answer: AssessmentAnswer | null;
+  answers: AssessmentAnswer[];
 
   @ApiPropertyOptional({
     description: 'Assessment roadmap object',
     type: () => Roadmap,
   })
-  @OneToMany(() => Roadmap, (roadmap) => roadmap.subComponents, {
+  @OneToMany(() => Roadmap, (roadmap) => roadmap.subComponent, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  roadmap: Roadmap | null;
+  roadmaps: Roadmap | null;
 
   @ApiPropertyOptional({
     description: 'Assessments related to this domain',

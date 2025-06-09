@@ -10,13 +10,13 @@ import {
   AssessmentMeasurementScale,
   MeasurementScale,
 } from '@database/entities';
+import { UUID } from '@shared/helpers';
+import { FindAllResponseDto } from '@shared/dtos';
+import { QueryService } from '@shared/services';
 import {
   AssessmentMeasurementScaleDto,
   FindAllAssessmentMeasurementScaleDto,
 } from '../dtos';
-import { UUID } from '@shared/helpers';
-import { FindAllResponseDto } from '@shared/dtos';
-import { QueryService } from '@shared/services';
 
 @Injectable()
 export class AssessmentMeasurementScaleService {

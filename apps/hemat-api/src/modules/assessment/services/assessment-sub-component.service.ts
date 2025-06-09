@@ -7,15 +7,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { AssessmentSubComponent, SubComponent } from '@database/entities';
+import { UUID } from '@shared/helpers';
+import { Filter, QueryService } from '@shared/services';
+import { FindAllResponseDto } from '@shared/dtos';
 import {
   AssessmentSubComponentDto,
   FindAllAssessmentSubComponentDto,
   FindOneAssessmentSubComponentDto,
 } from '../dtos';
-import { UUID } from '@shared/helpers';
-import { FindAllResponseDto } from '@shared/dtos';
-import { Filter, QueryService } from '@shared/services';
-
 @Injectable()
 export class AssessmentSubComponentService {
   private readonly loggerService = new Logger(

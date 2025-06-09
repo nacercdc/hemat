@@ -2,12 +2,19 @@ import React from "react";
 import type { ColumnDef } from "@etm/web-ui-components";
 import RolesAction from "./RolesAction";
 import type { Role } from "~/libs/models/role.model";
+import { PermissionModule } from "../form";
 
 interface Props {
   refetch: () => void;
+  modules: PermissionModule[];
+  permissions?: Permission[];
 }
 
-export const RolesTableColumns = ({ refetch }: Props): ColumnDef<Role>[] => [
+export const RolesTableColumns = ({
+  refetch,
+  modules,
+  permissions,
+}: Props): ColumnDef<Role>[] => [
   {
     header: "Role Name",
     id: "name",
@@ -15,12 +22,12 @@ export const RolesTableColumns = ({ refetch }: Props): ColumnDef<Role>[] => [
     accessorFn: (row) => row.name ?? "--",
   },
 
-  // {
-  //   header: "Permissions",
-  //   enableSorting: true,
-  //   id: "permissions",
-  //   accessorFn: (row) => row.permissions?.length.toString() ?? "--",
-  // },
+  {
+    header: "Permissions",
+    enableSorting: true,
+    id: "permissions",
+    accessorFn: (row) => row.permissions?.length.toString() ?? "--",
+  },
 
   {
     header: "Date Created",
@@ -41,6 +48,13 @@ export const RolesTableColumns = ({ refetch }: Props): ColumnDef<Role>[] => [
     accessorKey: "",
     enableColumnFilter: false,
     enableSorting: false,
-    cell: ({ row }) => <RolesAction role={row.original} onRefetch={refetch} />,
+    cell: ({ row }) => (
+      <RolesAction
+        role={row.original}
+        onRefetch={refetch}
+        modules={modules}
+        permissions={permissions}
+      />
+    ),
   },
 ];

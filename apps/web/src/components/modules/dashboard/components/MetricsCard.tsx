@@ -1,3 +1,4 @@
+import { cn } from "~/utils/cn.util";
 import { isLightColor } from "../utils/luminacity.util";
 
 interface Props {
@@ -13,7 +14,10 @@ export default function MetricsCard({ name, rate, color }: Props) {
     <div className="flex gap-5 items-center">
       <div
         style={{ background: color }}
-        className={`flex items-center justify-center w-9 h-6 rounded-sm font-bold text-sm ${textColor}`}
+        className={cn(
+          `flex items-center justify-center min-w-9 min-h-6 rounded-sm font-bold text-sm`,
+          textColor
+        )}
       >
         {rate}
       </div>

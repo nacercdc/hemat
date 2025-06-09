@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
 import React from "react";
 import { DropdownMenu } from "../../navigation";
 import { cn } from "../../shadcn-ui/utils/cn";
@@ -27,7 +29,7 @@ const buttonVariants = cva(
     },
     compoundVariants: compoundVariants as any,
     defaultVariants: defaultVariants as any,
-  },
+  }
 );
 
 interface Props<T> {
@@ -43,7 +45,7 @@ interface Props<T> {
   emptyText?: string;
   onValuesChange: (values: T[]) => void;
 }
-export default function CheckboxFilter<T>({
+export function CheckboxFilter<T>({
   title,
   options,
   valueKey,
@@ -67,11 +69,11 @@ export default function CheckboxFilter<T>({
               size,
               color,
             }),
-            "flex items-center gap-2 px-2 border-dark-lighter",
+            "flex items-center gap-2 px-2 border-dark-lighter"
           )}
         >
           <span className="flex items-center gap-1.5">
-            <Icon icon="solar:filter-linear" className="text-xl" />
+            <Icon icon="mage:filter" className="text-xl" />
             <span className="text-sm font-normal">{title}</span>
           </span>
           <Icon icon="stash:chevron-down-light" className="text-lg" />

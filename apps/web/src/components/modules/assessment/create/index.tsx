@@ -109,7 +109,7 @@ export function AssessmentsCreate() {
   }
   return (
     <PageContainer pageTitle="New Assessment" includeBreadcrumb={false}>
-      <div className="flex flex-col  md:w-[744px]  rounded-md   mx-auto bg-layout-bg">
+      <div className="flex flex-col  md:w-[744px]  rounded-md   mx-auto bg-dark-lighter/5">
         <form
           className="flex flex-col gap-6 px-8 pt-8"
           onSubmit={handleSubmit(onSubmit)}
@@ -189,7 +189,7 @@ export function AssessmentsCreate() {
             rows={4}
           />
         </form>
-        <div className="flex justify-between items-center w-full bg-layout-bg p-4 rounded-b-lg px-8">
+        <div className="flex justify-between items-center w-full bg-dark-lighter/5 p-4 rounded-b-lg px-8">
           <Button variant="outline" color="lightGray">
             Cancel
           </Button>
