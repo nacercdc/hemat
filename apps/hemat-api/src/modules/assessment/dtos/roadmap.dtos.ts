@@ -6,10 +6,12 @@ import {
   IsOptional,
   Length,
   IsDateString,
+  IsInt,
+  Min,
+  Max,
 } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
-import { FindAllDto } from '@shared/dtos';
-import { IsArrayContains, IsExists } from '@shared/validators';
+import { Type } from 'class-transformer';
+import { IsExists } from '@shared/validators';
 
 export class RoadmapCreateRequestDto {
   @ApiProperty({
@@ -199,6 +201,18 @@ export class RoadmapUpdateRequestDto {
   target?: string;
 
   @ApiPropertyOptional({
+    description: 'Current state of the roadmap based on scale rate',
+    example: 3,
+    type: Number,
+  })
+  @IsOptional()
+  @IsInt({ message: 'validation.currentState.isInt' })
+  @Min(1, { message: 'validation.currentState.min args: value:1' })
+  @Max(10, { message: 'validation.currentState.max args: value:10' })
+  @Type(() => Number)
+  currentState?: number;
+
+  @ApiPropertyOptional({
     description: 'Activities planned in the roadmap',
     example: 'Conduct outreach programs',
     type: String,
@@ -271,56 +285,4 @@ export class RoadmapUpdateRequestDto {
   @IsDateString({}, { message: 'validation.endTime.isDateString' })
   @Type(() => String)
   endTime?: string;
-}
-
-export class FindAllRoadmapDto extends FindAllDto {
-  @ApiPropertyOptional({
-    description:
-      'Comma-separated relations (e.g., assessmentAnswer,subComponent,measurementScale)',
-    type: String,
-  })
-  @IsArrayContains(['assessmentAnswer', 'subComponent', 'measurementScale'])
-  @IsString({ each: true })
-  @IsOptional()
-  @Type(() => String)
-  @Transform(({ value }) => (value ? value.trim().split(',') : []))
-  include: string[] = [];
-
-  @ApiPropertyOptional({
-    description:
-      'Comma-separated ascending sort fields (e.g., createdAt,updatedAt,startTime,endTime)',
-    type: String,
-  })
-  @IsArrayContains(['createdAt', 'updatedAt', 'startTime', 'endTime'])
-  @IsString({ each: true })
-  @IsOptional()
-  @Type(() => String)
-  @Transform(({ value }) => (value ? value.trim().split(',') : []))
-  ascending: string[] = [];
-
-  @ApiPropertyOptional({
-    description:
-      'Comma-separated descending sort fields (e.g., createdAt,updatedAt,startTime,endTime)',
-    type: String,
-  })
-  @IsArrayContains(['createdAt', 'updatedAt', 'startTime', 'endTime'])
-  @IsString({ each: true })
-  @IsOptional()
-  @Type(() => String)
-  @Transform(({ value }) => (value ? value.trim().split(',') : []))
-  descending: string[] = [];
-}
-
-export class FindOneRoadmapDto {
-  @ApiPropertyOptional({
-    description:
-      'Comma-separated relations (e.g., assessmentAnswer,subComponent,measurementScale)',
-    type: String,
-  })
-  @IsArrayContains(['assessmentAnswer', 'subComponent', 'measurementScale'])
-  @IsString({ each: true })
-  @IsOptional()
-  @Type(() => String)
-  @Transform(({ value }) => (value ? value.trim().split(',') : []))
-  include: string[] = [];
 }
