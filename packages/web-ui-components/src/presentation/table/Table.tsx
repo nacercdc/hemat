@@ -185,9 +185,10 @@ export function Table<TData extends object>({
     <div className={cn("w-full flex flex-col h-full")} ref={tableContainerRef}>
       {onSearchFilterChange ? (
         <div className="flex w-full justify-between items-center mb-2">
-          {collectionName && (
-            <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
-          )}
+          {collectionName &&
+            !(filterableColumns()?.[0] as FilterOptionsType[]).length && (
+              <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
+            )}
           <div className="flex gap-5 items-center justify-between w-full">
             {(filterableColumns()?.[0] as FilterOptionsType[]).length > 0 && (
               <div className="max-w-sm w-full mt-2">
