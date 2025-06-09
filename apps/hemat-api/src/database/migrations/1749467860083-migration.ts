@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1749380039911 implements MigrationInterface {
-    name = 'Migration1749380039911'
+export class Migration1749467860083 implements MigrationInterface {
+    name = 'Migration1749467860083'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "comments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" character varying NOT NULL, "comment" text NOT NULL, "responseId" uuid NOT NULL, CONSTRAINT "PK_8bf68bc960f2b69e818bdb90dcb" PRIMARY KEY ("id"))`);
@@ -54,7 +54,7 @@ export class Migration1749380039911 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE "assessment_sub_components" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "code" character varying NOT NULL, "name" character varying NOT NULL, "description" text NOT NULL, "assessmentId" uuid NOT NULL, "componentId" uuid NOT NULL, "translations" jsonb NOT NULL, CONSTRAINT "UQ_cff769b77ac3fefdd946c12084c" UNIQUE ("code", "assessmentId"), CONSTRAINT "PK_8f71c28168394a25295a8b7153d" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_b8872c355bac08350b10674213" ON "assessment_sub_components" ("assessmentId") `);
         await queryRunner.query(`CREATE INDEX "IDX_89a098a92c81b110a269e92a54" ON "assessment_sub_components" ("componentId") `);
-        await queryRunner.query(`CREATE TABLE "roadmaps" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "assessmentAnswerId" uuid NOT NULL, "subComponentId" uuid NOT NULL, "measurementScaleId" uuid NOT NULL, "target" character varying(1000) NOT NULL, "activities" text NOT NULL, "responsible" character varying(500) NOT NULL, "resources" text NOT NULL, "documentation" text NOT NULL, "startTime" TIMESTAMP NOT NULL, "endTime" TIMESTAMP NOT NULL, CONSTRAINT "PK_9b0d527f9c64d15405c21e7ca54" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "roadmaps" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "assessmentAnswerId" uuid NOT NULL, "subComponentId" uuid NOT NULL, "measurementScaleId" uuid NOT NULL, "target" character varying(1000) NOT NULL, "currentState" integer NOT NULL, "activities" text NOT NULL, "responsible" character varying(500) NOT NULL, "resources" text NOT NULL, "documentation" text NOT NULL, "startTime" TIMESTAMP NOT NULL, "endTime" TIMESTAMP NOT NULL, CONSTRAINT "PK_9b0d527f9c64d15405c21e7ca54" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_3301bc9bd5210c318b714c65a1" ON "roadmaps" ("assessmentAnswerId") `);
         await queryRunner.query(`CREATE INDEX "IDX_bf403fa995741d8fdab78c60b1" ON "roadmaps" ("subComponentId") `);
         await queryRunner.query(`CREATE INDEX "IDX_564a6d992ed9e51aaa5ea4a7e9" ON "roadmaps" ("measurementScaleId") `);

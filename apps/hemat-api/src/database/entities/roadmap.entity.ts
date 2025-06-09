@@ -70,6 +70,14 @@ export class Roadmap extends BaseEntityWithSoftDelete {
   target: string;
 
   @ApiProperty({
+    description: 'Current state of the roadmap based on scale rate',
+    example: 3,
+    type: Number,
+  })
+  @Column({ type: 'int' })
+  currentState: number;
+
+  @ApiProperty({
     description: 'Activities planned in the roadmap',
     example: 'Conduct outreach programs',
     type: String,
