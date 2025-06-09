@@ -26,8 +26,8 @@ import {
   ApiTooManyRequestsResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { AssessmentAnswer, AssessmentSubComponent } from '@database/entities';
-import { Abilities, AuthGuard } from '@shared/modules';
+import { AssessmentAnswer } from '@database/entities';
+import { Abilities, AuthGuard, AuthDto } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { AssessmentAnswerService } from '../services';
@@ -36,9 +36,7 @@ import {
   FindOneAssessmentAnswerDto,
   AssessmentAnswerCreateRequestDto,
   AssessmentAnswerUpdateRequestDto,
-  FindAllAssessmentSubComponentDto,
 } from '../dtos';
-import { AuthDto } from '@shared/modules';
 
 @ApiTags('Assessment Answers')
 @ApiBearerAuth()

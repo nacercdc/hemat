@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
   ParseUUIDPipe,
+  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,7 +27,7 @@ import {
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
 import { Roadmap } from '@database/entities';
-import { Abilities, AuthGuard } from '@shared/modules';
+import { Abilities, AuthGuard, AuthDto } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { RoadmapService } from '../services';
@@ -37,8 +38,8 @@ import {
   RoadmapUpdateRequestDto,
 } from '../dtos';
 
-@ApiBearerAuth()
 @ApiTags('Roadmaps')
+@ApiBearerAuth()
 @ApiBadRequestResponse({
   description: 'Bad Request',
   type: ExceptionResponseDto,
@@ -57,15 +58,11 @@ import {
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('assessments/:assessmentId/groups/:groupId/roadmaps')
+@Controller('assessments/:assessmentId/roadmaps')
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
-  @ApiOperation({
-    summary: 'Find all roadmaps',
-    description:
-      'Get all roadmaps for a specific assessment and group with pagination',
-  })
+  @ApiOperation({ summary: 'Get all roadmaps' })
   @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Roadmap> })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
@@ -81,16 +78,13 @@ export class RoadmapController {
   @Get()
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('groupId', new ParseUUIDPipe()) groupId: string,
     @Query() query: FindAllRoadmapDto,
-  ) {
-    return this.roadmapService.findAll(assessmentId, groupId, query);
+    @Request() req: { user: AuthDto },
+  ): Promise<FindAllResponseDto<Roadmap>> {
+    return this.roadmapService.findAll(assessmentId, query);
   }
 
-  @ApiOperation({
-    summary: 'Find one roadmap',
-    description: 'Get a roadmap by ID',
-  })
+  @ApiOperation({ summary: 'Get a roadmap by id' })
   @ApiOkResponse({ description: 'Ok', type: Roadmap })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
@@ -106,17 +100,14 @@ export class RoadmapController {
   @Get(':id')
   async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('groupId', new ParseUUIDPipe()) groupId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query() query: FindOneRoadmapDto,
-  ) {
-    return this.roadmapService.findOne(assessmentId, groupId, id, query);
+    @Request() req: { user: AuthDto },
+  ): Promise<Roadmap> {
+    return this.roadmapService.findOne(assessmentId, id, query);
   }
 
-  @ApiOperation({
-    summary: 'Create a roadmap',
-    description: 'Create a new roadmap',
-  })
+  @ApiOperation({ summary: 'Create a roadmap' })
   @ApiCreatedResponse({ description: 'Created', type: Roadmap })
   @ApiBadRequestResponse({
     description: 'Bad Request',
@@ -135,16 +126,13 @@ export class RoadmapController {
   @Post()
   async create(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('groupId', new ParseUUIDPipe()) groupId: string,
     @Body() payload: RoadmapCreateRequestDto,
-  ) {
-    return this.roadmapService.create(assessmentId, groupId, payload);
+    @Request() req: { user: AuthDto },
+  ): Promise<Roadmap> {
+    return this.roadmapService.create(assessmentId, payload, req.user.id);
   }
 
-  @ApiOperation({
-    summary: 'Update a roadmap',
-    description: 'Update a roadmap by ID',
-  })
+  @ApiOperation({ summary: 'Update a roadmap' })
   @ApiOkResponse({ description: 'Ok', type: Roadmap })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @ApiBadRequestResponse({
@@ -164,17 +152,14 @@ export class RoadmapController {
   @Put(':id')
   async update(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('groupId', new ParseUUIDPipe()) groupId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: RoadmapUpdateRequestDto,
-  ) {
-    return this.roadmapService.update(assessmentId, groupId, id, payload);
+    @Request() req: { user: AuthDto },
+  ): Promise<Roadmap> {
+    return this.roadmapService.update(assessmentId, id, payload, req.user.id);
   }
 
-  @ApiOperation({
-    summary: 'Delete a roadmap',
-    description: 'Soft delete a roadmap by ID',
-  })
+  @ApiOperation({ summary: 'Delete a roadmap' })
   @ApiOkResponse({ description: 'Ok', type: Roadmap })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @ApiBadRequestResponse({
@@ -194,16 +179,13 @@ export class RoadmapController {
   @Delete(':id')
   async delete(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('groupId', new ParseUUIDPipe()) groupId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
-  ) {
-    return this.roadmapService.delete(assessmentId, groupId, id);
+    @Request() req: { user: AuthDto },
+  ): Promise<Roadmap> {
+    return this.roadmapService.delete(assessmentId, id, req.user.id);
   }
 
-  @ApiOperation({
-    summary: 'Restore a roadmap',
-    description: 'Restore a soft-deleted roadmap by ID',
-  })
+  @ApiOperation({ summary: 'Restore a roadmap' })
   @ApiOkResponse({ description: 'Ok', type: Roadmap })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @ApiBadRequestResponse({
@@ -223,9 +205,9 @@ export class RoadmapController {
   @Post(':id/restore')
   async restore(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('groupId', new ParseUUIDPipe()) groupId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
-  ) {
-    return this.roadmapService.restore(assessmentId, groupId, id);
+    @Request() req: { user: AuthDto },
+  ): Promise<Roadmap> {
+    return this.roadmapService.restore(assessmentId, id, req.user.id);
   }
 }
