@@ -15,8 +15,15 @@ import { Table as ETMTable } from "@etm/web-ui-components";
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "~/constants";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import { RolesTableColumns } from "./RolesTableColumns";
+import { PermissionModule } from "../form";
+import { Permission } from "~/libs/models/permission.model";
 
-export function RolesTable() {
+interface Props {
+  modules: PermissionModule[];
+  permissions?: Permission[];
+}
+
+export function RolesTable({ modules, permissions }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [_sort, setSort] = useState([
@@ -88,6 +95,8 @@ export function RolesTable() {
     <ETMTable<Role>
       columns={RolesTableColumns({
         refetch: rolesState.refetch,
+        modules,
+        permissions,
       })}
       data={(roles?.data as unknown as Role[]) ?? []}
       onEmptyDataElement={OnEmptyDataElement}

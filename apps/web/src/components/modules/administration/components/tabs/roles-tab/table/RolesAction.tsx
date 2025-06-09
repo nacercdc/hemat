@@ -1,29 +1,96 @@
 "use client";
 
-import React, { useRef } from "react";
-import type { DialogRef, ModalRef } from "@etm/web-ui-components";
-import { Dialog, DropdownMenu, Modal } from "@etm/web-ui-components";
+import React, { useCallback, useRef } from "react";
+import { Dialog, DropdownMenu, Modal, useToast } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import type { Role } from "~/libs/models/role.model";
-import { RoleForm } from "../form";
+import { useQueryClient } from "@tanstack/react-query";
+import { PermissionModule, RoleForm } from "../form";
+import { Permission } from "~/libs/models/permission.model";
+import { getPermissionIds } from "~/components/modules/administration/utils";
+import type { DialogRef, ModalRef } from "@etm/web-ui-components";
 import type { PermissionType } from "~/components/modules/administration/types";
+import type { Role, UpdateRole } from "~/libs/models/role.model";
+import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 
 interface Props {
   role: Role;
   onRefetch?: () => void;
+  modules: PermissionModule[];
+  permissions?: Permission[];
 }
 
-export default function RolesAction({ role: _, onRefetch }: Props) {
+export default function RolesAction({
+  role,
+  onRefetch,
+  modules,
+  permissions,
+}: Props) {
   const updateRoleModalRef = useRef<ModalRef>(null);
   const deleteRoleDialogRef = useRef<DialogRef>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { mutate: updateRole, ...updateRoleState } = usePutMutation<
+    Role,
+    UpdateRole
+  >("roles");
 
   const onUpdateRoleFormSubmitHandler = (
-    _roleName: string,
-    _roleDescription: string,
-    _modulePermissions: Record<string, Record<PermissionType, boolean>>
+    roleName: string,
+    roleDescription: string,
+    modulePermissions: Record<string, Record<PermissionType, boolean>>
   ) => {
-    //TODO: implement update role
+    let permissionsIds: string[] = [];
+
+    if (permissions)
+      permissionsIds = getPermissionIds(
+        modules,
+        permissions as unknown as Permission[],
+        modulePermissions
+      );
+
+    updateRole(
+      {
+        data: {
+          name: roleName,
+          description: roleDescription,
+          permissionsIds,
+          id: role.id,
+        },
+        id: role.id,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            message: "Role has been updated successfully!",
+            variant: "success",
+          });
+          queryClient.invalidateQueries({ queryKey: ["/roles"] });
+          updateRoleModalRef.current?.closeModal();
+        },
+      }
+    );
   };
+
+  const rolePermissions = useCallback(() => {
+    let rolePerms: Record<
+      string,
+      Partial<Record<PermissionType, boolean>>
+    > = {};
+    role.permissions.forEach((perm) => {
+      const { action, subject } = perm;
+      rolePerms = {
+        ...rolePerms,
+        [subject]: {
+          ...rolePerms[subject],
+          [action]: true,
+        },
+      };
+    });
+
+    return rolePerms;
+  }, [role.permissions]);
 
   return (
     <>
@@ -68,18 +135,12 @@ export default function RolesAction({ role: _, onRefetch }: Props) {
       <Modal ref={updateRoleModalRef} title="Edit User">
         <RoleForm
           onSubmitRoleFormHandler={onUpdateRoleFormSubmitHandler}
-          rolePermissions={{ users: { create: true }, roles: { create: true } }}
-          modules={[
-            { name: "users", label: "Users" },
-            { name: "roles", label: "Roles" },
-          ]}
+          rolePermissions={rolePermissions()}
+          modules={modules}
           onCloseModal={() => updateRoleModalRef.current?.closeModal()}
           onRefetch={onRefetch}
-          role={{
-            name: "super-administrator",
-            description: "super-administrator role description",
-          }}
-          loading={false}
+          role={role}
+          loading={updateRoleState.isPending}
         />
       </Modal>
       <Dialog

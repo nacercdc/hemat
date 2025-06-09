@@ -25,11 +25,13 @@ type TabsType = "USERS" | "ROLES";
 
 export function Administration() {
   const [activeTab, setActiveTab] = useState<TabsType>("USERS");
-  const addRoleModalRef = useRef<ModalRef>(null);
-  const addUserModalRef = useRef<ModalRef>(null);
   const [modules, setModules] = useState<PermissionModule[]>([]);
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const addRoleModalRef = useRef<ModalRef>(null);
+  const addUserModalRef = useRef<ModalRef>(null);
 
   const { mutate: createRole, ...createRoleState } = useAddMutation<
     Role,
@@ -141,7 +143,10 @@ export function Administration() {
               label: "Roles",
               content: (
                 <div className="mt-7">
-                  <RolesTable />
+                  <RolesTable
+                    modules={modules}
+                    permissions={permissions?.data as unknown as Permission[]}
+                  />
                 </div>
               ),
             },
@@ -154,9 +159,6 @@ export function Administration() {
         <RoleForm
           onSubmitRoleFormHandler={onAddNewRoleFormSubmitHandler}
           onCloseModal={addRoleModalRef.current?.closeModal}
-          onRefetch={() => {
-            //TODO: replace with refetch func
-          }}
           modules={modules}
           loading={createRoleState.isPending}
         />
