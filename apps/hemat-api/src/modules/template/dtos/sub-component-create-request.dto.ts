@@ -61,16 +61,6 @@ export class SubComponentCreateRequestDto {
   description: string;
 
   @ApiProperty({
-    description: 'Whether the sub-component is active',
-    example: true,
-    type: Boolean,
-  })
-  @IsNotEmpty({ message: 'validation.isActive.isNotEmpty' })
-  @IsBoolean({ message: 'validation.isActive.isBoolean' })
-  @Type(() => Boolean)
-  isActive: boolean;
-
-  @ApiProperty({
     description: 'ID of the associated component',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,

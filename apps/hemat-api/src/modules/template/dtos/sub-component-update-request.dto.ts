@@ -24,7 +24,7 @@ export class SubComponentUpdateRequestDto {
   @IsString({ message: 'validation.code.isString' })
   @Length(1, 50, { message: 'validation.code.length args: min:1 | max:50' })
   @IsUnique(
-    { tableName: 'sub_components', columns: ['code']},
+    { tableName: 'sub_components', columns: ['code'] },
     { message: 'validation.code.isUnique' },
   )
   @Type(() => String)
@@ -57,16 +57,6 @@ export class SubComponentUpdateRequestDto {
   })
   @Type(() => String)
   description?: string;
-
-  @ApiPropertyOptional({
-    description: 'Whether the sub-component is active',
-    example: true,
-    type: Boolean,
-  })
-  @IsOptional()
-  @IsBoolean({ message: 'validation.isActive.isBoolean' })
-  @Type(() => Boolean)
-  isActive?: boolean;
 
   @ApiPropertyOptional({
     description: 'ID of the associated component',

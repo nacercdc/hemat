@@ -4,8 +4,6 @@ import {
   IsNotEmpty,
   Length,
   IsUUID,
-  IsBoolean,
-  IsOptional,
   IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -57,16 +55,6 @@ export class ComponentCreateRequestDto {
   })
   @Type(() => String)
   description: string;
-
-  @ApiProperty({
-    description: 'Whether the component is active',
-    example: true,
-    type: Boolean,
-  })
-  @IsNotEmpty({ message: 'validation.isActive.isNotEmpty' })
-  @IsBoolean({ message: 'validation.isActive.isBoolean' })
-  @Type(() => Boolean)
-  isActive: boolean;
 
   @ApiProperty({
     description: 'ID of the associated domain',
