@@ -25,7 +25,6 @@ export default function MeasurementScale() {
   const onCancelScaleFormHandler = () => addScaleModalRef.current?.closeModal();
 
   const onSubmitScaleFormHandler = (data: ScaleFormData) => {
-    console.log(data, "Subm");
     createScale(
       {
         data: {

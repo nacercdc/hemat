@@ -15,12 +15,7 @@ import type { ScaleCreate } from "~/libs/models/scale.model";
 import { useMemo, useState } from "react";
 
 // TODO: Replace with actual language data
-const LANGUAGE_OPTIONS = [
-  { code: "en", name: "English" },
-  { code: "sw", name: "Swahili" },
-  { code: "am", name: "Amharic" },
-  { code: "fr", name: "French" },
-] as const;
+import { LANGUAGE_OPTIONS } from "../../constants";
 
 interface Props {
   onSubmitScaleFormHandler: (values: ScaleCreate) => void;
