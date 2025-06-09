@@ -55,6 +55,7 @@ export default function useFetch() {
       method: "PUT",
       isProtected: option?.isProtected,
       path: option.path,
+      data: option.data as any,
       configs: option.configs,
     });
   }
