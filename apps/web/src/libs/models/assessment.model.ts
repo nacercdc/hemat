@@ -28,4 +28,5 @@ export interface Assessment {
   country: Country;
   status: StatusType;
   createdAt: string;
+  description?: string;
 }

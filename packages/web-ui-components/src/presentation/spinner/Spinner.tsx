@@ -32,10 +32,12 @@ export function Spinner({ size = "md", color = "primary" }: Props) {
   };
 
   return (
-    <div
-      className={`inline-block animate-spin rounded-full border-4 border-solid ${colorClasses[color]} border-r-transparent  ${sizeClasses[size]}`}
-    >
-      <span className="sr-only">Loading...</span>
+    <div>
+      <div
+        className={`inline-block animate-spin rounded-full border-4 border-solid ${colorClasses[color]} border-r-transparent  ${sizeClasses[size]}`}
+      >
+        <span className="sr-only">Loading...</span>
+      </div>
     </div>
   );
 }

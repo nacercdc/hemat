@@ -63,16 +63,6 @@ export class DomainUpdateRequestDto {
   description?: string;
 
   @ApiPropertyOptional({
-    description: 'Whether the domain is active',
-    example: true,
-    type: Boolean,
-  })
-  @IsOptional()
-  @IsBoolean({ message: 'validation.isActive.isBoolean' })
-  @Type(() => Boolean)
-  isActive?: boolean;
-
-  @ApiPropertyOptional({
     description: 'Translations for the domain',
     example: {
       en: {

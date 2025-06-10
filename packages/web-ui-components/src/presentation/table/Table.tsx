@@ -89,7 +89,7 @@ export function Table<TData extends object>({
             ...columns,
           ]
         : [...columns],
-    [columns, enableRowSelection],
+    [columns, enableRowSelection]
   );
 
   const table = useReactTable({
@@ -127,7 +127,7 @@ export function Table<TData extends object>({
 
   React.useEffect(() => {
     const selectedRowIds = Object.keys(rowSelection).filter(
-      (id) => rowSelection[id] === true,
+      (id) => rowSelection[id] === true
     );
     onRowSelectionChange?.(selectedRowIds);
   }, [rowSelection, onRowSelectionChange]);
@@ -164,9 +164,9 @@ export function Table<TData extends object>({
             }
             return;
           })
-          .filter((item) => item !== undefined),
+          .filter((item) => item !== undefined)
       ),
-    [table],
+    [table]
   );
 
   const loadingRows = Array.from({ length: 10 }).map((_, i) => (
@@ -185,16 +185,16 @@ export function Table<TData extends object>({
     <div className={cn("w-full flex flex-col h-full")} ref={tableContainerRef}>
       {onSearchFilterChange ? (
         <div className="flex w-full justify-between items-center mb-2">
-          {collectionName && (
-            <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
-          )}
-          <div className="flex gap-5 items-center">
+          {collectionName &&
+            !(filterableColumns()?.[0] as FilterOptionsType[]).length && (
+              <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
+            )}
+          <div className="flex gap-5 items-center justify-between w-full">
             {(filterableColumns()?.[0] as FilterOptionsType[]).length > 0 && (
-              <div className="min-w-1/4 mt-2">
+              <div className="max-w-sm w-full mt-2">
                 <Input
-                  type="search"
                   name="filter"
-                  size="md"
+                  size="lg"
                   leftNode={
                     <Icon icon="mynaui:search" className="ml-3 text-xl" />
                   }
@@ -225,12 +225,12 @@ export function Table<TData extends object>({
                         "text-left py-4 px-2 font-bold text-[13px]",
                         "cursor-pointer",
                         header.id === "select" && "w-0",
-                        header.id === "Action" && "text-right",
+                        header.id === "Action" && "text-right"
                       )}
                     >
                       {flexRender(
                         header.column.columnDef.header,
-                        header.getContext(),
+                        header.getContext()
                       )}
                       {{
                         asc: (
@@ -267,10 +267,10 @@ export function Table<TData extends object>({
                           <div className="flex items-center justify-center w-32 h-32 rounded-full bg-tbaccent">
                             <Icon
                               icon="fluent:collections-empty-20-regular"
-                              className="w-16 h-16 text-secondary"
+                              className="w-16 h-16 text-primary"
                             />
                           </div>
-                          <h6 className="text-secondary text-sm">
+                          <h6 className="text-primary text-sm">
                             Sorry, no results found
                           </h6>
                         </div>
@@ -294,7 +294,7 @@ export function Table<TData extends object>({
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext(),
+                          cell.getContext()
                         )}
                       </td>
                     ))}

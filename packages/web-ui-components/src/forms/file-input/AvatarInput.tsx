@@ -57,8 +57,8 @@ export const AvatarInput = forwardRef<HTMLInputElement, Props>(
         >
           {!filePreviewURL && !initialFilePreviewURL && (
             <Icon
-              icon="iconoir:camera"
-              className="w-24 h-24 p-6 bg-tbaccent hover:bg-muted-foreground"
+              icon="clarity:avatar-line"
+              className="w-24 h-24 p-6 bg-primary/10 hover:bg-primary/15"
             />
           )}
           {!filePreviewURL && initialFilePreviewURL && (
@@ -78,5 +78,5 @@ export const AvatarInput = forwardRef<HTMLInputElement, Props>(
         </div>
       </div>
     );
-  },
+  }
 );

@@ -31,6 +31,7 @@ export class DomainService {
   async findAll(query: FindAllDomainDto): Promise<FindAllResponseDto<Domain>> {
     try {
       return await new QueryService<Domain>(this.domainRepository)
+        .join(query.include)
         .filter(this.filters(query), {
           fields: ['code', 'name'],
           value: query.search,

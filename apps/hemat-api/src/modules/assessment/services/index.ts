@@ -6,6 +6,8 @@ import { AssessmentMeasurementScaleService } from './assessment-measuremnt-scale
 import { AssessmentMeasurementScaleSubComponentService } from './assessment-measuremnt-scale-sub-component.service';
 import { AssessmentGroupService } from './assessment-group.service';
 import { AssessmentMemberService } from './assessment-member.service';
+import { AssessmentAnswerService } from './assessment-answer.service';
+import { RoadmapService } from './roadmap.service';
 
 export {
   AssessmentService,
@@ -16,6 +18,8 @@ export {
   AssessmentMeasurementScaleSubComponentService,
   AssessmentMemberService,
   AssessmentSubComponentService,
+  AssessmentAnswerService,
+  RoadmapService,
 };
 
 export const ASSESSMENT_SERVICES = [
@@ -27,4 +31,6 @@ export const ASSESSMENT_SERVICES = [
   AssessmentMeasurementScaleSubComponentService,
   AssessmentMemberService,
   AssessmentSubComponentService,
+  AssessmentAnswerService,
+  RoadmapService,
 ];

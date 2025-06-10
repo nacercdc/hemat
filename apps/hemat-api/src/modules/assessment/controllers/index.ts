@@ -6,3 +6,5 @@ export * from './assessment-measurement-scale.controller';
 export * from './assessment-measurement-scale-sub-component.controller';
 export * from './assessment-group.controller';
 export * from './assessment-member.controller';
+export * from './assessment-answer.controller';
+export * from './roadmap.controller';

@@ -10,14 +10,10 @@ interface Props {
   assessment: Assessment;
   refetch?: () => void;
 }
-export default function CustomerAction({ assessment }: Props) {
+export default function AssessmentAction({ assessment }: Props) {
   const deleteDialogRef = useRef<DialogRef>(null);
 
   const router = useRouter();
-
-  const onDeleteAssessmentHandler = () => {
-    //TODO: Implement delete assessment logic
-  };
 
   const onGotoUpdateAssessmentHandler = () => {
     router.push(`/assessment/${assessment.id}/update`);
@@ -73,7 +69,7 @@ export default function CustomerAction({ assessment }: Props) {
         title="Delete Assessment"
         actionLabel="Delete"
         actionVariant="destructive"
-        onAction={onDeleteAssessmentHandler}
+        onAction={onGotoUpdateAssessmentHandler}
         autoClosable={false}
         actionLoading={false}
       >

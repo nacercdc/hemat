@@ -68,6 +68,10 @@ export function buildQueryString<
     params.append("include", query.include.join(","));
   }
 
+  if (query.search !== undefined) {
+    params.set("search", query.search.toString());
+  }
+
   if (query.page !== undefined) {
     params.set("page", query.page.toString());
   }

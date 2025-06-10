@@ -148,6 +148,7 @@ export class UserBaseRequestDto {
     uniqueItems: true,
     type: String,
     isArray: true,
+    required: false,
   })
   @IsArray({ message: 'validation.permissionsIds.isArray' })
   @IsUUID('all', { each: true, message: 'validation.permissionsIds.isUUID' })
@@ -163,7 +164,7 @@ export class UserBaseRequestDto {
   )
   @IsOptional()
   @Type(() => String)
-  permissionsIds: string[] = [];
+  permissionsIds?: string[];
 }
 
 export class UserCreateRequestDto extends UserBaseRequestDto {

@@ -1,8 +1,9 @@
 import React from "react";
-// import { UpsideDownInvertedTabs } from "~/components/ui/upside-down-inverted-tabs";
+
 import { PageContainer } from "../../components/PageContainer";
 import { CurrentAssessment } from "./tabs/current-assessment";
 import { Tabs } from "@etm/web-ui-components";
+import AssessmentOverview from "./tabs/overview";
 
 export function AssessmentDetail() {
   const assessmentName = "Assessment 1";
@@ -14,16 +15,12 @@ export function AssessmentDetail() {
             {
               value: "detail",
               label: "Detail",
-              content: <div className="mt-7">Detail</div>,
+              content: <AssessmentOverview />,
             },
             {
               value: "current-assessment",
               label: "Current assessment",
-              content: (
-                <div>
-                  <CurrentAssessment />
-                </div>
-              ),
+              content: <CurrentAssessment />,
             },
           ]}
           defaultValue="detail"

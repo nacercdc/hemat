@@ -59,16 +59,6 @@ export class DomainCreateRequestDto {
   description: string;
 
   @ApiProperty({
-    description: 'Whether the domain is active',
-    example: true,
-    type: Boolean,
-  })
-  @IsNotEmpty({ message: 'validation.isActive.isNotEmpty' })
-  @IsBoolean({ message: 'validation.isActive.isBoolean' })
-  @Type(() => Boolean)
-  isActive: boolean;
-
-  @ApiProperty({
     description: 'Translations for the domain',
     example: {
       en: {

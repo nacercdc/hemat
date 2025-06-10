@@ -1,16 +1,97 @@
 "use client";
 
-import React from "react";
-import { DropdownMenu } from "@etm/web-ui-components";
+import React, { useCallback, useRef } from "react";
+import { Dialog, DropdownMenu, Modal, useToast } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import type { Role } from "~/libs/models/role.model";
+import { useQueryClient } from "@tanstack/react-query";
+import { PermissionModule, RoleForm } from "../form";
+import { Permission } from "~/libs/models/permission.model";
+import { getPermissionIds } from "~/components/modules/administration/utils";
+import type { DialogRef, ModalRef } from "@etm/web-ui-components";
+import type { PermissionType } from "~/components/modules/administration/types";
+import type { Role, UpdateRole } from "~/libs/models/role.model";
+import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 
 interface Props {
   role: Role;
   onRefetch?: () => void;
+  modules: PermissionModule[];
+  permissions?: Permission[];
 }
 
-export default function RolesAction({ role: _ }: Props) {
+export default function RolesAction({
+  role,
+  onRefetch,
+  modules,
+  permissions,
+}: Props) {
+  const updateRoleModalRef = useRef<ModalRef>(null);
+  const deleteRoleDialogRef = useRef<DialogRef>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { mutate: updateRole, ...updateRoleState } = usePutMutation<
+    Role,
+    UpdateRole
+  >("roles");
+
+  const onUpdateRoleFormSubmitHandler = (
+    roleName: string,
+    roleDescription: string,
+    modulePermissions: Record<string, Record<PermissionType, boolean>>
+  ) => {
+    let permissionsIds: string[] = [];
+
+    if (permissions)
+      permissionsIds = getPermissionIds(
+        modules,
+        permissions as unknown as Permission[],
+        modulePermissions
+      );
+
+    updateRole(
+      {
+        data: {
+          name: roleName,
+          description: roleDescription,
+          permissionsIds,
+          id: role.id,
+        },
+        id: role.id,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            message: "Role has been updated successfully!",
+            variant: "success",
+          });
+          queryClient.invalidateQueries({ queryKey: ["/roles"] });
+          updateRoleModalRef.current?.closeModal();
+        },
+      }
+    );
+  };
+
+  const rolePermissions = useCallback(() => {
+    let rolePerms: Record<
+      string,
+      Partial<Record<PermissionType, boolean>>
+    > = {};
+    role.permissions.forEach((perm) => {
+      const { action, subject } = perm;
+      rolePerms = {
+        ...rolePerms,
+        [subject]: {
+          ...rolePerms[subject],
+          [action]: true,
+        },
+      };
+    });
+
+    return rolePerms;
+  }, [role.permissions]);
+
   return (
     <>
       <DropdownMenu
@@ -22,8 +103,56 @@ export default function RolesAction({ role: _ }: Props) {
             className="text-xl text-right text-dark"
           />
         }
-        options={[]}
+        options={[
+          {
+            value: "edit",
+            label: "edit",
+            leftNode: (
+              <Icon
+                icon="iconamoon:edit-light"
+                className="!text-lg text-dark"
+              />
+            ),
+            onClick: () => {
+              updateRoleModalRef.current?.openModal();
+            },
+          },
+          {
+            value: "delete",
+            label: "Delete",
+            leftNode: (
+              <Icon
+                icon="material-symbols-light:delete-outline"
+                className="!text-xl text-dark"
+              />
+            ),
+            onClick: () => {
+              deleteRoleDialogRef.current?.openDialog();
+            },
+          },
+        ]}
       />
+      <Modal ref={updateRoleModalRef} title="Edit User">
+        <RoleForm
+          onSubmitRoleFormHandler={onUpdateRoleFormSubmitHandler}
+          rolePermissions={rolePermissions()}
+          modules={modules}
+          onCloseModal={() => updateRoleModalRef.current?.closeModal()}
+          onRefetch={onRefetch}
+          role={role}
+          loading={updateRoleState.isPending}
+        />
+      </Modal>
+      <Dialog
+        ref={deleteRoleDialogRef}
+        actionLabel="Yes"
+        onAction={() => {
+          //TODO: implement on delete role action
+        }}
+        title="Delete Role"
+      >
+        Are you sure you want to delete this role?
+      </Dialog>
     </>
   );
 }

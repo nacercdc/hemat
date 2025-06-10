@@ -179,6 +179,7 @@ interface Props extends ShadcnButtonPropsWithoutColor {
   variant?: ButtonVariants["variant"];
   size?: ButtonVariants["size"];
   color?: ButtonVariants["color"];
+  full?: boolean;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, Props>(
@@ -193,6 +194,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       disabled,
       leftNode,
       rightNode,
+      full = false,
       ...props
     },
     ref
@@ -202,7 +204,8 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
         {...props}
         className={cn(
           buttonVariants({ variant, size, color }),
-          variant === "link" && "h-auto px-0"
+          variant === "link" && "h-auto px-0",
+          full && "w-full"
         )}
         variant={variant}
         disabled={loading || disabled}

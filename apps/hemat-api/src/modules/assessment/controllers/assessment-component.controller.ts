@@ -7,6 +7,7 @@ import {
   HttpCode,
   UseGuards,
   Query,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,12 +21,19 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AssessmentComponent } from '@database/entities';
+import {
+  AssessmentComponent,
+  AssessmentSubComponent,
+} from '@database/entities';
 import { AuthGuard, Abilities } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { AssessmentComponentService } from '../services';
-import { AssessmentComponentDto, FindAllAssessmentComponentDto } from '../dtos';
+import {
+  AssessmentComponentDto,
+  FindAllAssessmentComponentDto,
+  FindAllAssessmentSubComponentDto,
+} from '../dtos';
 import { ParseUUIDPipe } from '@nestjs/common';
 
 @ApiBearerAuth()
@@ -48,7 +56,7 @@ import { ParseUUIDPipe } from '@nestjs/common';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('assessments/:assessmentId/components')
+@Controller()
 export class AssessmentComponentController {
   constructor(
     private readonly assessmentComponentService: AssessmentComponentService,
@@ -74,7 +82,7 @@ export class AssessmentComponentController {
       },
     ],
   })
-  @Get()
+  @Get('assessments/:assessmentId/components')
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query() query: FindAllAssessmentComponentDto,
@@ -98,7 +106,7 @@ export class AssessmentComponentController {
       },
     ],
   })
-  @Get(':id')
+  @Get('assessments/:assessmentId/components/:id')
   async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -122,12 +130,36 @@ export class AssessmentComponentController {
       },
     ],
   })
-  @Put(':id')
+  @Put('assessments/:assessmentId/components/:id')
   async update(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() payload: AssessmentComponentDto,
   ): Promise<AssessmentComponent> {
     return this.assessmentComponentService.update(assessmentId, id, payload);
+  }
+
+  @ApiOperation({
+    summary: 'Find sub components',
+    description: 'Get all sub components for a component by ID',
+  })
+  @ApiOkResponse({ description: 'Ok', type: [AssessmentSubComponent] })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT_SUB_COMPONENT,
+      },
+    ],
+  })
+  @Get('assessmentSubcomponents/:id/subcomponents')
+  async findSubComponents(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: FindAllAssessmentSubComponentDto,
+  ) {
+    return this.assessmentComponentService.findSubComponents(id, query);
   }
 }

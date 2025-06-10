@@ -1,5 +1,6 @@
 import { Progress } from "@etm/web-ui-components";
 import { isLightColor } from "../utils/luminacity.util";
+import { cn } from "~/utils/cn.util";
 
 interface Props {
   domain: string;
@@ -22,7 +23,10 @@ export default function DomainMetricsCard({ domain, scale }: Props) {
       <div className="flex gap-1">
         <span className="text-xs font-normal">{scale.name}</span>
         <div
-          className={`flex items-center justify-center w-5 h-4 rounded-[3px] text-xs font-medium ${textColor}`}
+          className={cn(
+            `flex items-center justify-center min-w-5 min-h-4 rounded-[3px] text-xs font-medium`,
+            textColor
+          )}
           style={{ background: scale.color }}
         >
           {scale.rate}
