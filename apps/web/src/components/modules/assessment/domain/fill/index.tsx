@@ -28,6 +28,7 @@ interface Domain {
   name: string;
   components: Component[];
 }
+//TODO : Replace with real data
 
 const domain: Domain = {
   id: "1",
@@ -80,6 +81,8 @@ const domain: Domain = {
     },
   ],
 };
+
+//TODO : Replace with real data
 
 const measurementScales: Scale[] = [
   {
@@ -197,14 +200,10 @@ export function DomainFill() {
 
   // Handle form submission and navigation
   const onSubmit = useCallback(
-    (data: SubComponentFormData) => {
+    (_data: SubComponentFormData) => {
       if (!activeComponent || !activeSubComponent) return;
 
-      // Log form data (replace with actual submission logic if needed)
-      console.log(
-        `Form submitted for subcomponent ${activeSubComponent.id}:`,
-        data
-      );
+      //TODO: add submission logic
 
       const currentComponentIndex = domain.components.findIndex(
         (c) => c.id === activeComponent.id
@@ -213,7 +212,7 @@ export function DomainFill() {
         (sc) => sc.id === activeSubComponent.id
       );
 
-      // Navigate to next subcomponent or component
+      // Navigate to next subComponent or component
       if (currentSubComponentIndex < activeComponent.subComponents.length - 1) {
         setActiveSubComponent(
           activeComponent.subComponents[currentSubComponentIndex + 1]
@@ -290,10 +289,12 @@ export function DomainFill() {
                   "flex items-center justify-between p-4 rounded-xl h-14 border border-basic-300 cursor-pointer",
                   activeComponent?.id === component.id && "bg-layout-bg"
                 )}
-                onClick={() => {
-                  setActiveComponent(component);
-                  setActiveSubComponent(component.subComponents[0]);
-                }}
+                //TODO refine onClick handler to set active component and subComponent
+
+                // onClick={() => {
+                //   setActiveComponent(component);
+                //   setActiveSubComponent(component.subComponents[0]);
+                // }}
               >
                 <span className="text-sm font-medium">{component.name}</span>
                 <Icon icon="ion:chevron-forward-outline" className="w-4 h-4" />
