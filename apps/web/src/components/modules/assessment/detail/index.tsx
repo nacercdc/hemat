@@ -2,6 +2,7 @@ import React from "react";
 import { PageContainer } from "../../components/PageContainer";
 import { Tabs } from "@etm/web-ui-components";
 import AssessmentOverview from "./tabs/overview";
+import MemberInvitation from "./tabs/members";
 
 export function AssessmentDetail() {
   const assessmentName = "Assessment 1";
@@ -14,6 +15,17 @@ export function AssessmentDetail() {
               value: "detail",
               label: "Detail",
               content: <AssessmentOverview />,
+            },
+
+            {
+              value: "setting",
+              label: "Setting",
+              content: <AssessmentOverview />,
+            },
+            {
+              value: "member",
+              label: "Member",
+              content: <MemberInvitation />,
             },
           ]}
           defaultValue="detail"

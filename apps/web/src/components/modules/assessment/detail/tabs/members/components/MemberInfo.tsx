@@ -9,12 +9,7 @@ interface Props {
   avatarUrl?: string;
 }
 
-export default function GroupMemberCard({
-  name,
-  email,
-  isLeader = false,
-  avatarUrl,
-}: Props) {
+export default function MemberInfo({ name, email, avatarUrl }: Props) {
   return (
     <div className="flex gap-2 justify-between px-2">
       <div className="flex gap-2">
@@ -29,11 +24,6 @@ export default function GroupMemberCard({
           <span>{email}</span>
         </div>
       </div>
-      {isLeader ? (
-        <span className="text-xs font-bold items-center">Leader</span>
-      ) : (
-        <span className="text-xs font-normal items-center">Member</span>
-      )}
     </div>
   );
 }
