@@ -9,7 +9,7 @@ export class FindAllComponentDto extends FindAllDto {
     description: 'Comma-separated relations (e.g., domain)',
     type: String,
   })
-  @IsArrayContains(['domain', 'sub_components'])
+  @IsArrayContains(['domain', 'subComponents'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -58,7 +58,7 @@ export class FindOneComponentDto {
     description: 'Comma-separated relations (e.g., domain)',
     type: String,
   })
-  @IsArrayContains(['domain'])
+  @IsArrayContains(['domain', 'subComponents'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
