@@ -2,7 +2,7 @@ import React from "react";
 
 import { CurrentAssessment } from "./components/tabs/current-assessment";
 import { Tabs } from "@etm/web-ui-components";
-import MemberInvitation from "./tabs/members";
+import MemberInvitation from "./components/tabs/members";
 import AssessmentOverview from "./components/tabs/overview";
 import { PageContainer } from "../../components/PageContainer";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import MemberRoleCard from "../../components/members/MemberRoleCard";
+import MemberRoleCard from "../../members/MemberRoleCard";
 import { string, z } from "zod";
 import { Button, InputRHF, ModalRef, Modal } from "@etm/web-ui-components";
 import { useForm } from "react-hook-form";
@@ -103,7 +103,7 @@ export default function MemberInvitation() {
           </form>
         </div>
         <div className="bg-dark-lighter/5 p-2 rounded-sm">
-          <div className="bg-white p-3 rounded-md">
+          <div className="bg-card p-3 rounded-md">
             <div className="flex justify-between">
               <h1>Members </h1>
               <Button
