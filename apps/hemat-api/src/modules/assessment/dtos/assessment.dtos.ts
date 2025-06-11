@@ -3,33 +3,15 @@ import {
   IsString,
   IsNotEmpty,
   Length,
-  IsUUID,
   IsDateString,
   IsOptional,
   ArrayNotEmpty,
   ArrayMaxSize,
-  IsEnum,
-  Validate,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { AssessmentStatus } from '@shared/enums';
 import { IsExists, IsUnique } from '@shared/validators';
 
 export class AssessmentCreateRequestDto {
-  @ApiProperty({
-    description: 'ID of the user creating the assessment',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.userId.isNotEmpty' })
-  @IsUUID('4', { message: 'validation.userId.isUUID' })
-  @IsExists(
-    { tableName: 'users', columns: ['id'] },
-    { message: 'validation.userId.isExists' },
-  )
-  @Type(() => String)
-  userId: string;
-
   @ApiProperty({
     description: 'Name of the assessment',
     example: 'HIE Governance Assessment 2025',
@@ -128,34 +110,9 @@ export class AssessmentCreateRequestDto {
   )
   @Type(() => Array)
   languages: string[];
-
-  @ApiPropertyOptional({
-    description: 'Status of the assessment',
-    example: AssessmentStatus.DRAFT,
-    enum: AssessmentStatus,
-    default: AssessmentStatus.DRAFT,
-  })
-  @IsOptional()
-  @IsEnum(AssessmentStatus, { message: 'validation.status.isEnum' })
-  @Type(() => String)
-  status: AssessmentStatus = AssessmentStatus.DRAFT;
 }
 
 export class AssessmentUpdateRequestDto {
-  @ApiPropertyOptional({
-    description: 'ID of the user updating the assessment',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsOptional()
-  @IsUUID('4', { message: 'validation.userId.isUUID' })
-  @IsExists(
-    { tableName: 'users', columns: ['id'] },
-    { message: 'validation.userId.isExists' },
-  )
-  @Type(() => String)
-  userId?: string;
-
   @ApiPropertyOptional({
     description: 'Name of the assessment',
     example: 'HIE Governance Assessment 2025',
@@ -255,14 +212,4 @@ export class AssessmentUpdateRequestDto {
   )
   @Type(() => Array)
   languages?: string[];
-
-  @ApiPropertyOptional({
-    description: 'Status of the assessment',
-    example: AssessmentStatus.DRAFT,
-    enum: AssessmentStatus,
-  })
-  @IsOptional()
-  @IsEnum(AssessmentStatus, { message: 'validation.status.isEnum' })
-  @Type(() => String)
-  status?: AssessmentStatus;
 }

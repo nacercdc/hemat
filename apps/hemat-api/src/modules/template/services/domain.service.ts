@@ -46,14 +46,29 @@ export class DomainService {
     }
   }
 
-  async findOne(id: string): Promise<Domain> {
+  async findOne(id: string): Promise<Domain & { componentsCount: number; subComponentsCount: number }> {
     const domain = await this.domainRepository.findOne({ where: { id } });
 
     if (!domain) {
       throw new NotFoundException(`Domain ${id} not found.`);
     }
 
-    return domain;
+    const [componentsCount, subComponentsCount] = await Promise.all([
+      this.componentRepository.count({ where: { domainId: id } }),
+      this.componentRepository
+        .createQueryBuilder('component')
+        .innerJoin('component.subComponents', 'subComponent')
+        .where('component.domainId = :domainId', { domainId: id })
+        .select('COUNT(DISTINCT subComponent.id)', 'count')
+        .getRawOne()
+        .then(result => parseInt(result.count, 10) || 0),
+    ]);
+
+    return {
+      ...domain,
+      componentsCount,
+      subComponentsCount,
+    };
   }
 
   async create(payload: DomainCreateRequestDto): Promise<Domain> {
@@ -110,10 +125,11 @@ export class DomainService {
       }
 
       return await new QueryService<Component>(this.componentRepository)
-        .filter([], {
+        .filter(this.filters(query), {
           fields: ['code', 'name'],
           value: query.search,
         })
+        .join(query.include)
         .sort({ ascending: query.ascending, descending: query.descending })
         .take(query.take)
         .skip(query.skip)

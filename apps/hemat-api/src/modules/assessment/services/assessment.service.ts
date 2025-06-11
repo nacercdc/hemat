@@ -61,7 +61,10 @@ export class AssessmentService {
     return assessment;
   }
 
-  async create(payload: AssessmentCreateRequestDto): Promise<Assessment> {
+  async create(
+    userId: string,
+    payload: AssessmentCreateRequestDto,
+  ): Promise<Assessment> {
     try {
       if (new Date(payload.endDate) < new Date(payload.startDate)) {
         throw new BadRequestException('End date cannot be before start date');
@@ -69,7 +72,12 @@ export class AssessmentService {
 
       const savedAssessment = await this.dataSource.transaction(
         async (manager) => {
-          const assessment = manager.create(Assessment, payload);
+          const assessment = manager.create(Assessment, {
+            ...payload,
+            userId,
+            startDate: new Date(payload.startDate),
+            endDate: new Date(payload.endDate),
+          });
           await manager.insert(Assessment, assessment);
           const { templateDomainId } =
             await this.assessmentDomainService.create(manager, assessment.id);
@@ -103,21 +111,10 @@ export class AssessmentService {
           return assessment;
         },
       );
-
       return savedAssessment;
     } catch (err) {
-      this.logger.error(
-        `Failed to create assessment: ${err.message}`,
-        err.stack,
-      );
-      if (err.code === '23505') {
-        throw new BadRequestException(
-          'Assessment with this name already exists',
-        );
-      }
-      throw new BadRequestException(
-        `Failed to create assessment: ${err.message}`,
-      );
+      this.logger.error('create:', err);
+      throw new BadRequestException('Failed to create assessment.');
     }
   }
 
@@ -125,7 +122,15 @@ export class AssessmentService {
     id: string,
     payload: AssessmentUpdateRequestDto,
   ): Promise<Assessment> {
-    return this.dataSource.transaction(async (manager) => {
+    if (
+      payload.endDate &&
+      payload.startDate &&
+      new Date(payload.endDate) < new Date(payload.startDate)
+    ) {
+      throw new BadRequestException('End date cannot be before start date');
+    }
+
+    return await this.dataSource.transaction(async (manager) => {
       const assessment = await manager.getRepository(Assessment).findOne({
         where: { id },
         relations: ['user', 'country'],
@@ -135,7 +140,23 @@ export class AssessmentService {
         throw new NotFoundException(`Assessment ${id} not found.`);
       }
 
-      return await manager.getRepository(Assessment).save(assessment);
+      const updatedPayload = {
+        ...payload,
+        startDate: payload.startDate
+          ? new Date(payload.startDate)
+          : assessment.startDate,
+        endDate: payload.endDate
+          ? new Date(payload.endDate)
+          : assessment.endDate,
+      };
+
+      const updatedAssessment = await manager.getRepository(Assessment).save({
+        ...assessment,
+        ...updatedPayload,
+      });
+
+      this.logger.log(`Updated assessment ${id}`);
+      return updatedAssessment;
     });
   }
 

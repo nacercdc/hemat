@@ -16,8 +16,11 @@ interface CheckboxGroupRHFProps<K, T extends FieldValues>
 export function CheckboxGroupRHF<K, T extends FieldValues>({
   name,
   control,
+  selectionMode = "multiple",
   ...props
-}: CheckboxGroupRHFProps<K, T>) {
+}: CheckboxGroupRHFProps<K, T> & {
+  selectionMode?: CheckboxGroupProps<K>["selectionMode"];
+}) {
   return (
     <Controller
       name={name}
@@ -27,8 +30,19 @@ export function CheckboxGroupRHF<K, T extends FieldValues>({
           {...props}
           name={name as string}
           error={error?.message}
-          values={field.value}
-          onValuesChange={field.onChange}
+          values={
+            Array.isArray(field.value)
+              ? field.value
+              : field.value
+                ? [field.value]
+                : []
+          }
+          onValuesChange={(newValues) => {
+            field.onChange(
+              selectionMode === "single" ? newValues[0] : newValues
+            );
+          }}
+          selectionMode={selectionMode}
         />
       )}
     />

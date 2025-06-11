@@ -1,8 +1,8 @@
 import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { GenderEnum } from '@shared/enums';
 import { BaseEntityWithSoftDelete } from './entity';
 import { User } from './user.entity';
-import { GenderEnum } from '@shared/enums';
 
 @Entity('profiles')
 export class Profile extends BaseEntityWithSoftDelete {
@@ -14,10 +14,6 @@ export class Profile extends BaseEntityWithSoftDelete {
   @Column({ type: 'uuid' })
   userId: string;
 
-  @ApiPropertyOptional({
-    description: 'User object',
-    type: () => User,
-  })
   @OneToOne(() => User, (user) => user.profile)
   @JoinColumn({ name: 'userId' })
   user: User | null;

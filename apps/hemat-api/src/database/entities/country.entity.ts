@@ -1,4 +1,3 @@
-// src/entities/country.entity.ts
 import {
   Entity,
   Column,
@@ -115,10 +114,6 @@ export class Country {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt!: Date;
 
-  @ApiPropertyOptional({
-    description: 'Assessments related to this country',
-    type: () => Assessment,
-  })
   @OneToMany(() => Assessment, (assessment) => assessment.country)
   assessments: Assessment[];
 }

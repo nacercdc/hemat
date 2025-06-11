@@ -81,6 +81,7 @@ const AssessmentFormSchema = z
     path: ["endDate"],
     message: "End date must be after start date",
   });
+
 type AssessmentForm = z.infer<typeof AssessmentFormSchema>;
 
 export function AssessmentsCreate() {
@@ -98,9 +99,8 @@ export function AssessmentsCreate() {
     },
   });
   const loading = false;
-  const onSubmit: SubmitHandler<AssessmentForm> = (data) => {
-    console.log(data);
-    // TODO
+  const onSubmit: SubmitHandler<AssessmentForm> = (_data) => {
+    // TODO implement submit logic
   };
 
   if (loading) {

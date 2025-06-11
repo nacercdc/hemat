@@ -16,10 +16,6 @@ export class Roadmap extends BaseEntityWithSoftDelete {
   @Column({ type: 'uuid' })
   assessmentAnswerId: string;
 
-  @ApiProperty({
-    description: 'Associated assessment answer',
-    type: () => AssessmentAnswer,
-  })
   @ManyToOne(() => AssessmentAnswer, (answer) => answer.roadmaps)
   assessmentAnswer: AssessmentAnswer;
 
@@ -32,10 +28,6 @@ export class Roadmap extends BaseEntityWithSoftDelete {
   @Column({ type: 'uuid' })
   subComponentId: string;
 
-  @ApiProperty({
-    description: 'Associated sub-component',
-    type: () => AssessmentSubComponent,
-  })
   @ManyToOne(
     () => AssessmentSubComponent,
     (subComponent) => subComponent.roadmaps,
@@ -51,10 +43,6 @@ export class Roadmap extends BaseEntityWithSoftDelete {
   @Column({ type: 'uuid' })
   measurementScaleId: string;
 
-  @ApiProperty({
-    description: 'Associated measurement scale',
-    type: () => AssessmentMeasurementScale,
-  })
   @ManyToOne(
     () => AssessmentMeasurementScale,
     (measurementScale) => measurementScale.roadmaps,

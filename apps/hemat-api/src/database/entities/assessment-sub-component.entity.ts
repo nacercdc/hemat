@@ -3,19 +3,18 @@ import {
   ManyToOne,
   Index,
   Column,
-  OneToOne,
   JoinColumn,
   OneToMany,
   Unique,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { SubComponentTranslationDto } from '@shared/dtos';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentComponent } from './assessment-component.entity';
 import { AssessmentAnswer } from './assessment-answer.entity';
 import { Roadmap } from './roadmap.entity';
 import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
-import { SubcomponenttanslationDto } from '@shared/dtos';
 
 @Entity('assessment_sub_components')
 @Unique(['code', 'assessmentId'])
@@ -53,10 +52,6 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
   @Index()
   assessmentId: string;
 
-  @ApiProperty({
-    description: 'Associated assessment',
-    type: () => Assessment,
-  })
   @ManyToOne(() => Assessment, (assessment) => assessment.subComponents)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
@@ -70,28 +65,16 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
   @Index()
   componentId: string;
 
-  @ApiProperty({
-    description: 'Associated component',
-    type: () => AssessmentComponent,
-  })
   @ManyToOne(() => AssessmentComponent, (component) => component.subComponents)
   @JoinColumn({ name: 'componentId' })
   component: AssessmentComponent;
 
-  @ApiPropertyOptional({
-    description: 'Assessment answer object',
-    type: () => AssessmentAnswer,
-  })
   @OneToMany(() => AssessmentAnswer, (answer) => answer.subComponent, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
   answers: AssessmentAnswer[];
 
-  @ApiPropertyOptional({
-    description: 'Assessment roadmap object',
-    type: () => Roadmap,
-  })
   @OneToMany(() => Roadmap, (roadmap) => roadmap.subComponent, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
@@ -100,15 +83,11 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
 
   @ApiPropertyOptional({
     description: 'Assessments related to this domain',
-    type: () => SubcomponenttanslationDto,
+    type: () => SubComponentTranslationDto,
   })
   @Column('jsonb')
-  translations: Record<string, SubcomponenttanslationDto> = {};
+  translations: Record<string, SubComponentTranslationDto> = {};
 
-  @ApiProperty({
-    description: 'Associated measurement scales',
-    type: () => [AssessmentMeasurementScaleSubComponent],
-  })
   @OneToMany(
     () => AssessmentMeasurementScaleSubComponent,
     (measurementScale) => measurementScale.subComponent,

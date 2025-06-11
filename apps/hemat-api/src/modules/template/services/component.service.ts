@@ -50,7 +50,7 @@ export class ComponentService {
     }
   }
 
-  async findOne(id: string, query: FindOneComponentDto): Promise<Component> {
+  async findOne(id: string, query: FindOneComponentDto): Promise<Component & { subComponentsCount: number }> {
     const component = await this.componentRepository.findOne({
       where: { id },
       relations: query.include,
@@ -60,7 +60,14 @@ export class ComponentService {
       throw new NotFoundException(`Component ${id} not found.`);
     }
 
-    return component;
+    const subComponentsCount = await this.subComponentRepository.count({
+      where: { componentId: id },
+    });
+
+    return {
+      ...component,
+      subComponentsCount,
+    };
   }
 
   async create(payload: ComponentCreateRequestDto): Promise<Component> {
@@ -151,7 +158,7 @@ export class ComponentService {
       }
 
       return await new QueryService<SubComponent>(this.subComponentRepository)
-        .filter([], {
+        .filter(this.filters(query), {
           fields: ['code', 'name'],
           value: query.search,
         })

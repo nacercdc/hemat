@@ -119,88 +119,48 @@ export class Assessment extends BaseEntityWithSoftDelete {
   })
   status: AssessmentStatus;
 
-  @ApiProperty({
-    description: 'Associated domain',
-    type: () => [AssessmentDomain],
-  })
   @OneToMany(
     () => AssessmentDomain,
     (assessmentDomain) => assessmentDomain.assessment,
   )
   domains: AssessmentDomain[];
 
-  @ApiPropertyOptional({
-    description: 'Components under this domain',
-    type: () => [AssessmentComponent],
-  })
   @OneToMany(() => AssessmentComponent, (component) => component.assessment)
   components: AssessmentComponent[];
 
-  @ApiProperty({
-    description: 'Sub-components linked to this assessment',
-    type: () => [AssessmentSubComponent],
-  })
   @OneToMany(
     () => AssessmentSubComponent,
     (assessmentSubComponent) => assessmentSubComponent.assessment,
   )
   subComponents: AssessmentSubComponent[];
 
-  @ApiProperty({
-    description: 'Sub-components linked to this assessment',
-    type: () => [AssessmentMeasurementScale],
-  })
   @OneToMany(
     () => AssessmentMeasurementScale,
     (measurementScales) => measurementScales.assessment,
   )
   measurementScales: AssessmentMeasurementScale[];
 
-  @ApiPropertyOptional({
-    description: 'Members of the assessment',
-    type: () => [AssessmentMember],
-  })
   @OneToMany(
     () => AssessmentMember,
     (assessmentMember) => assessmentMember.assessment,
   )
   members: AssessmentMember[] | null;
 
-  @ApiPropertyOptional({
-    description: 'Assessment member group',
-    type: () => [AssessmentGroup],
-  })
   @OneToMany(
     () => AssessmentGroup,
     (assessmentGroup) => assessmentGroup.assessment,
   )
   groups: AssessmentGroup[] | null;
 
-  @ApiPropertyOptional({
-    description: 'Assessment answer of the assessment',
-    type: () => [AssessmentAnswer],
-  })
   @OneToMany(() => AssessmentAnswer, (answers) => answers.assessment)
   answers: AssessmentAnswer[] | null;
 
-  @ApiPropertyOptional({
-    description: 'Invitation of the assessment',
-    type: () => [Invitation],
-  })
   @OneToMany(() => Invitation, (invitation) => invitation.assessment)
   invitations: Invitation[] | null;
 
-  @ApiPropertyOptional({
-    description: 'Response of the assessment',
-    type: () => [Response],
-  })
   @OneToMany(() => Response, (response) => response.assessment)
   response: Response[] | null;
 
-  @ApiPropertyOptional({
-    description: 'Report of the assessment',
-    type: () => [Report],
-  })
   @OneToMany(() => Report, (reports) => reports.assessment)
   reports: Report[] | null;
 }

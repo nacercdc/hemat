@@ -29,10 +29,6 @@ export class Comment extends BaseEntityWithSoftDelete {
   @Column()
   responseId: string;
 
-  @ApiProperty({
-    description: 'Associated response',
-    type: () => Response,
-  })
   @ManyToOne(() => Response, (response) => response.comments)
   @JoinColumn({ name: 'responseId' })
   response: Response;

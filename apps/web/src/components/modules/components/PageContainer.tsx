@@ -9,6 +9,7 @@ interface Props {
   includeBreadcrumb?: boolean;
   actionNodes?: React.ReactNode;
   children: React.ReactNode;
+  onBack?: () => void;
 }
 
 export function PageContainer({
@@ -16,6 +17,7 @@ export function PageContainer({
   includeBreadcrumb,
   actionNodes,
   children,
+  onBack,
 }: Props) {
   const pageContainerRef = useRef<HTMLDivElement>(null);
   const pageHeaderRef = useRef<HeaderRef>(null);
@@ -44,6 +46,7 @@ export function PageContainer({
         pageTitle={pageTitle}
         breadcrumb={includeBreadcrumb}
         actions={actionNodes}
+        onBack={onBack}
         ref={pageHeaderRef}
       />
       {children}

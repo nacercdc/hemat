@@ -3,22 +3,22 @@ export class MeasurementScaleTranslationDto {
   description: string;
 }
 
-export class MeasurementScaleSubcomponentTranslationDto {
+export class MeasurementScaleSubComponentTranslationDto {
   description: string;
 }
-export class DomaintranslationDto {
+export class DomainTranslationDto {
   code: string;
   name: string;
   description: string;
 }
 
-export class ComponenttanslationDto {
+export class ComponentTranslationDto {
   code: string;
   name: string;
   description: string;
 }
 
-export class SubcomponenttanslationDto {
+export class SubComponentTranslationDto {
   code: string;
   name: string;
   description: string;

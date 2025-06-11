@@ -8,7 +8,7 @@ import { FormControl } from "../form-control";
 import { Label } from "../../shadcn-ui";
 
 const checkboxVariants = cva(
-  "h-4 w-4 rounded-[2px] border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+  "h-4 w-4 flex-none rounded-[2px] border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
   {
     variants: {
       variant: {

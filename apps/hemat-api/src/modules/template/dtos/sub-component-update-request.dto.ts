@@ -1,15 +1,13 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
-  IsNotEmpty,
   Length,
   IsUUID,
   IsOptional,
-  IsBoolean,
   IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SubcomponenttanslationDto } from '@shared/dtos';
+import { SubComponentTranslationDto } from '@shared/dtos';
 import { IsExists, IsUnique } from '@shared/validators';
 
 export class SubComponentUpdateRequestDto {
@@ -86,5 +84,5 @@ export class SubComponentUpdateRequestDto {
   @IsOptional()
   @IsObject({ message: 'validation.translations.isObject' })
   @Type(() => Object)
-  translations?: Record<string, SubcomponenttanslationDto>;
+  translations?: Record<string, SubComponentTranslationDto>;
 }

@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
   ParseUUIDPipe,
+  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,7 +27,7 @@ import {
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
 import { Assessment } from '@database/entities';
-import { Abilities, AuthGuard } from '@shared/modules';
+import { Abilities, AuthDto, AuthGuard } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { AssessmentService } from '../services';
@@ -120,8 +121,11 @@ export class AssessmentController {
     ],
   })
   @Post()
-  async create(@Body() payload: AssessmentCreateRequestDto) {
-    return this.assessmentService.create(payload);
+  async create(
+    @Request() req: { user: AuthDto },
+    @Body() payload: AssessmentCreateRequestDto,
+  ) {
+    return this.assessmentService.create(req.user.id, payload);
   }
 
   @ApiOperation({

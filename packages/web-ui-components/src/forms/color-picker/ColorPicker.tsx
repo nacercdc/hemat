@@ -33,7 +33,7 @@ const colorPickerVariants = cva(
       variant: "default",
       size: "md",
     },
-  },
+  }
 );
 
 const colorPickerInputVariants = cva(
@@ -50,7 +50,7 @@ const colorPickerInputVariants = cva(
     defaultVariants: {
       size: "md",
     },
-  },
+  }
 );
 
 const pickerSizes = {
@@ -123,7 +123,7 @@ export const ColorPicker = ({
             className={cn(
               colorPickerVariants({ variant, size }),
               error && "border-destructive-500",
-              "cursor-pointer",
+              "cursor-pointer"
             )}
             {...props}
           >
@@ -137,7 +137,7 @@ export const ColorPicker = ({
               onChange={handleChange}
               className={cn(
                 colorPickerInputVariants({ size }),
-                "flex-1 border-none focus:outline-none focus:ring-0 w-full",
+                "flex-1 border-none focus:outline-none focus:ring-0 w-full"
               )}
               placeholder={defaultValue || ""}
               aria-invalid={error ? "true" : "false"}
@@ -145,14 +145,14 @@ export const ColorPicker = ({
           </div>
         </PopoverTrigger>
         <PopoverContent
-          className="p-0 border border-input"
+          className="p-0 border border-input -z-50 relative"
           align={align}
           style={{ width: `${width}px` }}
         >
           <HexColorPicker
             color={value}
             onChange={handleChange}
-            className="w-full rounded-md"
+            className="w-full rounded-md -z-50 "
             style={{ width: `${width}px`, height: `${height}px` }}
           />
         </PopoverContent>

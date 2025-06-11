@@ -128,7 +128,7 @@ export const Modal = forwardRef<ModalRef, Props>(
             ) : null}
             <DialogClose
               asChild
-              className="absolute right-4 top-4 cursor-pointer"
+              className="absolute right-4 top-4 cursor-pointer z-20"
             >
               <Icon
                 icon="material-symbols:close"

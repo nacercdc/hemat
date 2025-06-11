@@ -8,7 +8,7 @@ import {
   IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { DomaintranslationDto } from '@shared/dtos';
+import { DomainTranslationDto } from '@shared/dtos';
 
 export class DomainUpdateRequestDto {
   @ApiProperty({
@@ -76,5 +76,5 @@ export class DomainUpdateRequestDto {
   @IsOptional()
   @IsObject({ message: 'validation.translations.isObject' })
   @Type(() => Object)
-  translations?: Record<string, DomaintranslationDto>;
+  translations?: Record<string, DomainTranslationDto>;
 }
