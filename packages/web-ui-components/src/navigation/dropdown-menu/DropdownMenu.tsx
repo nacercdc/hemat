@@ -13,9 +13,23 @@ import {
 } from "../../shadcn-ui";
 import { Button } from "../../forms/button";
 import { cn } from "../../shadcn-ui/utils/cn";
+import { cva } from "class-variance-authority";
 
 type Variant = "default" | "dark" | "warning" | "destructive" | "success";
 type Size = "sm" | "md" | "lg";
+
+export const dropdownMenuVariants = cva("flex gap-2 items-center", {
+  variants: {
+    size: {
+      sm: "!text-xs",
+      md: "!text-xs",
+      lg: "!text-xs",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
 
 export interface DropdownMenuOption {
   value: string;
@@ -24,6 +38,7 @@ export interface DropdownMenuOption {
   separator?: boolean;
   onClick?: () => void;
   submenu?: DropdownMenuOption[];
+  destructive?: boolean;
 }
 interface Props {
   align?: "center" | "end" | "start";
@@ -61,7 +76,14 @@ export function DropdownMenu({
           <div key={item.value}>
             {item.separator && <DropdownMenuSeparator />}
             <DropdownMenuItem onSelect={() => item.onClick?.()}>
-              <div className="flex gap-2 items-center">
+              <div
+                className={cn(
+                  {
+                    "text-destructive": item.destructive,
+                  },
+                  dropdownMenuVariants({ size })
+                )}
+              >
                 {item.leftNode && (
                   <div className="w-6 h-6 flex items-center">
                     {item.leftNode}
@@ -83,7 +105,7 @@ export function DropdownMenu({
             <div
               className={cn(
                 `min-w-12 min-h-12 flex items-center justify-${triggerTextAlign}`,
-                triggerTextAlign === "end" && "w-full",
+                triggerTextAlign === "end" && "w-full"
               )}
             >
               {trigger}
