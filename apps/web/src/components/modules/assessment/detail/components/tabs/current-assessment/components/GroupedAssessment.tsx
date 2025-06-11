@@ -33,14 +33,14 @@ export function GroupedAssessment({
 }: Props) {
   const router = useRouter();
 
-  const handleSelect = (_value?: FilterOption) => {
+  const onSelectHandler = (_value?: FilterOption) => {
     //TODO: Implement filtering the domains based on the selected year for the group
   };
-  const handleDomainClick = (id: string) => {
+  const onDomainClickHandler = (id: string) => {
     //TODO: Implement navigation to the domain detail page
     router.push(`/assessment/detail/domain/${id}`);
   };
-  const handleFill = (id: string) => {
+  const onFillClickHandler = (id: string) => {
     //TODO: Implement filling the domain with domain id
     router.push(`/assessment/domain/${id}/fill`);
   };
@@ -59,7 +59,7 @@ export function GroupedAssessment({
               options={filterOptions}
               valueKey="year"
               labelKey="year"
-              onSelect={handleSelect}
+              onSelect={onSelectHandler}
               size="lg"
             />
           </div>
@@ -73,7 +73,7 @@ export function GroupedAssessment({
           >
             <div
               className="flex flex-col gap-3 items-start text-wrap"
-              onClick={() => handleDomainClick(domain.id)}
+              onClick={() => onDomainClickHandler(domain.id)}
             >
               <h3 className="text-sm font-bold">{domain.name}</h3>
               <div className="flex items-center">
@@ -109,7 +109,7 @@ export function GroupedAssessment({
                   <Button
                     size="fullSm"
                     variant="outline"
-                    onClick={() => handleFill(domain.id)}
+                    onClick={() => onFillClickHandler(domain.id)}
                   >
                     <div className="flex items-center justify-center gap-4">
                       Fill
