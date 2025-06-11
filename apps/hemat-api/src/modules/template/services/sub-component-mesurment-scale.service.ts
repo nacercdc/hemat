@@ -11,12 +11,11 @@ import {
   MeasurementScale,
   MeasurementScaleSubComponent,
 } from '../../../database/entities';
-import { QueryService } from '@shared/services';
 import {
   SubComponentMeasurementScaleDto,
+  UpdateSubComponentMeasurementScaleDto,
   FindAllSubComponentMeasurementScaleDto,
 } from '../dtos';
-import { FindAllResponseDto } from '@shared/dtos';
 
 @Injectable()
 export class SubComponentMeasurementScaleService {
@@ -94,6 +93,76 @@ export class SubComponentMeasurementScaleService {
       this.logger.error('create:', err);
       throw new BadRequestException(
         'Failed to create measurement scale sub-component.',
+      );
+    }
+  }
+
+  async update(
+    subComponentId: string,
+    measurementScaleId: string,
+    payload: UpdateSubComponentMeasurementScaleDto,
+  ): Promise<MeasurementScaleSubComponent> {
+    try {
+      const relation =
+        await this.measurementScaleSubComponentRepository.findOne({
+          where: {
+            subComponentId: subComponentId,
+            measurementScaleId: measurementScaleId,
+          },
+        });
+      if (!relation) {
+        this.logger.error(
+          `Relationship between SubComponent ${subComponentId} and MeasurementScale ${measurementScaleId} not found`,
+        );
+        throw new NotFoundException(
+          'measurementScaleSubComponent.exception.notFound',
+        );
+      }
+
+      const subComponent = await this.subComponentRepository.findOne({
+        where: { id: subComponentId },
+      });
+      if (!subComponent) {
+        this.logger.error(`SubComponent with ID ${subComponentId} not found`);
+        throw new NotFoundException('subComponent.exception.notFound');
+      }
+
+      const measurementScale = await this.measurementScaleRepository.findOne({
+        where: { id: measurementScaleId },
+      });
+      if (!measurementScale) {
+        this.logger.error(
+          `MeasurementScale with ID ${measurementScaleId} not found`,
+        );
+        throw new NotFoundException('measurementScale.exception.notFound');
+      }
+
+      if (!payload.description && !payload.translations) {
+        this.logger.error('No fields provided for update');
+        throw new BadRequestException(
+          'measurementScaleSubComponent.exception.noFieldsProvided',
+        );
+      }
+
+      if (payload.description) {
+        relation.description = payload.description;
+      }
+      if (payload.translations) {
+        relation.translations = payload.translations;
+      }
+      relation.subComponent = subComponent;
+      relation.measurementScale = measurementScale;
+
+      const updatedEntity =
+        await this.measurementScaleSubComponentRepository.save(relation);
+      this.logger.log(
+        `Updated relationship between SubComponent ${subComponentId} and MeasurementScale ${measurementScaleId}`,
+      );
+      return updatedEntity;
+    } catch (err) {
+      this.logger.error('update:', err);
+      throw new BadRequestException(
+        'Failed to update measurement scale sub-component.',
       );
     }
   }
