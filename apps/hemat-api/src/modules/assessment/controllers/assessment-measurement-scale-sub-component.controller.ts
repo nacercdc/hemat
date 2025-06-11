@@ -54,7 +54,7 @@ import { ParseUUIDPipe } from '@nestjs/common';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('sub-components/:subComponentId/measurement-scales')
+@Controller('assessmentSub-components/:subComponentId/measurement-scales')
 export class AssessmentMeasurementScaleSubComponentController {
   constructor(
     private readonly assessmentMeasurementScaleSubComponentService: AssessmentMeasurementScaleSubComponentService,

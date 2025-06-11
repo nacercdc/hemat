@@ -8,3 +8,4 @@ export * from './query-domain.dto';
 export * from './query-component.dto';
 export * from './query-sub-component.dto';
 export * from './query-sub-component-measuremnt-scale.dto';
+export * from './sub-component-measurement-scale.dto';
