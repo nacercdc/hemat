@@ -7,7 +7,7 @@ import { ScaleTableColumns } from "./ScaleTableColumns";
 import { EmptyTableDataElement } from "~/components/modules/components/EmptyTableDataElement";
 import type { Scale } from "~/libs/models/scale.model";
 
-interface ScaleTableProps {
+interface Props {
   scales: Scale[];
   isLoading: boolean;
   refetch: () => void;
@@ -25,7 +25,7 @@ export function ScaleTable({
   onSearchFilterChange,
   onPaginationChange,
   openAddScaleModal,
-}: ScaleTableProps) {
+}: Props) {
   const OnEmptyDataElement = (
     <EmptyTableDataElement
       icon={

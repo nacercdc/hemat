@@ -166,111 +166,112 @@ export function ScaleForm({
           scale ? "Edit" : "Add"
         } Measurement Scale`}</div>
       </div>
-      <div className="flex-1 overflow-y-auto px-8 pb-20">
-        <div className="flex flex-col gap-6 w-full">
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-            <InputRHF<ScaleFormData>
-              control={control}
-              type="number"
-              max={10}
-              name="rate"
-              label="Rate"
-              placeholder="Write Rate"
-              size="xl"
-              labelVariant="bold"
-              error={errors.rate?.message}
-            />
-            <ColorPickerRHF<ScaleFormData>
-              control={control}
-              name="color"
-              defaultValue="#435ff3"
-              size="xl"
-              label="Color"
-              labelVariant="bold"
-              error={errors.color?.message}
-            />
-          </div>
-          <Select<{ name: string }>
-            placeholder="Select Language"
-            options={languageOptions
-              .filter((lang) => !selectedLanguages.includes(lang.code))
-              .map((lang) => ({ name: lang.name }))}
-            valueKey="name"
-            labelKey="name"
-            onSelect={onLanguageSelect}
-            loading={languagesState.isLoading}
-            size="lg"
-          />
+      <div className="flex flex-col gap-6 w-full flex-1 overflow-y-auto px-8 pb-20">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
           <InputRHF<ScaleFormData>
             control={control}
-            name="name"
-            label="Name"
-            placeholder="Write Default Name"
+            type="number"
+            max={10}
+            name="rate"
+            label="Rate"
+            placeholder="Write Rate"
             size="xl"
             labelVariant="bold"
-            error={errors.name?.message}
           />
-          {selectedLanguages.map((langCode) => {
-            const lang = languageOptions.find((l) => l.code === langCode);
-            return (
-              <div key={langCode} className="flex gap-2">
-                <div className="text-sm font-medium">{`${lang?.code.toUpperCase()}:`}</div>
-                <InputRHF<ScaleFormData>
-                  control={control}
-                  name={`translations.${langCode}.name`}
-                  placeholder={`Write ${lang?.name} Name`}
-                  size="xl"
-                  labelVariant="bold"
-                  error={
-                    errors.translations?.[langCode]
-                      ? (errors.translations[langCode] as any)?.name?.message
-                      : undefined
-                  }
-                />
-              </div>
-            );
-          })}
-          <TextAreaRHF<ScaleFormData>
+          <ColorPickerRHF<ScaleFormData>
             control={control}
-            name="description"
-            label="Description"
-            placeholder="Write Default Description..."
+            name="color"
+            defaultValue="#435ff3"
+            size="xl"
+            label="Color"
             labelVariant="bold"
-            rows={4}
-            error={errors.description?.message}
+            inModal={true}
           />
-          {selectedLanguages.map((langCode) => {
-            const lang = languageOptions.find((l) => l.code === langCode);
-            return (
-              <div key={langCode} className="flex gap-2">
-                <div className="text-sm font-medium">{`${lang?.code.toUpperCase()}:`}</div>
-                <TextAreaRHF<ScaleFormData>
-                  control={control}
-                  name={`translations.${langCode}.description`}
-                  placeholder={`Write ${lang?.name} Description...`}
-                  labelVariant="bold"
-                  rows={4}
-                  error={
-                    errors.translations?.[langCode]
-                      ? (errors.translations[langCode] as any)?.description
-                          ?.message
-                      : undefined
-                  }
-                />
-              </div>
-            );
-          })}
         </div>
+        <Select<{ name: string }>
+          placeholder="Select Language"
+          options={languageOptions
+            .filter((lang) => !selectedLanguages.includes(lang.code))
+            .map((lang) => ({ name: lang.name }))}
+          valueKey="name"
+          labelKey="name"
+          displayLabel="Language"
+          labelVariant="bold"
+          onSelect={onLanguageSelect}
+          loading={languagesState.isLoading}
+          size="lg"
+        />
+        <InputRHF<ScaleFormData>
+          control={control}
+          name="name"
+          label="Name"
+          placeholder="Write Default Name"
+          size="xl"
+          labelVariant="bold"
+        />
+        {selectedLanguages.map((langCode) => {
+          const lang = languageOptions.find((l) => l.code === langCode);
+          return (
+            <div key={langCode} className="flex gap-2">
+              <div className="text-sm font-medium">{`${lang?.code.toUpperCase()}:`}</div>
+              <InputRHF<ScaleFormData>
+                control={control}
+                name={`translations.${langCode}.name`}
+                placeholder={`Write ${lang?.name} Name`}
+                size="xl"
+                labelVariant="bold"
+                error={
+                  errors.translations?.[langCode]
+                    ? (errors.translations[langCode] as any)?.name?.message
+                    : undefined
+                }
+              />
+            </div>
+          );
+        })}
+        <TextAreaRHF<ScaleFormData>
+          control={control}
+          name="description"
+          label="Description"
+          placeholder="Write Default Description..."
+          labelVariant="bold"
+          rows={4}
+        />
+        {selectedLanguages.map((langCode) => {
+          const lang = languageOptions.find((l) => l.code === langCode);
+          return (
+            <div key={langCode} className="flex gap-2">
+              <div className="text-sm font-medium">{`${lang?.code.toUpperCase()}:`}</div>
+              <TextAreaRHF<ScaleFormData>
+                control={control}
+                name={`translations.${langCode}.description`}
+                placeholder={`Write ${lang?.name} Description...`}
+                labelVariant="bold"
+                rows={4}
+                error={
+                  errors.translations?.[langCode]
+                    ? (errors.translations[langCode] as any)?.description
+                        ?.message
+                    : undefined
+                }
+              />
+            </div>
+          );
+        })}
       </div>
-      <div className="sticky bottom-0 z-10 w-full bg-layout-bg p-4 rounded-b-lg px-8">
-        <div className="flex justify-between items-center">
-          <Button variant="outline" type="button" onClick={onCancelHandler}>
-            Cancel
-          </Button>
-          <Button size="lg" type="submit" loading={isLoading}>
-            {scale ? "Edit" : "Save"}
-          </Button>
-        </div>
+      <div className="flex justify-between items-center sticky bottom-0 z-10 w-full bg-layout-bg p-4 rounded-b-lg px-8">
+        <Button
+          variant="outline"
+          type="button"
+          color="card"
+          size="lg"
+          onClick={onCancelHandler}
+        >
+          Cancel
+        </Button>
+        <Button size="lg" type="submit" loading={isLoading}>
+          {scale ? "Edit" : "Save"}
+        </Button>
       </div>
     </form>
   );
