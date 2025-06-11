@@ -25,6 +25,7 @@ import { theme as EditorTheme } from "./themes/EditorTheme";
 import "./themes/editorGlobals.css";
 
 import dynamic from "next/dynamic";
+import { Separator } from "../../shadcn-ui/separator";
 const ImagesPlugin = dynamic(() => import("./plugins/ImagesPlugin"), {
   ssr: false,
 });
@@ -37,17 +38,28 @@ interface RichEditorProps {
   onStateChange?: (state: string) => void;
   initialState?: string;
   isEnabled: boolean;
+  label: string;
+  description?: string;
+  placeholder?: string;
 }
 
 const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
-  ({ onStateChange, initialState, isEnabled }, ref) => {
+  (
+    {
+      onStateChange,
+      initialState,
+      isEnabled,
+      label,
+      description,
+      placeholder = "",
+    },
+    ref
+  ) => {
     const [editor] = useLexicalComposerContext();
     const [activeEditor, setActiveEditor] = useState(editor);
     const { historyState } = useSharedHistoryContext();
 
     editor.setEditable(isEnabled);
-
-    const placeholder = "Enter some text...";
 
     const parseHTMLIntoEditor = React.useCallback(
       (htmlString: string) => {
@@ -63,7 +75,7 @@ const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
           $insertNodes(nodes);
         });
       },
-      [editor],
+      [editor]
     );
 
     const isEmpty = React.useCallback(() => {
@@ -99,40 +111,52 @@ const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
     }, [initialState, parseHTMLIntoEditor]);
 
     return (
-      <>
-        <ToolbarPlugin
-          editor={editor}
-          activeEditor={activeEditor}
-          setActiveEditor={setActiveEditor}
-        />
-        <ShortcutsPlugin editor={activeEditor} />
-        <div className={`editor-container tree-view`}>
-          <AutoFocusPlugin />
-          <HistoryPlugin externalHistoryState={historyState} />
-          <RichTextPlugin
-            contentEditable={
-              <div className="editor-scroller">
-                <div
-                  className={`editor bg-white rounded-b-md ${!isEnabled && "rounded-md"}`}
-                >
-                  <ContentEditable placeholder={placeholder} />
-                </div>
-              </div>
-            }
-            ErrorBoundary={LexicalErrorBoundary}
+      <div className="flex flex-col gap-2">
+        {label && <div className="text-sm font-bold">{label}</div>}
+        <div className="flex flex-col border border-basic-300 rounded-md">
+          <ToolbarPlugin
+            editor={editor}
+            activeEditor={activeEditor}
+            setActiveEditor={setActiveEditor}
           />
-          <ListPlugin hasStrictIndent={true} />
-          <TabIndentationPlugin maxIndent={7} />
-          <CheckListPlugin />
-          <ImagesPlugin />
-          {onStateChange && <OnChangePlugin onChange={onStateChange} />}
+          <Separator className="h-px bg-basic-300 w-full" />
+          <ShortcutsPlugin editor={activeEditor} />
+          <div className={`editor-container tree-view`}>
+            <AutoFocusPlugin />
+            <HistoryPlugin externalHistoryState={historyState} />
+            <RichTextPlugin
+              contentEditable={
+                <div className="editor-scroller">
+                  <div
+                    className={`editor bg-white rounded-b-md ${!isEnabled && "rounded-md"}`}
+                  >
+                    <ContentEditable placeholder={placeholder} />
+                  </div>
+                </div>
+              }
+              ErrorBoundary={LexicalErrorBoundary}
+            />
+            <ListPlugin hasStrictIndent={true} />
+            <TabIndentationPlugin maxIndent={7} />
+            <CheckListPlugin />
+            <ImagesPlugin />
+            {onStateChange && <OnChangePlugin onChange={onStateChange} />}
+          </div>
         </div>
-      </>
+        {description && (
+          <div className="font-medium text-xs text-dark-light">
+            {description}
+          </div>
+        )}
+      </div>
     );
-  },
+  }
 );
 
 interface Props {
+  label: string;
+  description?: string;
+  placeholder?: string;
   initialEditorState?: string;
   onEditorStateChange?: (state: string) => void;
   isEditorEnabled?: boolean;
@@ -140,8 +164,15 @@ interface Props {
 
 export const ETMEditor = forwardRef<ETMEditorRef, Props>(
   (
-    { onEditorStateChange, initialEditorState, isEditorEnabled = true },
-    ref,
+    {
+      onEditorStateChange,
+      initialEditorState,
+      isEditorEnabled = true,
+      label,
+      description,
+      placeholder,
+    },
+    ref
   ) => {
     const [isMounted, setIsMounted] = useState(false);
 
@@ -169,9 +200,12 @@ export const ETMEditor = forwardRef<ETMEditorRef, Props>(
             onStateChange={onEditorStateChange}
             initialState={initialEditorState}
             isEnabled={isEditorEnabled}
+            label={label}
+            description={description}
+            placeholder={placeholder}
           />
         </ToolbarContext>
       </LexicalComposer>
     );
-  },
+  }
 );

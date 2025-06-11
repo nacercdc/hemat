@@ -16,31 +16,28 @@ const shapeVariants = {
   circular: "rounded-full",
 };
 
-const progressVariants = cva(
-  "relative w-full overflow-hidden",
-  {
-    variants: {
-      size: sizeVariants,
-      shape: shapeVariants,
-    },
-    defaultVariants: {
-      size: "md",
-      shape: "rectangular",
-    },
-  }
-);
+const progressVariants = cva("relative w-full overflow-hidden", {
+  variants: {
+    size: sizeVariants,
+    shape: shapeVariants,
+  },
+  defaultVariants: {
+    size: "md",
+    shape: "rectangular",
+  },
+});
 
 export type ProgressVariants = VariantProps<typeof progressVariants>;
 
 type ShadcnProgressPropsWithoutClassname = Omit<
   React.ComponentProps<typeof ShadcnProgress>,
-  "className" | "style" | "variant" | "size" | "color"
+  "className" | "style" | "size" | "color"
 >;
 
 interface Props extends ShadcnProgressPropsWithoutClassname {
-  color: string;
-  size: ProgressVariants["size"];
-  shape: ProgressVariants["shape"];
+  color?: string;
+  size?: ProgressVariants["size"];
+  shape?: ProgressVariants["shape"];
 }
 
 function Progress(props: Props) {
@@ -48,7 +45,7 @@ function Progress(props: Props) {
 
   return (
     <ShadcnProgress
-    color={color}
+      color={color}
       className={cn(progressVariants({ size, shape }))}
       {...rest}
     />

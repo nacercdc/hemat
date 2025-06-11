@@ -16,14 +16,10 @@ export default function AssessmentAction({ assessment }: Props) {
   const router = useRouter();
 
   const onGotoUpdateAssessmentHandler = () => {
-    //TODO: Implement delete assessment logic
-  };
-
-  const onGotoUpdateAssessment = () => {
     router.push(`/assessment/${assessment.id}/update`);
   };
 
-  const onGotDetailAssessmentHandler = () => {
+  const onGotoDetailAssessmentHandler = () => {
     router.push(`/assessment/${assessment.id}/detail`);
   };
 
@@ -45,7 +41,7 @@ export default function AssessmentAction({ assessment }: Props) {
             leftNode: (
               <Icon icon="solar:eye-outline" className="text-lg text-dark" />
             ),
-            onClick: onGotDetailAssessmentHandler,
+            onClick: onGotoDetailAssessmentHandler,
           },
           {
             value: "edit",
@@ -53,7 +49,7 @@ export default function AssessmentAction({ assessment }: Props) {
             leftNode: (
               <Icon icon="iconamoon:edit-light" className="text-lg text-dark" />
             ),
-            onClick: onGotoUpdateAssessment,
+            onClick: onGotoUpdateAssessmentHandler,
           },
           {
             value: "delete",

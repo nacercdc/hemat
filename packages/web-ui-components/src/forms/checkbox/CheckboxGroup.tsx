@@ -8,10 +8,10 @@ import { Checkbox } from "../../../../web-ui-components/src/forms/checkbox";
 import { FormControl } from "../form-control";
 import { cn } from "../../shadcn-ui/utils/cn";
 
-const checkboxGroupVariants = cva("flex", {
+const checkboxGroupVariants = cva("flex w-full", {
   variants: {
     layout: {
-      horizontal: "flex-row gap-4",
+      horizontal: "flex-row gap-10 flex-wrap",
       vertical: "flex-col gap-2",
     },
     size: {
@@ -42,6 +42,7 @@ export interface CheckboxGroupProps<T>
   layout?: CheckboxGroupVariants["layout"];
   variant?: CheckboxVariants["variant"];
   size?: CheckboxVariants["size"];
+  selectionMode?: "single" | "multiple";
   onValuesChange: (values: T[]) => void;
 }
 
@@ -59,6 +60,7 @@ export function CheckboxGroup<T>({
   size = "md",
   layout = "vertical",
   variant = "default",
+  selectionMode = "multiple",
   onValuesChange,
 }: CheckboxGroupProps<T>) {
   const isOptionSelected = (option: T) =>
@@ -66,17 +68,19 @@ export function CheckboxGroup<T>({
 
   const handleCheckboxChange = (
     option: T,
-    checked: boolean | "indeterminate",
+    checked: boolean | "indeterminate"
   ) => {
     if (typeof checked === "boolean") {
-      if (checked) {
-        onValuesChange([...values, option]);
+      if (selectionMode === "single") {
+        const newValues = checked ? [option] : [];
+        onValuesChange(newValues);
       } else {
-        onValuesChange(
-          values.filter(
-            (value) => get(value, valueKey) !== get(option, valueKey),
-          ),
-        );
+        const newValues = checked
+          ? [...values, option]
+          : values.filter(
+              (value) => get(value, valueKey) !== get(option, valueKey)
+            );
+        onValuesChange(newValues);
       }
     }
   };
@@ -94,19 +98,26 @@ export function CheckboxGroup<T>({
           const optionLabel = get(option, labelKey);
 
           return (
-            <Checkbox
+            <div
               key={`${name}-${index}-${optionValue}`}
-              name={`${name}-${optionValue}`}
-              label={String(optionLabel)}
-              checked={isOptionSelected(option)}
-              onCheckedChange={(checked) =>
-                handleCheckboxChange(option, checked)
-              }
-              disabled={disabled}
-              required={required}
-              variant={variant}
-              size={size}
-            />
+              className={cn(
+                "flex-none",
+                layout === "horizontal" && "inline-flex"
+              )}
+            >
+              <Checkbox
+                name={`${name}-${optionValue}`}
+                label={String(optionLabel)}
+                checked={isOptionSelected(option)}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange(option, checked)
+                }
+                disabled={disabled}
+                required={required}
+                variant={variant}
+                size={size}
+              />
+            </div>
           );
         })}
       </div>

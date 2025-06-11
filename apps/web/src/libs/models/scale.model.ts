@@ -1,7 +1,7 @@
 import type { Filter, Sort } from "../tanstack-api-query/helpers/types";
 
 export interface Scale {
-  id: number;
+  id: string;
   name: string;
   rate: number;
   color: string;
