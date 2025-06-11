@@ -1,14 +1,13 @@
 import {
   Entity,
   Column,
-  OneToOne,
   OneToMany,
   Index,
   ManyToOne,
   JoinColumn,
   Unique,
 } from 'typeorm';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Report } from './report.entity';
 import { AssessmentMember } from './assessment-member.entity';
@@ -35,32 +34,16 @@ export class AssessmentGroup extends BaseEntityWithSoftDelete {
   @Index()
   assessmentId: string;
 
-  @ApiProperty({
-    description: 'Associated assessment',
-    type: () => Assessment,
-  })
   @ManyToOne(() => Assessment, (assessment) => assessment.members)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
 
-  @ApiPropertyOptional({
-    description: 'Members of the assessment',
-    type: () => [AssessmentMember],
-  })
   @OneToMany(() => AssessmentMember, (member) => member.group)
   members: AssessmentMember[] | null;
 
-  @ApiPropertyOptional({
-    description: 'Invitation of the assessment',
-    type: () => [Invitation],
-  })
   @OneToMany(() => Invitation, (invitation) => invitation.group)
   invitations: Invitation[] | null;
 
-  @ApiPropertyOptional({
-    description: 'Report Object',
-    type: () => [Report],
-  })
   @OneToMany(() => Report, (reports) => reports.assessment_groups)
   reports: Report[] | null;
 }

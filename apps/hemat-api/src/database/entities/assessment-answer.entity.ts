@@ -4,7 +4,6 @@ import {
   OneToMany,
   Index,
   JoinColumn,
-  OneToOne,
   ManyToOne,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -26,10 +25,6 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   @Column({ type: 'uuid' })
   assessmentId: string;
 
-  @ApiProperty({
-    description: 'Associated assessment',
-    type: () => Assessment,
-  })
   @ManyToOne(() => Assessment, (assessment) => assessment.answers)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
@@ -43,10 +38,6 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   @Index()
   userId: string;
 
-  @ApiPropertyOptional({
-    description: 'User object',
-    type: () => User,
-  })
   @ManyToOne(() => User, (user) => user.answers)
   @JoinColumn({ name: 'userId' })
   user: User | null;
@@ -60,10 +51,6 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   @Column({ type: 'uuid' })
   subComponentId: string;
 
-  @ApiPropertyOptional({
-    description: 'SubComponent object',
-    type: () => AssessmentSubComponent,
-  })
   @ManyToOne(
     () => AssessmentSubComponent,
     (subComponent) => subComponent.answers,
@@ -80,10 +67,6 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   @Column({ type: 'uuid' })
   measurementScaleId: string;
 
-  @ApiPropertyOptional({
-    description: 'Measurement scale object',
-    type: () => AssessmentMeasurementScale,
-  })
   @ManyToOne(
     () => AssessmentMeasurementScale,
     (measurementScale) => measurementScale.answers,
@@ -113,10 +96,6 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
-  @ApiProperty({
-    description: 'Roadmaps linked to this answer',
-    type: () => [Roadmap],
-  })
   @OneToMany(() => Roadmap, (roadmap) => roadmap.assessmentAnswer)
   roadmaps: Roadmap[];
 }

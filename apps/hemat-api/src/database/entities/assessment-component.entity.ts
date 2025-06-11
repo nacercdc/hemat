@@ -12,7 +12,7 @@ import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentDomain } from './assessment-domain.entity';
 import { AssessmentSubComponent } from './assessment-sub-component.entity';
-import { ComponenttanslationDto } from '../../shared/dtos';
+import { ComponentTranslationDto } from '../../shared/dtos';
 
 @Entity('assessment-components')
 @Unique(['code', 'assessmentId'])
@@ -50,20 +50,16 @@ export class AssessmentComponent extends BaseEntityWithSoftDelete {
   @Index()
   assessmentId: string;
 
-  @ApiPropertyOptional({
-    description: 'Assessment related to this component',
-    type: () => Assessment,
-  })
   @ManyToOne(() => Assessment, (assessment) => assessment.components)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
 
   @ApiPropertyOptional({
     description: 'Assessments related to this domain',
-    type: () => ComponenttanslationDto,
+    type: () => ComponentTranslationDto,
   })
   @Column('jsonb')
-  translations: Record<string, ComponenttanslationDto> = {};
+  translations: Record<string, ComponentTranslationDto> = {};
 
   @ApiProperty({
     description: 'ID of the associated domain',
@@ -74,18 +70,10 @@ export class AssessmentComponent extends BaseEntityWithSoftDelete {
   @Index()
   domainId: string;
 
-  @ApiProperty({
-    description: 'Associated domain',
-    type: () => AssessmentDomain,
-  })
   @ManyToOne(() => AssessmentDomain, (domain) => domain.components)
   @JoinColumn({ name: 'domainId' })
   domain: AssessmentDomain;
 
-  @ApiPropertyOptional({
-    description: 'Sub-components under this component',
-    type: () => [AssessmentSubComponent],
-  })
   @OneToMany(
     () => AssessmentSubComponent,
     (subComponent) => subComponent.component,

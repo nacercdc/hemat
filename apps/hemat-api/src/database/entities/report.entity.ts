@@ -23,10 +23,6 @@ export class Report extends BaseEntityWithSoftDelete {
   @Column()
   assessmentId: string;
 
-  @ApiProperty({
-    description: 'Associated assessment',
-    type: () => Assessment,
-  })
   @ManyToOne(() => Assessment, (assessment) => assessment.reports)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
@@ -40,10 +36,6 @@ export class Report extends BaseEntityWithSoftDelete {
   @Index()
   assessmentGroupId: string;
 
-  @ApiPropertyOptional({
-    description: 'AssessmentGroup object',
-    type: () => AssessmentGroup,
-  })
   @ManyToOne(() => AssessmentGroup)
   @JoinColumn({ name: 'assessmentGroupId' })
   assessment_groups: AssessmentGroup | null;
@@ -57,10 +49,6 @@ export class Report extends BaseEntityWithSoftDelete {
   @Column()
   userId: string;
 
-  @ApiPropertyOptional({
-    description: 'User object',
-    type: () => User,
-  })
   @OneToOne(() => User, (user) => user.reports)
   @JoinColumn({ name: 'userId' })
   user: User | null;

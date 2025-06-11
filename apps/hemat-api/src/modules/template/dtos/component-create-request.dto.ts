@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { IsUnique, IsExists } from '@shared/validators';
-import { ComponenttanslationDto } from '@shared/dtos';
+import { ComponentTranslationDto } from '@shared/dtos';
 
 export class ComponentCreateRequestDto {
   @ApiProperty({
@@ -84,5 +84,5 @@ export class ComponentCreateRequestDto {
   @IsNotEmpty({ message: 'validation.translations.isNotEmpty' })
   @IsObject({ message: 'validation.translations.isObject' })
   @Type(() => Object)
-  translations: Record<string, ComponenttanslationDto>;
+  translations: Record<string, ComponentTranslationDto>;
 }

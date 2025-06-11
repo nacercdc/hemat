@@ -5,9 +5,9 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BaseEntityWithSoftDelete } from './entity';
+import { ApiProperty } from '@nestjs/swagger';
 import { InvitationStatus, MemberRole } from '@shared/enums';
+import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentGroup } from './assessment-group.entity';
 
@@ -30,10 +30,6 @@ export class Invitation extends BaseEntityWithSoftDelete {
   @Index()
   assessmentId: string;
 
-  @ApiPropertyOptional({
-    description: 'Assessment object',
-    type: () => Assessment,
-  })
   @ManyToOne(() => Assessment, (assessment) => assessment.invitations)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment | null;
@@ -47,10 +43,6 @@ export class Invitation extends BaseEntityWithSoftDelete {
   @Index()
   groupId: string;
 
-  @ApiPropertyOptional({
-    description: 'Group object',
-    type: () => AssessmentGroup,
-  })
   @ManyToOne(() => AssessmentGroup, (group) => group.invitations)
   @JoinColumn({ name: 'groupId' })
   group: AssessmentGroup | null;

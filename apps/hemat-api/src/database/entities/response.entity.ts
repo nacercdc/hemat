@@ -1,5 +1,5 @@
 import { Entity, Column, OneToOne, OneToMany, JoinColumn } from 'typeorm';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { Comment } from './comment.entity';
@@ -14,10 +14,6 @@ export class Response extends BaseEntityWithSoftDelete {
   @Column()
   assessmentId: string;
 
-  @ApiPropertyOptional({
-    description: 'Assessment object',
-    type: () => Assessment,
-  })
   @OneToOne(() => Assessment, (assessment) => assessment.response)
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment | null;
@@ -30,10 +26,6 @@ export class Response extends BaseEntityWithSoftDelete {
   @Column()
   content: string;
 
-  @ApiPropertyOptional({
-    description: 'Comments on the response',
-    type: () => [Comment],
-  })
   @OneToMany(() => Comment, (comment) => comment.response)
   comments: Comment[];
 

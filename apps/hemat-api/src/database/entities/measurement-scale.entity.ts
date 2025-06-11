@@ -1,9 +1,8 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { MeasurementScaleTranslationDto } from '@shared/dtos';
 import { BaseEntityWithSoftDelete } from './entity';
 import { MeasurementScaleSubComponent } from './measurement-scale-sub-component.entity';
-import { Roadmap } from './roadmap.entity';
-import { MeasurementScaleTranslationDto } from '@shared/dtos';
 
 @Entity('measurement_scales')
 export class MeasurementScale extends BaseEntityWithSoftDelete {
@@ -40,16 +39,12 @@ export class MeasurementScale extends BaseEntityWithSoftDelete {
   rate: number;
 
   @ApiPropertyOptional({
-    description: 'Assessments related to this Measuremnt scale',
+    description: 'Assessments related to this Measurement scale',
     type: () => MeasurementScaleTranslationDto,
   })
   @Column('jsonb')
   translations: Record<string, MeasurementScaleTranslationDto> = {};
 
-  @ApiProperty({
-    description: 'MeasurementScaleSubComponent linked to this SubComponent',
-    type: () => [MeasurementScaleSubComponent],
-  })
   @OneToMany(
     () => MeasurementScaleSubComponent,
     (measurementScaleSubComponent) =>

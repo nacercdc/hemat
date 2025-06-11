@@ -7,10 +7,10 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { SubComponentTranslationDto } from '@shared/dtos';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Component } from './component.entity';
 import { MeasurementScaleSubComponent } from './measurement-scale-sub-component.entity';
-import { SubcomponenttanslationDto } from '@shared/dtos';
 
 @Entity('sub_components')
 export class SubComponent extends BaseEntityWithSoftDelete {
@@ -48,10 +48,10 @@ export class SubComponent extends BaseEntityWithSoftDelete {
 
   @ApiPropertyOptional({
     description: 'Assessments related to this Sub component',
-    type: () => SubcomponenttanslationDto,
+    type: () => SubComponentTranslationDto,
   })
   @Column('jsonb')
-  translations: Record<string, SubcomponenttanslationDto> = {};
+  translations: Record<string, SubComponentTranslationDto> = {};
 
   @ApiPropertyOptional({
     description: 'ID of the associated component',
@@ -61,19 +61,11 @@ export class SubComponent extends BaseEntityWithSoftDelete {
   @Column()
   componentId: string;
 
-  @ApiProperty({
-    description: 'Associated component',
-    type: () => Component,
-  })
   @ManyToOne(() => Component, (component) => component.subComponents)
   @Index()
   @JoinColumn({ name: 'componentId' })
   component: Component;
 
-  @ApiProperty({
-    description: 'MeasurementScaleSubComponent linked to this SubComponent',
-    type: () => [MeasurementScaleSubComponent],
-  })
   @OneToMany(
     () => MeasurementScaleSubComponent,
     (measurementScale) => measurementScale.subComponent,

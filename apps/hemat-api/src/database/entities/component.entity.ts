@@ -7,10 +7,10 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { ComponentTranslationDto } from '@shared/dtos';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Domain } from './domain.entity';
 import { SubComponent } from './sub-component.entity';
-import { ComponenttanslationDto } from '@shared/dtos';
 
 @Entity('components')
 export class Component extends BaseEntityWithSoftDelete {
@@ -48,10 +48,10 @@ export class Component extends BaseEntityWithSoftDelete {
 
   @ApiProperty({
     description: 'Assessments related to this Components',
-    type: () => ComponenttanslationDto,
+    type: () => ComponentTranslationDto,
   })
   @Column('jsonb')
-  translations: Record<string, ComponenttanslationDto> = {};
+  translations: Record<string, ComponentTranslationDto> = {};
 
   @ApiProperty({
     description: 'ID of the associated domain',
@@ -62,18 +62,10 @@ export class Component extends BaseEntityWithSoftDelete {
   @Index()
   domainId: string;
 
-  @ApiProperty({
-    description: 'Associated domain',
-    type: () => Domain,
-  })
   @ManyToOne(() => Domain, (domain) => domain.components)
   @JoinColumn({ name: 'domainId' })
   domain: Domain;
 
-  @ApiProperty({
-    description: 'Sub-components under this component',
-    type: () => [SubComponent],
-  })
   @OneToMany(() => SubComponent, (subComponent) => subComponent.component)
   subComponents: SubComponent[];
 }

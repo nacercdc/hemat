@@ -1,9 +1,9 @@
 import { Entity, Column, ManyToMany, JoinTable } from 'typeorm';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Role } from './role.entity';
 import { User } from './user.entity';
-import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 
 @Entity('permissions')
 export class Permission extends BaseEntityWithSoftDelete {
@@ -33,18 +33,9 @@ export class Permission extends BaseEntityWithSoftDelete {
   @Column({ type: 'text' })
   description: string;
 
-  @ApiPropertyOptional({
-    description: 'Role objects',
-    type: () => [Role],
-    isArray: true,
-  })
   @ManyToMany(() => Role, (role) => role.permissions)
   roles: Role[];
 
-  @ApiProperty({
-    description: 'Users Objects',
-    type: () => [User],
-  })
   @ManyToMany(() => User, (user) => user.permissions)
   @JoinTable()
   users: User[];

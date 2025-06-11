@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { IsExists } from '@shared/validators';
-import { MeasurementScaleSubcomponentTranslationDto } from '@shared/dtos';
+import { MeasurementScaleSubComponentTranslationDto } from '@shared/dtos';
 
 export class SubComponentMeasurementScaleDto {
   @ApiProperty({
@@ -54,7 +54,7 @@ export class SubComponentMeasurementScaleDto {
   @IsNotEmpty({ message: 'validation.translations.isNotEmpty' })
   @IsObject({ message: 'validation.translations.isObject' })
   @Type(() => Object)
-  translations: Record<string, MeasurementScaleSubcomponentTranslationDto>;
+  translations: Record<string, MeasurementScaleSubComponentTranslationDto>;
 }
 
 export class UpdateSubComponentMeasurementScaleDto {
@@ -88,5 +88,5 @@ export class UpdateSubComponentMeasurementScaleDto {
   @IsOptional()
   @IsObject({ message: 'validation.translations.isObject' })
   @Type(() => Object)
-  translations?: Record<string, MeasurementScaleSubcomponentTranslationDto>;
+  translations?: Record<string, MeasurementScaleSubComponentTranslationDto>;
 }

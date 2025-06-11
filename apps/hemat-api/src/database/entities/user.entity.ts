@@ -8,11 +8,11 @@ import {
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { UserStatusEnum, LanguageEnum } from '@shared/enums';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Profile } from './profile.entity';
 import { Role } from './role.entity';
 import { Permission } from './permission.entity';
-import { UserStatusEnum, LanguageEnum } from '@shared/enums';
 import { AssessmentMember } from './assessment-member.entity';
 import { AssessmentAnswer } from './assessment-answer.entity';
 import { Assessment } from './assessment.entity';
@@ -124,20 +124,12 @@ export class User extends BaseEntityWithSoftDelete {
   @Column({ type: String, nullable: true })
   refreshToken: string | null;
 
-  @ApiPropertyOptional({
-    description: 'Profile object',
-    type: () => Profile,
-  })
   @OneToOne(() => Profile, (profile) => profile.user, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
   profile: Profile | null;
 
-  @ApiPropertyOptional({
-    description: 'AssessmentMember object',
-    type: () => AssessmentMember,
-  })
   @OneToMany(
     () => AssessmentMember,
     (assessmentMember) => assessmentMember.user,
@@ -148,24 +140,12 @@ export class User extends BaseEntityWithSoftDelete {
   )
   assessmentMembers: AssessmentMember[] | null;
 
-  @ApiPropertyOptional({
-    description: 'AssessmentAnswer Object',
-    type: () => [AssessmentAnswer],
-  })
   @OneToMany(() => AssessmentAnswer, (answer) => answer.user)
   answers: AssessmentAnswer[] | null;
 
-  @ApiPropertyOptional({
-    description: 'Assessment object',
-    type: () => Assessment,
-  })
   @OneToMany(() => Assessment, (assessment) => assessment.user)
   assessments: Assessment[] | null;
 
-  @ApiPropertyOptional({
-    description: 'Report Object',
-    type: () => [Report],
-  })
   @OneToMany(() => Report, (reports) => reports.user)
   reports: Report[] | null;
 }

@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, Length, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
-import { MeasurementScaleSubcomponentTranslationDto } from '../../../shared/dtos';
+import { MeasurementScaleSubComponentTranslationDto } from '../../../shared/dtos';
 
 export class AssessmentMeasurementScaleSubComponentDto {
   @ApiProperty({
@@ -35,8 +35,8 @@ export class AssessmentMeasurementScaleSubComponentDto {
 
   @ApiPropertyOptional({
     description: 'Translations for the measurement scale sub-component',
-    type: () => MeasurementScaleSubcomponentTranslationDto,
+    type: () => MeasurementScaleSubComponentTranslationDto,
   })
-  @Type(() => MeasurementScaleSubcomponentTranslationDto)
-  translations: Record<string, MeasurementScaleSubcomponentTranslationDto> = {};
+  @Type(() => MeasurementScaleSubComponentTranslationDto)
+  translations: Record<string, MeasurementScaleSubComponentTranslationDto> = {};
 }

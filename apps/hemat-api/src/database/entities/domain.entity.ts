@@ -1,8 +1,8 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { DomainTranslationDto } from '@shared/dtos';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Component } from './component.entity';
-import { DomaintranslationDto } from '@shared/dtos';
 
 @Entity('domains')
 export class Domain extends BaseEntityWithSoftDelete {
@@ -40,15 +40,11 @@ export class Domain extends BaseEntityWithSoftDelete {
 
   @ApiProperty({
     description: 'Assessments related to this domain',
-    type: () => DomaintranslationDto,
+    type: () => DomainTranslationDto,
   })
   @Column('jsonb')
-  translations: Record<string, DomaintranslationDto> = {};
+  translations: Record<string, DomainTranslationDto> = {};
 
-  @ApiProperty({
-    description: 'Components under this domain',
-    type: () => [Component],
-  })
   @OneToMany(() => Component, (component) => component.domain)
   components: Component[];
 }
