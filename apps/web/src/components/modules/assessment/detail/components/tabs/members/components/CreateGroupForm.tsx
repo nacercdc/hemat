@@ -8,6 +8,7 @@ import MemberInfo from "./MemberInfo";
 import MemberAction from "./MemberAction";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useEffect, useState } from "react";
+import { CreateGroupFormSkeleton } from "./CreateGroupFormSkeleton";
 
 const LanguageFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -54,7 +55,7 @@ export function CreateGroupForm({
   onCancelTeamGroupForm,
 }: Props) {
   const [members, setMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const { control, handleSubmit, reset } = useForm<TeamGroupFormData>({
     defaultValues: {
       name: "",
@@ -65,10 +66,10 @@ export function CreateGroupForm({
 
   useEffect(() => {
     const fetchMembers = async () => {
-      setLoading(true);
+      setIsLoading(true);
       const data = await FetchAssessmentMembers();
       setMembers(data);
-      setLoading(false);
+      setIsLoading(false);
     };
 
     fetchMembers();
@@ -81,7 +82,10 @@ export function CreateGroupForm({
   const refetch = () => {
     //TODO: will be replaced with assessment refetch func
   };
-  if (loading) return <div>Loading...</div>;
+
+  if (isLoading) {
+    return <CreateGroupFormSkeleton />;
+  }
   return (
     <form
       onSubmit={handleSubmit((values) => {
@@ -118,7 +122,12 @@ export function CreateGroupForm({
           Reset to default
         </Button>
         <div className="flex gap-4">
-          <Button variant="outline" type="button" onClick={onCancelHandler}>
+          <Button
+            variant="outline"
+            type="button"
+            color="card"
+            onClick={onCancelHandler}
+          >
             Cancel
           </Button>
           <Button size="lg" type="submit">
