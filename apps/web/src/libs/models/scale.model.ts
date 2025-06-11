@@ -1,5 +1,5 @@
 export interface Scale {
-  id: number;
+  id: string;
   name: string;
   rate: number;
   color: string;
@@ -16,9 +16,8 @@ export type ScaleFilterable =
   | "is_recurring"
   | "created_at";
 
-export type ScaleSortable =
-  | "created_at"
+export type ScaleSortable = "created_at";
 
-  export type ScaleSorts = ScaleSortable[];
+export type ScaleSorts = ScaleSortable[];
 export type ScaleIncludes = ScaleIncluded | Scale[];
 export type ScaleFilters = ScaleFilterable[];

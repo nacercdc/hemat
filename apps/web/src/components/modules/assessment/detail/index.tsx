@@ -1,9 +1,9 @@
 import React from "react";
 
 import { PageContainer } from "../../components/PageContainer";
-import { CurrentAssessment } from "./tabs/current-assessment";
+import { CurrentAssessment } from "./components/tabs/current-assessment";
 import { Tabs } from "@etm/web-ui-components";
-import AssessmentOverview from "./tabs/overview";
+import AssessmentOverview from "./components/tabs/overview";
 
 export function AssessmentDetail() {
   const assessmentName = "Assessment 1";

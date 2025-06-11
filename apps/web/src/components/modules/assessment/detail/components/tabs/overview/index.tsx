@@ -5,9 +5,9 @@ import { useParams } from "next/navigation";
 import { Assessment, StatusType } from "~/libs/models/assessment.model";
 import { Badge, BadgeVariants } from "@etm/web-ui-components";
 import SkeletonForDetail from "./components/SkeletonForDetail";
-import GroupsList from "../../components/members/GroupsList";
+import GroupsList from "../../members/GroupsList";
 import LabeledValue from "./components/LabeledValue";
-import MemberRoleCard from "../../components/members/MemberRoleCard";
+import MemberRoleCard from "../../members/MemberRoleCard";
 
 export default function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {

@@ -1,10 +1,14 @@
 "use client";
 
-import { Button } from "@etm/web-ui-components";
+import { Button, CheckboxGroupRHF, ETMEditor } from "@etm/web-ui-components";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
 import { PageContainer } from "~/components/modules/components/PageContainer";
+import type { Scale } from "~/libs/models/scale.model";
 import { cn } from "~/utils/cn.util";
 
 interface SubComponent {
@@ -77,6 +81,68 @@ const domain: Domain = {
   ],
 };
 
+const measurementScales: Scale[] = [
+  {
+    id: "1",
+    name: "Initial",
+    rate: 1,
+    description: "Initial",
+    color: "#fdffbb",
+  },
+  {
+    id: "2",
+    name: "Developing",
+    rate: 2,
+    description: "Developing",
+    color: "#fdffff",
+  },
+  {
+    id: "3",
+    name: "Mature",
+    rate: 3,
+    description: "Mature",
+    color: "#fdffdd",
+  },
+  {
+    id: "4",
+    name: "Optimizing",
+    rate: 4,
+    description: "Optimizing",
+    color: "#fdffee",
+  },
+  {
+    id: "5",
+    name: "Optimizing",
+    rate: 5,
+    description: "Optimizing",
+    color: "#fdffcc",
+  },
+];
+
+const formattedMeasurementScales = measurementScales.map((scale) => ({
+  id: scale.id,
+  name: (scale.name + " (" + scale.rate + ")").toString(),
+  color: scale.color,
+  description: scale.description,
+  rate: scale.rate,
+}));
+
+const subComponentFormSchema = z.object({
+  measurementScale: z.object({
+    id: z.string().min(1, { message: "Measurement scale is required" }),
+  }),
+  evidence: z.union([
+    z.string().min(1, { message: "Evidence is required" }),
+    z.instanceof(File),
+  ]),
+  reference: z.union([
+    z.string().min(1, { message: "Reference is required" }),
+    z.instanceof(File),
+  ]),
+});
+
+export type SubComponentFormData = z.infer<typeof subComponentFormSchema>;
+
 export function DomainFill() {
   const router = useRouter();
   const [activeComponent, setActiveComponent] = useState<Component | undefined>(
@@ -85,9 +151,28 @@ export function DomainFill() {
   const [activeSubComponent, setActiveSubComponent] = useState<
     SubComponent | undefined
   >(undefined);
+  const [scale, setScale] = useState<Scale[] | undefined>(undefined);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+    watch,
+  } = useForm<SubComponentFormData>({
+    defaultValues: {
+      measurementScale: { id: "" },
+      evidence: "",
+      reference: "",
+    },
+    resolver: zodResolver(subComponentFormSchema),
+    mode: "onChange",
+  });
 
   const assessmentName = "Assessment 1";
   const assessmentId = "1";
+
+  console.log(watch("evidence"));
 
   // Initialize first component and subcomponent
   useEffect(() => {
@@ -100,60 +185,51 @@ export function DomainFill() {
     }
   }, []);
 
-  // Simulate API call for form submission
-  const submitFormData = useCallback(
-    (subComponentId: string, data: unknown) => {
-      try {
-        // Replace with actual API call
-        console.log(
-          `Submitting form for subcomponent ${subComponentId}:`,
-          data
+  // Reset form when activeSubComponent changes
+  useEffect(() => {
+    reset({
+      measurementScale: { id: "" },
+      evidence: "",
+      reference: "",
+    });
+    setScale(undefined);
+  }, [activeSubComponent, reset]);
+
+  // Handle form submission and navigation
+  const onSubmit = useCallback(
+    (data: SubComponentFormData) => {
+      if (!activeComponent || !activeSubComponent) return;
+
+      // Log form data (replace with actual submission logic if needed)
+      console.log(
+        `Form submitted for subcomponent ${activeSubComponent.id}:`,
+        data
+      );
+
+      const currentComponentIndex = domain.components.findIndex(
+        (c) => c.id === activeComponent.id
+      );
+      const currentSubComponentIndex = activeComponent.subComponents.findIndex(
+        (sc) => sc.id === activeSubComponent.id
+      );
+
+      // Navigate to next subcomponent or component
+      if (currentSubComponentIndex < activeComponent.subComponents.length - 1) {
+        setActiveSubComponent(
+          activeComponent.subComponents[currentSubComponentIndex + 1]
         );
-        // Example: await fetch('/api/submit', { method: 'POST', body: JSON.stringify({ subComponentId, data }) });
-      } catch (error) {
-        console.error("Form submission failed:", error);
+      } else if (currentComponentIndex < domain.components.length - 1) {
+        const nextComponent = domain.components[currentComponentIndex + 1];
+        setActiveComponent(nextComponent);
+        if (nextComponent && nextComponent.subComponents.length > 0) {
+          setActiveSubComponent(nextComponent.subComponents[0]);
+        }
+      } else {
+        router.push(`/assessment/${assessmentId}/complete`);
       }
     },
-    []
+    [activeComponent, activeSubComponent, router, assessmentId]
   );
-
-  const handleNext = useCallback(() => {
-    if (!activeComponent || !activeSubComponent) return;
-
-    const currentComponentIndex = domain.components.findIndex(
-      (c) => c.id === activeComponent.id
-    );
-    const currentSubComponentIndex = activeComponent.subComponents.findIndex(
-      (sc) => sc.id === activeSubComponent.id
-    );
-
-    // Submit form data immediately
-    submitFormData(activeSubComponent.id, {
-      description: activeSubComponent.description,
-      // Add your form data here
-    });
-
-    // Navigate to next subcomponent or component
-    if (currentSubComponentIndex < activeComponent.subComponents.length - 1) {
-      setActiveSubComponent(
-        activeComponent.subComponents[currentSubComponentIndex + 1]
-      );
-    } else if (currentComponentIndex < domain.components.length - 1) {
-      const nextComponent = domain.components[currentComponentIndex + 1];
-      setActiveComponent(nextComponent);
-      if (nextComponent && nextComponent.subComponents.length > 0) {
-        setActiveSubComponent(nextComponent.subComponents[0]);
-      }
-    } else {
-      router.push(`/assessment/${assessmentId}/complete`);
-    }
-  }, [
-    activeComponent,
-    activeSubComponent,
-    router,
-    submitFormData,
-    assessmentId,
-  ]);
 
   const handlePrevious = useCallback(() => {
     if (!activeComponent || !activeSubComponent) return;
@@ -202,7 +278,10 @@ export function DomainFill() {
         <div className="flex w-full h-12 bg-basic-200 rounded-md px-5 py-3">
           <span className="text-xl font-bold">{`${domain.name} / Components`}</span>
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 h-full">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col sm:flex-row gap-4 h-full"
+        >
           <div className="flex flex-col gap-3 w-full sm:w-1/4 overflow-y-auto">
             {domain.components.map((component) => (
               <div
@@ -224,14 +303,61 @@ export function DomainFill() {
           <div className="flex flex-col w-full sm:w-3/4">
             <div className="flex flex-col w-full h-full p-7 gap-7 border border-basic-300 rounded-lg">
               {activeSubComponent && (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-10">
                   <span className="text-lg font-bold">
                     {activeSubComponent.name}
                   </span>
                   <p className="text-xs font-medium text-dark-light">
                     {activeSubComponent.description}
                   </p>
-                  {/* Add your form inputs here */}
+                  <div className="flex w-1/4">
+                    <CheckboxGroupRHF<Scale, SubComponentFormData>
+                      control={control}
+                      name="measurementScale"
+                      options={formattedMeasurementScales}
+                      onValuesChange={(values: Scale[]) => {
+                        setScale(values);
+                      }}
+                      values={scale}
+                      valueKey="id"
+                      labelKey="name"
+                      size="md"
+                      layout="horizontal"
+                      selectionMode="single"
+                    />
+                    {errors.measurementScale?.id && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.measurementScale.id.message}
+                      </p>
+                    )}
+                  </div>
+                  <Controller
+                    control={control}
+                    name="evidence"
+                    render={({ field: { onChange, value } }) => (
+                      <ETMEditor
+                        label="Evidence"
+                        description="Attach a picture"
+                        control={control}
+                        onEditorStateChange={onChange}
+                        value={value}
+                      />
+                    )}
+                  />
+
+                  <Controller
+                    control={control}
+                    name="reference"
+                    render={({ field: { onChange, value } }) => (
+                      <ETMEditor
+                        label="Reference"
+                        description="Attach a reference"
+                        control={control}
+                        onEditorStateChange={onChange}
+                        value={value}
+                      />
+                    )}
+                  />
                 </div>
               )}
             </div>
@@ -245,15 +371,15 @@ export function DomainFill() {
                 Previous
               </Button>
               <Button
-                onClick={handleNext}
+                type="submit"
                 size="xl"
-                disabled={!activeComponent || !activeSubComponent}
+                disabled={!activeComponent || !activeSubComponent || !isValid}
               >
                 {isLast ? "Complete" : "Next"}
               </Button>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </PageContainer>
   );
