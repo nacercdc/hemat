@@ -24,7 +24,7 @@ export function Tabs({ defaultValue, options }: Props) {
           <TabsTrigger
             key={op.value}
             value={op.value}
-            className="data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:text-primary data-[state=active]:font-bold !border-primary border-solid !bg-transparent !ring-offset-transparent rounded-none justify-start text-basic px-0"
+            className="data-[state=active]:shadow-none data-[state=active]:border-b-[0.2rem] data-[state=active]:text-primary data-[state=active]:font-bold !border-primary border-solid !bg-transparent !ring-offset-transparent rounded-none justify-start text-basic px-0"
           >
             {op.label}
           </TabsTrigger>

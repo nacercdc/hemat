@@ -12,7 +12,7 @@ const LabeledValue: React.FC<Props> = ({ label, value, boldLabel = true }) => {
       <span className={`text-sm ${boldLabel ? "font-bold" : "font-medium"}`}>
         {label}
       </span>
-      <span className="text-sm font-thin">{value ?? "N/A"}</span>
+      <span className="text-xs font-normal">{value ?? "N/A"}</span>
     </div>
   );
 };

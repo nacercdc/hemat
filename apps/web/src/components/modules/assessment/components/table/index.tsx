@@ -21,17 +21,8 @@ export function AssessmentsTable() {
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  useEffect(() => {
-    setIsLoading(true);
-    mockAssessmentsFetch(pagination).then((data) => {
-      setAssessmentData(data.assessments);
-      setIsLoading(false);
-    });
-  }, [pagination, sorting, searchValue]);
-
   const onSortingChangeHandler = (sortingState: SortingState) => {
     // TODO: Replace with a code that triggers our query hook with new sorting state
-
     setSorting(sortingState);
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,
@@ -41,7 +32,6 @@ export function AssessmentsTable() {
 
   const onSearchFilterChangeHandler = useCallback((value: string) => {
     // TODO: Replace with a code that triggers our query hook with new search filter state
-
     setSearchValue(value);
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,
@@ -51,9 +41,16 @@ export function AssessmentsTable() {
 
   const onPageChangeHandler = (pageState: PaginationState) => {
     // TODO: Replace with a code that triggers our query hook with new pagination state
-
     setPagination(pageState);
   };
+
+  useEffect(() => {
+    setIsLoading(true);
+    mockAssessmentsFetch(pagination).then((data) => {
+      setAssessmentData(data.assessments);
+      setIsLoading(false);
+    });
+  }, [pagination, sorting, searchValue]);
 
   const OnEmptyDataElement = (
     <EmptyTableDataElement
