@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Assessment, StatusType } from "~/libs/models/assessment.model";
-import { Badge, BadgeVariants } from "@etm/web-ui-components";
+import type { Assessment, StatusType } from "~/libs/models/assessment.model";
+import type { BadgeVariants } from "@etm/web-ui-components";
+import { Badge } from "@etm/web-ui-components";
 import SkeletonForDetail from "./components/SkeletonForDetail";
 import GroupsList from "../../members/GroupsList";
 import LabeledValue from "./components/LabeledValue";
@@ -46,7 +47,7 @@ export default function AssessmentOverview() {
             variant={
               assessmentData?.status
                 ? StatusVariantClasses[assessmentData.status]
-                : StatusVariantClasses["Pending"]
+                : StatusVariantClasses.Pending
             }
           />
         </div>

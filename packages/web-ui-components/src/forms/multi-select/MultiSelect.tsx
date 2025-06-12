@@ -94,7 +94,7 @@ export function MultiSelect<T>({
       size={labelSize}
     >
       <Popover open={open} onOpenChange={onOpenChangeHandler}>
-        <PopoverTrigger asChild>
+        <PopoverTrigger asChild className="flex items-center w-full">
           <Button
             variant="outline"
             className={cn(
@@ -144,7 +144,7 @@ export function MultiSelect<T>({
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-fit p-0">
+        <PopoverContent className="min-w-full p-0">
           <ScrollArea>
             <Command>
               <div className="flex flex-col items-start gap-1 px-3 pt-2">
