@@ -29,7 +29,7 @@ import {
   PermissionSubjectEnum,
 } from '../../../shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '../../../shared/dtos';
-import { AssessmentGroupService } from '../services';
+import { AssessmentGroupService } from '../dtos/services';
 import { AssessmentGroupRequestDto, FindAllAssessmentGroupDto, FindOneAssessmentGroupDto } from '../dtos';
 import { AssessmentGroup } from '../../../database/entities';
 

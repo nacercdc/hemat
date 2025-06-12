@@ -26,7 +26,7 @@ import {
   AssessmentService,
   AssessmentAnswerService,
   RoadmapService,
-} from './services';
+} from './dtos/services';
 import {
   AssessmentController,
   AssessmentDomainController,

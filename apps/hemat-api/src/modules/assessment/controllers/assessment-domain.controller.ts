@@ -24,7 +24,7 @@ import { AssessmentComponent, AssessmentDomain } from '@database/entities';
 import { AuthGuard, Abilities } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
-import { AssessmentDomainService } from '../services';
+import { AssessmentDomainService } from '../dtos/services';
 import {
   AssessmentDomainDto,
   FindAllAssessmentComponentDto,

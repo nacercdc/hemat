@@ -29,7 +29,7 @@ import {
   PermissionSubjectEnum,
 } from '../../../shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '../../../shared/dtos';
-import { AssessmentMemberService } from '../services';
+import { AssessmentMemberService } from '../dtos/services';
 import {
   AssessmentMemberCreateRequestDto,
   AssessmentMemberUpdateRequestDto,

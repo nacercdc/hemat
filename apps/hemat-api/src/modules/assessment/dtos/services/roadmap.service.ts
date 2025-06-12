@@ -20,7 +20,7 @@ import {
   RoadmapUpdateRequestDto,
   FindAllRoadmapDto,
   FindOneRoadmapDto,
-} from '../dtos';
+} from '..';
 
 @Injectable()
 export class RoadmapService {

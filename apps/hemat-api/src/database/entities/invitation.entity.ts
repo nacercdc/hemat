@@ -10,6 +10,7 @@ import { InvitationStatus, MemberRole } from '@shared/enums';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentGroup } from './assessment-group.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('invitations')
 export class Invitation extends BaseEntityWithSoftDelete {
@@ -61,6 +62,7 @@ export class Invitation extends BaseEntityWithSoftDelete {
     example: 'abc123...',
     type: String,
   })
+  @Exclude()
   @Column()
   token: string;
 

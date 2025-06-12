@@ -30,7 +30,7 @@ import { AuthDto } from '@shared/modules';
 import {
   AssessmentSubComponentService,
   AssessmentAnswerService,
-} from '../services';
+} from '../dtos/services';
 import {
   AssessmentSubComponentDto,
   FindAllAssessmentSubComponentDto,

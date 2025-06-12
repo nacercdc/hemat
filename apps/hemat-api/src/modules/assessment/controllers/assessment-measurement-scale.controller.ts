@@ -25,7 +25,7 @@ import { AssessmentMeasurementScale } from '@database/entities';
 import { AuthGuard, Abilities } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
-import { AssessmentMeasurementScaleService } from '../services';
+import { AssessmentMeasurementScaleService } from '../dtos/services';
 import {
   AssessmentMeasurementScaleDto,
   FindAllAssessmentMeasurementScaleDto,

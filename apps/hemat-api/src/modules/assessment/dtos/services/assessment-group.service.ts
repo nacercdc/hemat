@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource,Not, Repository } from 'typeorm';
+import { DataSource, Not, Repository } from 'typeorm';
 import { AssessmentGroup, Assessment } from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
@@ -14,7 +14,7 @@ import {
   AssessmentGroupUpdateRequestDto,
   FindAllAssessmentGroupDto,
   FindOneAssessmentGroupDto,
-} from '../dtos';
+} from '..';
 
 @Injectable()
 export class AssessmentGroupService {

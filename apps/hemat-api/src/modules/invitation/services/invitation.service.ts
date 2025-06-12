@@ -1,34 +1,35 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
   NotImplementedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, Not } from 'typeorm';
+import { Repository, DataSource, In, Not } from 'typeorm';
 import {
   Invitation,
   Assessment,
-  AssessmentGroup,
   User,
   AssessmentMember,
+  AssessmentGroup,
 } from '@database/entities';
 import {
   FindAllInvitationDto,
   FindOneInvitationDto,
-  InvitationCreateRequestDto,
+  InvitationCreateBulkRequestDto,
   InvitationUpdateRequestDto,
 } from '../dtos';
-import { AssessmentMemberService } from '@modules/assessment/services';
-import { InvitationStatus, MemberRole } from '@shared/enums';
+import { AssessmentMemberService } from '@modules/assessment/dtos/services';
+import { InvitationStatus } from '@shared/enums';
 import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../../config';
-import { generateRandomToken } from '@shared/helpers/token.helper';
 import { FindAllResponseDto } from '@shared/dtos';
 import { QueryService } from '@shared/services';
+import { GroupService } from './group.service';
+import { AssessmentRoleService } from './assessment-role.service';
+import { generateRandomToken } from '@shared/helpers/token.helper';
 
 @Injectable()
 export class InvitationService {
@@ -39,135 +40,132 @@ export class InvitationService {
     private readonly invitationRepository: Repository<Invitation>,
     @InjectRepository(Assessment)
     private readonly assessmentRepository: Repository<Assessment>,
-    @InjectRepository(AssessmentGroup)
-    private readonly groupRepository: Repository<AssessmentGroup>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(AssessmentMember)
-    private readonly memberRepository: Repository<AssessmentMember>,
     private readonly memberService: AssessmentMemberService,
+    private readonly groupService: GroupService,
+    private readonly roleService: AssessmentRoleService,
     private readonly dataSource: DataSource,
     private readonly configService: ConfigService<AppConfig>,
   ) {}
 
-  async create(
+  async createBulk(
     assessmentId: string,
-    payload: InvitationCreateRequestDto,
-  ): Promise<Invitation> {
-    const assessment = await this.assessmentRepository.exists({
-      where: { id: assessmentId },
-    });
+    payload: InvitationCreateBulkRequestDto,
+  ): Promise<Invitation[]> {
+    return this.dataSource.transaction(async (manager) => {
+      try {
+        const assessment = await manager.findOne(Assessment, {
+          where: { id: assessmentId },
+        });
+        if (!assessment) {
+          throw new NotFoundException('Assessment not found');
+        }
 
-    if (!assessment) {
-      throw new NotFoundException('Assessment not found');
-    }
+        const existingGroups = await manager.find(AssessmentGroup, {
+          where: { assessmentId },
+        });
+        await this.groupService.validateGroups(
+          assessmentId,
+          payload,
+          existingGroups,
+        );
 
-    const group = await this.groupRepository.exists({
-      where: { id: payload.groupId, assessmentId },
-    });
-
-    if (!group) {
-      throw new NotFoundException('Group not found');
-    }
-
-    const existingInvitation = await this.invitationRepository.findOne({
-      where: {
-        email: payload.email,
-        assessmentId,
-        status: Not(InvitationStatus.EXPIRED),
-      },
-    });
-
-    if (existingInvitation) {
-      throw new BadRequestException('Invitation already exists for this email');
-    }
-
-    if (payload.role === MemberRole.PRIMARY) {
-      const existingPrimaryInvitation = await this.invitationRepository.findOne(
-        {
+        const inviteEmails = payload.flatMap((g) =>
+          g.invitations.map((i) => i.email),
+        );
+        const existingInvites = await manager.find(Invitation, {
           where: {
-            groupId: payload.groupId,
+            email: In(inviteEmails),
             assessmentId,
-            role: MemberRole.PRIMARY,
             status: Not(InvitationStatus.EXPIRED),
           },
-        },
-      );
+        });
+        if (existingInvites.length) {
+          throw new BadRequestException('Duplicate invitation email');
+        }
 
-      if (existingPrimaryInvitation) {
-        throw new BadRequestException(
-          'A PRIMARY role invitation already exists for this group',
+        const invitations: Invitation[] = [];
+        const processedGroupIds = new Set<string>();
+
+        const newInvitations = await Promise.all(
+          payload.map(
+            async ({ group: groupInput, invitations: groupInvitations }) => {
+              const groupId = await this.groupService.resolveGroup(
+                manager,
+                assessmentId,
+                groupInput,
+                assessment.name,
+                existingGroups,
+                processedGroupIds.size,
+              );
+              processedGroupIds.add(groupId);
+
+              await this.roleService.handleRoleSwapping(
+                manager,
+                assessmentId,
+                groupId,
+                groupInvitations,
+              );
+
+              return groupInvitations.map(({ email, role }) =>
+                manager.create(Invitation, {
+                  email,
+                  assessmentId,
+                  groupId,
+                  role,
+                  token: generateRandomToken(24),
+                  status: InvitationStatus.PENDING,
+                }),
+              );
+            },
+          ),
         );
-      }
 
-      const existingPrimaryMember = await this.memberRepository.findOne({
-        where: {
-          groupId: payload.groupId,
-          assessmentId,
-          role: MemberRole.PRIMARY,
-        },
-      });
-
-      if (existingPrimaryMember) {
-        throw new BadRequestException(
-          'A PRIMARY role member already exists for this group',
+        const flattenedInvitations = newInvitations.flat();
+        const savedInvitations = await manager.save(
+          Invitation,
+          flattenedInvitations,
         );
+        invitations.push(...savedInvitations);
+
+        return invitations;
+      } catch (err) {
+        this.logger.error('createBulk:', err);
+        if (
+          err instanceof NotFoundException ||
+          err instanceof BadRequestException
+        ) {
+          throw err;
+        }
+        throw new BadRequestException('Failed to create invitations.');
       }
-    }
-
-    try {
-      const token = generateRandomToken(24);
-      const newInvitation = this.invitationRepository.create({
-        email: payload.email,
-        assessmentId,
-        groupId: payload.groupId,
-        role: payload.role,
-        token,
-        status: InvitationStatus.PENDING,
-      });
-
-      await this.invitationRepository.save(newInvitation);
-      // await this.sendInvitationEmail(newInvitation);
-      return newInvitation;
-    } catch (err) {
-      this.logger.error(
-        `Failed to create invitation: ${err.message}`,
-        err.stack,
-      );
-      throw new InternalServerErrorException('Failed to create invitation');
-    }
+    });
   }
 
   async findAll(
     assessmentId: string,
     query: FindAllInvitationDto,
   ): Promise<FindAllResponseDto<Invitation>> {
-    try {
-      const assessment = await this.assessmentRepository.exists({
+    if (
+      !(await this.assessmentRepository.exists({
         where: { id: assessmentId },
-      });
-      if (!assessment) {
-        throw new NotFoundException('Assessment not found');
-      }
-
-      return await new QueryService<Invitation>(this.invitationRepository)
-        .filter([{ field: 'assessmentId', operator: '=', value: assessmentId }])
-        .join(query.include)
-        .filter([], {
-          fields: ['email', 'role', 'status'],
-          value: query.search,
-        })
-        .sort({ ascending: query.ascending, descending: query.descending })
-        .take(query.take)
-        .skip(query.skip)
-        .getManyAndCount();
-    } catch (err) {
-      this.logger.error(
-        `Failed to retrieve invitations: ${err.message}`,
-        err.stack,
-      );
-      throw new InternalServerErrorException('Failed to retrieve invitations');
+      }))
+    ) {
+      throw new NotFoundException('Assessment not found');
     }
+
+    return await new QueryService<Invitation>(this.invitationRepository)
+      .filter([{ field: 'assessmentId', operator: '=', value: assessmentId }])
+      .join(query.include)
+      .filter([], {
+        fields: ['email', 'role', 'status'],
+        value: query.search,
+      })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   async findOne(
@@ -175,36 +173,29 @@ export class InvitationService {
     id: string,
     query: FindOneInvitationDto,
   ): Promise<Invitation> {
-    try {
-      const assessment = await this.assessmentRepository.exists({
+    if (
+      !(await this.assessmentRepository.exists({
         where: { id: assessmentId },
-      });
-      if (!assessment) {
-        throw new NotFoundException('Assessment not found');
-      }
-
-      const invitation = await new QueryService<Invitation>(
-        this.invitationRepository,
-      )
-        .filter([
-          { field: 'id', operator: '=', value: id },
-          { field: 'assessmentId', operator: '=', value: assessmentId },
-        ])
-        .join(query.include)
-        .getOne();
-
-      if (!invitation) {
-        throw new NotFoundException(`Invitation ${id} not found`);
-      }
-
-      return invitation;
-    } catch (err) {
-      this.logger.error(
-        `Failed to retrieve invitation: ${err.message}`,
-        err.stack,
-      );
-      throw new InternalServerErrorException('Failed to retrieve invitation');
+      }))
+    ) {
+      throw new NotFoundException('Assessment not found');
     }
+
+    const invitation = await new QueryService<Invitation>(
+      this.invitationRepository,
+    )
+      .filter([
+        { field: 'id', operator: '=', value: id },
+        { field: 'assessmentId', operator: '=', value: assessmentId },
+      ])
+      .join(query.include)
+      .getOne();
+
+    if (!invitation) {
+      throw new NotFoundException('Invitation not found');
+    }
+
+    return invitation;
   }
 
   async accept(payload: InvitationUpdateRequestDto): Promise<{
@@ -215,15 +206,10 @@ export class InvitationService {
   }> {
     try {
       const invitation = await this.invitationRepository.findOne({
-        where: { email: payload.email },
+        where: { email: payload.email, token: payload.token },
       });
-
       if (!invitation) {
         throw new NotFoundException('Invitation not found');
-      }
-
-      if (payload.token !== invitation.token) {
-        throw new BadRequestException('Invalid token');
       }
 
       if (invitation.status === InvitationStatus.EXPIRED) {
@@ -235,19 +221,17 @@ export class InvitationService {
           where: { email: invitation.email },
         });
         if (user) {
-          const frontendDomain =
-            this.configService.get('frontendDomain', { infer: true }) ||
-            'http://localhost:3000';
+          const frontendDomain = this.configService.get('frontendDomain', {
+            infer: true,
+          });
           return {
             success: true,
             message: 'Invitation already accepted. Please log in.',
             nextStep: 'login',
-            registerUrl: `${frontendDomain}/login`,
+            registerUrl: `https://africa-cdc-murex.vercel.app/login`,
           };
         }
-        throw new BadRequestException(
-          'Invitation already accepted, but user not found',
-        );
+        throw new BadRequestException('Invitation accepted, user not found');
       }
 
       if (
@@ -267,45 +251,29 @@ export class InvitationService {
 
       if (user) {
         await this.dataSource.transaction(async (manager) => {
-          const existingMember = await this.memberService
-            .findOne(invitation.assessmentId, invitation.groupId, user.id, {
-              include: [],
-            })
-            .catch(() => null);
-
-          if (existingMember) {
-            throw new BadRequestException(
-              'User is already a member of this assessment group',
-            );
+          if (
+            await this.memberService
+              .findOne(invitation.assessmentId, invitation.groupId, user.id, {
+                include: [],
+              })
+              .catch(() => null)
+          ) {
+            throw new BadRequestException('User already in assessment group');
           }
 
-          if (invitation.role === MemberRole.PRIMARY) {
-            const existingPrimaryMember = await manager.findOne(
-              AssessmentMember,
-              {
-                where: {
-                  groupId: invitation.groupId,
-                  assessmentId: invitation.assessmentId,
-                  role: MemberRole.PRIMARY,
-                },
-              },
-            );
+          await this.roleService.handleRoleSwappingForAccept(
+            manager,
+            invitation,
+          );
 
-            if (existingPrimaryMember) {
-              throw new BadRequestException(
-                'A PRIMARY role member already exists for this group',
-              );
-            }
-          }
-
-          const newMember = manager.create(AssessmentMember, {
-            userId: user.id,
-            assessmentId: invitation.assessmentId,
-            groupId: invitation.groupId,
-            role: invitation.role,
-          });
-
-          await manager.save(AssessmentMember, newMember);
+          await manager.save(
+            manager.create(AssessmentMember, {
+              userId: user.id,
+              assessmentId: invitation.assessmentId,
+              groupId: invitation.groupId,
+              role: invitation.role,
+            }),
+          );
           await manager.update(
             Invitation,
             { id: invitation.id },
@@ -313,56 +281,31 @@ export class InvitationService {
           );
         });
 
-        return {
-          success: true,
-          message: 'Invitation accepted successfully',
-        };
+        return { success: true, message: 'Invitation accepted' };
       }
 
       const frontendDomain =
         this.configService.get('frontendDomain', { infer: true }) ||
-        'http://localhost:3000';
-      const registerUrl = `${frontendDomain}/register?email=${encodeURIComponent(
-        invitation.email,
-      )}&invitationId=${invitation.id}`;
-
+        'https://africa-cdc-murex.vercel.app';
       return {
         success: true,
-        message: 'User not found. Please register to accept the invitation.',
+        message: 'User not found. Please register.',
         nextStep: 'register',
-        registerUrl,
+        registerUrl: `${frontendDomain}/register?email=${encodeURIComponent(invitation.email)}&invitationId=${invitation.id}`,
       };
     } catch (err) {
-      this.logger.error(
-        `Failed to accept invitation: ${err.message}`,
-        err.stack,
-      );
-      throw err instanceof NotFoundException ||
+      this.logger.error('accept:', err);
+      if (
+        err instanceof NotFoundException ||
         err instanceof BadRequestException
-        ? err
-        : new InternalServerErrorException('Failed to accept invitation');
+      ) {
+        throw err;
+      }
+      throw new BadRequestException('Failed to accept invitation.');
     }
   }
 
-  private async sendInvitationEmail(invitation: Invitation): Promise<void> {
-    try {
-      const frontendDomain =
-        this.configService.get('frontendDomain', { infer: true }) ||
-        'http://localhost:3000';
-      // Placeholder for email service implementation
-      throw new NotImplementedException('Email service not implemented');
-      // Example implementation:
-      // await emailService.send({
-      //   to: invitation.email,
-      //   subject: `Invitation to join assessment`,
-      //   body: `Click to accept: ${frontendDomain}/invitation?email=${encodeURIComponent(invitation.email)}&token=${invitation.token}`,
-      // });
-    } catch (err) {
-      this.logger.error(
-        `Failed to send invitation email: ${err.message}`,
-        err.stack,
-      );
-      throw new InternalServerErrorException('Failed to send invitation email');
-    }
+  private async sendInvitationEmail(): Promise<void> {
+    throw new NotImplementedException('Email service not implemented');
   }
 }
