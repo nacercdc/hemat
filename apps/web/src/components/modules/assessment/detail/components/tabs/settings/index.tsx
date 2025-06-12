@@ -1,10 +1,11 @@
 import React from "react";
 
+import { SecondaryTabs } from "@etm/web-ui-components";
+
 import { Domain } from "./components/tabs/domain";
 import { ComponentsTab } from "./components/tabs/components-tab";
-
-import { SecondaryTabs } from "@etm/web-ui-components";
 import SubComponents from "./components/tabs/subComponents";
+import MeasurementScales from "./components/tabs/measurement-scales";
 
 export function Settings() {
   return (
@@ -29,7 +30,7 @@ export function Settings() {
           {
             value: "measurement-scale",
             label: "Measurement-Scale",
-            content: <div>Measurement-Scale</div>,
+            content: <MeasurementScales />,
           },
         ]}
         defaultValue="domain"
