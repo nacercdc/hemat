@@ -3,51 +3,51 @@
 import { useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { Content } from "./components/Content";
-import type { Domain } from "../../../types/index";
+import type { Component } from "../../../types/index";
 
 //TODO Replace with real data
-const domains: Domain[] = [
+const components: Component[] = [
   {
     id: "1",
-    name: "Domain 1",
+    name: "Component 1",
     code: "Initial description",
     description: "Initial description about Leadership and Governance",
   },
   {
     id: "2",
-    name: "Domain 2",
+    name: "Component 2",
     code: "Initial description",
     description: "Initial description about Management and Workforce",
   },
   {
     id: "3",
-    name: "Domain 3",
+    name: "Component 3",
     code: "Initial description",
     description: "Initial description about ICT Infrastructure",
   },
   {
     id: "4",
-    name: "Domain 4",
+    name: "Component 4",
     code: "Initial description",
     description: "Initial description about Standards and Interoperability",
   },
 ];
 
-export function Domain() {
-  const [activeDomain, setActiveDomain] = useState<Domain | null>(
-    domains[0] ?? null
+export function ComponentsTab() {
+  const [activeComponent, setActiveComponent] = useState<Component | null>(
+    components[0] ?? null
   );
 
   return (
     <div className="flex flex-col md:flex-row h-full">
       <Sidebar
-        domains={domains}
-        activeDomain={activeDomain}
-        onDomainSelect={setActiveDomain}
+        components={components}
+        activeComponent={activeComponent}
+        onComponentSelect={setActiveComponent}
       />
-      <Content activeDomain={activeDomain} />
+      <Content activeComponent={activeComponent} />
     </div>
   );
 }
 
-export default Domain;
+export default ComponentsTab;

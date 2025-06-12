@@ -1,6 +1,8 @@
 import React from "react";
 
 import { Domain } from "./components/tabs/domain";
+import { ComponentsTab } from "./components/tabs/components-tab";
+
 import { SecondaryTabs } from "@etm/web-ui-components";
 
 export function Settings() {
@@ -16,7 +18,7 @@ export function Settings() {
           {
             value: "components",
             label: "Components",
-            content: <div>Components</div>,
+            content: <ComponentsTab />,
           },
           {
             value: "subComponents",

@@ -4,3 +4,10 @@ export interface Domain {
   code: string;
   description: string;
 }
+
+export interface Component {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+}

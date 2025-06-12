@@ -1,43 +1,53 @@
 import { Icon } from "@iconify/react";
 import { cn } from "~/utils/cn.util";
-import type { Domain } from "../../../../types";
 
-interface Props {
-  activeDomain: Domain | null;
-  domains: Domain[] | null;
-  onDomainSelect: (domain: Domain) => void;
+interface Component {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
 }
 
-export function Sidebar({ activeDomain, domains, onDomainSelect }: Props) {
+interface Props {
+  activeComponent: Component | null;
+  components: Component[] | null;
+  onComponentSelect: (component: Component) => void;
+}
+
+export function Sidebar({
+  activeComponent,
+  components,
+  onComponentSelect,
+}: Props) {
   const onEditClickHandler = (_id: string) => {
     //TODO handle editing logic
   };
   return (
     <div className="flex flex-col gap-3 w-full md:w-1/4 overflow-y-auto bg-basic-200/30 p-3 rounded-l-sm">
-      {domains ? (
-        domains?.map((domain) => (
+      {components ? (
+        components?.map((component) => (
           <div className="flex items-center gap-2 w-full">
             <div
-              key={domain.id}
+              key={component.id}
               className={cn(
                 "flex flex-1 items-center justify-between p-4 rounded-lg min-h-14 border border-basic-300 cursor-pointer",
-                activeDomain?.id === domain.id &&
+                activeComponent?.id === component.id &&
                   "bg-secondary-50/50 border border-secondary-500"
               )}
-              onClick={() => onDomainSelect(domain)}
+              onClick={() => onComponentSelect(component)}
             >
               <div className="text-sm font-medium flex gap-2">
-                {domain.name}
+                {component.name}
                 <Icon
                   icon="circum:edit"
                   className="w-5  h-5"
-                  onClick={() => onEditClickHandler(domain.id)}
+                  onClick={() => onEditClickHandler(component.id)}
                 />
               </div>
               <Icon icon="ion:chevron-forward-outline" className="w-4 h-4" />
             </div>
             <div className="w-6">
-              {activeDomain?.id === domain.id && (
+              {activeComponent?.id === component.id && (
                 <Icon
                   icon="gridicons:dropdown"
                   className="w-6 h-6 text-secondary-500 md:-rotate-90"
@@ -47,7 +57,7 @@ export function Sidebar({ activeDomain, domains, onDomainSelect }: Props) {
           </div>
         ))
       ) : (
-        <div>No domains found</div>
+        <div>No components found</div>
       )}
     </div>
   );
