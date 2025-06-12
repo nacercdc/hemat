@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MemberInfo from "./MemberInfo";
-import MemberAction from "./MemberAction";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useEffect, useState } from "react";
 import { CreateGroupFormSkeleton } from "./CreateGroupFormSkeleton";
@@ -16,17 +15,13 @@ const LanguageFormSchema = z.object({
 
 export type TeamGroupFormData = z.infer<typeof LanguageFormSchema>;
 
-interface Props {
-  onSubmitTeamGroupForm: (values: TeamGroupFormData) => void;
-  onCancelTeamGroupForm?: () => void;
-}
-
 interface Member {
   id: string;
   name: string;
   email: string;
   avatarUrl: string;
 }
+
 const DummyMembers: Member[] = [
   {
     id: "1",
@@ -41,7 +36,7 @@ const DummyMembers: Member[] = [
     avatarUrl: "http://path-that-goes-no-where.com",
   },
 ];
-const FetchAssessmentMembers = (): Promise<Member[]> => {
+const fetchAssessmentMembers = (): Promise<Member[]> => {
   // TODO: This function fetch invited user
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -49,6 +44,11 @@ const FetchAssessmentMembers = (): Promise<Member[]> => {
     }, 1000);
   });
 };
+
+interface Props {
+  onSubmitTeamGroupForm: (values: TeamGroupFormData) => void;
+  onCancelTeamGroupForm?: () => void;
+}
 
 export function CreateGroupForm({
   onSubmitTeamGroupForm,
@@ -64,10 +64,15 @@ export function CreateGroupForm({
     mode: "all",
   });
 
+  const onCancelHandler = () => {
+    onCancelTeamGroupForm?.();
+    reset();
+  };
+
   useEffect(() => {
     const fetchMembers = async () => {
       setIsLoading(true);
-      const data = await FetchAssessmentMembers();
+      const data = await fetchAssessmentMembers();
       setMembers(data);
       setIsLoading(false);
     };
@@ -75,17 +80,10 @@ export function CreateGroupForm({
     fetchMembers();
   }, []);
 
-  const onCancelHandler = () => {
-    onCancelTeamGroupForm?.();
-    reset();
-  };
-  const refetch = () => {
-    //TODO: will be replaced with assessment refetch func
-  };
-
   if (isLoading) {
     return <CreateGroupFormSkeleton />;
   }
+
   return (
     <form
       onSubmit={handleSubmit((values) => {

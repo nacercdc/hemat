@@ -6,7 +6,6 @@ interface Props {
   icon: string;
   placeholderText: string;
 }
-
 export default function MemberRoleCard({
   title,
   icon,

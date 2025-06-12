@@ -8,7 +8,6 @@ interface Props {
   isLeader?: boolean;
   avatarUrl?: string;
 }
-
 export default function GroupMemberCard({
   name,
   email,

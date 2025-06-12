@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useCallback } from "react";
@@ -14,9 +15,11 @@ export function AssessmentDetail() {
   const router = useRouter();
   const params = useParams();
   const assessmentId = params.id;
+
   const onBackHandler = useCallback(() => {
     router.back();
-  }, [router, assessmentId]);
+  }, [assessmentId]);
+
   return (
     <PageContainer
       pageTitle={`${assessmentName}`}

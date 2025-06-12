@@ -8,7 +8,6 @@ interface Props {
   isLeader?: boolean;
   avatarUrl?: string;
 }
-
 export default function MemberInfo({ name, email, avatarUrl }: Props) {
   return (
     <div className="flex gap-2 justify-between px-2">

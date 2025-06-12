@@ -2,8 +2,9 @@
 
 import React, { useRef } from "react";
 import MemberRoleCard from "../../members/MemberRoleCard";
-import { string, z } from "zod";
-import { Button, InputRHF, ModalRef, Modal } from "@etm/web-ui-components";
+import { z } from "zod";
+import type { ModalRef } from "@etm/web-ui-components";
+import { Button, InputRHF, Modal } from "@etm/web-ui-components";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -11,19 +12,6 @@ import MemberInfo from "./components/MemberInfo";
 import MemberAction from "./components/MemberAction";
 import { CreateGroupForm } from "./components/CreateGroupForm";
 import { useParams } from "next/navigation";
-
-const AddAssessmentInvitationSchema = z.object({
-  email: z
-    .string()
-    .email({ message: "Enter a valid email" })
-    .min(1, { message: "Email is required" }),
-  assessmentId: string(),
-});
-
-export type AddAssessmentInvitationFormData = z.infer<
-  typeof AddAssessmentInvitationSchema
->;
-
 interface Member {
   assessmentId?: string;
   name: string;
@@ -44,28 +32,41 @@ const members: Member[] = [
   },
 ];
 
+const addAssessmentInvitationSchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Enter a valid email" })
+    .min(1, { message: "Email is required" }),
+});
+
+export type AddAssessmentInvitationFormData = z.infer<
+  typeof addAssessmentInvitationSchema
+>;
+
 export default function MemberInvitation() {
   const params = useParams();
-  const assessmentId = params.id;
+  const { id } = params;
   const addTeamGroupModalRef = useRef<ModalRef>(null);
-  const openAddMemberModal = () => addTeamGroupModalRef.current?.openModal();
+
+  const { control, handleSubmit } = useForm<AddAssessmentInvitationFormData>({
+    defaultValues: {
+      email: "",
+    },
+    resolver: zodResolver(addAssessmentInvitationSchema),
+  });
+
+  const onOpenAddMemberModalHandler = () =>
+    addTeamGroupModalRef.current?.openModal();
+
   const onCancelMemberFormHandler = () =>
     addTeamGroupModalRef.current?.closeModal();
 
-  const { control, handleSubmit, reset } =
-    useForm<AddAssessmentInvitationFormData>({
-      defaultValues: {
-        email: "",
-        assessmentId: `{${assessmentId}}`,
-      },
-      resolver: zodResolver(AddAssessmentInvitationSchema),
-    });
-
-  const onSubmit = (data: AddAssessmentInvitationFormData) => {
+  const onSubmitHandler = (_data: AddAssessmentInvitationFormData) => {
+    if (!id) return;
     //TODO: add user data
   };
 
-  const refetch = () => {
+  const onRefetchHandler = () => {
     //TODO: will be replaced with assessment refetch func
   };
 
@@ -74,14 +75,14 @@ export default function MemberInvitation() {
   };
 
   return (
-    <div className="flex items-start flex-wrap justify-between  gap-4">
+    <div className="flex items-start flex-wrap justify-between gap-4">
       <div className="lg:w-3/5 w-full flex flex-col gap-3">
         <div className="bg-dark-lighter/5 p-2 rounded-sm">
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmitHandler)}
             className="flex flex-col gap-4 p-2"
           >
-            <h1 className="text-sm font-normal ">Add Member</h1>
+            <h1 className="text-sm font-normal">Add Member</h1>
             <div className="flex gap-3">
               <InputRHF<AddAssessmentInvitationFormData>
                 control={control}
@@ -111,7 +112,7 @@ export default function MemberInvitation() {
                 size="lg"
                 color="destructive"
                 variant="outline"
-                onClick={openAddMemberModal}
+                onClick={onOpenAddMemberModalHandler}
               >
                 Create Team
               </Button>
@@ -124,7 +125,7 @@ export default function MemberInvitation() {
                     email={group.email}
                     name={group.name}
                   />
-                  <MemberAction id={group.email} refetch={refetch} />
+                  <MemberAction id={group.email} refetch={onRefetchHandler} />
                 </div>
               ))}
             </div>
