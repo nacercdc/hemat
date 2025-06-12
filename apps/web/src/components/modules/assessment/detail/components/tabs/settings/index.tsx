@@ -4,6 +4,7 @@ import { Domain } from "./components/tabs/domain";
 import { ComponentsTab } from "./components/tabs/components-tab";
 
 import { SecondaryTabs } from "@etm/web-ui-components";
+import SubComponents from "./components/tabs/subComponents";
 
 export function Settings() {
   return (
@@ -23,7 +24,7 @@ export function Settings() {
           {
             value: "subComponents",
             label: "SubComponents",
-            content: <div>SubComponents</div>,
+            content: <SubComponents />,
           },
           {
             value: "measurement-scale",
