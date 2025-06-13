@@ -6,7 +6,6 @@ interface Props {
   icon: string;
   placeholderText: string;
 }
-
 export default function MemberRoleCard({
   title,
   icon,
@@ -19,7 +18,9 @@ export default function MemberRoleCard({
         <div className="rounded-full bg-layout-bg w-fit flex items-center p-2">
           <Icon icon={icon} className="!w-6 !h-6 text-primary-400" />
         </div>
-        <span className="text-sm font-thin">{placeholderText}</span>
+        <span className="text-xs font-normal text-dark-light">
+          {placeholderText}
+        </span>
       </div>
     </div>
   );
