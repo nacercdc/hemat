@@ -1,16 +1,27 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   Length,
   IsUUID,
   IsOptional,
   IsObject,
+  IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { SubComponentTranslationDto } from '@shared/dtos';
 import { IsExists, IsUnique } from '@shared/validators';
 
 export class SubComponentUpdateRequestDto {
+  @ApiProperty({
+    description: 'ID of the Sub Component',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @IsNotEmpty({ message: 'validation.id.isNotEmpty' })
+  @IsString({ message: 'validation.id.isString' })
+  @Type(() => String)
+  id: string;
+
   @ApiPropertyOptional({
     description: 'Unique code of the sub-component',
     example: '1.A.1',
@@ -22,7 +33,7 @@ export class SubComponentUpdateRequestDto {
   @IsString({ message: 'validation.code.isString' })
   @Length(1, 50, { message: 'validation.code.length args: min:1 | max:50' })
   @IsUnique(
-    { tableName: 'sub_components', columns: ['code'] },
+    { tableName: 'sub_components', columns: ['code'], exclude: 'id' },
     { message: 'validation.code.isUnique' },
   )
   @Type(() => String)
