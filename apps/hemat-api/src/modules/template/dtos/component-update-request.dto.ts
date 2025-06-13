@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ComponentTranslationDto } from '@shared/dtos';
+import { IsUnique } from '@shared/validators';
 
 export class ComponentUpdateRequestDto {
   @ApiProperty({
@@ -31,6 +32,10 @@ export class ComponentUpdateRequestDto {
   @IsOptional()
   @IsString({ message: 'validation.code.isString' })
   @Length(1, 50, { message: 'validation.code.length args: min:1 | max:50' })
+  @IsUnique(
+    { tableName: 'components', columns: ['code'], exclude: 'id' },
+    { message: 'validation.code.isUnique' },
+  )
   @Type(() => String)
   code?: string;
 

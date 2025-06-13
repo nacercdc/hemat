@@ -114,7 +114,18 @@ export class ComponentService {
         }
         domain = newDomain;
       }
-
+      if (payload.code && payload.code !== component.code) {
+        const existingComponent = await manager
+          .getRepository(Component)
+          .findOne({
+            where: { code: payload.code },
+          });
+        if (existingComponent && existingComponent.id !== id) {
+          throw new BadRequestException(
+            `Component with code ${payload.code} already exists.`,
+          );
+        }
+      }
       Object.assign(component, { ...payload, domain });
       return await manager.getRepository(Component).save(component);
     });
