@@ -260,12 +260,6 @@ export class InvitationService {
           ) {
             throw new BadRequestException('User already in assessment group');
           }
-
-          await this.roleService.handleRoleSwappingForAccept(
-            manager,
-            invitation,
-          );
-
           await manager.save(
             manager.create(AssessmentMember, {
               userId: user.id,
