@@ -3,28 +3,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { DomainCompCard } from "./components/DomainCompCard";
 import { components, domains, subComponents } from "./constants/DummyData";
-import { DomainCompList } from "./components/DomainCompList";
+
 import type { ModalRef } from "@etm/web-ui-components";
 import { Modal } from "@etm/web-ui-components";
 import type { ItemFormData } from "./components/form";
 import { DomainComponentForm } from "./components/form";
-
-//Temporary dummy Domain model
-export interface Domain {
-  id: string;
-  name: string;
-  code: string;
-  description: string;
-}
-
-//Temporary dummy Component model
-export interface Component {
-  id: string;
-  name: string;
-  code: string;
-  description: string;
-  domainId: string;
-}
+import type { Domain, DomainCreate } from "~/libs/models/domain.model";
+import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import { DomainCompList } from "./components/DomainCompList";
+import type { Component, ComponentCreate } from "~/libs/models/component.model";
+import type { SubComponentCreate } from "~/libs/models/subComponent.model";
 
 //Temporary dummy SubComponent model
 export interface SubComponent {
@@ -33,6 +21,13 @@ export interface SubComponent {
   code: string;
   description: string;
   componentId: string;
+  translations: Record<
+    string,
+    {
+      name: string;
+      description: string;
+    }
+  >;
 }
 
 export type ListType = Domain[] | Component[] | SubComponent[];
@@ -60,6 +55,18 @@ export function Domains() {
   >([]);
 
   const addItemModalRef = useRef<ModalRef>(null);
+
+  const { mutate: createDomain, ...createDomainState } = useAddMutation<
+    Domain,
+    DomainCreate
+  >("domains");
+
+  const { mutate: createComponent, ...createComponentState } = useAddMutation<
+    Component,
+    ComponentCreate
+  >("components");
+  const { mutate: createSubComponent, ...createSubComponentState } =
+    useAddMutation<SubComponent, SubComponentCreate>("sub-components");
 
   const onDomainSelectHandler = (domain: ListItemType) => {
     setSelectedDomain(domain as Domain);
@@ -107,15 +114,59 @@ export function Domains() {
     addItemModalRef.current?.openModal();
   };
 
-  const onAddItemSubmitHandler = (_values: ItemFormData) => {
-    if (actionTypeLabel === "Component") {
-      //TODO: grab the selected domain from state, merge and perform add component mutation
+  const onAddItemSubmitHandler = (values: ItemFormData) => {
+    if (actionTypeLabel === "SubComponent" && selectedComponent) {
+      createSubComponent(
+        {
+          data: {
+            name: values.name,
+            code: values.code,
+            description: values.description,
+            componentId: selectedComponent.id,
+            translations: values.translations,
+          },
+        },
+        {
+          onSuccess: () => {
+            addItemModalRef.current?.closeModal();
+          },
+        }
+      );
     }
-    if (actionTypeLabel === "SubComponent") {
-      //TODO: grab the selected component from state, merge and perform add subcomponent mutation
+    if (actionTypeLabel === "Component" && selectedDomain) {
+      createComponent(
+        {
+          data: {
+            name: values.name,
+            code: values.code,
+            description: values.description,
+            domainId: selectedDomain.id,
+            translations: values.translations,
+          },
+        },
+        {
+          onSuccess: () => {
+            addItemModalRef.current?.closeModal();
+          },
+        }
+      );
     }
     if (actionTypeLabel === "Domain") {
-      //TODO: perform domain add mutation
+      createDomain(
+        {
+          data: {
+            name: values.name,
+            code: values.code,
+            description: values.description,
+            translations: values.translations,
+          },
+        },
+        {
+          onSuccess: () => {
+            addItemModalRef.current?.closeModal();
+          },
+        }
+      );
     }
   };
 
@@ -196,6 +247,11 @@ export function Domains() {
 
       <Modal ref={addItemModalRef} title={`Add ${actionTypeLabel}`}>
         <DomainComponentForm
+          loading={
+            createDomainState.isPending ||
+            createComponentState.isPending ||
+            createSubComponentState.isPending
+          }
           type={actionTypeLabel}
           onSubmitHandler={onAddItemSubmitHandler}
           onCloseModal={() => addItemModalRef.current?.closeModal()}
