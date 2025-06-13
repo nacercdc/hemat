@@ -63,7 +63,7 @@ export const AssessmentsTableColumns = ({
     header: "Country",
     accessorKey: "country",
     enableColumnFilter: false,
-    cell: ({ row }) => <span>{row.original.country.name}</span>,
+    cell: ({ row }) => <span>{row.original.countryCode}</span>,
   },
 
   {

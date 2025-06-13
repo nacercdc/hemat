@@ -8,30 +8,65 @@ import { EmptyTableDataElement } from "~/components/modules/components/EmptyTabl
 import { AssessmentsTableColumns } from "./AssessmentsTableColumns";
 
 import type { SortingState, PaginationState } from "@etm/web-ui-components";
-import type { Assessment, StatusType } from "~/libs/models/assessment.model";
+import type {
+  Assessment,
+  AssessmentFilters,
+  AssessmentSorts,
+  StatusType,
+} from "~/libs/models/assessment.model";
+import { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 
 export function AssessmentsTable() {
   const [assessmentData, setAssessmentData] = useState<Assessment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>();
   const [searchValue, setSearchValue] = useState("");
+  const [search, setSearch] = useState("");
+  const [_sort, setSort] = useState<
+    {
+      direction: string;
+      field: string | number | symbol;
+    }[]
+  >([
+    {
+      direction: "desc",
+      field: "created_at",
+    },
+  ]);
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: DEFAULT_PAGE_INDEX,
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
+  const { data: scales, ...scalesState } = useFindAll<
+    QueryManyResponse<Assessment>,
+    unknown,
+    AssessmentSorts,
+    AssessmentFilters
+  >({
+    path: "/assessments",
+    queries: {
+      limit: pagination.pageSize,
+      page: pagination.pageIndex + 1,
+      search,
+    },
+  });
+
   const onSortingChangeHandler = (sortingState: SortingState) => {
-    // TODO: Replace with a code that triggers our query hook with new sorting state
-    setSorting(sortingState);
+    setSort(
+      sortingState.map((v) => ({
+        direction: v.desc ? "desc" : "asc",
+        field: v.id as keyof Assessment,
+      }))
+    );
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,
       pageSize: DEFAULT_PAGE_SIZE,
     });
   };
-
   const onSearchFilterChangeHandler = useCallback((value: string) => {
-    // TODO: Replace with a code that triggers our query hook with new search filter state
     setSearchValue(value);
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,
@@ -73,6 +108,7 @@ export function AssessmentsTable() {
           },
         })}
         data={assessmentData}
+        //  assessments={(languages?.data as unknown as Language[]) ?? []}
         totalItems={125}
         onPaginationChange={onPageChangeHandler}
         isLoading={isLoading}
@@ -115,9 +151,10 @@ async function mockAssessmentsFetch({
         firstName: `Firstname-${startIndex + i + 1}`,
         lastName: `Lastname-${startIndex + i + 1}`,
       },
-      startDate: "2023-01-15T08:30:00Z",
-      endDate: "2023-01-15T08:30:00Z",
-      country: { name: "Ethiopia" },
+      startDate: new Date("2023-01-15T08:30:00Z"),
+      endDate: new Date("2023-01-15T08:30:00Z"),
+      createdAt: "2023-01-15T08:30:00Z", // as string
+      countryCode: "ET", // just the code
       status: [
         "Draft",
         "Pending",
@@ -125,8 +162,7 @@ async function mockAssessmentsFetch({
         "Ready",
         "In-Progress",
         "Completed",
-      ][Math.floor(Math.random() * 5)] as StatusType,
-      createdAt: "2023-01-15T08:30:00Z",
+      ][Math.floor(Math.random() * 6)] as StatusType,
     })
   );
 
