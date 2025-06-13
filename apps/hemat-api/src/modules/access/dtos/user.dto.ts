@@ -163,7 +163,7 @@ export class UserBaseRequestDto {
   )
   @IsOptional()
   @Type(() => String)
-  permissionsIds: string[] = [];
+  permissionsIds?: string[];
 }
 
 export class UserCreateRequestDto extends UserBaseRequestDto {
