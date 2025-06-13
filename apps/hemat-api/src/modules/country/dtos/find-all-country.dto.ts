@@ -4,13 +4,13 @@ import { Transform, Type } from 'class-transformer';
 import { FindAllDto } from '@shared/dtos';
 import { IsArrayContains } from '@shared/validators';
 
-export class FindAllLanguageDto extends FindAllDto {
+export class FindAllCountryDto extends FindAllDto {
   @ApiPropertyOptional({
     description:
-      'Comma-separated ascending sort fields (e.g., code,name,createdAt)',
+      'Comma-separated ascending sort fields (e.g., name,code,createdAt)',
     type: String,
   })
-  @IsArrayContains(['code', 'name', 'native', 'createdAt'])
+  @IsArrayContains(['name', 'code', 'native', 'createdAt', 'updatedAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -19,10 +19,10 @@ export class FindAllLanguageDto extends FindAllDto {
 
   @ApiPropertyOptional({
     description:
-      'Comma-separated descending sort fields (e.g., code,name,createdAt)',
+      'Comma-separated descending sort fields (e.g., name,code,createdAt)',
     type: String,
   })
-  @IsArrayContains(['code', 'name', 'native', 'createdAt'])
+  @IsArrayContains(['name', 'code', 'native', 'createdAt', 'updatedAt'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)

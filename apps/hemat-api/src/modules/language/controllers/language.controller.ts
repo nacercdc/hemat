@@ -31,7 +31,6 @@ import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { LanguageService } from '../services';
 import {
   FindAllLanguageDto,
-  FindOneLanguageDto,
   LanguageCreateRequestDto,
   LanguageUpdateRequestDto,
 } from '../dtos';
