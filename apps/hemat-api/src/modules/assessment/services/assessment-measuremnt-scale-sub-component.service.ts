@@ -16,7 +16,7 @@ import { FindAllResponseDto } from '@shared/dtos';
 import {
   AssessmentMeasurementScaleSubComponentDto,
   FindAllAssessmentMeasurementScaleSubComponentDto,
-} from '..';
+} from '../dtos';
 
 @Injectable()
 export class AssessmentMeasurementScaleSubComponentService {

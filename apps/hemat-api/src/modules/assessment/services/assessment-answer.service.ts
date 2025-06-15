@@ -20,7 +20,7 @@ import {
   AssessmentAnswerUpdateRequestDto,
   FindAllAssessmentAnswerDto,
   FindOneAssessmentAnswerDto,
-} from '..';
+} from '../dtos';
 
 @Injectable()
 export class AssessmentAnswerService {

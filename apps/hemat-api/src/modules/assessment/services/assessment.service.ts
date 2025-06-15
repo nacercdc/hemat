@@ -13,7 +13,7 @@ import {
   FindOneAssessmentDto,
   AssessmentCreateRequestDto,
   AssessmentUpdateRequestDto,
-} from '..';
+} from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 import { AssessmentDomainService } from './assessment-domain.service';
 import { AssessmentComponentService } from './assessment-component.service';

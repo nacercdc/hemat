@@ -14,7 +14,7 @@ import {
   AssessmentSubComponentDto,
   FindAllAssessmentSubComponentDto,
   FindOneAssessmentSubComponentDto,
-} from '..';
+} from '../dtos';
 @Injectable()
 export class AssessmentSubComponentService {
   private readonly loggerService = new Logger(

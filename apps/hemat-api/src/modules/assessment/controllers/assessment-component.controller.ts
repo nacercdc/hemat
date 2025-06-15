@@ -28,7 +28,7 @@ import {
 import { AuthGuard, Abilities } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
-import { AssessmentComponentService } from '../dtos/services';
+import { AssessmentComponentService } from '../services';
 import {
   AssessmentComponentDto,
   FindAllAssessmentComponentDto,

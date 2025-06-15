@@ -14,7 +14,7 @@ import {
   AssessmentGroupUpdateRequestDto,
   FindAllAssessmentGroupDto,
   FindOneAssessmentGroupDto,
-} from '..';
+} from '../dtos';
 
 @Injectable()
 export class AssessmentGroupService {

@@ -27,7 +27,7 @@ import {
   PermissionSubjectEnum,
 } from '../../../shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '../../../shared/dtos';
-import { AssessmentMeasurementScaleSubComponentService } from '../dtos/services';
+import { AssessmentMeasurementScaleSubComponentService } from '../services';
 import {
   AssessmentMeasurementScaleSubComponentDto,
   FindAllAssessmentMeasurementScaleSubComponentDto,

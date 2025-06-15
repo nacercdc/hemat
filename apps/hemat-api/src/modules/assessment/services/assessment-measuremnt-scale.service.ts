@@ -16,7 +16,7 @@ import { QueryService } from '@shared/services';
 import {
   AssessmentMeasurementScaleDto,
   FindAllAssessmentMeasurementScaleDto,
-} from '..';
+} from '../dtos';
 
 @Injectable()
 export class AssessmentMeasurementScaleService {

@@ -11,8 +11,8 @@ import {
   Assessment,
   AssessmentGroup,
   User,
-} from '../../../../database/entities';
-import { QueryService } from '../../../../shared/services';
+} from '../../../database/entities';
+import { QueryService } from '../../../shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
 import { MemberRole } from '@shared/enums';
 import {
@@ -20,7 +20,7 @@ import {
   AssessmentMemberUpdateRequestDto,
   FindAllAssessmentMemberDto,
   FindOneAssessmentMemberDto,
-} from '..';
+} from '../dtos';
 
 @Injectable()
 export class AssessmentMemberService {

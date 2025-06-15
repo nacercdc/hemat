@@ -30,7 +30,7 @@ import { AssessmentAnswer } from '@database/entities';
 import { Abilities, AuthGuard, AuthDto } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
-import { AssessmentAnswerService } from '../dtos/services';
+import { AssessmentAnswerService } from '../services';
 import {
   FindAllAssessmentAnswerDto,
   FindOneAssessmentAnswerDto,

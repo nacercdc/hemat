@@ -18,7 +18,7 @@ import {
   AssessmentDomainDto,
   FindAllAssessmentComponentDto,
   FindAllAssessmentDomainDto,
-} from '..';
+} from '../dtos';
 
 interface AssessmentDomainWithCounts extends AssessmentDomain {
   componentsCount: number;

@@ -20,7 +20,7 @@ import {
   InvitationCreateBulkRequestDto,
   InvitationUpdateRequestDto,
 } from '../dtos';
-import { AssessmentMemberService } from '@modules/assessment/dtos/services';
+import { AssessmentMemberService } from '@modules/assessment/services';
 import { InvitationStatus } from '@shared/enums';
 import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';

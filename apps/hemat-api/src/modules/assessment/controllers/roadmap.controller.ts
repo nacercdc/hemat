@@ -30,7 +30,7 @@ import { Roadmap } from '@database/entities';
 import { Abilities, AuthGuard, AuthDto } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
-import { RoadmapService } from '../dtos/services';
+import { RoadmapService } from '../services';
 import {
   FindAllRoadmapDto,
   FindOneRoadmapDto,
