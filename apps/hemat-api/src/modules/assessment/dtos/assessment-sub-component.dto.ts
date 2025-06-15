@@ -31,7 +31,7 @@ export class AssessmentSubComponentDto {
   @Length(1, 50)
   @IsUnique(
     {
-      tableName: 'assessment-sub-components',
+      tableName: 'assessment_sub_components',
       columns: ['code'],
       exclude: 'id',
     },
@@ -50,7 +50,7 @@ export class AssessmentSubComponentDto {
   @Length(1, 100)
   @IsUnique(
     {
-      tableName: 'assessment-sub-components',
+      tableName: 'assessment_sub_components',
       columns: ['name'],
       exclude: 'id',
     },
