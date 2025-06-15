@@ -70,19 +70,6 @@ export class UserBaseRequestDto {
   @Type(() => String)
   lastName: string;
 
-  @ApiProperty({
-    description: 'Status',
-    enum: UserStatusEnum,
-    example: UserStatusEnum.ACTIVE,
-    type: String,
-  })
-  @IsEnum(UserStatusEnum, {
-    message: `validation.status.isEnum args: values:${userStatus}`,
-  })
-  @IsNotEmpty({ message: 'validation.status.isNotEmpty' })
-  @Type(() => String)
-  status: UserStatusEnum;
-
   @ApiPropertyOptional({
     description: 'Gender',
     enum: GenderEnum,

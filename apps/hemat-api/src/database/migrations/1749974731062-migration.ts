@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1749641929907 implements MigrationInterface {
-    name = 'Migration1749641929907'
+export class Migration1749974731062 implements MigrationInterface {
+    name = 'Migration1749974731062'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "comments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" character varying NOT NULL, "comment" text NOT NULL, "responseId" uuid NOT NULL, CONSTRAINT "PK_8bf68bc960f2b69e818bdb90dcb" PRIMARY KEY ("id"))`);
@@ -29,7 +29,7 @@ export class Migration1749641929907 implements MigrationInterface {
         await queryRunner.query(`CREATE INDEX "IDX_bed415cd29716cd707e9cb3c09" ON "reports" ("userId") `);
         await queryRunner.query(`CREATE INDEX "IDX_5dec0f90b2df8ac2a78dc3ffa6" ON "reports" ("domainId") `);
         await queryRunner.query(`CREATE TYPE "public"."users_status_enum" AS ENUM('active', 'inactive', 'blocked')`);
-        await queryRunner.query(`CREATE TABLE "users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "isAdmin" boolean NOT NULL DEFAULT false, "name" character varying(320) NOT NULL, "email" character varying(320) NOT NULL, "password" text NOT NULL, "disabled" boolean NOT NULL DEFAULT false, "disabledAt" TIMESTAMP WITH TIME ZONE, "status" "public"."users_status_enum" NOT NULL DEFAULT 'inactive', "lastLoggedInAt" TIMESTAMP WITH TIME ZONE, "lastPasswordUpdatedAt" TIMESTAMP WITH TIME ZONE, "lang" character varying(4) NOT NULL DEFAULT 'en', "refreshToken" character varying, CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "isAdmin" boolean NOT NULL DEFAULT false, "name" character varying(320) NOT NULL, "email" character varying(320) NOT NULL, "password" text NOT NULL, "disabled" boolean NOT NULL DEFAULT false, "disabledAt" TIMESTAMP WITH TIME ZONE, "status" "public"."users_status_enum" NOT NULL DEFAULT 'active', "lastLoggedInAt" TIMESTAMP WITH TIME ZONE, "lastPasswordUpdatedAt" TIMESTAMP WITH TIME ZONE, "lang" character varying(4) NOT NULL DEFAULT 'en', "refreshToken" character varying, CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TYPE "public"."assessment_members_role_enum" AS ENUM('team-leader', 'primary', 'member')`);
         await queryRunner.query(`CREATE TABLE "assessment_members" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" uuid NOT NULL, "assessmentId" uuid NOT NULL, "groupId" uuid NOT NULL, "role" "public"."assessment_members_role_enum" NOT NULL, CONSTRAINT "PK_d0a742094c8e4fa91046f19a86c" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE INDEX "IDX_37ee2e3555f4d4d7da2ec2998e" ON "assessment_members" ("userId") `);
