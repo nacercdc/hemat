@@ -12,10 +12,9 @@ import {
   TextAreaRHF,
 } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { Language } from "~/libs/models/language.model";
 import { DEFAULT_LANGUAGE_CODE } from "~/constants";
+import { useGetLanguages } from "~/providers/languages/useGetLanguages";
 
 const languageSchema = z.object({
   name: z.string().min(1, { message: "Language name is required" }),
@@ -103,17 +102,17 @@ export function DomainComponentForm({
   onCloseModal,
   loading,
 }: Props) {
-  const { data: languages, isLoading: languagesLoading } = useFindAll<
-    QueryManyResponse<Language>
-  >({
-    path: "/languages",
-  });
+  const { data: languages, ...languagesState } = useGetLanguages();
 
-  const languageOptions: Language[] = languages?.data
-    ? (languages.data as unknown as Language[]).filter(
-        (lang) => languageSchema.safeParse(lang).success
-      )
-    : [];
+  const languageOptions: Language[] = React.useMemo(
+    () =>
+      languages?.data
+        ? (languages.data as unknown as Language[]).filter(
+            (lang) => languageSchema.safeParse(lang).success
+          )
+        : [],
+    [languages]
+  );
 
   const {
     control,
@@ -133,8 +132,6 @@ export function DomainComponentForm({
     resolver: zodResolver(itemFormSchema),
     mode: "all",
   });
-
-  console.log(errors, "Eroororo");
 
   const selectedLanguages = watch("selectedLanguages");
 
@@ -163,7 +160,6 @@ export function DomainComponentForm({
   );
 
   const onSubmit = (values: ItemFormData) => {
-    console.log(values, "Values");
     const filteredTranslations = Object.fromEntries(
       Object.entries(values.translations || {})
         .filter(([key]) =>
@@ -185,15 +181,30 @@ export function DomainComponentForm({
   };
 
   useEffect(() => {
-    if (item) {
+    if (item && languageOptions.length > 0) {
+      // Extract language codes from item.translations
+      const translationLangCodes = Object.keys(item.translations || {});
+      // Find corresponding Language objects from languageOptions
+      const initialSelectedLanguages = languageOptions.filter((lang) =>
+        translationLangCodes.includes(lang.code)
+      );
       reset({
         name: item.name,
         description: item.description,
         code: item.code,
         translations: item.translations,
+        selectedLanguages: initialSelectedLanguages,
+      });
+    } else if (!item) {
+      reset({
+        name: "",
+        description: "",
+        code: "",
+        translations: {},
+        selectedLanguages: [],
       });
     }
-  }, [item, reset]);
+  }, [item, languageOptions, reset]);
 
   return (
     <form
@@ -278,7 +289,7 @@ export function DomainComponentForm({
           labelVariant="bold"
           onChange={() => onLanguageSelectHandler}
           size="lg"
-          loading={languagesLoading}
+          loading={languagesState.isLoading}
           error={errors.selectedLanguages?.message}
         />
       </div>
@@ -292,12 +303,7 @@ export function DomainComponentForm({
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            size="lg"
-            loading={loading}
-            // onClick={() => onAddActionHandler(cardListType)}
-          >
+          <Button type="submit" size="lg" loading={loading}>
             {item ? "Edit" : "Add"}
           </Button>
         </div>

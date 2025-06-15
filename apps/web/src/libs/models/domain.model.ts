@@ -27,6 +27,20 @@ export interface DomainCreate {
   >;
 }
 
+export interface DomainEdit {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  translations: Record<
+    string,
+    {
+      name: string;
+      description: string;
+    }
+  >;
+}
+
 export type DomainFilterable = "name" | "code";
 export type DomainSortable = "created_at";
 

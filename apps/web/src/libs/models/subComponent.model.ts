@@ -29,6 +29,21 @@ export interface SubComponentCreate {
   >;
 }
 
+export interface SubComponentEdit {
+  id: string;
+  name: string;
+  code: string;
+  componentId: string;
+  description: string;
+  translations: Record<
+    string,
+    {
+      name: string;
+      description: string;
+    }
+  >;
+}
+
 export type SubComponentFilterable = "name" | "code";
 export type SubComponentSortable = "created_at";
 

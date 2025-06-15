@@ -29,6 +29,21 @@ export interface ComponentCreate {
   >;
 }
 
+export interface ComponentEdit {
+  id: string;
+  name: string;
+  code: string;
+  domainId: string;
+  description: string;
+  translations: Record<
+    string,
+    {
+      name: string;
+      description: string;
+    }
+  >;
+}
+
 export type ComponentFilterable = "name" | "code";
 export type ComponentSortable = "created_at";
 
