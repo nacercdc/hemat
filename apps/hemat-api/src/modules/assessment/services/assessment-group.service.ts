@@ -10,7 +10,6 @@ import { AssessmentGroup, Assessment } from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
 import {
-  AssessmentGroupRequestDto,
   AssessmentGroupUpdateRequestDto,
   FindAllAssessmentGroupDto,
   FindOneAssessmentGroupDto,
@@ -79,44 +78,6 @@ export class AssessmentGroupService {
       throw new BadRequestException('Failed to retrieve assessment group');
     }
   }
-
-  async create(
-    assessmentId: string,
-    payload: AssessmentGroupRequestDto,
-  ): Promise<AssessmentGroup> {
-    return this.dataSource.transaction(async (manager) => {
-      const assessment = await manager.getRepository(Assessment).exists({
-        where: { id: assessmentId },
-      });
-
-      if (!assessment) {
-        throw new NotFoundException('Assessment not found');
-      }
-
-      const existingGroup = await manager
-        .getRepository(AssessmentGroup)
-        .exists({
-          where: {
-            name: payload.name,
-            assessmentId,
-          },
-        });
-
-      if (existingGroup) {
-        throw new BadRequestException(
-          'Assessment group with this name already exists in the assessment',
-        );
-      }
-
-      const group = manager.getRepository(AssessmentGroup).create({
-        name: payload.name,
-        assessmentId,
-      });
-
-      return await manager.getRepository(AssessmentGroup).save(group);
-    });
-  }
-
   async update(
     assessmentId: string,
     id: string,
