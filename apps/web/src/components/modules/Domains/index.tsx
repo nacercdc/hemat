@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { DomainCompCard } from "./components/DomainCompCard";
-import { components, domains, subComponents } from "./constants/DummyData";
 
 import type { ModalRef } from "@etm/web-ui-components";
 import { Modal } from "@etm/web-ui-components";
@@ -12,23 +11,14 @@ import type { Domain, DomainCreate } from "~/libs/models/domain.model";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import { DomainCompList } from "./components/DomainCompList";
 import type { Component, ComponentCreate } from "~/libs/models/component.model";
-import type { SubComponentCreate } from "~/libs/models/subComponent.model";
-
-//Temporary dummy SubComponent model
-export interface SubComponent {
-  id: string;
-  name: string;
-  code: string;
-  description: string;
-  componentId: string;
-  translations: Record<
-    string,
-    {
-      name: string;
-      description: string;
-    }
-  >;
-}
+import type {
+  SubComponent,
+  SubComponentCreate,
+} from "~/libs/models/subComponent.model";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import { FilterOperatorEnum } from "~/libs/tanstack-api-query/helpers/types";
+import { PageContainer } from "../components/PageContainer";
 
 export type ListType = Domain[] | Component[] | SubComponent[];
 export type ListTypeLabel = "Domain" | "Component" | "SubComponent";
@@ -36,7 +26,7 @@ export type ListTypeLabel = "Domain" | "Component" | "SubComponent";
 export type ListItemType = Domain | Component | SubComponent;
 
 export type ItemDetailType = Record<
-  "componentCount" | "subcomponentCount",
+  "componentCount" | "subComponentCount",
   number
 >;
 
@@ -56,6 +46,42 @@ export function Domains() {
 
   const addItemModalRef = useRef<ModalRef>(null);
 
+  const { data: domains, ...domainsState } = useFindAll<
+    QueryManyResponse<Domain>
+  >({
+    path: "/domains",
+  });
+
+  //TODO: make sure filtering is done on the backend
+  const { data: components, ...componentsState } = useFindAll<
+    QueryManyResponse<Component>
+  >({
+    path: `/domains/${selectedDomain?.id}/components`,
+    queries: {
+      filters: [
+        {
+          field: "domainId",
+          value: selectedDomain?.id,
+          operator: FilterOperatorEnum.EQ,
+        },
+      ],
+    },
+    tqOptions: {
+      enabled: !!selectedDomain,
+      queryKey: ["components", selectedDomain?.id],
+    },
+  });
+
+  const { data: subComponents, ...subComponentsState } = useFindAll<
+    QueryManyResponse<SubComponent>
+  >({
+    path: `/components/${selectedComponent?.id}/subComponents`,
+    tqOptions: {
+      enabled: !!selectedComponent,
+      queryKey: ["subComponents", selectedComponent?.id],
+    },
+  });
+
   const { mutate: createDomain, ...createDomainState } = useAddMutation<
     Domain,
     DomainCreate
@@ -65,8 +91,19 @@ export function Domains() {
     Component,
     ComponentCreate
   >("components");
+
   const { mutate: createSubComponent, ...createSubComponentState } =
     useAddMutation<SubComponent, SubComponentCreate>("sub-components");
+
+  const domainsData = (domains?.data as unknown as Domain[]) ?? [];
+  const componentsData = React.useMemo(
+    () => (components?.data as unknown as Component[]) ?? [],
+    [components?.data]
+  );
+  const subComponentsData = React.useMemo(
+    () => (subComponents?.data as unknown as SubComponent[]) ?? [],
+    [subComponents?.data]
+  );
 
   const onDomainSelectHandler = (domain: ListItemType) => {
     setSelectedDomain(domain as Domain);
@@ -81,32 +118,42 @@ export function Domains() {
   };
 
   const getDomainStats = (domain: ListItemType): Partial<ItemDetailType> => {
-    const domainComponents = components.filter(
+    const domainComponents = componentsData.filter(
       (comp) => comp.domainId === domain.id
     );
 
     const componentIds = domainComponents.map((comp) => comp.id);
 
-    const subcomponentCount = subComponents.filter((sub) =>
+    const subComponentCount = subComponentsData.filter((sub) =>
       componentIds.includes(sub.componentId)
     ).length;
 
     return {
       componentCount: domainComponents.length,
-      subcomponentCount,
+      subComponentCount,
     };
   };
 
   const getComponentStats = (
     component: ListItemType
   ): Partial<ItemDetailType> => {
-    const subcomponentCount = subComponents.filter(
+    const subComponentCount = subComponentsData.filter(
       (sub) => sub.componentId === component.id
     ).length;
 
     return {
-      subcomponentCount,
+      subComponentCount,
     };
+  };
+
+  const refetchListHandler = (listType: ListTypeLabel) => {
+    if (listType === "Domain") {
+      domainsState.refetch();
+    } else if (listType === "Component" && selectedDomain?.id) {
+      componentsState.refetch();
+    } else if (listType === "SubComponent" && selectedComponent?.id) {
+      subComponentsState.refetch();
+    }
   };
 
   const onAddItemTriggerHandler = (type: ListTypeLabel) => {
@@ -128,6 +175,7 @@ export function Domains() {
         },
         {
           onSuccess: () => {
+            subComponentsState.refetch();
             addItemModalRef.current?.closeModal();
           },
         }
@@ -146,6 +194,7 @@ export function Domains() {
         },
         {
           onSuccess: () => {
+            componentsState.refetch();
             addItemModalRef.current?.closeModal();
           },
         }
@@ -170,32 +219,29 @@ export function Domains() {
     }
   };
 
+  //TODO: make sure filtering is done on the backend
   useEffect(() => {
     if (selectedDomain) {
-      {
-        setFilteredComponents(
-          components.filter((comp) => comp.domainId === selectedDomain.id)
-        );
-        setFilteredSubComponents([]);
-        setSelectedComponent(null);
-      }
+      setFilteredComponents(
+        componentsData.filter((comp) => comp.domainId === selectedDomain.id)
+      );
+      setFilteredSubComponents([]);
+      setSelectedComponent(null);
     }
-  }, [selectedDomain]);
+  }, [selectedDomain, componentsData]);
 
   useEffect(() => {
     if (selectedComponent) {
       setFilteredSubComponents(
-        subComponents.filter(
+        subComponentsData.filter(
           (subComp) => subComp.componentId === selectedComponent.id
         )
       );
     }
-  }, [selectedComponent]);
+  }, [selectedComponent, subComponentsData]);
 
   return (
-    // TODO: This will be replace by the page container once its finalized
-    <div className="flex flex-col gap-7 px-5 py-8 bg-white rounded-md h-[calc(100vh-120px)]">
-      <h1 className="text-2xl font-bold">Domains</h1>
+    <PageContainer pageTitle="Domains" includeBreadcrumb={false}>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-0 h-full">
         <div className="rounded-lg lg:rounded-tr-none lg:rounded-br-none border overflow-hidden h-full">
           <DomainCompCard
@@ -204,11 +250,12 @@ export function Domains() {
             onAddActionHandler={onAddItemTriggerHandler}
           >
             <DomainCompList
-              list={domains}
+              list={domainsData}
               listType="Domain"
               selectedItem={selectedDomain}
               onSelectItem={onDomainSelectHandler}
               getItemDetails={getDomainStats}
+              refetchList={refetchListHandler}
             />
           </DomainCompCard>
         </div>
@@ -225,6 +272,7 @@ export function Domains() {
               selectedItem={selectedComponent}
               onSelectItem={onComponentSelectHandler}
               getItemDetails={getComponentStats}
+              refetchList={refetchListHandler}
             />
           </DomainCompCard>
         </div>
@@ -240,6 +288,7 @@ export function Domains() {
               listType="SubComponent"
               selectedItem={selectedSubComponent}
               onSelectItem={onSubComponentSelectHandler}
+              refetchList={refetchListHandler}
             />
           </DomainCompCard>
         </div>
@@ -257,6 +306,6 @@ export function Domains() {
           onCloseModal={() => addItemModalRef.current?.closeModal()}
         />
       </Modal>
-    </div>
+    </PageContainer>
   );
 }

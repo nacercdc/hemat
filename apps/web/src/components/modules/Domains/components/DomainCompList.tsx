@@ -12,6 +12,7 @@ interface Props {
   selectedItem: ListItemType | null;
   onSelectItem?: (item: ListItemType) => void;
   getItemDetails?: (item: ListItemType) => Partial<ItemDetailType>;
+  refetchList?: (type: ListTypeLabel) => void;
 }
 
 export function DomainCompList({
@@ -20,6 +21,7 @@ export function DomainCompList({
   selectedItem,
   onSelectItem,
   getItemDetails,
+  refetchList,
 }: Props) {
   const isItemSelected = (item: ListItemType) => {
     if (selectedItem) return item.id === selectedItem.id;
@@ -27,7 +29,7 @@ export function DomainCompList({
 
   return (
     <div className="flex flex-col gap-5">
-      {list.map((listItem) => (
+      {list?.map((listItem) => (
         <div
           key={listItem.id}
           className="rounded-lg"
@@ -42,6 +44,7 @@ export function DomainCompList({
             type={listType}
             onClick={onSelectItem}
             getDetails={getItemDetails}
+            refetchList={refetchList}
           />
         </div>
       ))}

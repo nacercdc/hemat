@@ -2,35 +2,142 @@
 
 import React, { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import { Button, Drawer, DropdownMenu, Modal } from "@etm/web-ui-components";
+import {
+  Button,
+  Dialog,
+  Drawer,
+  DropdownMenu,
+  Modal,
+} from "@etm/web-ui-components";
 import { DomainComponentForm } from "./form";
 
-import type { ModalRef } from "@etm/web-ui-components";
+import type { DialogRef, ModalRef } from "@etm/web-ui-components";
 import type { ItemDetailType, ListItemType, ListTypeLabel } from "..";
 import type { ItemFormData } from "./form";
+import type { Domain, DomainEdit } from "~/libs/models/domain.model";
+import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
+import type { Component, ComponentEdit } from "~/libs/models/component.model";
+import type {
+  SubComponent,
+  SubComponentEdit,
+} from "~/libs/models/subComponent.model";
+// import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 
 interface Props {
   item: ListItemType;
   type: ListTypeLabel;
   onClick?: (item: ListItemType) => void;
   getDetails?: (item: ListItemType) => Partial<ItemDetailType>;
+  refetchList?: (type: ListTypeLabel) => void;
 }
 
-export function DomainCompListItem({ item, type, onClick, getDetails }: Props) {
+export function DomainCompListItem({
+  item,
+  type,
+  onClick,
+  getDetails,
+  refetchList,
+}: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const editItemModalRef = useRef<ModalRef>(null);
+  const deleteDialogRef = useRef<DialogRef>(null);
+
+  // const { mutate: deleteScale, ...deleteScaleState } = useDeleteMutation<Scale>(
+  //     `measurement-scales/${scale.id}`
+  //   );
+
+  const { mutate: editDomain, ...editDomainState } = usePutMutation<
+    Domain,
+    DomainEdit
+  >(`domains/${item.id}`);
+
+  const { mutate: editComponent, ...editComponentState } = usePutMutation<
+    Component,
+    ComponentEdit
+  >(`components/${item.id}`);
+
+  const { mutate: editSubComponent, ...editSubComponentState } = usePutMutation<
+    SubComponent,
+    SubComponentEdit
+  >(`sub-components/${item.id}`);
 
   const itemDetails = getDetails?.(item);
 
-  const onEditItemSubmitHandler = (_values: ItemFormData) => {
-    if (type === "Component") {
-      //TODO: grab the selected domain from state, merge and perform edit component mutation
+  const onDeleteScaleHandler = () => {
+    // deleteScale(
+    //   {},
+    //   {
+    //     onSuccess: () => {
+    //       deleteDialogRef.current?.closeDialog();
+    //       onRefetch?.();
+    //       toast({
+    //         title: "Success",
+    //         message: "Scale has been deleted successfully.",
+    //       });
+    //     },
+    //   }
+    // );
+  };
+
+  const onEditItemSubmitHandler = (values: ItemFormData) => {
+    if (type === "SubComponent" && item) {
+      editSubComponent(
+        {
+          data: {
+            id: item.id,
+            name: values.name,
+            code: values.code,
+            description: values.description,
+            componentId: (item as unknown as SubComponent).componentId,
+            translations: values.translations,
+          },
+        },
+        {
+          onSuccess: () => {
+            refetchList?.("SubComponent");
+            editItemModalRef.current?.closeModal();
+          },
+        }
+      );
     }
-    if (type === "SubComponent") {
-      //TODO: grab the selected component from state, merge and perform edit subcomponent mutation
+    if (type === "Component" && item) {
+      editComponent(
+        {
+          data: {
+            id: item.id,
+            name: values.name,
+            code: values.code,
+            description: values.description,
+            domainId: (item as unknown as Component).domainId,
+            translations: values.translations,
+          },
+        },
+        {
+          onSuccess: () => {
+            refetchList?.("Component");
+            editItemModalRef.current?.closeModal();
+          },
+        }
+      );
     }
-    if (type === "Domain") {
-      //TODO: perform domain edit mutation
+    if (type === "Domain" && (item as unknown as Domain)) {
+      editDomain(
+        {
+          data: {
+            id: item.id,
+            name: values.name,
+            code: values.code,
+            description: values.description,
+            translations: values.translations,
+          },
+        },
+        {
+          onSuccess: () => {
+            refetchList?.("Domain");
+            editItemModalRef.current?.closeModal();
+          },
+        }
+      );
     }
   };
 
@@ -79,9 +186,7 @@ export function DomainCompListItem({ item, type, onClick, getDetails }: Props) {
                 className="!text-dark !w-4 !h-4"
               />
             ),
-            onClick: () => {
-              //TODO: Implement deleting
-            },
+            onClick: () => deleteDialogRef.current?.openDialog(),
           },
         ]}
       />
@@ -103,7 +208,7 @@ export function DomainCompListItem({ item, type, onClick, getDetails }: Props) {
         title={
           <div className="flex items-center gap-4">
             <div className="rounded-full bg-info/10 text-info p-2 px-3 text-xs">
-              Code: 1
+              Code: {item.code}
             </div>
             <h3 className="text-sm font-bold">{item.name}</h3>
           </div>
@@ -117,22 +222,38 @@ export function DomainCompListItem({ item, type, onClick, getDetails }: Props) {
                 Components: {itemDetails.componentCount}
               </h6>
             )}
-            {itemDetails.subcomponentCount !== undefined && (
+            {itemDetails.subComponentCount !== undefined && (
               <h6 className="text-xs font-medium">
-                Sub-Components: {itemDetails.subcomponentCount}
+                Sub-Components: {itemDetails.subComponentCount}
               </h6>
             )}
           </div>
         )}
       </Drawer>
-      <Modal ref={editItemModalRef} title="Edit Role">
+      <Modal ref={editItemModalRef} title={`Edit ${type}`}>
         <DomainComponentForm
           type={type}
           onSubmitHandler={onEditItemSubmitHandler}
           onCloseModal={() => editItemModalRef.current?.closeModal()}
           item={item}
+          loading={
+            editDomainState.isPending ||
+            editComponentState.isPending ||
+            editSubComponentState.isPending
+          }
         />
       </Modal>
+      <Dialog
+        ref={deleteDialogRef}
+        title="Delete Scale"
+        actionLabel="Delete"
+        actionVariant="destructive"
+        onAction={onDeleteScaleHandler}
+        autoClosable={false}
+        // actionLoading={deleteScaleState.isPending}
+      >
+        Are you sure you want to delete this item? This action cannot be undone.
+      </Dialog>
     </div>
   );
 }
