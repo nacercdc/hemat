@@ -12,6 +12,8 @@ export interface Domain {
       description: string;
     }
   >;
+  componentsCount?: number;
+  subComponentsCount?: number;
 }
 
 export interface DomainCreate {

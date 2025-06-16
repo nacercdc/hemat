@@ -1,17 +1,17 @@
 "use client";
 
 import React from "react";
-import { DomainCompListItem } from "./DomainCompListItem";
 
-import type { ItemDetailType, ListItemType, ListType, ListTypeLabel } from "..";
+import type { ListItemType, ListType, ListTypeLabel } from "..";
 import { ListTypeColors } from "./DomainCompCard";
+import { DomainCompListItem } from "./DomainCompListItem";
 
 interface Props {
   list: ListType;
   listType: ListTypeLabel;
-  selectedItem: ListItemType | null;
-  onSelectItem?: (item: ListItemType) => void;
-  getItemDetails?: (item: ListItemType) => Partial<ItemDetailType>;
+  selectedItem: string | null;
+  onSelectItem?: (item: string) => void;
+  // getItemDetails?: (item: ListItemType) => Partial<ItemDetailType>;
   refetchList?: (type: ListTypeLabel) => void;
 }
 
@@ -20,11 +20,10 @@ export function DomainCompList({
   listType,
   selectedItem,
   onSelectItem,
-  getItemDetails,
   refetchList,
 }: Props) {
   const isItemSelected = (item: ListItemType) => {
-    if (selectedItem) return item.id === selectedItem.id;
+    if (selectedItem) return item.id === selectedItem;
   };
 
   return (
@@ -40,10 +39,9 @@ export function DomainCompList({
           }}
         >
           <DomainCompListItem
-            item={listItem}
+            itemId={listItem.id}
             type={listType}
             onClick={onSelectItem}
-            getDetails={getItemDetails}
             refetchList={refetchList}
           />
         </div>

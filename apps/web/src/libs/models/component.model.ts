@@ -6,6 +6,7 @@ export interface Component {
   code: string;
   domainId: string;
   description: string;
+  subComponentsCount?: number;
   translations: Record<
     string,
     {

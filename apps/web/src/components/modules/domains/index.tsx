@@ -23,7 +23,10 @@ import { PageContainer } from "../components/PageContainer";
 export type ListType = Domain[] | Component[] | SubComponent[];
 export type ListTypeLabel = "Domain" | "Component" | "SubComponent";
 
-export type ListItemType = Domain | Component | SubComponent;
+export type ListItemType = (Domain | Component | SubComponent) & {
+  componentsCount?: number;
+  subComponentsCount?: number;
+};
 
 export type ItemDetailType = Record<
   "componentCount" | "subComponentCount",
@@ -31,14 +34,15 @@ export type ItemDetailType = Record<
 >;
 
 export function Domains() {
-  const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
-  const [selectedComponent, setSelectedComponent] = useState<Component | null>(
+  const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
+  const [selectedComponent, setSelectedComponent] = useState<string | null>(
     null
   );
+  const [selectedSubComponent, setSelectedSubComponent] = useState<
+    string | null
+  >(null);
   const [actionTypeLabel, setActionTypeLabel] =
     useState<ListTypeLabel>("Domain");
-  const [selectedSubComponent, setSelectedSubComponent] =
-    useState<SubComponent | null>(null);
   const [filteredComponents, setFilteredComponents] = useState<Component[]>([]);
   const [filteredSubComponents, setFilteredSubComponents] = useState<
     SubComponent[]
@@ -56,29 +60,29 @@ export function Domains() {
   const { data: components, ...componentsState } = useFindAll<
     QueryManyResponse<Component>
   >({
-    path: `/domains/${selectedDomain?.id}/components`,
+    path: `/domains/${selectedDomain}/components`,
     queries: {
       filters: [
         {
           field: "domainId",
-          value: selectedDomain?.id,
+          value: selectedDomain,
           operator: FilterOperatorEnum.EQ,
         },
       ],
     },
     tqOptions: {
       enabled: !!selectedDomain,
-      queryKey: ["components", selectedDomain?.id],
+      queryKey: ["components", selectedDomain],
     },
   });
 
   const { data: subComponents, ...subComponentsState } = useFindAll<
     QueryManyResponse<SubComponent>
   >({
-    path: `/components/${selectedComponent?.id}/subComponents`,
+    path: `/components/${selectedComponent}/subComponents`,
     tqOptions: {
       enabled: !!selectedComponent,
-      queryKey: ["subComponents", selectedComponent?.id],
+      queryKey: ["subComponents", selectedComponent],
     },
   });
 
@@ -105,53 +109,53 @@ export function Domains() {
     [subComponents?.data]
   );
 
-  const onDomainSelectHandler = (domain: ListItemType) => {
-    setSelectedDomain(domain as Domain);
+  const onDomainSelectHandler = (domainId: string) => {
+    setSelectedDomain(domainId);
   };
 
-  const onComponentSelectHandler = (component: ListItemType) => {
-    setSelectedComponent(component as Component);
+  const onComponentSelectHandler = (componentID: string) => {
+    setSelectedComponent(componentID);
   };
 
-  const onSubComponentSelectHandler = (subComponent: ListItemType) => {
-    setSelectedSubComponent(subComponent as SubComponent);
+  const onSubComponentSelectHandler = (subComponentID: string) => {
+    setSelectedSubComponent(subComponentID);
   };
 
-  const getDomainStats = (domain: ListItemType): Partial<ItemDetailType> => {
-    const domainComponents = componentsData.filter(
-      (comp) => comp.domainId === domain.id
-    );
+  // const getDomainStats = (domain: ListItemType): Partial<ItemDetailType> => {
+  //   const domainComponents = componentsData.filter(
+  //     (comp) => comp.domainId === domain.id
+  //   );
 
-    const componentIds = domainComponents.map((comp) => comp.id);
+  //   const componentIds = domainComponents.map((comp) => comp.id);
 
-    const subComponentCount = subComponentsData.filter((sub) =>
-      componentIds.includes(sub.componentId)
-    ).length;
+  //   const subComponentCount = subComponentsData.filter((sub) =>
+  //     componentIds.includes(sub.componentId)
+  //   ).length;
 
-    return {
-      componentCount: domainComponents.length,
-      subComponentCount,
-    };
-  };
+  //   return {
+  //     componentCount: domainComponents.length,
+  //     subComponentCount,
+  //   };
+  // };
 
-  const getComponentStats = (
-    component: ListItemType
-  ): Partial<ItemDetailType> => {
-    const subComponentCount = subComponentsData.filter(
-      (sub) => sub.componentId === component.id
-    ).length;
+  // const getComponentStats = (
+  //   component: ListItemType
+  // ): Partial<ItemDetailType> => {
+  //   const subComponentCount = subComponentsData.filter(
+  //     (sub) => sub.componentId === component.id
+  //   ).length;
 
-    return {
-      subComponentCount,
-    };
-  };
+  //   return {
+  //     subComponentCount,
+  //   };
+  // };
 
   const refetchListHandler = (listType: ListTypeLabel) => {
     if (listType === "Domain") {
       domainsState.refetch();
-    } else if (listType === "Component" && selectedDomain?.id) {
+    } else if (listType === "Component" && selectedDomain) {
       componentsState.refetch();
-    } else if (listType === "SubComponent" && selectedComponent?.id) {
+    } else if (listType === "SubComponent" && selectedComponent) {
       subComponentsState.refetch();
     }
   };
@@ -169,7 +173,7 @@ export function Domains() {
             name: values.name,
             code: values.code,
             description: values.description,
-            componentId: selectedComponent.id,
+            componentId: selectedComponent,
             translations: values.translations,
           },
         },
@@ -188,7 +192,7 @@ export function Domains() {
             name: values.name,
             code: values.code,
             description: values.description,
-            domainId: selectedDomain.id,
+            domainId: selectedDomain,
             translations: values.translations,
           },
         },
@@ -223,7 +227,7 @@ export function Domains() {
   useEffect(() => {
     if (selectedDomain) {
       setFilteredComponents(
-        componentsData.filter((comp) => comp.domainId === selectedDomain.id)
+        componentsData.filter((comp) => comp.domainId === selectedDomain)
       );
       setFilteredSubComponents([]);
       setSelectedComponent(null);
@@ -234,7 +238,7 @@ export function Domains() {
     if (selectedComponent) {
       setFilteredSubComponents(
         subComponentsData.filter(
-          (subComp) => subComp.componentId === selectedComponent.id
+          (subComp) => subComp.componentId === selectedComponent
         )
       );
     }
@@ -254,7 +258,6 @@ export function Domains() {
               listType="Domain"
               selectedItem={selectedDomain}
               onSelectItem={onDomainSelectHandler}
-              getItemDetails={getDomainStats}
               refetchList={refetchListHandler}
             />
           </DomainCompCard>
@@ -271,7 +274,6 @@ export function Domains() {
               listType="Component"
               selectedItem={selectedComponent}
               onSelectItem={onComponentSelectHandler}
-              getItemDetails={getComponentStats}
               refetchList={refetchListHandler}
             />
           </DomainCompCard>

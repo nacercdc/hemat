@@ -12,7 +12,7 @@ import {
 import { DomainComponentForm } from "./form";
 
 import type { DialogRef, ModalRef } from "@etm/web-ui-components";
-import type { ItemDetailType, ListItemType, ListTypeLabel } from "..";
+import type { ListItemType, ListTypeLabel } from "..";
 import type { ItemFormData } from "./form";
 import type { Domain, DomainEdit } from "~/libs/models/domain.model";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
@@ -21,21 +21,22 @@ import type {
   SubComponent,
   SubComponentEdit,
 } from "~/libs/models/subComponent.model";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
+import ItemDetails from "./ItemDetails";
 // import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 
 interface Props {
-  item: ListItemType;
+  itemId: string;
   type: ListTypeLabel;
-  onClick?: (item: ListItemType) => void;
-  getDetails?: (item: ListItemType) => Partial<ItemDetailType>;
+  onClick?: (item: string) => void;
+  // getDetails?: (item: ListItemType) => Partial<ItemDetailType>;
   refetchList?: (type: ListTypeLabel) => void;
 }
 
 export function DomainCompListItem({
-  item,
+  itemId,
   type,
   onClick,
-  getDetails,
   refetchList,
 }: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -49,19 +50,43 @@ export function DomainCompListItem({
   const { mutate: editDomain, ...editDomainState } = usePutMutation<
     Domain,
     DomainEdit
-  >(`domains/${item.id}`);
+  >(`domains/${itemId}`);
 
   const { mutate: editComponent, ...editComponentState } = usePutMutation<
     Component,
     ComponentEdit
-  >(`components/${item.id}`);
+  >(`components/${itemId}`);
 
   const { mutate: editSubComponent, ...editSubComponentState } = usePutMutation<
     SubComponent,
     SubComponentEdit
-  >(`sub-components/${item.id}`);
+  >(`sub-components/${itemId}`);
 
-  const itemDetails = getDetails?.(item);
+  const { data: domain, ..._domainState } = useFindById<Domain>({
+    path: `/domains/${itemId}`,
+    tqOptions: {
+      enabled: !!itemId && type === "Domain",
+      queryKey: ["Domain", itemId],
+    },
+  });
+
+  const { data: component, ..._componentState } = useFindById<Component>({
+    path: `/components/${itemId}`,
+    tqOptions: {
+      enabled: !!itemId && type === "Component",
+      queryKey: ["Component", itemId],
+    },
+  });
+  const { data: subComponent, ..._subComponentState } =
+    useFindById<SubComponent>({
+      path: `/sub-components/${itemId}`,
+      tqOptions: {
+        enabled: !!itemId && type === "SubComponent",
+        queryKey: ["SubComponent", itemId],
+      },
+    });
+
+  const item: ListItemType | undefined = domain || component || subComponent;
 
   const onDeleteScaleHandler = () => {
     // deleteScale(
@@ -80,15 +105,15 @@ export function DomainCompListItem({
   };
 
   const onEditItemSubmitHandler = (values: ItemFormData) => {
-    if (type === "SubComponent" && item) {
+    if (type === "SubComponent" && subComponent) {
       editSubComponent(
         {
           data: {
-            id: item.id,
+            id: itemId,
             name: values.name,
             code: values.code,
             description: values.description,
-            componentId: (item as unknown as SubComponent).componentId,
+            componentId: subComponent.componentId,
             translations: values.translations,
           },
         },
@@ -100,15 +125,15 @@ export function DomainCompListItem({
         }
       );
     }
-    if (type === "Component" && item) {
+    if (type === "Component" && component) {
       editComponent(
         {
           data: {
-            id: item.id,
+            id: itemId,
             name: values.name,
             code: values.code,
             description: values.description,
-            domainId: (item as unknown as Component).domainId,
+            domainId: component.domainId,
             translations: values.translations,
           },
         },
@@ -120,11 +145,11 @@ export function DomainCompListItem({
         }
       );
     }
-    if (type === "Domain" && (item as unknown as Domain)) {
+    if (type === "Domain" && domain) {
       editDomain(
         {
           data: {
-            id: item.id,
+            id: itemId,
             name: values.name,
             code: values.code,
             description: values.description,
@@ -192,9 +217,9 @@ export function DomainCompListItem({
       />
       <div
         className="flex items-center justify-between w-full gap-5 cursor-pointer"
-        onClick={() => onClick?.(item)}
+        onClick={() => onClick?.(itemId)}
       >
-        <h5 className="text-sm font-medium">{item.name}</h5>
+        <h5 className="text-sm font-medium">{item?.name}</h5>
         <Button type="button" variant="ghost">
           <Icon
             icon="ion:chevron-back-outline"
@@ -202,33 +227,8 @@ export function DomainCompListItem({
           />
         </Button>
       </div>
-      <Drawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        title={
-          <div className="flex items-center gap-4">
-            <div className="rounded-full bg-info/10 text-info p-2 px-3 text-xs">
-              Code: {item.code}
-            </div>
-            <h3 className="text-sm font-bold">{item.name}</h3>
-          </div>
-        }
-        description={<span className="text-xs mt-5">{item.description}</span>}
-      >
-        {itemDetails && (
-          <div className="border-[1px] rounded-md p-5 flex flex-col gap-5">
-            {itemDetails.componentCount !== undefined && (
-              <h6 className="text-xs font-medium">
-                Components: {itemDetails.componentCount}
-              </h6>
-            )}
-            {itemDetails.subComponentCount !== undefined && (
-              <h6 className="text-xs font-medium">
-                Sub-Components: {itemDetails.subComponentCount}
-              </h6>
-            )}
-          </div>
-        )}
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <ItemDetails itemId={itemId} type={type} isOpen={!!drawerOpen} />
       </Drawer>
       <Modal ref={editItemModalRef} title={`Edit ${type}`}>
         <DomainComponentForm
