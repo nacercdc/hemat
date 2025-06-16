@@ -92,21 +92,11 @@ export class DomainService {
   async delete(id: string): Promise<Domain> {
     const domain = await this.domainRepository.findOne({
       where: { id },
+      relations: ['components', 'components.subComponents']
     });
 
     if (!domain) {
       throw new NotFoundException(`Domain ${id} not found.`);
-    }
-
-    // Check if domain has any components
-    const componentsCount = await this.componentRepository.count({
-      where: { domainId: id },
-    });
-
-    if (componentsCount > 0) {
-      throw new BadRequestException(
-        `Cannot delete domain "${domain.name}" because it has ${componentsCount} components. Please delete all components first.`
-      );
     }
 
     return await this.domainRepository.softRemove(domain);
@@ -116,6 +106,7 @@ export class DomainService {
     const domain = await this.domainRepository.findOne({
       where: { id },
       withDeleted: true,
+      relations: ['components', 'components.subComponents']
     });
 
     if (!domain) {

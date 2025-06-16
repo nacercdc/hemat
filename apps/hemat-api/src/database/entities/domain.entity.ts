@@ -45,6 +45,9 @@ export class Domain extends BaseEntityWithSoftDelete {
   @Column('jsonb')
   translations: Record<string, DomainTranslationDto> = {};
 
-  @OneToMany(() => Component, (component) => component.domain)
+  @OneToMany(() => Component, (component) => component.domain, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   components: Component[];
 }

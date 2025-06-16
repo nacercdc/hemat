@@ -134,21 +134,11 @@ export class ComponentService {
   async delete(id: string): Promise<Component> {
     const component = await this.componentRepository.findOne({
       where: { id },
+      relations: ['subComponents']
     });
 
     if (!component) {
       throw new NotFoundException(`Component ${id} not found.`);
-    }
-
-    // Check if component has any sub-components
-    const subComponentsCount = await this.subComponentRepository.count({
-      where: { componentId: id },
-    });
-
-    if (subComponentsCount > 0) {
-      throw new BadRequestException(
-        `Cannot delete component "${component.name}" because it has ${subComponentsCount} sub-components. Please delete all sub-components first.`
-      );
     }
 
     return await this.componentRepository.softRemove(component);
@@ -158,6 +148,7 @@ export class ComponentService {
     const component = await this.componentRepository.findOne({
       where: { id },
       withDeleted: true,
+      relations: ['subComponents']
     });
 
     if (!component) {
