@@ -98,6 +98,17 @@ export class DomainService {
       throw new NotFoundException(`Domain ${id} not found.`);
     }
 
+    // Check if domain has any components
+    const componentsCount = await this.componentRepository.count({
+      where: { domainId: id },
+    });
+
+    if (componentsCount > 0) {
+      throw new BadRequestException(
+        `Cannot delete domain "${domain.name}" because it has ${componentsCount} components. Please delete all components first.`
+      );
+    }
+
     return await this.domainRepository.softRemove(domain);
   }
 
