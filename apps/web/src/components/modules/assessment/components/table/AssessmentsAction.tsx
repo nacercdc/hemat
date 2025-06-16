@@ -1,26 +1,45 @@
 import React, { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { Dialog, DropdownMenu } from "@etm/web-ui-components";
+import { Dialog, DropdownMenu, useToast } from "@etm/web-ui-components";
 
 import type { DialogRef } from "@etm/web-ui-components";
 import type { Assessment } from "~/libs/models/assessment.model";
+import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 
 interface Props {
   assessment: Assessment;
-  refetch?: () => void;
+  onRefetch?: () => void;
 }
-export default function AssessmentAction({ assessment }: Props) {
+export default function AssessmentAction({ assessment, onRefetch }: Props) {
   const deleteDialogRef = useRef<DialogRef>(null);
-
   const router = useRouter();
+  const { toast } = useToast();
+  const { mutate: deleteAssessment, ...deleteAssessmentState } =
+    useDeleteMutation<Assessment>(`assessments/${assessment.id}`);
 
   const onGotoUpdateAssessmentHandler = () => {
-    router.push(`/assessment/${assessment.id}/update`);
+    router.push(`/assessments/${assessment.id}/update`);
   };
 
   const onGotoDetailAssessmentHandler = () => {
-    router.push(`/assessment/${assessment.id}/detail`);
+    router.push(`/assessments/${assessment.id}/detail`);
+  };
+
+  const onDeleteAssessmentHandler = () => {
+    deleteAssessment(
+      {},
+      {
+        onSuccess: () => {
+          deleteDialogRef.current?.closeDialog();
+          onRefetch?.();
+          toast({
+            title: "Success",
+            message: "Language has been deleted successfully.",
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -69,7 +88,7 @@ export default function AssessmentAction({ assessment }: Props) {
         title="Delete Assessment"
         actionLabel="Delete"
         actionVariant="destructive"
-        onAction={onGotoUpdateAssessmentHandler}
+        onAction={onDeleteAssessmentHandler}
         autoClosable={false}
         actionLoading={false}
       >

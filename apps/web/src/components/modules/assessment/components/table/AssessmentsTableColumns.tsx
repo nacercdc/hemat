@@ -23,22 +23,10 @@ export const AssessmentsTableColumns = ({
   {
     header: "Name",
     accessorKey: "name",
-    enableColumnFilter: false,
+    enableColumnFilter: true,
     cell: ({ row }) => {
       return <span>{row.original.name}</span>;
     },
-  },
-  {
-    header: "Created By",
-    accessorKey: "createdBy",
-    enableColumnFilter: false,
-    cell: ({
-      row: {
-        original: {
-          createdBy: { firstName, lastName },
-        },
-      },
-    }) => <span>{`${firstName} ${lastName}`}</span>,
   },
 
   {
@@ -94,7 +82,7 @@ export const AssessmentsTableColumns = ({
     enableColumnFilter: false,
     enableSorting: false,
     cell: ({ row }) => (
-      <AssessmentAction assessment={row.original} refetch={refetch} />
+      <AssessmentAction assessment={row.original} onRefetch={refetch} />
     ),
   },
 ];

@@ -11,7 +11,6 @@ import { AssessmentForm, AssessmentFormData } from "../components/form";
 export default function CreateAssessment() {
   const router = useRouter();
   const toaster = useToast();
-
   const { mutate: createAssessment, ...createAssessmentState } = useAddMutation<
     Assessment,
     AssessmentCreate

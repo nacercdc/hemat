@@ -30,11 +30,13 @@ export interface Assessment {
   countryCode: string;
   status: StatusType;
   createdAt: string;
+  organization?: string;
   languages?: Language;
   description?: string;
 }
 
 export interface AssessmentCreate {
+  id?: number;
   name: string;
   startDate: Date;
   endDate: Date;
