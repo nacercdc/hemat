@@ -1,6 +1,7 @@
 export * from './access';
 export * from './account';
 export * from './assessment';
+export * from './country';
 export * from './invitation';
 export * from './language';
 export * from './measurement-scale';

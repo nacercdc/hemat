@@ -114,6 +114,20 @@ export class SubComponentService {
         component = newComponent;
       }
 
+      // Check if code is being updated and if it's unique
+      if (payload.code && payload.code !== subComponent.code) {
+        const existingSubComponent = await manager
+          .getRepository(SubComponent)
+          .findOne({
+            where: { code: payload.code },
+          });
+        if (existingSubComponent && existingSubComponent.id !== id) {
+          throw new BadRequestException(
+            `Sub-component with code ${payload.code} already exists.`,
+          );
+        }
+      }
+
       Object.assign(subComponent, { ...payload, component });
       return await manager.getRepository(SubComponent).save(subComponent);
     });

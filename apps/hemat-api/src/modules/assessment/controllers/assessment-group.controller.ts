@@ -30,7 +30,11 @@ import {
 } from '../../../shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '../../../shared/dtos';
 import { AssessmentGroupService } from '../services';
-import { AssessmentGroupRequestDto, FindAllAssessmentGroupDto, FindOneAssessmentGroupDto } from '../dtos';
+import {
+  AssessmentGroupUpdateRequestDto,
+  FindAllAssessmentGroupDto,
+  FindOneAssessmentGroupDto,
+} from '../dtos';
 import { AssessmentGroup } from '../../../database/entities';
 
 @ApiBearerAuth()
@@ -58,29 +62,6 @@ export class AssessmentGroupController {
   constructor(
     private readonly assessmentGroupService: AssessmentGroupService,
   ) {}
-
-  @ApiOperation({
-    summary: 'Create a new assessment group',
-    description: 'Create a new assessment group for an assessment',
-  })
-  @ApiOkResponse({ description: 'Ok', type: AssessmentGroup })
-  @HttpCode(201)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.CREATE,
-        subject: PermissionSubjectEnum.ASSESSMENT,
-      },
-    ],
-  })
-  @Post()
-  async create(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Body() payload: AssessmentGroupRequestDto,
-  ): Promise<AssessmentGroup> {
-    return this.assessmentGroupService.create(assessmentId, payload);
-  }
 
   @ApiOperation({
     summary: 'Get an assessment group by ID',
@@ -152,7 +133,7 @@ export class AssessmentGroupController {
   async update(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() payload: AssessmentGroupRequestDto,
+    @Body() payload: AssessmentGroupUpdateRequestDto,
   ): Promise<AssessmentGroup> {
     return this.assessmentGroupService.update(assessmentId, id, payload);
   }

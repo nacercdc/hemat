@@ -28,25 +28,56 @@ export class DomainService {
     private readonly componentRepository: Repository<Component>,
   ) {}
 
-  async findAll(query: FindAllDomainDto): Promise<FindAllResponseDto<Domain>> {
-    try {
-      return await new QueryService<Domain>(this.domainRepository)
-        .join(query.include)
-        .filter(this.filters(query), {
-          fields: ['code', 'name'],
-          value: query.search,
-        })
-        .sort({ ascending: query.ascending, descending: query.descending })
-        .take(query.take)
-        .skip(query.skip)
-        .getManyAndCount();
-    } catch (err) {
-      this.logger.error('findAll:', err);
-      throw new BadRequestException('Failed to fetch domains.');
-    }
+  async findAll(
+    query: FindAllDomainDto,
+  ): Promise<
+    FindAllResponseDto<
+      Domain & { componentsCount: number; subComponentsCount: number }
+    >
+  > {
+    const { data: domains, total } = await new QueryService<Domain>(
+      this.domainRepository,
+    )
+      .join(query.include)
+      .filter(this.filters(query), {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
+
+    const domainsWithCounts = await Promise.all(
+      domains.map(async (domain: Domain) => {
+        const [componentsCount, subComponentsCount] = await Promise.all([
+          this.componentRepository.count({ where: { domainId: domain.id } }),
+          this.componentRepository
+            .createQueryBuilder('component')
+            .innerJoin('component.subComponents', 'subComponent')
+            .where('component.domainId = :domainId', { domainId: domain.id })
+            .select('COUNT(DISTINCT subComponent.id)', 'count')
+            .getRawOne()
+            .then((result) => parseInt(result.count, 10) || 0),
+        ]);
+
+        return {
+          ...domain,
+          componentsCount,
+          subComponentsCount,
+        };
+      }),
+    );
+
+    return {
+      data: domainsWithCounts,
+      total,
+    };
   }
 
-  async findOne(id: string): Promise<Domain & { componentsCount: number; subComponentsCount: number }> {
+  async findOne(
+    id: string,
+  ): Promise<Domain & { componentsCount: number; subComponentsCount: number }> {
     const domain = await this.domainRepository.findOne({ where: { id } });
 
     if (!domain) {
@@ -61,7 +92,7 @@ export class DomainService {
         .where('component.domainId = :domainId', { domainId: id })
         .select('COUNT(DISTINCT subComponent.id)', 'count')
         .getRawOne()
-        .then(result => parseInt(result.count, 10) || 0),
+        .then((result) => parseInt(result.count, 10) || 0),
     ]);
 
     return {
@@ -92,6 +123,7 @@ export class DomainService {
   async delete(id: string): Promise<Domain> {
     const domain = await this.domainRepository.findOne({
       where: { id },
+      relations: ['components', 'components.subComponents'],
     });
 
     if (!domain) {
@@ -105,6 +137,7 @@ export class DomainService {
     const domain = await this.domainRepository.findOne({
       where: { id },
       withDeleted: true,
+      relations: ['components', 'components.subComponents'],
     });
 
     if (!domain) {
@@ -118,14 +151,20 @@ export class DomainService {
     id: string,
     query: FindAllComponentDto,
   ): Promise<FindAllResponseDto<Component>> {
-    try {
       const domain = await this.domainRepository.findOne({ where: { id } });
       if (!domain) {
         throw new NotFoundException(`Domain ${id} not found.`);
       }
 
+      const filters = this.filters(query);
+      filters.push({
+        field: 'domainId',
+        operator: '=',
+        value: id,
+      });
+
       return await new QueryService<Component>(this.componentRepository)
-        .filter(this.filters(query), {
+        .filter(filters, {
           fields: ['code', 'name'],
           value: query.search,
         })
@@ -134,10 +173,6 @@ export class DomainService {
         .take(query.take)
         .skip(query.skip)
         .getManyAndCount();
-    } catch (err) {
-      this.logger.error('findComponentsByDomainId:', err);
-      throw new BadRequestException('Failed to fetch components.');
-    }
   }
 
   private filters(query: FindAllDomainDto): Filter[] {

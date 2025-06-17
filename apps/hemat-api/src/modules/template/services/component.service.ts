@@ -32,9 +32,11 @@ export class ComponentService {
 
   async findAll(
     query: FindAllComponentDto,
-  ): Promise<FindAllResponseDto<Component>> {
+  ): Promise<FindAllResponseDto<Component & { subComponentsCount: number }>> {
     try {
-      return await new QueryService<Component>(this.componentRepository)
+      const { data: components, total } = await new QueryService<Component>(
+        this.componentRepository,
+      )
         .join(query.include)
         .filter(this.filters(query), {
           fields: ['code', 'name'],
@@ -44,6 +46,24 @@ export class ComponentService {
         .take(query.take)
         .skip(query.skip)
         .getManyAndCount();
+
+      const componentsWithCounts = await Promise.all(
+        components.map(async (component: Component) => {
+          const subComponentsCount = await this.subComponentRepository.count({
+            where: { componentId: component.id },
+          });
+
+          return {
+            ...component,
+            subComponentsCount,
+          };
+        }),
+      );
+
+      return {
+        data: componentsWithCounts,
+        total,
+      };
     } catch (err) {
       this.logger.error('findAll:', err);
       throw new BadRequestException('Failed to fetch components.');
@@ -114,7 +134,18 @@ export class ComponentService {
         }
         domain = newDomain;
       }
-
+      if (payload.code && payload.code !== component.code) {
+        const existingComponent = await manager
+          .getRepository(Component)
+          .findOne({
+            where: { code: payload.code },
+          });
+        if (existingComponent && existingComponent.id !== id) {
+          throw new BadRequestException(
+            `Component with code ${payload.code} already exists.`,
+          );
+        }
+      }
       Object.assign(component, { ...payload, domain });
       return await manager.getRepository(Component).save(component);
     });
@@ -123,6 +154,7 @@ export class ComponentService {
   async delete(id: string): Promise<Component> {
     const component = await this.componentRepository.findOne({
       where: { id },
+      relations: ['subComponents']
     });
 
     if (!component) {
@@ -136,6 +168,7 @@ export class ComponentService {
     const component = await this.componentRepository.findOne({
       where: { id },
       withDeleted: true,
+      relations: ['subComponents']
     });
 
     if (!component) {
@@ -149,7 +182,6 @@ export class ComponentService {
     id: string,
     query: FindAllSubComponentDto,
   ): Promise<FindAllResponseDto<SubComponent>> {
-    try {
       const component = await this.componentRepository.findOne({
         where: { id },
       });
@@ -157,8 +189,15 @@ export class ComponentService {
         throw new NotFoundException(`Component ${id} not found.`);
       }
 
+      const filters = this.filters(query);
+      filters.push({
+        field: 'componentId',
+        operator: '=',
+        value: id,
+      });
+
       return await new QueryService<SubComponent>(this.subComponentRepository)
-        .filter(this.filters(query), {
+        .filter(filters, {
           fields: ['code', 'name'],
           value: query.search,
         })
@@ -167,10 +206,6 @@ export class ComponentService {
         .take(query.take)
         .skip(query.skip)
         .getManyAndCount();
-    } catch (err) {
-      this.logger.error('findSubComponentsByComponentId:', err);
-      throw new BadRequestException('Failed to fetch subcomponents.');
-    }
   }
 
   private filters(query: FindAllDomainDto): Filter[] {

@@ -141,7 +141,6 @@ export class AssessmentAnswerController {
   })
   @HttpCode(HttpStatus.CREATED)
   @Abilities({
-    isAdmin: true,
     permissions: [
       {
         action: PermissionActionEnum.CREATE,

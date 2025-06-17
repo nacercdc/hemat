@@ -30,6 +30,7 @@ import { ExceptionResponseDto, FindAllResponseDto } from '../../../shared/dtos';
 import { AssessmentMeasurementScaleSubComponentService } from '../services';
 import {
   AssessmentMeasurementScaleSubComponentDto,
+  AssessmentMeasurementScaleSubComponentUpdateDto,
   FindAllAssessmentMeasurementScaleSubComponentDto,
 } from '../dtos';
 import { ParseUUIDPipe } from '@nestjs/common';
@@ -54,7 +55,7 @@ import { ParseUUIDPipe } from '@nestjs/common';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('assessmentSub-components/:subComponentId/measurement-scales')
+@Controller('assessment-sub-components/:subComponentId/measurement-scales')
 export class AssessmentMeasurementScaleSubComponentController {
   constructor(
     private readonly assessmentMeasurementScaleSubComponentService: AssessmentMeasurementScaleSubComponentService,
@@ -114,18 +115,11 @@ export class AssessmentMeasurementScaleSubComponentController {
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
     @Param('measurementScaleId', new ParseUUIDPipe())
     measurementScaleId: string,
-  ): Promise<AssessmentMeasurementScaleSubComponentDto> {
-    const measurementScale =
-      await this.assessmentMeasurementScaleSubComponentService.findOne(
-        subComponentId,
-        measurementScaleId,
-      );
-    return {
-      description: measurementScale.description,
-      translations: measurementScale.translations,
-      subComponentId: measurementScale.subComponentId,
-      measurementScaleId: measurementScale.measurementScaleId,
-    };
+  ): Promise<AssessmentMeasurementScaleSubComponent> {
+    return this.assessmentMeasurementScaleSubComponentService.findOne(
+      subComponentId,
+      measurementScaleId,
+    );
   }
 
   @ApiOperation({
@@ -135,7 +129,7 @@ export class AssessmentMeasurementScaleSubComponentController {
   })
   @ApiOkResponse({
     description: 'Updated measurement scale for the sub-component',
-    type: AssessmentMeasurementScaleSubComponentDto,
+    type: AssessmentMeasurementScaleSubComponent,
   })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
@@ -153,19 +147,12 @@ export class AssessmentMeasurementScaleSubComponentController {
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
     @Param('measurementScaleId', new ParseUUIDPipe())
     measurementScaleId: string,
-    @Body() payload: AssessmentMeasurementScaleSubComponentDto,
-  ): Promise<AssessmentMeasurementScaleSubComponentDto> {
-    const updatedMeasurementScale =
-      await this.assessmentMeasurementScaleSubComponentService.update(
-        subComponentId,
-        measurementScaleId,
-        payload,
-      );
-    return {
-      description: updatedMeasurementScale.description,
-      translations: updatedMeasurementScale.translations,
-      subComponentId: updatedMeasurementScale.subComponentId,
-      measurementScaleId: updatedMeasurementScale.measurementScaleId,
-    };
+    @Body() payload: AssessmentMeasurementScaleSubComponentUpdateDto,
+  ): Promise<AssessmentMeasurementScaleSubComponent> {
+    return this.assessmentMeasurementScaleSubComponentService.update(
+      subComponentId,
+      measurementScaleId,
+      payload,
+    );
   }
 }

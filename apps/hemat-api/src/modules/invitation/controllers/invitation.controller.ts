@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Get,
-  Put,
   Param,
   Body,
   HttpCode,
@@ -27,7 +26,8 @@ import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { InvitationService } from '../services';
 import {
   FindAllInvitationDto,
-  InvitationCreateRequestDto,
+  FindOneInvitationDto,
+  InvitationCreateBulkRequestDto,
   InvitationUpdateRequestDto,
 } from '../dtos';
 import { Invitation } from '@database/entities';
@@ -58,10 +58,15 @@ export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
 
   @ApiOperation({
-    summary: 'Create a new invitation',
-    description: 'Send an invitation to a user to join an assessment group',
+    summary: 'Create new invitations',
+    description: 'Send multiple invitations to join assessment groups',
   })
-  @ApiOkResponse({ description: 'Created', type: Invitation })
+  @ApiOkResponse({ description: 'Created', type: [Invitation] })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(201)
   @Abilities({
     isAdmin: true,
@@ -75,16 +80,16 @@ export class InvitationController {
   @Post()
   async create(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Body() payload: InvitationCreateRequestDto,
-  ): Promise<Invitation> {
-    return this.invitationService.create(assessmentId, payload);
+    @Body() payload: InvitationCreateBulkRequestDto,
+  ): Promise<Invitation[]> {
+    return this.invitationService.createBulk(assessmentId, payload);
   }
 
   @ApiOperation({
     summary: 'Get all invitations for an assessment',
     description: 'Retrieve all invitations for a specific assessment',
   })
-  @ApiOkResponse({ description: 'Ok', type: [Invitation] })
+  // @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto(Invitation) })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -102,6 +107,31 @@ export class InvitationController {
     @Query() query: FindAllInvitationDto,
   ): Promise<FindAllResponseDto<Invitation>> {
     return this.invitationService.findAll(assessmentId, query);
+  }
+
+  @ApiOperation({
+    summary: 'Get an invitation by ID',
+    description: 'Retrieve a specific invitation by its ID',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Invitation })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Get(':id')
+  async findOne(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: FindOneInvitationDto,
+  ): Promise<Invitation> {
+    return this.invitationService.findOne(assessmentId, id, query);
   }
 
   @ApiOperation({
@@ -136,4 +166,3 @@ export class InvitationController {
     return this.invitationService.accept(payload);
   }
 }
-

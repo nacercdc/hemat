@@ -76,48 +76,16 @@ export class AssessmentDomainService {
 
   async findAll(
     query: FindAllAssessmentDomainDto & { assessmentId: string },
-  ): Promise<FindAllResponseDto<AssessmentDomainWithCounts>> {
-    const domainQuery = new QueryService<AssessmentDomain>(
-      this.assessmentDomainRepository,
-    )
+  ): Promise<FindAllResponseDto<AssessmentDomain>> {
+    return new QueryService<AssessmentDomain>(this.assessmentDomainRepository)
       .filter(this.filters(query), {
         fields: ['code', 'name'],
         value: query.search,
       })
       .sort({ ascending: query.ascending, descending: query.descending })
       .take(query.take)
-      .skip(query.skip);
-
-    const [domains, total] = await Promise.all([
-      domainQuery.getMany(),
-      domainQuery.getManyAndCount().then((result) => result.total),
-    ]);
-
-    const counts = await this.assessmentComponentRepository
-      .createQueryBuilder('component')
-      .select('component.domainId', 'domainId')
-      .addSelect('COUNT(DISTINCT component.id)', 'componentsCount')
-      .addSelect('COUNT(DISTINCT subComponent.id)', 'subComponentsCount')
-      .leftJoin('component.subComponents', 'subComponent')
-      .where('component.domainId IN (:...domainIds)', {
-        domainIds: domains.map((d) => d.id),
-      })
-      .groupBy('component.domainId')
-      .getRawMany();
-
-    return {
-      data: domains.map((domain) => ({
-        ...domain,
-        componentsCount: parseInt(
-          counts.find((c) => c.domainId === domain.id)?.componentsCount || '0',
-        ),
-        subComponentsCount: parseInt(
-          counts.find((c) => c.domainId === domain.id)?.subComponentsCount ||
-            '0',
-        ),
-      })),
-      total,
-    };
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   async findOne(assessmentId: string, id: string): Promise<AssessmentDomain> {

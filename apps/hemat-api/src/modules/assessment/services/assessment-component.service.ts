@@ -91,7 +91,6 @@ export class AssessmentComponentService {
       .skip(query.skip)
       .getManyAndCount();
   }
-
   async findOne(
     assessmentId: string,
     id: string,
