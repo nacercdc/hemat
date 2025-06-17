@@ -5,6 +5,8 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
@@ -21,6 +23,7 @@ import { AssessmentMeasurementScale } from './assessment-measurement-scale.entit
 import { Country } from './country.entity';
 import { AssessmentStatus } from '@shared/enums';
 import { AssessmentGroup } from './assessment-group.entity';
+import { Language } from './language.entity';
 
 @Entity('assessments')
 export class Assessment extends BaseEntityWithSoftDelete {
@@ -43,7 +46,7 @@ export class Assessment extends BaseEntityWithSoftDelete {
 
   @ApiProperty({
     description: 'Name of the assessment (must be unique)',
-    example: 'Health Assessment 2025',
+    example: 'HIEs Governance Assessment 2025',
     type: String,
   })
   @Column()
@@ -52,15 +55,15 @@ export class Assessment extends BaseEntityWithSoftDelete {
 
   @ApiProperty({
     description: 'Description of the assessment',
-    example: 'Annual public health assessment',
+    example: 'Assess HIE governance in Ethiopia',
     type: String,
   })
   @Column({ type: 'text' })
   description: string;
 
   @ApiProperty({
-    description: 'ID of the associated user',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'Country code for the assessment',
+    example: 'ET',
     type: String,
   })
   @Column({ type: String })
@@ -77,7 +80,7 @@ export class Assessment extends BaseEntityWithSoftDelete {
 
   @ApiPropertyOptional({
     description: 'Organization of the assessment',
-    example: 'WHO',
+    example: 'Ethiopia Health Ministry',
     type: String,
   })
   @Column({ type: 'text', nullable: true })
@@ -85,7 +88,7 @@ export class Assessment extends BaseEntityWithSoftDelete {
 
   @ApiProperty({
     description: 'Start date of the assessment',
-    example: '2025-05-01',
+    example: '2025-04-30',
     type: Date,
   })
   @Column()
@@ -98,14 +101,15 @@ export class Assessment extends BaseEntityWithSoftDelete {
   })
   @Column()
   endDate: Date;
+
   @ApiProperty({
-    description: 'Language',
-    example: ['en'],
-    type: String,
-    isArray: true,
+    description: 'Languages for the assessment',
+    example: ['am', 'en'],
+    type: [String],
   })
-  @Column('text', { array: true, default: ['en'] })
-  languages: string[];
+  @ManyToMany(() => Language)
+  @JoinTable()
+  languages: Language[];
 
   @ApiProperty({
     description: 'Status of the assessment',
