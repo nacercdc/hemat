@@ -13,6 +13,7 @@ import { Assessment } from './assessment.entity';
 import { AssessmentSubComponent } from './assessment-sub-component.entity';
 import { AssessmentMeasurementScale } from './assessment-measurement-scale.entity';
 import { User } from './user.entity';
+import { AssessmentGroup } from './assessment-group.entity';
 
 @Entity('assessment_answers')
 export class AssessmentAnswer extends BaseEntityWithSoftDelete {
@@ -59,7 +60,7 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   subComponent: AssessmentSubComponent | null;
 
   @ApiProperty({
-    description: 'ID of the associated measurement',
+    description: 'ID of the associated measurement scale',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
@@ -95,6 +96,30 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   })
   @Column({ type: 'text', nullable: true })
   notes: string | null;
+
+  @ApiProperty({
+    description:
+      'Indicates if the answer is submitted as PRIMARY for the assessment',
+    example: false,
+    type: Boolean,
+  })
+  @Column({ type: 'boolean', default: false })
+  isPrimary: boolean;
+
+  @ApiPropertyOptional({
+    description: 'ID of the associated group (null if isPrimary is true)',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @Column({ type: 'uuid', nullable: true })
+  @Index()
+  groupId: string | null;
+
+  @ManyToOne(() => AssessmentGroup, (group) => group.answers, {
+    nullable: true,
+  })
+  @JoinColumn({ name: 'groupId' })
+  group: AssessmentGroup | null;
 
   @OneToMany(() => Roadmap, (roadmap) => roadmap.assessmentAnswer)
   roadmaps: Roadmap[];

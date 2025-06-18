@@ -24,6 +24,7 @@ import { Country } from './country.entity';
 import { AssessmentStatus } from '@shared/enums';
 import { AssessmentGroup } from './assessment-group.entity';
 import { Language } from './language.entity';
+import { Answer } from './answer.entity';
 
 @Entity('assessments')
 export class Assessment extends BaseEntityWithSoftDelete {
