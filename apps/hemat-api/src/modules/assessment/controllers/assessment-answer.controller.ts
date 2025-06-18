@@ -26,7 +26,7 @@ import {
   ApiTooManyRequestsResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
-import { AssessmentAnswer } from '@database/entities';
+import { Answer } from '@database/entities';
 import { Abilities, AuthGuard, AuthDto } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
@@ -71,7 +71,7 @@ export class AssessmentAnswerController {
   })
   @ApiOkResponse({
     description: 'Ok',
-    type: FindAllResponseDto<AssessmentAnswer>,
+    type: FindAllResponseDto,
   })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
@@ -89,7 +89,7 @@ export class AssessmentAnswerController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
     @Query() query: FindAllAssessmentAnswerDto,
-  ): Promise<FindAllResponseDto<AssessmentAnswer>> {
+  ): Promise<FindAllResponseDto<Answer>> {
     return this.assessmentAnswerService.findAll(
       assessmentId,
       req.user.id,
@@ -102,7 +102,7 @@ export class AssessmentAnswerController {
     description:
       'Get an assessment answer by ID submitted by the authenticated user or accessible by TEAM_LEADER',
   })
-  @ApiOkResponse({ description: 'Ok', type: AssessmentAnswer })
+  @ApiOkResponse({ description: 'Ok', type: Answer })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
   @Abilities({
@@ -120,7 +120,7 @@ export class AssessmentAnswerController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Request() req: { user: AuthDto },
     @Query() query: FindOneAssessmentAnswerDto,
-  ): Promise<AssessmentAnswer> {
+  ): Promise<Answer> {
     return this.assessmentAnswerService.findOne(
       assessmentId,
       req.user.id,
@@ -134,7 +134,7 @@ export class AssessmentAnswerController {
     description:
       'Create a new assessment answer for the authenticated user (PRIMARY or TEAM_LEADER)',
   })
-  @ApiCreatedResponse({ description: 'Created', type: AssessmentAnswer })
+  @ApiCreatedResponse({ description: 'Created', type: Answer })
   @ApiBadRequestResponse({
     description: 'Bad Request',
     type: ExceptionResponseDto,
@@ -153,7 +153,7 @@ export class AssessmentAnswerController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
     @Body() payload: AssessmentAnswerCreateRequestDto,
-  ): Promise<AssessmentAnswer> {
+  ): Promise<Answer> {
     return this.assessmentAnswerService.create(
       assessmentId,
       req.user.id,
@@ -166,7 +166,7 @@ export class AssessmentAnswerController {
     description:
       'Update an assessment answer by ID for the authenticated user (PRIMARY or TEAM_LEADER)',
   })
-  @ApiOkResponse({ description: 'Ok', type: AssessmentAnswer })
+  @ApiOkResponse({ description: 'Ok', type: Answer })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @ApiBadRequestResponse({
     description: 'Bad Request',
@@ -188,72 +188,12 @@ export class AssessmentAnswerController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Request() req: { user: AuthDto },
     @Body() payload: AssessmentAnswerUpdateRequestDto,
-  ): Promise<AssessmentAnswer> {
+  ): Promise<Answer> {
     return this.assessmentAnswerService.update(
       assessmentId,
       req.user.id,
       id,
       payload,
     );
-  }
-
-  @ApiOperation({
-    summary: 'Delete an assessment answer',
-    description:
-      'Soft delete an assessment answer by ID for the authenticated user (PRIMARY or TEAM_LEADER)',
-  })
-  @ApiOkResponse({ description: 'Ok', type: AssessmentAnswer })
-  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @ApiBadRequestResponse({
-    description: 'Bad Request',
-    type: ExceptionResponseDto,
-  })
-  @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.DELETE,
-        subject: PermissionSubjectEnum.ASSESSMENT_ANSWER,
-      },
-    ],
-  })
-  @Delete(':id')
-  async delete(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Request() req: { user: AuthDto },
-  ): Promise<AssessmentAnswer> {
-    return this.assessmentAnswerService.delete(assessmentId, req.user.id, id);
-  }
-
-  @ApiOperation({
-    summary: 'Restore an assessment answer',
-    description:
-      'Restore a soft-deleted assessment answer by ID for the authenticated user (PRIMARY or TEAM_LEADER)',
-  })
-  @ApiOkResponse({ description: 'Ok', type: AssessmentAnswer })
-  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @ApiBadRequestResponse({
-    description: 'Bad Request',
-    type: ExceptionResponseDto,
-  })
-  @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.RESTORE,
-        subject: PermissionSubjectEnum.ASSESSMENT_ANSWER,
-      },
-    ],
-  })
-  @Post(':id/restore')
-  async restore(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Request() req: { user: AuthDto },
-  ): Promise<AssessmentAnswer> {
-    return this.assessmentAnswerService.restore(assessmentId, req.user.id, id);
   }
 }
