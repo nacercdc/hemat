@@ -1,13 +1,21 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useParams } from "next/navigation";
-import { Assessment, StatusType } from "~/libs/models/assessment.model";
+import {
+  Assessment,
+  AssessmentDetail,
+  AssessmentsIncludeAble,
+  StatusType,
+} from "~/libs/models/assessment.model";
 import { Badge, BadgeVariants } from "@etm/web-ui-components";
 import SkeletonForDetail from "./components/SkeletonForDetail";
 import GroupsList from "../../members/GroupsList";
 import LabeledValue from "./components/LabeledValue";
 import MemberRoleCard from "../../members/MemberRoleCard";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
+import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
+import { safeDate } from "~/utils/date.util";
 
 export default function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
@@ -19,20 +27,23 @@ export default function AssessmentOverview() {
     Completed: "success",
   };
   const [assessmentData, setAssessmentData] = useState<Assessment>();
-  const [isLoading, setIsLoading] = useState(true);
   const params = useParams();
-  const id = params.id;
-  useEffect(() => {
-    setIsLoading(true);
-    if (typeof id === "string") {
-      mockAssessmentsFetch(id).then((data) => {
-        setAssessmentData(data);
-        setIsLoading(false);
-      });
-    }
-  }, [id]);
+  const assessmentId = params.id;
+  const { data: assessment, ...assessmentState } = useFindById<
+    Assessment,
+    AssessmentsIncludeAble
+  >({
+    path: `assessments/${assessmentId}`,
+    queries: {
+      include: ["user"],
+    },
+  });
+  const { mutate: detailAssessment, ...detailAssessmentState } = usePutMutation<
+    Assessment,
+    AssessmentDetail
+  >(`assessments/${assessmentId}`);
 
-  if (isLoading) {
+  if (assessmentState.isLoading) {
     return <SkeletonForDetail />;
   }
   return (
@@ -41,41 +52,44 @@ export default function AssessmentOverview() {
         <div className="bg-dark-lighter/5 p-4 rounded-sm">
           <h1 className="text-sm font-bold">Status</h1>
           <Badge
-            text={`${assessmentData?.status}`}
+            text={`${assessment?.status}`}
             shape="circular"
             variant={
-              assessmentData?.status
-                ? StatusVariantClasses[assessmentData.status]
+              assessment?.status
+                ? StatusVariantClasses[assessment.status]
                 : StatusVariantClasses["Pending"]
             }
           />
         </div>
         <div className="bg-dark-lighter/5 p-4 rounded-sm  flex gap-10">
           <div className="flex flex-col gap-3">
-            <LabeledValue label="Name :" value={assessmentData?.name} />
+            <LabeledValue label="Name :" value={assessment?.name} />
             <LabeledValue
               label="Created By :"
-              value={`${assessmentData?.createdBy.firstName} ${assessmentData?.createdBy.lastName}`}
+              value={`${assessment?.user.name} `}
             />
+            <LabeledValue label="Country :" value={assessment?.countryCode} />
             <LabeledValue
-              label="Country :"
-              value={assessmentData?.country.name}
+              label="Organization :"
+              value={assessment?.organization ?? "----"}
             />
-            <LabeledValue label="Organization :" value="HCI" />
           </div>
           <div className="flex flex-col gap-3">
             <LabeledValue
               label="Start Date :"
-              value={assessmentData?.startDate}
+              value={safeDate(assessment?.startDate)}
             />
-            <LabeledValue label="End Date :" value={assessmentData?.endDate} />
+            <LabeledValue
+              label="End Date :"
+              value={safeDate(assessment?.endDate)}
+            />
           </div>
         </div>
         <div className="bg-dark-lighter/5 p-4 rounded-sm flex flex-col gap-3">
           <h1 className="text-sm font-bold">Description</h1>
           <div className="text-sm bg-white rounded-sm p-4">
-            {assessmentData?.description ? (
-              <p>{assessmentData.description}</p>
+            {assessment?.description ? (
+              <p>{assessment.description}</p>
             ) : (
               <p>No Description</p>
             )}
@@ -97,24 +111,4 @@ export default function AssessmentOverview() {
       </div>
     </div>
   );
-}
-//TODO the is dummy data
-async function mockAssessmentsFetch(id: string): Promise<Assessment> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const mockAssessment: Assessment = {
-    id: parseInt(id),
-    name: "Mock Assessment",
-    createdBy: {
-      firstName: "John",
-      lastName: "Doe",
-    },
-    startDate: "2025-01-01",
-    endDate: "2025-01-31",
-    country: {
-      name: "Ethiopia",
-    },
-    status: "Pending",
-    createdAt: new Date().toISOString(),
-  };
-  return mockAssessment;
 }

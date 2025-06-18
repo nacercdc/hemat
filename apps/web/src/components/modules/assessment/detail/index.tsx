@@ -9,6 +9,7 @@ import MemberInvitation from "./components/tabs/members";
 import AssessmentOverview from "./components/tabs/overview";
 import { PageContainer } from "../../components/PageContainer";
 import { useParams, useRouter } from "next/navigation";
+import AssessmentRoadmap from "../roadmap";
 
 export function AssessmentDetail() {
   const assessmentName = "Assessment 1";
@@ -49,6 +50,11 @@ export function AssessmentDetail() {
               value: "current-assessment",
               label: "Current assessment",
               content: <CurrentAssessment />,
+            },
+            {
+              value: "roadmap",
+              label: "Roadmap",
+              content: <AssessmentRoadmap />,
             },
           ]}
           defaultValue="detail"
