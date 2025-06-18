@@ -15,6 +15,9 @@ import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types"
 import type { Country } from "~/libs/models/country.model";
 import type { Language } from "~/libs/models/language.model";
 import type { Assessment } from "~/libs/models/assessment.model";
+import { useEffect } from "react";
+import { safeDate } from "~/utils/date.util";
+import { AssessmentFormSkeleton } from "./AssessmentFormSkeleton";
 const languageSchema = z.object({
   code: z
     .string()
@@ -71,18 +74,13 @@ export function AssessmentForm({
 }: Props) {
   const { control, handleSubmit, reset } = useForm<AssessmentFormData>({
     defaultValues: {
-      name: assessment?.name ?? "",
-      startDate: assessment?.startDate ?? new Date(),
-      endDate: assessment?.endDate ?? new Date(),
-
-      country: {
-        code: assessment?.countryCode ?? "",
-      },
-      organization: assessment?.organization ?? "",
-      languages: Array.isArray(assessment?.languages)
-        ? assessment.languages.map((lang) => ({ code: lang.code }))
-        : [],
-      description: assessment?.description ?? "",
+      name: "",
+      startDate: new Date(),
+      endDate: new Date(),
+      country: {},
+      organization: "",
+      languages: [],
+      description: "",
     },
     resolver: zodResolver(AssessmentFormSchema),
     mode: "all",
@@ -106,6 +104,28 @@ export function AssessmentForm({
     (languages?.data as unknown as Language[]) ?? [];
   const countryOptions: Country[] =
     (country?.data as unknown as Country[]) ?? [];
+
+  useEffect(() => {
+    if (!assessment) return;
+    console.log("Raw:", assessment.startDate);
+    console.log("Parsed:", safeDate(assessment.startDate));
+    reset({
+      name: assessment?.name,
+      startDate: safeDate(assessment.startDate),
+      endDate: safeDate(assessment.endDate),
+      country: {
+        code: assessment?.countryCode,
+      },
+      organization: assessment?.organization,
+      languages: Array.isArray(assessment?.languages)
+        ? assessment.languages.map((lang) => ({ code: lang.code }))
+        : [],
+      description: assessment?.description,
+    });
+  }, [assessment, reset]);
+  if (!assessment) {
+    return <AssessmentFormSkeleton />;
+  }
   return (
     <form
       onSubmit={handleSubmit((values) => {

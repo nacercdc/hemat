@@ -1,39 +1,38 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
-import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import { useParams, useRouter } from "next/navigation";
 import type {
   Assessment,
-  AssessmentCreate,
+  AssessmentUpdate,
 } from "~/libs/models/assessment.model";
 import { PageContainer } from "~/components/modules/components/PageContainer";
 import { useToast } from "@etm/web-ui-components";
 import type { AssessmentFormData } from "../components/form";
 import { AssessmentForm } from "../components/form";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 
 export default function UpdateAssessment() {
-  const router = useRouter();
   const toaster = useToast();
-
-  const { mutate: createAssessment, ...createAssessmentState } = useAddMutation<
-    Assessment,
-    AssessmentCreate
-  >("/assessments");
-
+  const router = useRouter();
+  const params = useParams();
+  const assessmentId = params.id;
+  const { data: assessment, ...assessmentState } = useFindById<Assessment>({
+    path: `assessments/${assessmentId}`,
+  });
   const { mutate: updateAssessment, ...updateAssessmentState } = usePutMutation<
     Assessment,
-    AssessmentCreate
-  >(`measurement-scales/${scale.id}`);
+    AssessmentUpdate
+  >(`assessments/${assessmentId}`);
 
   const onCancelAssessmentFormHandler = () => {
     router.push("/assessment?refresh=true");
   };
   const onSubmitAssessmentFormHandler = (data: AssessmentFormData) => {
-    createAssessment(
+    updateAssessment(
       {
         data: {
+          id: assessmentId as string,
           name: data.name,
           startDate: data.startDate,
           endDate: data.endDate,
@@ -48,7 +47,7 @@ export default function UpdateAssessment() {
         onSuccess: () => {
           toaster.toast({
             title: "Success",
-            message: "Assessment created successfully",
+            message: "Assessment Updated successfully",
             variant: "success",
           });
           router.push("/assessment?refresh=true");
@@ -60,8 +59,8 @@ export default function UpdateAssessment() {
   return (
     <PageContainer pageTitle="New Assessment" includeBreadcrumb={false}>
       <AssessmentForm
-        assessment={asssessment}
-        isLoading={createAssessmentState.isPending}
+        assessment={assessment}
+        isLoading={updateAssessmentState.isPending}
         onSubmitAssessmentForm={onSubmitAssessmentFormHandler}
         onCancelAssessmentForm={onCancelAssessmentFormHandler}
       />
