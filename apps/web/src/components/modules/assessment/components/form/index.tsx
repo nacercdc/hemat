@@ -11,10 +11,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
-import { Country } from "~/libs/models/country.model";
-import { Language } from "~/libs/models/language.model";
-import { Assessment } from "~/libs/models/assessment.model";
+import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import type { Country } from "~/libs/models/country.model";
+import type { Language } from "~/libs/models/language.model";
+import type { Assessment } from "~/libs/models/assessment.model";
 const languageSchema = z.object({
   code: z
     .string()
@@ -24,8 +24,8 @@ const languageSchema = z.object({
 const countrySchema = z.object({
   code: z
     .string()
-    .min(2, { message: "Language name is too short" })
-    .max(50, { message: "Language name is too long" }),
+    .min(2, { message: "Country name is too short" })
+    .max(50, { message: "Country name is too long" }),
 });
 const AssessmentFormSchema = z
   .object({
@@ -190,7 +190,7 @@ export function AssessmentForm({
           Cancel
         </Button>
         <Button type="submit" size="lg" loading={isLoading}>
-          Save
+          {assessment ? "Edit" : "Save"}
         </Button>
       </div>
     </form>

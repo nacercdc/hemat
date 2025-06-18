@@ -17,15 +17,12 @@ export default function AssessmentAction({ assessment, onRefetch }: Props) {
   const { toast } = useToast();
   const { mutate: deleteAssessment, ...deleteAssessmentState } =
     useDeleteMutation<Assessment>(`assessments/${assessment.id}`);
-
   const onGotoUpdateAssessmentHandler = () => {
-    router.push(`/assessments/${assessment.id}/update`);
+    router.push(`/assessment/${assessment.id}/update`);
   };
-
   const onGotoDetailAssessmentHandler = () => {
-    router.push(`/assessments/${assessment.id}/detail`);
+    router.push(`/assessment/${assessment.id}/detail`);
   };
-
   const onDeleteAssessmentHandler = () => {
     deleteAssessment(
       {},
@@ -35,7 +32,7 @@ export default function AssessmentAction({ assessment, onRefetch }: Props) {
           onRefetch?.();
           toast({
             title: "Success",
-            message: "Language has been deleted successfully.",
+            message: "Assessment has been deleted successfully.",
           });
         },
       }
@@ -89,8 +86,8 @@ export default function AssessmentAction({ assessment, onRefetch }: Props) {
         actionLabel="Delete"
         actionVariant="destructive"
         onAction={onDeleteAssessmentHandler}
-        autoClosable={false}
-        actionLoading={false}
+        autoClosable={deleteAssessmentState.isSuccess}
+        actionLoading={deleteAssessmentState.isPending}
       >
         Are you sure you want to delete this assessment? This action cannot be
         undone.

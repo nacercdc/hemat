@@ -2,23 +2,24 @@
 
 import { Icon } from "@iconify/react";
 import type { PaginationState, SortingState } from "@etm/web-ui-components";
-import { Button, useToast } from "@etm/web-ui-components";
+import { Button } from "@etm/web-ui-components";
 import { AssessmentsTable } from "./components/table";
 import { PageContainer } from "../components/PageContainer";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "~/constants";
-import {
+import type {
   Assessment,
   AssessmentFilterable,
   AssessmentSortable,
 } from "~/libs/models/assessment.model";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export function Assessments() {
   const router = useRouter();
-  const toaster = useToast();
+  const searchParams = useSearchParams();
+  const shouldRefresh = searchParams.get("refresh") === "true";
   const [search, setSearch] = useState("");
   const [_sort, setSort] = useState<
     {
@@ -62,7 +63,6 @@ export function Assessments() {
       pageSize: DEFAULT_PAGE_SIZE,
     });
   };
-
   const onSearchFilterChangeHandler = useCallback((value: string) => {
     setSearch(value);
     setPagination({
@@ -70,6 +70,11 @@ export function Assessments() {
       pageSize: DEFAULT_PAGE_SIZE,
     });
   }, []);
+  useEffect(() => {
+    if (shouldRefresh) {
+      assessmentsState.refetch();
+    }
+  }, [shouldRefresh]);
 
   return (
     <PageContainer

@@ -4,8 +4,9 @@ import { Icon } from "@iconify/react";
 import type { PaginationState, SortingState } from "@etm/web-ui-components";
 import { Table as ETMTable } from "@etm/web-ui-components";
 import { EmptyTableDataElement } from "~/components/modules/components/EmptyTableDataElement";
-import { Assessment } from "~/libs/models/assessment.model";
+import type { Assessment } from "~/libs/models/assessment.model";
 import { AssessmentsTableColumns } from "./AssessmentsTableColumns";
+import { useRouter } from "next/navigation";
 
 interface Props {
   assessments: Assessment[];
@@ -24,6 +25,7 @@ export function AssessmentsTable({
   onSearchFilterChange,
   onPaginationChange,
 }: Props) {
+  const router = useRouter();
   const OnEmptyDataElement = (
     <EmptyTableDataElement
       icon={
@@ -35,6 +37,9 @@ export function AssessmentsTable({
       title="No Assessment Found"
       body="You can add a new assessment by clicking the button below."
       actionText="Add Assessment"
+      action={() => {
+        router.push("/assessment/create");
+      }}
     />
   );
 
