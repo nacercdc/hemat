@@ -79,7 +79,6 @@ export class UserService {
         name: `${payload.firstName} ${payload.lastName}`,
         email: payload.email,
         password: payload.password,
-        status: payload.status,
         roles,
         permissions,
         lang: LanguageEnum.EN,
@@ -109,7 +108,7 @@ export class UserService {
   async update(id: string, payload: UserUpdateRequestDto): Promise<User> {
     return this.dataSource.transaction(async (manager) => {
       const user = await manager.getRepository(User).findOne({
-        where: { id, isAdmin: true },
+        where: { id },
         relations: ['roles', 'profile', 'permissions'],
       });
 
@@ -135,7 +134,6 @@ export class UserService {
 
       user.name = `${payload.firstName} ${payload.lastName}`;
       user.email = payload.email;
-      user.status = payload.status;
       user.roles = roles;
       user.permissions = permissions;
 
@@ -166,7 +164,7 @@ export class UserService {
   ): Promise<User> {
     return this.dataSource.transaction(async (manager) => {
       const user = await manager.getRepository(User).findOne({
-        where: { id, isAdmin: true },
+        where: { id },
       });
 
       if (!user) {

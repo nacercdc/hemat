@@ -1,16 +1,10 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Language } from '@database/entities';
 import { QueryService } from '@shared/services';
 import {
   FindAllLanguageDto,
-  FindOneLanguageDto,
   LanguageCreateRequestDto,
   LanguageUpdateRequestDto,
 } from '../dtos';

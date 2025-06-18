@@ -72,7 +72,7 @@ export class User extends BaseEntityWithSoftDelete {
   @Column({
     type: 'enum',
     enum: UserStatusEnum,
-    default: UserStatusEnum.INACTIVE,
+    default: UserStatusEnum.ACTIVE,
   })
   status: UserStatusEnum;
 

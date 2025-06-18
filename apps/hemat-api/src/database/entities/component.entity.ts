@@ -66,6 +66,9 @@ export class Component extends BaseEntityWithSoftDelete {
   @JoinColumn({ name: 'domainId' })
   domain: Domain;
 
-  @OneToMany(() => SubComponent, (subComponent) => subComponent.component)
+  @OneToMany(() => SubComponent, (subComponent) => subComponent.component, {
+    cascade: true,
+    onDelete: 'CASCADE'
+  })
   subComponents: SubComponent[];
 }

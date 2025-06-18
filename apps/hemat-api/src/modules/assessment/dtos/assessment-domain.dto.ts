@@ -6,6 +6,16 @@ import { IsUnique } from '@shared/validators';
 
 export class AssessmentDomainDto {
   @ApiProperty({
+    description: 'ID of the domain',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @IsNotEmpty({ message: 'validation.id.isNotEmpty' })
+  @IsString({ message: 'validation.id.isString' })
+  @Type(() => String)
+  id: string;
+
+  @ApiProperty({
     description: 'Unique code of the domain',
     example: '1',
     minLength: 1,
@@ -19,6 +29,7 @@ export class AssessmentDomainDto {
     {
       tableName: 'assessment-domains',
       columns: ['code'],
+      exclude: 'id'
     },
     { message: 'validation.code.isUnique' },
   )
@@ -34,7 +45,7 @@ export class AssessmentDomainDto {
   @IsString({ message: 'validation.name.isString' })
   @Length(1, 100, { message: 'validation.name.length args: 1,100' })
   @IsUnique(
-    { tableName: 'assessment-domains', columns: ['name'] },
+    { tableName: 'assessment-domains', columns: ['name'], exclude: 'id' },
     { message: 'validation.name.isUnique' },
   )
   @Type(() => String)

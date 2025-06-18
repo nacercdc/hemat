@@ -20,6 +20,10 @@ import {
   FindAllAssessmentSubComponentDto,
 } from '../dtos';
 
+interface AssessmentComponentWithCounts extends AssessmentComponent {
+  subComponentsCount: number;
+}
+
 @Injectable()
 export class AssessmentComponentService {
   private readonly logger = new Logger(AssessmentComponentService.name);
@@ -78,18 +82,37 @@ export class AssessmentComponentService {
 
   async findAll(
     query: FindAllAssessmentComponentDto & { assessmentId: string },
-  ): Promise<FindAllResponseDto<AssessmentComponent>> {
-    return new QueryService<AssessmentComponent>(
-      this.assessmentComponentRepository,
-    )
-      .filter(this.filters(query), {
-        fields: ['code', 'name'],
-        value: query.search,
+  ): Promise<FindAllResponseDto<AssessmentComponentWithCounts>> {
+    const qb = this.assessmentComponentRepository
+      .createQueryBuilder('component')
+      .leftJoin('component.subComponents', 'subComponent')
+      .select([
+        'component.*',
+        'CAST(COUNT(DISTINCT subComponent.id) AS INTEGER) as "subComponentsCount"',
+      ])
+      .where('component.assessmentId = :assessmentId', {
+        assessmentId: query.assessmentId,
       })
-      .sort({ ascending: query.ascending, descending: query.descending })
-      .take(query.take)
-      .skip(query.skip)
-      .getManyAndCount();
+      .groupBy('component.id');
+
+    query.search && qb.andWhere('(component.code ILIKE :search OR component.name ILIKE :search)', {
+      search: `%${query.search}%`,
+    });
+
+    const sortFields = query.ascending?.length ? query.ascending : query.descending?.length ? query.descending : ['createdAt'];
+    const sortOrder = query.ascending?.length ? 'ASC' : 'DESC';
+    
+    sortFields.forEach(field => qb.addOrderBy(`component.${field}`, sortOrder));
+
+    const [components, total] = await Promise.all([
+      qb.skip(query.skip).take(query.take).getRawMany(),
+      qb.getCount(),
+    ]);
+
+    return {
+      data: components,
+      total,
+    };
   }
 
   async findOne(

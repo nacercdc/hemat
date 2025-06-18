@@ -7,10 +7,10 @@ import { AssessmentStatus } from '@shared/enums';
 
 export class FindAllAssessmentDto extends FindAllDto {
   @ApiPropertyOptional({
-    description: 'Comma-separated relations (e.g., user,country,members)',
+    description: 'Comma-separated relations (e.g., user,members)',
     type: String,
   })
-  @IsArrayContains(['user', 'country', 'members', 'groups'])
+  @IsArrayContains(['user', 'members', 'groups'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -57,7 +57,7 @@ export class FindOneAssessmentDto {
     description: 'Comma-separated relations (e.g., user,country)',
     type: String,
   })
-  @IsArrayContains(['user', 'country', 'members', 'groups'])
+  @IsArrayContains(['user', 'members', 'groups'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)

@@ -13,9 +13,11 @@ import {
   DomainCreateRequestDto,
   DomainUpdateRequestDto,
   FindAllComponentDto,
+  FindOneDomainDto,
 } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 import { Component } from '@database/entities';
+import { Not, IsNull } from 'typeorm';
 
 @Injectable()
 export class DomainService {
@@ -29,39 +31,39 @@ export class DomainService {
   ) {}
 
   async findAll(query: FindAllDomainDto): Promise<FindAllResponseDto<Domain>> {
-    try {
-      return await new QueryService<Domain>(this.domainRepository)
-        .join(query.include)
-        .filter(this.filters(query), {
-          fields: ['code', 'name'],
-          value: query.search,
-        })
-        .sort({ ascending: query.ascending, descending: query.descending })
-        .take(query.take)
-        .skip(query.skip)
-        .getManyAndCount();
-    } catch (err) {
-      this.logger.error('findAll:', err);
-      throw new BadRequestException('Failed to fetch domains.');
-    }
+    return new QueryService<Domain>(this.domainRepository)
+      .join(query.include)
+      .filter(this.filters(query), {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
-  async findOne(id: string): Promise<Domain & { componentsCount: number; subComponentsCount: number }> {
-    const domain = await this.domainRepository.findOne({ where: { id } });
+  async findOne(
+    id: string,
+    query: FindOneDomainDto,
+  ): Promise<Domain & { componentsCount: number; subComponentsCount: number }> {
+    const domain = await this.domainRepository.findOne({
+      where: { id },
+      relations: query.include,
+    });
 
     if (!domain) {
       throw new NotFoundException(`Domain ${id} not found.`);
     }
 
     const [componentsCount, subComponentsCount] = await Promise.all([
-      this.componentRepository.count({ where: { domainId: id } }),
-      this.componentRepository
-        .createQueryBuilder('component')
-        .innerJoin('component.subComponents', 'subComponent')
-        .where('component.domainId = :domainId', { domainId: id })
-        .select('COUNT(DISTINCT subComponent.id)', 'count')
-        .getRawOne()
-        .then(result => parseInt(result.count, 10) || 0),
+      this.componentRepository.count({
+        where: { domainId: id },
+      }),
+      this.componentRepository.count({
+        where: { domainId: id, subComponents: { id: Not(IsNull()) } },
+        relations: ['subComponents'],
+      }),
     ]);
 
     return {
@@ -92,6 +94,7 @@ export class DomainService {
   async delete(id: string): Promise<Domain> {
     const domain = await this.domainRepository.findOne({
       where: { id },
+      relations: ['components', 'components.subComponents'],
     });
 
     if (!domain) {
@@ -105,6 +108,7 @@ export class DomainService {
     const domain = await this.domainRepository.findOne({
       where: { id },
       withDeleted: true,
+      relations: ['components', 'components.subComponents'],
     });
 
     if (!domain) {
@@ -118,26 +122,28 @@ export class DomainService {
     id: string,
     query: FindAllComponentDto,
   ): Promise<FindAllResponseDto<Component>> {
-    try {
-      const domain = await this.domainRepository.findOne({ where: { id } });
-      if (!domain) {
-        throw new NotFoundException(`Domain ${id} not found.`);
-      }
-
-      return await new QueryService<Component>(this.componentRepository)
-        .filter(this.filters(query), {
-          fields: ['code', 'name'],
-          value: query.search,
-        })
-        .join(query.include)
-        .sort({ ascending: query.ascending, descending: query.descending })
-        .take(query.take)
-        .skip(query.skip)
-        .getManyAndCount();
-    } catch (err) {
-      this.logger.error('findComponentsByDomainId:', err);
-      throw new BadRequestException('Failed to fetch components.');
+    const domain = await this.domainRepository.findOne({ where: { id } });
+    if (!domain) {
+      throw new NotFoundException(`Domain ${id} not found.`);
     }
+
+    const filters = this.filters(query);
+    filters.push({
+      field: 'domainId',
+      operator: '=',
+      value: id,
+    });
+
+    return await new QueryService<Component>(this.componentRepository)
+      .filter(filters, {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
+      .join(query.include)
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   private filters(query: FindAllDomainDto): Filter[] {
