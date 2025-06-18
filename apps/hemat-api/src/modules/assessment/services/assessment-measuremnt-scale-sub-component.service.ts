@@ -15,6 +15,7 @@ import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
 import {
   AssessmentMeasurementScaleSubComponentDto,
+  AssessmentMeasurementScaleSubComponentUpdateDto,
   FindAllAssessmentMeasurementScaleSubComponentDto,
 } from '../dtos';
 
@@ -80,77 +81,68 @@ export class AssessmentMeasurementScaleSubComponentService {
 
   async findAll(
     query: FindAllAssessmentMeasurementScaleSubComponentDto,
-  ): Promise<FindAllResponseDto<AssessmentMeasurementScaleSubComponent>> {
-    return new QueryService<AssessmentMeasurementScaleSubComponent>(
+  ): Promise<FindAllResponseDto<AssessmentMeasurementScaleSubComponentDto>> {
+    const result = await new QueryService<AssessmentMeasurementScaleSubComponent>(
       this.assessmentMeasurementScaleSubComponentRepository,
-    )
-      .sort({ ascending: query.ascending, descending: query.descending })
-      .take(query.take)
-      .skip(query.skip)
-      .getManyAndCount();
+    ).getManyAndCount();
+
+    return {
+      data: result.data,
+      total: result.total,
+    };
   }
 
   async findOne(
     subComponentId: string,
     measurementScaleId: string,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
-    const subComponent = await this.assessmentSubComponentRepository.findOne({
-      where: { id: subComponentId },
+    const measurementScale = await this.assessmentMeasurementScaleSubComponentRepository.findOne({
+      where: {
+        subComponentId,
+        measurementScaleId,
+      },
     });
-    if (!subComponent) {
-      throw new NotFoundException(`Sub-component ${subComponentId} not found`);
-    }
 
-    const measurementScaleSubComponent =
-      await this.assessmentMeasurementScaleSubComponentRepository.findOne({
-        where: { subComponentId, measurementScaleId },
-        relations: ['measurementScale'],
-      });
-
-    if (!measurementScaleSubComponent) {
+    if (!measurementScale) {
       throw new NotFoundException(
-        `Measurement scale ${measurementScaleId} not found for sub-component ${subComponentId}`,
+        `Measurement scale with ID ${measurementScaleId} not found for sub-component ${subComponentId}`,
       );
     }
 
-    return measurementScaleSubComponent;
+    return measurementScale;
   }
 
   async update(
     subComponentId: string,
     measurementScaleId: string,
-    payload: AssessmentMeasurementScaleSubComponentDto,
+    payload: AssessmentMeasurementScaleSubComponentUpdateDto,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
-    try {
-      const measurementScaleSubComponent = await this.findOne(
-        subComponentId,
-        measurementScaleId,
-      );
+    const existingMeasurementScale = await this.findOne(subComponentId, measurementScaleId);
 
-      const updatedEntity = {
-        ...measurementScaleSubComponent,
-        description:
-          payload.description ?? measurementScaleSubComponent.description,
-        translations:
-          payload.translations ?? measurementScaleSubComponent.translations,
+    try {
+      const entity = {
+        description: payload.description,
+        translations: payload.translations,
       };
 
       await this.assessmentMeasurementScaleSubComponentRepository.update(
-        { subComponentId, measurementScaleId },
-        updatedEntity,
+        {
+          subComponentId,
+          measurementScaleId,
+        },
+        entity,
       );
 
-      return updatedEntity;
-    } catch (err) {
+      return {
+        ...existingMeasurementScale,
+        ...entity,
+      };
+    } catch (error) {
       this.loggerService.error(
-        `Failed to update assessment measurement scale sub-component for subComponentId: ${subComponentId}, measurementScaleId: ${measurementScaleId}`,
-        err.stack || err,
+        `Failed to update measurement scale ${measurementScaleId} for sub-component ${subComponentId}: ${error.message}`,
+        error.stack,
       );
-      throw err instanceof NotFoundException
-        ? err
-        : new BadRequestException(
-            'Failed to update assessment measurement scale sub-component',
-          );
+      throw new BadRequestException('Failed to update measurement scale');
     }
   }
 }

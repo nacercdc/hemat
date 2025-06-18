@@ -8,7 +8,6 @@ interface Props {
   isLeader?: boolean;
   avatarUrl?: string;
 }
-
 export default function GroupMemberCard({
   name,
   email,
@@ -32,7 +31,7 @@ export default function GroupMemberCard({
       {isLeader ? (
         <span className="text-xs font-bold items-center">Leader</span>
       ) : (
-        <span className="text-xs font-thin items-center">Member</span>
+        <span className="text-xs font-normal items-center">Member</span>
       )}
     </div>
   );

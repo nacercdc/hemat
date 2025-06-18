@@ -40,3 +40,23 @@ export class AssessmentMeasurementScaleSubComponentDto {
   @Type(() => MeasurementScaleSubComponentTranslationDto)
   translations: Record<string, MeasurementScaleSubComponentTranslationDto> = {};
 }
+
+export class AssessmentMeasurementScaleSubComponentUpdateDto {
+  @ApiProperty({
+    description: 'Description for this sub-component and scale combination',
+    example: 'Measurement scale for Initial',
+    type: String,
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Length(1, 500)
+  @Type(() => String)
+  description: string;
+
+  @ApiPropertyOptional({
+    description: 'Translations for the measurement scale sub-component',
+    type: () => MeasurementScaleSubComponentTranslationDto,
+  })
+  @Type(() => MeasurementScaleSubComponentTranslationDto)
+  translations: Record<string, MeasurementScaleSubComponentTranslationDto> = {};
+}

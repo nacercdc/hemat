@@ -113,6 +113,16 @@ export class AssessmentCreateRequestDto {
 }
 
 export class AssessmentUpdateRequestDto {
+  @ApiProperty({
+    description: 'ID of the assessment',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @IsNotEmpty({ message: 'validation.id.isNotEmpty' })
+  @IsString({ message: 'validation.id.isString' })
+  @Type(() => String)
+  id: string;
+
   @ApiPropertyOptional({
     description: 'Name of the assessment',
     example: 'HIE Governance Assessment 2025',
@@ -124,7 +134,7 @@ export class AssessmentUpdateRequestDto {
   @IsString({ message: 'validation.name.isString' })
   @Length(1, 100, { message: 'validation.name.length args: min:1 | max:100' })
   @IsUnique(
-    { tableName: 'assessments', columns: ['name'] },
+    { tableName: 'assessments', columns: ['name'], exclude: 'id' },
     { message: 'validation.name.isUnique' },
   )
   @Type(() => String)

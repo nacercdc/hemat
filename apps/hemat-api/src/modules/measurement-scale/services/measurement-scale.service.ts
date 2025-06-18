@@ -73,7 +73,7 @@ export class MeasurementScaleService {
       throw new NotFoundException(`Measurement scale ${id} not found.`);
     }
 
-    Object.assign(measurementScale, payload);
+    Object.assign(measurementScale, { ...payload, id });
     return await this.measurementScaleRepository.save(measurementScale);
   }
 

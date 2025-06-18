@@ -77,45 +77,36 @@ export class AssessmentDomainService {
   async findAll(
     query: FindAllAssessmentDomainDto & { assessmentId: string },
   ): Promise<FindAllResponseDto<AssessmentDomainWithCounts>> {
-    const domainQuery = new QueryService<AssessmentDomain>(
-      this.assessmentDomainRepository,
-    )
-      .filter(this.filters(query), {
-        fields: ['code', 'name'],
-        value: query.search,
+    const qb = this.assessmentDomainRepository
+      .createQueryBuilder('domain')
+      .leftJoin('domain.components', 'component')
+      .leftJoin('component.subComponents', 'subComponent')
+      .select([
+        'domain.*',
+        'CAST(COUNT(DISTINCT component.id) AS INTEGER) as "componentsCount"',
+        'CAST(COUNT(DISTINCT subComponent.id) AS INTEGER) as "subComponentsCount"',
+      ])
+      .where('domain.assessmentId = :assessmentId', {
+        assessmentId: query.assessmentId,
       })
-      .sort({ ascending: query.ascending, descending: query.descending })
-      .take(query.take)
-      .skip(query.skip);
+      .groupBy('domain.id');
+
+    query.search && qb.andWhere('(domain.code ILIKE :search OR domain.name ILIKE :search)', {
+      search: `%${query.search}%`,
+    });
+
+    const sortFields = query.ascending?.length ? query.ascending : query.descending?.length ? query.descending : ['createdAt'];
+    const sortOrder = query.ascending?.length ? 'ASC' : 'DESC';
+    
+    sortFields.forEach(field => qb.addOrderBy(`domain.${field}`, sortOrder));
 
     const [domains, total] = await Promise.all([
-      domainQuery.getMany(),
-      domainQuery.getManyAndCount().then((result) => result.total),
+      qb.skip(query.skip).take(query.take).getRawMany(),
+      qb.getCount(),
     ]);
 
-    const counts = await this.assessmentComponentRepository
-      .createQueryBuilder('component')
-      .select('component.domainId', 'domainId')
-      .addSelect('COUNT(DISTINCT component.id)', 'componentsCount')
-      .addSelect('COUNT(DISTINCT subComponent.id)', 'subComponentsCount')
-      .leftJoin('component.subComponents', 'subComponent')
-      .where('component.domainId IN (:...domainIds)', {
-        domainIds: domains.map((d) => d.id),
-      })
-      .groupBy('component.domainId')
-      .getRawMany();
-
     return {
-      data: domains.map((domain) => ({
-        ...domain,
-        componentsCount: parseInt(
-          counts.find((c) => c.domainId === domain.id)?.componentsCount || '0',
-        ),
-        subComponentsCount: parseInt(
-          counts.find((c) => c.domainId === domain.id)?.subComponentsCount ||
-            '0',
-        ),
-      })),
+      data: domains,
       total,
     };
   }

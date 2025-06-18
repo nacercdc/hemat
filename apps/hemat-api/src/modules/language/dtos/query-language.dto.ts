@@ -29,5 +29,3 @@ export class FindAllLanguageDto extends FindAllDto {
   @Transform(({ value }) => (value ? value.trim().split(',') : []))
   descending: string[] = [];
 }
-
-export class FindOneLanguageDto {}

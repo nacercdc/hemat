@@ -90,6 +90,15 @@ export class MeasurementScaleCreateRequestDto {
 
 export class MeasurementScaleUpdateRequestDto {
   @ApiPropertyOptional({
+    description: 'ID of the measurement scale',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @IsOptional()
+  @Type(() => String)
+  id?: string;
+
+  @ApiPropertyOptional({
     description: 'Name of the measurement scale',
     example: 'Initial',
     minLength: 1,
