@@ -77,7 +77,6 @@ export function MultiSelect<T>({
   };
 
   const handleChipRemove = (itemToRemove: T) => {
-    console.log(itemToRemove, "REmoeosm");
     const newValue = values?.filter(
       (selected: T) => get(selected, valueKey) !== get(itemToRemove, valueKey)
     );
@@ -107,7 +106,7 @@ export function MultiSelect<T>({
           >
             <div
               className={cn(
-                "mr-1 flex flex-1 items-center self-start overflow-x-auto ",
+                "mr-1 flex flex-1 items-center self-center overflow-x-auto",
                 values?.length === 0 && "text-basic-400"
               )}
             >
