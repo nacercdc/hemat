@@ -132,7 +132,26 @@ export function Administration() {
     }
   };
 
-  const onTabClickHandler = (tab: TabsType) => setActiveTab(tab);
+  const onRefetchHandler = async (key: string) => {
+    queryClient.removeQueries({
+      queryKey: [`${key}`],
+    });
+
+    await queryClient.invalidateQueries({
+      queryKey: [`${key}`],
+      refetchType: "active",
+    });
+  };
+
+  const onTabClickHandler = (tab: TabsType) => {
+    if (tab === "USERS") {
+      onRefetchHandler("/users");
+    }
+    if (tab === "ROLES") {
+      onRefetchHandler("/roles");
+    }
+    setActiveTab(tab);
+  };
 
   useEffect(() => {
     if (permissions?.data && permissionsState.isSuccess) {

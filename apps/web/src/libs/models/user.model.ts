@@ -29,7 +29,7 @@ export interface CreateUser {
   email: string;
   roleIds: string[];
   permissionsIds?: string[];
-  password: string;
+  password?: string;
   confirmPassword?: string;
 }
 
