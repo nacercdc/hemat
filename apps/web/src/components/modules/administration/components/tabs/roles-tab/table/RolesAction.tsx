@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useCallback, useRef } from "react";
+import React, { useRef } from "react";
 import { Dialog, DropdownMenu, Modal, useToast } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useQueryClient } from "@tanstack/react-query";
 import type { PermissionModule } from "../form";
 import { RoleForm } from "../form";
 import type { Permission } from "~/libs/models/permission.model";
-import { getPermissionIds } from "~/components/modules/administration/utils";
+import {
+  getPermissionIds,
+  rolePermissions,
+} from "~/components/modules/administration/utils";
 import type { DialogRef, ModalRef } from "@etm/web-ui-components";
 import type { PermissionType } from "~/components/modules/administration/types";
 import type { Role, UpdateRole } from "~/libs/models/role.model";
@@ -97,25 +100,6 @@ export default function RolesAction({
     );
   };
 
-  const rolePermissions = useCallback(() => {
-    let rolePerms: Record<
-      string,
-      Partial<Record<PermissionType, boolean>>
-    > = {};
-    role.permissions.forEach((perm) => {
-      const { action, subject } = perm;
-      rolePerms = {
-        ...rolePerms,
-        [subject]: {
-          ...rolePerms[subject],
-          [action]: true,
-        },
-      };
-    });
-
-    return rolePerms;
-  }, [role.permissions]);
-
   return (
     <>
       <DropdownMenu
@@ -159,7 +143,7 @@ export default function RolesAction({
       <Modal ref={updateRoleModalRef} title="Edit Role">
         <RoleForm
           onSubmitRoleFormHandler={onUpdateRoleFormSubmitHandler}
-          rolePermissions={rolePermissions()}
+          rolePermissions={rolePermissions(role.permissions)}
           modules={modules}
           onCloseModal={() => updateRoleModalRef.current?.closeModal()}
           onRefetch={onRefetch}
