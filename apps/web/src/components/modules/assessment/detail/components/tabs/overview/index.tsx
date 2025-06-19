@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useParams } from "next/navigation";
 import {
   Assessment,
-  AssessmentDetail,
   AssessmentsIncludeAble,
   StatusType,
 } from "~/libs/models/assessment.model";
@@ -14,9 +13,43 @@ import GroupsList from "../../members/GroupsList";
 import LabeledValue from "./components/LabeledValue";
 import MemberRoleCard from "../../members/MemberRoleCard";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
-import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { safeDate } from "~/utils/date.util";
-
+const groups = [
+  {
+    groupName: "Group A",
+    members: [
+      {
+        name: "Dr.Kebede Alemu",
+        email: "kebede@gmail.com",
+        isLeader: true,
+        avatarUrl: "http://path-that-goes-no-where.com",
+      },
+      {
+        name: "Sara Mengistu",
+        email: "sara@gmail.com",
+        isLeader: false,
+        avatarUrl: "http://path-that-goes-no-where.com",
+      },
+    ],
+  },
+  {
+    groupName: "Group B",
+    members: [
+      {
+        name: "Tadesse Worku",
+        email: "tadesse@gmail.com",
+        isLeader: true,
+        avatarUrl: "http://path-that-goes-no-where.com",
+      },
+      {
+        name: "Hanna Bekele",
+        email: "hanna@gmail.com",
+        isLeader: false,
+        avatarUrl: "http://path-that-goes-no-where.com",
+      },
+    ],
+  },
+];
 export default function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
     Draft: "dark",
@@ -26,7 +59,6 @@ export default function AssessmentOverview() {
     "In-Progress": "progress",
     Completed: "success",
   };
-  const [assessmentData, setAssessmentData] = useState<Assessment>();
   const params = useParams();
   const assessmentId = params.id;
   const { data: assessment, ...assessmentState } = useFindById<
@@ -35,13 +67,9 @@ export default function AssessmentOverview() {
   >({
     path: `assessments/${assessmentId}`,
     queries: {
-      include: ["user"],
+      include: ["user", "country", "members", "groups"],
     },
   });
-  const { mutate: detailAssessment, ...detailAssessmentState } = usePutMutation<
-    Assessment,
-    AssessmentDetail
-  >(`assessments/${assessmentId}`);
 
   if (assessmentState.isLoading) {
     return <SkeletonForDetail />;
@@ -68,7 +96,7 @@ export default function AssessmentOverview() {
               label="Created By :"
               value={`${assessment?.user.name} `}
             />
-            <LabeledValue label="Country :" value={assessment?.countryCode} />
+            <LabeledValue label="Country :" value={assessment?.country.name} />
             <LabeledValue
               label="Organization :"
               value={assessment?.organization ?? "----"}
@@ -97,17 +125,22 @@ export default function AssessmentOverview() {
         </div>
       </div>
       <div className="flex-1 bg-dark-lighter/5 p-2 rounded-sm gap-2 flex flex-col">
-        <MemberRoleCard
-          title="Groups Leader"
-          icon="meteor-icons:user"
-          placeholderText="Group leader here"
-        />
-        <MemberRoleCard
-          title="Team Leader"
-          icon="mdi:group-add-outline"
-          placeholderText="Team leader here"
-        />
-        <GroupsList />
+        {assessment?.groups?.length != 0 ? (
+          <GroupsList groups={assessment?.groups} />
+        ) : (
+          <div className="flex flex-col gap-2 w-full">
+            <MemberRoleCard
+              title="Groups Leader"
+              icon="meteor-icons:user"
+              placeholderText="Group leader here"
+            />
+            <MemberRoleCard
+              title="Team Leader"
+              icon="mdi:group-add-outline"
+              placeholderText="Team leader here"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

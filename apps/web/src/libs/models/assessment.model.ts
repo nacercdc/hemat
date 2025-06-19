@@ -5,12 +5,23 @@ export interface User {
   name: string;
 }
 
-//Temporary dummy Country interface
 export interface Country {
   name: string;
+  emojiU: symbol | string;
 }
 
-//Temporary dummy Status type
+export interface GroupMember {
+  name: string;
+  email: string;
+  isLeader: boolean;
+  avatarUrl: string;
+}
+
+export interface Group {
+  groupName: string;
+  members: GroupMember[];
+}
+
 export type StatusType =
   | "Draft"
   | "Pending"
@@ -23,14 +34,17 @@ export interface Assessment {
   id: number;
   name: string;
   user: User;
+  country: Country;
   startDate: Date | undefined;
   endDate: Date | undefined;
   countryCode: string;
   status: StatusType;
   createdAt: string;
   organization?: string;
-  languages?: Language;
   description?: string;
+  languages?: Language[];
+  members?: User[];
+  groups?: Group[];
 }
 
 export interface AssessmentCreate {
@@ -61,13 +75,12 @@ export interface AssessmentDetail {
   endDate: Date;
   organization?: string;
   countryCode: string;
-  languages?: string[];
   description?: string;
 }
 
 export type AssessmentFilterable = "rate";
 export type AssessmentSortable = "createdAt" | "rate" | "name" | "color";
-export type AssessmentsIncludeAble = "user";
+export type AssessmentsIncludeAble = "user" | "country" | "members" | "groups";
 
 export type AssessmentSorts = Sort<AssessmentSortable>[];
 export type AssessmentFilters = Filter<AssessmentFilterable>[];
