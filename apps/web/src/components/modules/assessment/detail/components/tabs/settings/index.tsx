@@ -3,9 +3,9 @@ import React from "react";
 import { SecondaryTabs } from "@etm/web-ui-components";
 
 import { Domain } from "./components/tabs/domains";
-import { ComponentsTab } from "./components/tabs/components-tab";
 import SubComponents from "./components/tabs/subComponents";
 import MeasurementScales from "./components/tabs/measurement-scales";
+import ComponentsTab from "./components/tabs/components-tab";
 
 export function Settings() {
   return (

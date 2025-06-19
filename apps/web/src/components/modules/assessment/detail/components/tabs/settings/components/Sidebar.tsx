@@ -43,7 +43,7 @@ export function Sidebar<T extends Record<string, any>>({
     : [];
 
   return (
-    <div className="flex flex-col gap-3 w-full md:w-1/4 overflow-y-auto bg-basic-200/30 p-3 rounded-l-sm">
+    <div className="flex flex-col gap-3 w-full md:w-1/4 overflow-y-auto bg-basic-200/30 md:p-3 px-0 py-3 rounded-l-sm">
       {sortedGroups.length > 0 ? (
         sortedGroups.map(([groupKey, items], groupIndex) => (
           <div key={groupKey} className="flex flex-col gap-2">
