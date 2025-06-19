@@ -4,16 +4,15 @@ import {
   Index,
   ManyToOne,
   JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Assessment } from './assessment.entity';
 import { AssessmentGroup } from './assessment-group.entity';
 import { User } from './user.entity';
-import { AnswerStatus, AssessmentStatus } from '@shared/enums';
+import { AnswerStatus } from '@shared/enums';
 import { BaseEntityWithSoftDelete } from './entity';
+import { AssessmentSubComponentRoadmap } from './assessment-sub-component-roadmap.entity';
 
 @Entity('answers')
 export class Answer extends BaseEntityWithSoftDelete {
@@ -87,4 +86,7 @@ export class Answer extends BaseEntityWithSoftDelete {
   })
   @Column({ type: 'float', default: 0.0 })
   percentage: number;
+
+  @OneToMany(() => AssessmentSubComponentRoadmap, (roadmap) => roadmap.answer)
+  roadmaps: AssessmentSubComponentRoadmap[];
 }

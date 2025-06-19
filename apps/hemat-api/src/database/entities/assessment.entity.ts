@@ -13,7 +13,6 @@ import { BaseEntityWithSoftDelete } from './entity';
 import { Response } from './response.entity';
 import { AssessmentSubComponent } from './assessment-sub-component.entity';
 import { AssessmentMember } from './assessment-member.entity';
-import { AssessmentAnswer } from './assessment-answer.entity';
 import { User } from './user.entity';
 import { Report } from './report.entity';
 import { Invitation } from './invitation.entity';
@@ -157,8 +156,8 @@ export class Assessment extends BaseEntityWithSoftDelete {
   )
   groups: AssessmentGroup[] | null;
 
-  @OneToMany(() => AssessmentAnswer, (answers) => answers.assessment)
-  answers: AssessmentAnswer[] | null;
+  @OneToMany(() => Answer, (answers) => answers.assessment)
+  answers: Answer[] | null;
 
   @OneToMany(() => Invitation, (invitation) => invitation.assessment)
   invitations: Invitation[] | null;

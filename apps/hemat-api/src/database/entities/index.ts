@@ -1,5 +1,4 @@
 export * from './answer.entity';
-export * from './assessment-answer.entity';
 export * from './assessment-component.entity';
 export * from './assessment-domain.entity';
 export * from './assessment-group.entity';
@@ -7,6 +6,7 @@ export * from './assessment-measurement-scale.entity';
 export * from './assessment-measurement-scale-sub-component.entity';
 export * from './assessment-member.entity';
 export * from './assessment-sub-component-answer.entity';
+export * from './assessment-sub-component-roadmap.entity';
 export * from './assessment-sub-component.entity';
 export * from './assessment.entity';
 export * from './comment.entity';
