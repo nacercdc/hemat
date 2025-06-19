@@ -1,41 +1,33 @@
-import { EntityManager } from 'typeorm';
-import {
-  AssessmentSubComponent,
-  AssessmentSubComponentAnswer,
-} from '@database/entities';
+import { DataSource } from 'typeorm';
+import { AssessmentSubComponentAnswer, AssessmentSubComponentRoadmap, AssessmentSubComponent } from '@database/entities';
 
-/**
- * Utility class for calculating the completion percentage of an answer.
- */
 export class PercentageUtil {
-  /**
-   * Calculates the percentage of sub-components filled for a specific answer.
-   * @param assessmentId The ID of the assessment.
-   * @param answerId The ID of the answer.
-   * @param manager The TypeORM entity manager (optional, defaults to transaction manager).
-   * @returns The percentage (0-100) of filled sub-components.
-   */
   static async calculatePercentage(
     assessmentId: string,
-    answerId: string,
-    manager: EntityManager,
+    entityId: string,
+    manager: DataSource['manager'],
+    entityType: 'Answer' | 'Roadmap',
   ): Promise<number> {
-    // Count total sub-components for the assessment
+    // Count total subcomponents for the assessment
     const totalSubComponents = await manager.count(AssessmentSubComponent, {
       where: { assessmentId },
     });
 
-    // Count filled sub-components for the specific answer
-    const filledSubComponents = await manager.count(
-      AssessmentSubComponentAnswer,
+    // If no subcomponents exist, return 0 to avoid division by zero
+    if (totalSubComponents === 0) {
+      return 0;
+    }
+
+    // Count answered subcomponents for the given entity
+    const answeredSubComponents = await manager.count(
+      entityType === 'Answer' ? AssessmentSubComponentAnswer : AssessmentSubComponentRoadmap,
       {
-        where: { answerId },
+        where: { [entityType === 'Answer' ? 'answerId' : 'roadmapId']: entityId },
       },
     );
 
-    // Return 0 if no sub-components exist, otherwise calculate percentage
-    return totalSubComponents === 0
-      ? 0
-      : (filledSubComponents / totalSubComponents) * 100;
+    // Calculate percentage (answered / total * 100), capped at 100, rounded to 2 decimal places
+    const percentage = Math.min((answeredSubComponents / totalSubComponents) * 100, 100);
+    return Math.round(percentage * 100) / 100; // e.g., 33.33, 66.67, 100.00
   }
 }
