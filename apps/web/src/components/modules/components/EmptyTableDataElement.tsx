@@ -5,8 +5,8 @@ import { Button } from "@etm/web-ui-components";
 interface Props {
   icon: React.ReactNode;
   title: string;
-  body: string;
-  actionText: string;
+  body?: string;
+  actionText?: string;
   action?: () => void;
 }
 
@@ -23,15 +23,17 @@ export function EmptyTableDataElement({
         {icon}
       </div>
       <h6 className="text-secondary text-sm">{title}</h6>
-      <h6 className="text-dark-light text-sm text-center">{body}</h6>
-      <Button
-        size="lg"
-        variant="outline"
-        leftNode={<Icon icon="si:add-fill" />}
-        onClick={action}
-      >
-        {actionText}
-      </Button>
+      {body && <h6 className="text-dark-light text-sm text-center">{body}</h6>}
+      {actionText && action && (
+        <Button
+          size="lg"
+          variant="outline"
+          leftNode={<Icon icon="si:add-fill" />}
+          onClick={action}
+        >
+          {actionText}
+        </Button>
+      )}
     </div>
   );
 }

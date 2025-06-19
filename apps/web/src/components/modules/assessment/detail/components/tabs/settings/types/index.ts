@@ -1,11 +1,3 @@
-export interface AssessmentDomain {
-  id: string;
-  name: string;
-  code: string;
-  description: string;
-  assessmentId: string;
-}
-
 export interface AssessmentComponent {
   id: string;
   name: string;

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Icon } from "@iconify/react";
 import { cn } from "~/utils/cn.util";
+import { SidebarSkeleton } from "./SidebarSkeleton";
 
 interface Props<T> {
   activeItem: T | null;
@@ -8,6 +9,7 @@ interface Props<T> {
   onItemSelect: (item: T) => void;
   displayKey: keyof T;
   groupByKey?: keyof T;
+  isLoading?: boolean;
 }
 
 export function Sidebar<T extends Record<string, any>>({
@@ -16,10 +18,11 @@ export function Sidebar<T extends Record<string, any>>({
   onItemSelect,
   groupByKey,
   displayKey,
+  isLoading = false,
 }: Props<T>) {
-  const onEditClickHandler = (_id: string) => {
-    // TODO handle editing logic
-  };
+  if (isLoading) {
+    return <SidebarSkeleton />;
+  }
 
   const groupedItems = list?.reduce(
     (acc, item) => {
@@ -54,13 +57,8 @@ export function Sidebar<T extends Record<string, any>>({
                   )}
                   onClick={() => onItemSelect(item)}
                 >
-                  <div className="text-sm font-medium flex gap-2">
+                  <div className="text-sm font-medium flex">
                     {item[displayKey] as string}
-                    <Icon
-                      icon="circum:edit"
-                      className="w-5 h-5"
-                      onClick={() => onEditClickHandler(item.id)}
-                    />
                   </div>
                   <Icon
                     icon="ion:chevron-forward-outline"
@@ -83,7 +81,10 @@ export function Sidebar<T extends Record<string, any>>({
           </div>
         ))
       ) : (
-        <div>No items found</div>
+        //TODO: Replace with empty placeholder when no items are found
+        <div className="w-full h-full items-center justify-center flex text-center text-lg text-dark-light">
+          No items found
+        </div>
       )}
     </div>
   );
