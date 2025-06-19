@@ -13,6 +13,7 @@ import { Report } from './report.entity';
 import { AssessmentMember } from './assessment-member.entity';
 import { Invitation } from './invitation.entity';
 import { Assessment } from './assessment.entity';
+import { Answer } from './answer.entity';
 
 @Entity('assessment_groups')
 @Unique(['name', 'assessmentId'])
@@ -46,4 +47,11 @@ export class AssessmentGroup extends BaseEntityWithSoftDelete {
 
   @OneToMany(() => Report, (reports) => reports.assessment_groups)
   reports: Report[] | null;
+
+  @ApiProperty({
+    description: 'Assessment answers associated with this group',
+    type: () => [Answer],
+  })
+  @OneToMany(() => Answer, (answer) => answer.group)
+  answers: Answer[] | null;
 }

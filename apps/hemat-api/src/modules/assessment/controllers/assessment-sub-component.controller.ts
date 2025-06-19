@@ -21,7 +21,10 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AssessmentSubComponent, AssessmentAnswer } from '@database/entities';
+import {
+  AssessmentSubComponent,
+  AssessmentSubComponentAnswer,
+} from '@database/entities';
 import { AuthGuard, Abilities } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
@@ -153,7 +156,7 @@ export class AssessmentSubComponentController {
   })
   @ApiOkResponse({
     description: 'Ok',
-    type: FindAllResponseDto<AssessmentAnswer>,
+    type: FindAllResponseDto<AssessmentSubComponentAnswer>,
   })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
@@ -172,8 +175,8 @@ export class AssessmentSubComponentController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Request() req: { user: AuthDto },
     @Query() query: FindAllAssessmentAnswerDto,
-  ): Promise<FindAllResponseDto<AssessmentAnswer>> {
-    return this.assessmentAnswerService.findAllBySubComponent(
+  ): Promise<FindAllResponseDto<AssessmentSubComponentAnswer>> {
+    return this.assessmentSubComponentService.findAllBySubComponent(
       id,
       req.user.id,
       query,

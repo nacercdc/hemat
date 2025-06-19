@@ -14,9 +14,9 @@ import { Profile } from './profile.entity';
 import { Role } from './role.entity';
 import { Permission } from './permission.entity';
 import { AssessmentMember } from './assessment-member.entity';
-import { AssessmentAnswer } from './assessment-answer.entity';
 import { Assessment } from './assessment.entity';
 import { Report } from './report.entity';
+import { Answer } from './answer.entity';
 
 @Entity('users')
 export class User extends BaseEntityWithSoftDelete {
@@ -140,8 +140,8 @@ export class User extends BaseEntityWithSoftDelete {
   )
   assessmentMembers: AssessmentMember[] | null;
 
-  @OneToMany(() => AssessmentAnswer, (answer) => answer.user)
-  answers: AssessmentAnswer[] | null;
+  @OneToMany(() => Answer, (answer) => answer.user)
+  answers: Answer[] | null;
 
   @OneToMany(() => Assessment, (assessment) => assessment.user)
   assessments: Assessment[] | null;
