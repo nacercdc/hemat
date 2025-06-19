@@ -1,7 +1,7 @@
 import { InputRHF, TextAreaRHF, Accordion } from "@etm/web-ui-components";
 import type { Language } from "~/libs/models/language.model";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
-import type { SubComponentFormData } from "./Content";
+import type { SubComponentFormData } from "./SubComponentsForm";
 
 interface FieldConfig {
   key: "code" | "name" | "description";

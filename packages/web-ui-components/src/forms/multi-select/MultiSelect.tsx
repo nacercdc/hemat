@@ -77,7 +77,6 @@ export function MultiSelect<T>({
   };
 
   const handleChipRemove = (itemToRemove: T) => {
-    console.log(itemToRemove, "REmoeosm");
     const newValue = values?.filter(
       (selected: T) => get(selected, valueKey) !== get(itemToRemove, valueKey)
     );

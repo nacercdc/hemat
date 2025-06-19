@@ -35,12 +35,6 @@ export function AssessmentDetail() {
               label: "Detail",
               content: <AssessmentOverview />,
             },
-
-            {
-              value: "setting",
-              label: "Setting",
-              content: <AssessmentOverview />,
-            },
             {
               value: "member",
               label: "Member",

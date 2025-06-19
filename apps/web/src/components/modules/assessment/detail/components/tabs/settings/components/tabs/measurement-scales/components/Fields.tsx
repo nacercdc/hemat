@@ -21,14 +21,6 @@ interface Props {
 export function Fields({ control, selectedLanguages, watch, errors }: Props) {
   const fields: FieldConfig[] = [
     {
-      key: "code",
-      label: "Code",
-      placeholder: (lang) =>
-        `Write code in ${lang.name || lang.native || lang.code}`,
-      Component: InputRHF,
-      props: { size: "xl", labelVariant: "bold" },
-    },
-    {
       key: "name",
       label: "Name",
       placeholder: (lang) =>

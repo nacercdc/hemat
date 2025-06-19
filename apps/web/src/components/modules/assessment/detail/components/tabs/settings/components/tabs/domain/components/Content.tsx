@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { Button, MultiSelectRHF } from "@etm/web-ui-components";
@@ -8,7 +9,7 @@ import { useEffect, useCallback } from "react";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { Language } from "~/libs/models/language.model";
-import type { Domain } from "../../../../types";
+import type { AssessmentDomain } from "../../../../types";
 import { Fields } from "./Fields";
 
 export const domainFormSchema = z
@@ -53,7 +54,7 @@ export const domainFormSchema = z
 export type DomainFormData = z.infer<typeof domainFormSchema>;
 
 interface Props {
-  activeDomain: Domain | null;
+  activeDomain: AssessmentDomain | null;
 }
 
 export function Content({ activeDomain }: Props) {
@@ -67,7 +68,7 @@ export function Content({ activeDomain }: Props) {
     (languages?.data as unknown as Language[]) ?? [];
 
   const getDefaultTranslations = useCallback(
-    (domain: Domain | null) => {
+    (domain: AssessmentDomain | null) => {
       const translations: Record<
         string,
         { name: string; description: string; code: string }
@@ -162,7 +163,7 @@ export function Content({ activeDomain }: Props) {
         selectedLanguages: defaultLang ? [defaultLang] : [],
       });
     }
-  }, [activeDomain, languageOptions, reset, getDefaultTranslations]);
+  }, [activeDomain, languages, reset, getDefaultTranslations]);
 
   return (
     <div className="flex flex-col w-full md:w-3/4 h-fit bg-card border border-secondary-300 rounded-r-sm">

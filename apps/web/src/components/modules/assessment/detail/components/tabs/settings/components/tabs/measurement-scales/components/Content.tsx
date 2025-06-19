@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { Button, MultiSelectRHF } from "@etm/web-ui-components";
@@ -8,7 +9,7 @@ import { useEffect, useCallback } from "react";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { Language } from "~/libs/models/language.model";
-import type { Domain as MeasurementScale } from "../../../../types";
+import type { AssessmentMeasurementScale } from "../../../../types";
 import { Fields } from "./Fields";
 
 export const measurementScaleFormSchema = z
@@ -55,7 +56,7 @@ export type MeasurementScaleFormData = z.infer<
 >;
 
 interface Props {
-  activeMeasurementScale: MeasurementScale | null;
+  activeMeasurementScale: AssessmentMeasurementScale | null;
 }
 
 export function Content({ activeMeasurementScale }: Props) {
@@ -69,7 +70,7 @@ export function Content({ activeMeasurementScale }: Props) {
     (languages?.data as unknown as Language[]) ?? [];
 
   const getDefaultTranslations = useCallback(
-    (measurementScale: MeasurementScale | null) => {
+    (measurementScale: AssessmentMeasurementScale | null) => {
       const translations: Record<
         string,
         { name: string; description: string; code: string }
@@ -169,7 +170,7 @@ export function Content({ activeMeasurementScale }: Props) {
         selectedLanguages: defaultLang ? [defaultLang] : [],
       });
     }
-  }, [activeMeasurementScale, languageOptions, reset, getDefaultTranslations]);
+  }, [activeMeasurementScale, languages, reset, getDefaultTranslations]);
 
   return (
     <div className="flex flex-col w-full md:w-3/4 h-fit bg-card border border-secondary-300 rounded-r-sm">
