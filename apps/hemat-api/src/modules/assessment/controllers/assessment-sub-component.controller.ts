@@ -23,7 +23,6 @@ import {
 } from '@nestjs/swagger';
 import {
   AssessmentSubComponent,
-  AssessmentAnswer,
   AssessmentSubComponentAnswer,
 } from '@database/entities';
 import { AuthGuard, Abilities } from '@shared/modules';
@@ -157,7 +156,7 @@ export class AssessmentSubComponentController {
   })
   @ApiOkResponse({
     description: 'Ok',
-    type: FindAllResponseDto<AssessmentAnswer>,
+    type: FindAllResponseDto<AssessmentSubComponentAnswer>,
   })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)

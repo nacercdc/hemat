@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Put,
-  Delete,
   Param,
   Body,
   Query,
@@ -67,7 +66,7 @@ export class AssessmentAnswerController {
   @ApiOperation({
     summary: 'Find all assessment answers',
     description:
-      'Get all answers for a specific assessment submitted by the authenticated user or all answers for TEAM_LEADER',
+      'Get all answers for a specific assessment submitted by the authenticated user or all answers for TEAM_LEADER or PRIMARY',
   })
   @ApiOkResponse({
     description: 'Ok',
@@ -100,7 +99,7 @@ export class AssessmentAnswerController {
   @ApiOperation({
     summary: 'Find one assessment answer',
     description:
-      'Get an assessment answer by ID submitted by the authenticated user or accessible by TEAM_LEADER',
+      'Get an assessment answer by ID submitted by the authenticated user or accessible by TEAM_LEADER or PRIMARY',
   })
   @ApiOkResponse({ description: 'Ok', type: Answer })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -132,11 +131,15 @@ export class AssessmentAnswerController {
   @ApiOperation({
     summary: 'Create an assessment answer',
     description:
-      'Create a new assessment answer for the authenticated user (PRIMARY or TEAM_LEADER)',
+      'Create a new assessment answer for the authenticated user (PRIMARY or TEAM_LEADER only)',
   })
   @ApiCreatedResponse({ description: 'Created', type: Answer })
   @ApiBadRequestResponse({
     description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden: Only Primary or Team Leader roles can submit',
     type: ExceptionResponseDto,
   })
   @HttpCode(HttpStatus.CREATED)
@@ -164,12 +167,16 @@ export class AssessmentAnswerController {
   @ApiOperation({
     summary: 'Update an assessment answer',
     description:
-      'Update an assessment answer by ID for the authenticated user (PRIMARY or TEAM_LEADER)',
+      'Update an assessment answer by ID for the authenticated user (PRIMARY or TEAM_LEADER only)',
   })
   @ApiOkResponse({ description: 'Ok', type: Answer })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @ApiBadRequestResponse({
     description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden: Only Primary or Team Leader roles can update',
     type: ExceptionResponseDto,
   })
   @HttpCode(HttpStatus.OK)

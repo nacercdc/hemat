@@ -2,10 +2,15 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { Answer, AssessmentSubComponentAnswer } from '@database/entities';
+import {
+  Answer,
+  AssessmentSubComponentAnswer,
+  AssessmentSubComponent,
+} from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
 import { MemberRole, AnswerStatus } from '@shared/enums';
@@ -43,8 +48,9 @@ export class AssessmentAnswerService {
       .skip(query.skip)
       .filter([{ field: 'assessmentId', operator: '=', value: assessmentId }]);
 
-    if (role !== MemberRole.TEAM_LEADER)
+    if (role !== MemberRole.TEAM_LEADER && role !== MemberRole.PRIMARY) {
       queryService.filter([{ field: 'userId', operator: '=', value: userId }]);
+    }
 
     return queryService.getManyAndCount();
   }
@@ -64,8 +70,9 @@ export class AssessmentAnswerService {
       .join(query.include)
       .filter([{ field: 'id', operator: '=', value: id }]);
 
-    if (role !== MemberRole.TEAM_LEADER)
+    if (role !== MemberRole.TEAM_LEADER && role !== MemberRole.PRIMARY) {
       queryService.filter([{ field: 'userId', operator: '=', value: userId }]);
+    }
 
     const answer = await queryService.getOne();
     if (!answer) throw new NotFoundException(`Answer ${id} not found`);
@@ -83,13 +90,41 @@ export class AssessmentAnswerService {
         userId,
         manager,
       );
+
+      // Restrict submission to Primary or Team Leader roles
+      if (
+        member.role !== MemberRole.PRIMARY &&
+        member.role !== MemberRole.TEAM_LEADER
+      ) {
+        throw new ForbiddenException(
+          'Only Primary or Team Leader roles can submit answers',
+        );
+      }
+
       const isPrimary = payload.isPrimary ?? false;
-      const validatedPayload = { ...payload, isPrimary };
+
+      // Validate that Primary role users can submit with isPrimary=true, others cannot
+      if (isPrimary && member.role !== MemberRole.PRIMARY) {
+        throw new BadRequestException(
+          'Only Primary role can submit primary answers',
+        );
+      }
+
+      // Validate that subComponentId belongs to the assessmentId
+      const subComponent = await manager.findOne(AssessmentSubComponent, {
+        where: { id: payload.subComponentId, assessmentId },
+      });
+      if (!subComponent) {
+        throw new BadRequestException(
+          `Sub-component ${payload.subComponentId} does not belong to assessment ${assessmentId}`,
+        );
+      }
+
       await this.validator.validateCreate(
         assessmentId,
         userId,
         member,
-        validatedPayload,
+        { ...payload, isPrimary },
         manager,
       );
 
@@ -109,7 +144,8 @@ export class AssessmentAnswerService {
         await manager.save(Answer, answer);
       }
 
-      const existingSubComponentAnswer = await manager.findOne(
+      // Check if the subcomponent is already answered for this answer
+      let subComponentAnswer = await manager.findOne(
         AssessmentSubComponentAnswer,
         {
           where: {
@@ -118,26 +154,34 @@ export class AssessmentAnswerService {
           },
         },
       );
-      if (existingSubComponentAnswer) {
-        throw new BadRequestException(
-          `Sub-component ${payload.subComponentId} already answered for this answer`,
-        );
+
+      if (subComponentAnswer) {
+        // Update existing subcomponent answer (upsert behavior)
+        Object.assign(subComponentAnswer, {
+          measurementScaleId: payload.measurementScaleId,
+          evidence: payload.evidence,
+          reference: payload.reference,
+          notes: payload.notes,
+        });
+      } else {
+        // Create new subcomponent answer
+        subComponentAnswer = manager.create(AssessmentSubComponentAnswer, {
+          subComponentId: payload.subComponentId,
+          measurementScaleId: payload.measurementScaleId,
+          answerId: answer.id,
+          evidence: payload.evidence,
+          reference: payload.reference,
+          notes: payload.notes,
+        });
       }
 
-      const subComponentAnswer = manager.create(AssessmentSubComponentAnswer, {
-        subComponentId: payload.subComponentId,
-        measurementScaleId: payload.measurementScaleId,
-        answerId: answer.id,
-        evidence: payload.evidence,
-        reference: payload.reference,
-        notes: payload.notes,
-      });
       await manager.save(AssessmentSubComponentAnswer, subComponentAnswer);
 
       answer.percentage = await PercentageUtil.calculatePercentage(
         assessmentId,
         answer.id,
         manager,
+        'Answer',
       );
       answer.status =
         answer.percentage === 100
@@ -166,6 +210,40 @@ export class AssessmentAnswerService {
         userId,
         manager,
       );
+
+      // Restrict updates to Primary or Team Leader roles
+      if (
+        member.role !== MemberRole.PRIMARY &&
+        member.role !== MemberRole.TEAM_LEADER
+      ) {
+        throw new ForbiddenException(
+          'Only Primary or Team Leader roles can update answers',
+        );
+      }
+
+      // Validate that Primary role users can update isPrimary, others cannot
+      if (
+        payload.isPrimary !== undefined &&
+        member.role !== MemberRole.PRIMARY &&
+        payload.isPrimary
+      ) {
+        throw new BadRequestException(
+          'Only Primary role can update primary answers',
+        );
+      }
+
+      // Validate that subComponentId belongs to the assessmentId if provided
+      if (payload.subComponentId) {
+        const subComponent = await manager.findOne(AssessmentSubComponent, {
+          where: { id: payload.subComponentId, assessmentId },
+        });
+        if (!subComponent) {
+          throw new BadRequestException(
+            `Sub-component ${payload.subComponentId} does not belong to assessment ${assessmentId}`,
+          );
+        }
+      }
+
       await this.validator.validateUpdate(id, member, payload);
 
       if (payload.isPrimary !== undefined) {
@@ -208,6 +286,7 @@ export class AssessmentAnswerService {
         assessmentId,
         answer.id,
         manager,
+        'Answer',
       );
       answer.status =
         answer.percentage === 100

@@ -62,8 +62,15 @@ import {
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
-  @ApiOperation({ summary: 'Get all roadmaps' })
-  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Roadmap> })
+  @ApiOperation({
+    summary: 'Find all roadmaps',
+    description:
+      'Get all roadmaps for a specific assessment by the authenticated user (Primary role only)',
+  })
+  @ApiOkResponse({
+    description: 'Ok',
+    type: FindAllResponseDto,
+  })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
   @Abilities({
@@ -78,13 +85,17 @@ export class RoadmapController {
   @Get()
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Query() query: FindAllRoadmapDto,
     @Request() req: { user: AuthDto },
+    @Query() query: FindAllRoadmapDto,
   ): Promise<FindAllResponseDto<Roadmap>> {
-    return this.roadmapService.findAll(assessmentId, query);
+    return this.roadmapService.findAll(assessmentId, req.user.id, query);
   }
 
-  @ApiOperation({ summary: 'Get a roadmap by id' })
+  @ApiOperation({
+    summary: 'Find one roadmap',
+    description:
+      'Get a roadmap by ID for the authenticated user (Primary role only)',
+  })
   @ApiOkResponse({ description: 'Ok', type: Roadmap })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
@@ -101,21 +112,28 @@ export class RoadmapController {
   async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Query() query: FindOneRoadmapDto,
     @Request() req: { user: AuthDto },
+    @Query() query: FindOneRoadmapDto,
   ): Promise<Roadmap> {
-    return this.roadmapService.findOne(assessmentId, id, query);
+    return this.roadmapService.findOne(assessmentId, req.user.id, id, query);
   }
 
-  @ApiOperation({ summary: 'Create a roadmap' })
+  @ApiOperation({
+    summary: 'Create a roadmap',
+    description:
+      'Create a new roadmap for the authenticated user (Primary role only)',
+  })
   @ApiCreatedResponse({ description: 'Created', type: Roadmap })
   @ApiBadRequestResponse({
     description: 'Bad Request',
     type: ExceptionResponseDto,
   })
+  @ApiForbiddenResponse({
+    description: 'Forbidden: Only Primary role can submit',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.CREATED)
   @Abilities({
-    isAdmin: true,
     permissions: [
       {
         action: PermissionActionEnum.CREATE,
@@ -126,17 +144,25 @@ export class RoadmapController {
   @Post()
   async create(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Body() payload: RoadmapCreateRequestDto,
     @Request() req: { user: AuthDto },
+    @Body() payload: RoadmapCreateRequestDto,
   ): Promise<Roadmap> {
-    return this.roadmapService.create(assessmentId, payload, req.user.id);
+    return this.roadmapService.create(assessmentId, req.user.id, payload);
   }
 
-  @ApiOperation({ summary: 'Update a roadmap' })
+  @ApiOperation({
+    summary: 'Update a roadmap',
+    description:
+      'Update a roadmap by ID for the authenticated user (Primary role only)',
+  })
   @ApiOkResponse({ description: 'Ok', type: Roadmap })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @ApiBadRequestResponse({
     description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden: Only Primary role can update',
     type: ExceptionResponseDto,
   })
   @HttpCode(HttpStatus.OK)
@@ -153,17 +179,21 @@ export class RoadmapController {
   async update(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() payload: RoadmapUpdateRequestDto,
     @Request() req: { user: AuthDto },
+    @Body() payload: RoadmapUpdateRequestDto,
   ): Promise<Roadmap> {
-    return this.roadmapService.update(assessmentId, id, payload, req.user.id);
+    return this.roadmapService.update(assessmentId, req.user.id, id, payload);
   }
 
-  @ApiOperation({ summary: 'Delete a roadmap' })
+  @ApiOperation({
+    summary: 'Delete a roadmap',
+    description:
+      'Soft delete a roadmap by ID for the authenticated user (Primary role only)',
+  })
   @ApiOkResponse({ description: 'Ok', type: Roadmap })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @ApiBadRequestResponse({
-    description: 'Bad Request',
+  @ApiForbiddenResponse({
+    description: 'Forbidden: Only Primary role can delete',
     type: ExceptionResponseDto,
   })
   @HttpCode(HttpStatus.OK)
@@ -185,11 +215,15 @@ export class RoadmapController {
     return this.roadmapService.delete(assessmentId, id, req.user.id);
   }
 
-  @ApiOperation({ summary: 'Restore a roadmap' })
+  @ApiOperation({
+    summary: 'Restore a roadmap',
+    description:
+      'Restore a soft-deleted roadmap by ID for the authenticated user (Primary role only)',
+  })
   @ApiOkResponse({ description: 'Ok', type: Roadmap })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @ApiBadRequestResponse({
-    description: 'Bad Request',
+  @ApiForbiddenResponse({
+    description: 'Forbidden: Only Primary role can restore',
     type: ExceptionResponseDto,
   })
   @HttpCode(HttpStatus.OK)

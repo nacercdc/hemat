@@ -43,15 +43,7 @@ export class AssessmentAnswerValidator {
           `User ${userId} is not assigned to a group for group answer`,
         );
       }
-      if (payload.isPrimary) {
-        const primaryAnswer = await manager.findOne(Answer, {
-          where: { assessmentId, userId, isPrimary: true },
-        });
-        if (primaryAnswer)
-          throw new BadRequestException(
-            `User ${userId} has already submitted a PRIMARY answer`,
-          );
-      }
+      // Removed the check for existing primary answer to allow multiple sub-component submissions
     } else if (member.role === MemberRole.TEAM_LEADER) {
       if (!member.groupId)
         throw new BadRequestException(

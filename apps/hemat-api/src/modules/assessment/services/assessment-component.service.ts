@@ -164,7 +164,7 @@ export class AssessmentComponentService {
       .getManyAndCount();
   }
 
-  private filters(query: FindAllAssessmentComponentDto): Filter[] {
+  private filters(query: FindAllAssessmentComponentDto & { assessmentId?: string }): Filter[] {
     const filters: Filter[] = [];
     if (typeof query.isActive === 'boolean') {
       filters.push({
@@ -173,7 +173,13 @@ export class AssessmentComponentService {
         value: query.isActive,
       });
     }
-
+    if (query.assessmentId) {
+      filters.push({
+        field: 'assessmentId',
+        operator: '=',
+        value: query.assessmentId,
+      });
+    }
     return filters;
   }
 }

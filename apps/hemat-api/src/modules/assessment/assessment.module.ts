@@ -17,8 +17,8 @@ import {
   AssessmentGroup,
   AssessmentMember,
   MeasurementScaleSubComponent,
-  AssessmentAnswer,
   Roadmap,
+  AssessmentSubComponentRoadmap,
   Answer,
   AssessmentSubComponentAnswer,
 } from '../../database/entities';
@@ -40,7 +40,7 @@ import {
   RoadmapController,
 } from './controllers';
 import { AuthModule } from '@shared/modules';
-import { AssessmentAnswerValidator } from './utils';
+import { AssessmentAnswerValidator, RoadmapValidator } from './utils';
 
 @Module({
   imports: [
@@ -63,7 +63,7 @@ import { AssessmentAnswerValidator } from './utils';
       AssessmentGroup,
       AssessmentMember,
       Country,
-      AssessmentAnswer,
+      AssessmentSubComponentRoadmap,
       Roadmap,
     ]),
     AuthModule,
@@ -80,7 +80,11 @@ import { AssessmentAnswerValidator } from './utils';
     AssessmentAnswerController,
     RoadmapController,
   ],
-  providers: [...ASSESSMENT_SERVICES, AssessmentAnswerValidator],
+  providers: [
+    ...ASSESSMENT_SERVICES,
+    AssessmentAnswerValidator,
+    RoadmapValidator,
+  ],
   exports: [AssessmentService, AssessmentMemberService],
 })
 export class AssessmentModule {}

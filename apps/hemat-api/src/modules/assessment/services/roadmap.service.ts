@@ -1,20 +1,24 @@
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
+  BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import {
   Roadmap,
-  Assessment,
-  AssessmentAnswer,
+  AssessmentSubComponentRoadmap,
+  AssessmentSubComponent,
+  Answer,
   AssessmentMeasurementScale,
-  AssessmentMember,
+  Assessment,
 } from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
-import { MemberRole } from '@shared/enums';
+import { MemberRole, AnswerStatus } from '@shared/enums';
+import { PercentageUtil } from '../utils';
+import { RoadmapValidator } from '../utils/roadmap.validator';
 import {
   RoadmapCreateRequestDto,
   RoadmapUpdateRequestDto,
@@ -25,66 +29,110 @@ import {
 @Injectable()
 export class RoadmapService {
   constructor(
-    @InjectRepository(Roadmap)
-    private readonly roadmapRepository: Repository<Roadmap>,
+    @InjectRepository(Roadmap) private roadmapRepository: Repository<Roadmap>,
     @InjectRepository(Assessment)
-    private readonly assessmentRepository: Repository<Assessment>,
-    @InjectRepository(AssessmentMember)
-    private readonly memberRepository: Repository<AssessmentMember>,
-    private readonly dataSource: DataSource,
+    private assessmentRepository: Repository<Assessment>,
+    private dataSource: DataSource,
+    private validator: RoadmapValidator,
   ) {}
 
   async findAll(
     assessmentId: string,
+    userId: string,
     query: FindAllRoadmapDto,
   ): Promise<FindAllResponseDto<Roadmap>> {
     await this.validateAssessment(assessmentId);
-    return new QueryService<Roadmap>(this.roadmapRepository)
+    const { role } = await this.validator.validateMembership(
+      assessmentId,
+      userId,
+    );
+
+    const queryService = new QueryService<Roadmap>(this.roadmapRepository)
       .join(query.include)
       .sort({ ascending: query.ascending, descending: query.descending })
       .take(query.take)
       .skip(query.skip)
-      .getManyAndCount();
+      .filter([{ field: 'assessmentId', operator: '=', value: assessmentId }]);
+
+    if (role !== MemberRole.PRIMARY) {
+      queryService.filter([{ field: 'userId', operator: '=', value: userId }]);
+    }
+
+    return queryService.getManyAndCount();
   }
 
   async findOne(
     assessmentId: string,
+    userId: string,
     id: string,
     query: FindOneRoadmapDto,
   ): Promise<Roadmap> {
     await this.validateAssessment(assessmentId);
-    const roadmap = await new QueryService<Roadmap>(this.roadmapRepository)
+    const { role } = await this.validator.validateMembership(
+      assessmentId,
+      userId,
+    );
+
+    const queryService = new QueryService<Roadmap>(this.roadmapRepository)
       .join(query.include)
-      .getOne();
+      .filter([{ field: 'id', operator: '=', value: id }]);
+
+    if (role !== MemberRole.PRIMARY) {
+      queryService.filter([{ field: 'userId', operator: '=', value: userId }]);
+    }
+
+    const roadmap = await queryService.getOne();
     if (!roadmap) throw new NotFoundException(`Roadmap ${id} not found`);
     return roadmap;
   }
 
   async create(
     assessmentId: string,
-    payload: RoadmapCreateRequestDto,
     userId: string,
+    payload: RoadmapCreateRequestDto,
   ): Promise<Roadmap> {
     return this.dataSource.transaction(async (manager) => {
-      const answer = await manager.findOne(AssessmentAnswer, {
-        where: { id: payload.assessmentAnswerId, assessmentId },
-      });
-      if (!answer) throw new NotFoundException('Assessment answer not found');
+      await this.validateAssessment(assessmentId);
+      const member = await this.validator.validateMembership(
+        assessmentId,
+        userId,
+        manager,
+      );
 
-      await this.validateMemberAccess(assessmentId, userId);
+      // Restrict submission to Primary role
+      if (member.role !== MemberRole.PRIMARY) {
+        throw new ForbiddenException('Only Primary role can submit roadmaps');
+      }
 
-      const existingRoadmap = await manager.findOne(Roadmap, {
-        where: {
-          assessmentAnswerId: payload.assessmentAnswerId,
-          subComponentId: payload.subComponentId,
-          measurementScaleId: payload.measurementScaleId,
-        },
+      await this.validator.validateCreate(
+        assessmentId,
+        userId,
+        member,
+        payload,
+        manager,
+      );
+
+      // Validate subComponentId belongs to assessmentId
+      const subComponent = await manager.findOne(AssessmentSubComponent, {
+        where: { id: payload.subComponentId, assessmentId },
       });
-      if (existingRoadmap)
+      if (!subComponent) {
         throw new BadRequestException(
-          'Roadmap with these details already exists',
+          `Sub-component ${payload.subComponentId} does not belong to assessment ${assessmentId}`,
         );
+      }
 
+      // Validate answerId exists, belongs to assessmentId, and isPrimary=true
+      const answer = await manager.findOne(Answer, {
+        where: { id: payload.answerId, assessmentId, isPrimary: true },
+      });
+      if (!answer) {
+        throw new BadRequestException(
+          `Answer ${payload.answerId} is not primary or does not belong to assessment ${assessmentId}`,
+        );
+      }
+
+      // Validate measurementScaleId
       const measurementScale = await manager.findOne(
         AssessmentMeasurementScale,
         {
@@ -92,63 +140,213 @@ export class RoadmapService {
         },
       );
       if (!measurementScale) {
-        throw new NotFoundException('Measurement scale not found');
+        throw new NotFoundException(
+          `Measurement scale ${payload.measurementScaleId} not found`,
+        );
       }
 
-      const roadmap = manager.create(Roadmap, {
-        ...payload,
-        currentState: measurementScale.rate,
-        startTime: new Date(payload.startTime),
-        endTime: new Date(payload.endTime),
+      let roadmap = await manager.findOne(Roadmap, {
+        where: { assessmentId, userId, isPrimary: true },
       });
-      return manager.save(Roadmap, roadmap);
+
+      if (!roadmap) {
+        roadmap = manager.create(Roadmap, {
+          assessmentId,
+          userId,
+          isPrimary: true,
+          status: AnswerStatus.INPROGRESS,
+        });
+        await manager.save(Roadmap, roadmap);
+      }
+
+      // Check if the subcomponent roadmap already exists (upsert)
+      let subComponentRoadmap = await manager.findOne(
+        AssessmentSubComponentRoadmap,
+        {
+          where: {
+            roadmapId: roadmap.id,
+            subComponentId: payload.subComponentId,
+          },
+        },
+      );
+
+      if (subComponentRoadmap) {
+        // Update existing subcomponent roadmap
+        Object.assign(subComponentRoadmap, {
+          answerId: payload.answerId,
+          measurementScaleId: payload.measurementScaleId,
+          target: payload.target,
+          currentState: measurementScale.rate,
+          activities: payload.activities,
+          responsible: payload.responsible,
+          resources: payload.resources,
+          documentation: payload.documentation,
+          startTime: new Date(payload.startTime),
+          endTime: new Date(payload.endTime),
+        });
+      } else {
+        // Create new subcomponent roadmap
+        subComponentRoadmap = manager.create(AssessmentSubComponentRoadmap, {
+          roadmapId: roadmap.id,
+          subComponentId: payload.subComponentId,
+          answerId: payload.answerId,
+          measurementScaleId: payload.measurementScaleId,
+          target: payload.target,
+          currentState: measurementScale.rate,
+          activities: payload.activities,
+          responsible: payload.responsible,
+          resources: payload.resources,
+          documentation: payload.documentation,
+          startTime: new Date(payload.startTime),
+          endTime: new Date(payload.endTime),
+        });
+      }
+
+      await manager.save(AssessmentSubComponentRoadmap, subComponentRoadmap);
+
+      roadmap.percentage = await PercentageUtil.calculatePercentage(
+        assessmentId,
+        roadmap.id,
+        manager,
+        'Roadmap',
+      );
+      roadmap.status =
+        roadmap.percentage === 100
+          ? AnswerStatus.COMPLETED
+          : AnswerStatus.INPROGRESS;
+      await manager.save(Roadmap, roadmap);
+
+      return roadmap;
     });
   }
 
   async update(
     assessmentId: string,
+    userId: string,
     id: string,
     payload: RoadmapUpdateRequestDto,
-    userId: string,
   ): Promise<Roadmap> {
     return this.dataSource.transaction(async (manager) => {
+      await this.validateAssessment(assessmentId);
       const roadmap = await manager.findOne(Roadmap, {
-        where: { id, assessmentAnswer: { assessmentId } },
-        relations: ['assessmentAnswer'],
+        where: { id, assessmentId, userId },
+        relations: ['subComponentRoadmaps'],
       });
       if (!roadmap) throw new NotFoundException(`Roadmap ${id} not found`);
-      await this.validateMemberAccess(assessmentId, userId);
 
-      if (payload.assessmentAnswerId) {
-        const answer = await manager.findOne(AssessmentAnswer, {
-          where: { id: payload.assessmentAnswerId, assessmentId },
+      const member = await this.validator.validateMembership(
+        assessmentId,
+        userId,
+        manager,
+      );
+
+      await this.validator.validateUpdate(id, member, payload);
+
+      if (payload.answerId) {
+        const answer = await manager.findOne(Answer, {
+          where: { id: payload.answerId, assessmentId, isPrimary: true },
         });
-        if (!answer) throw new NotFoundException('Assessment answer not found');
+        if (!answer) {
+          throw new BadRequestException(
+            `Answer ${payload.answerId} is not primary or does not belong to assessment ${assessmentId}`,
+          );
+        }
       }
 
-      let currentState = roadmap.currentState;
-      if (payload.measurementScaleId) {
-        const measurementScale = await manager.findOne(
-          AssessmentMeasurementScale,
+      if (payload.subComponentId) {
+        const subComponent = await manager.findOne(AssessmentSubComponent, {
+          where: { id: payload.subComponentId, assessmentId },
+        });
+        if (!subComponent) {
+          throw new BadRequestException(
+            `Sub-component ${payload.subComponentId} does not belong to assessment ${assessmentId}`,
+          );
+        }
+      }
+
+      if (
+        payload.subComponentId ||
+        payload.answerId ||
+        payload.measurementScaleId ||
+        payload.target ||
+        payload.activities ||
+        payload.responsible ||
+        payload.resources ||
+        payload.documentation ||
+        payload.startTime ||
+        payload.endTime ||
+        payload.currentState
+      ) {
+        const subComponentRoadmap = await manager.findOne(
+          AssessmentSubComponentRoadmap,
           {
-            where: { id: payload.measurementScaleId },
+            where: {
+              roadmapId: id,
+              subComponentId:
+                payload.subComponentId ||
+                roadmap.subComponentRoadmaps[0]?.subComponentId,
+            },
           },
         );
-        if (!measurementScale) {
-          throw new NotFoundException('Measurement scale not found');
+        if (!subComponentRoadmap) {
+          throw new NotFoundException(
+            `Sub-component roadmap not found for subComponentId ${payload.subComponentId || roadmap.subComponentRoadmaps[0]?.subComponentId}`,
+          );
         }
-        currentState = measurementScale.rate;
+
+        let currentState = subComponentRoadmap.currentState;
+        if (payload.measurementScaleId) {
+          const measurementScale = await manager.findOne(
+            AssessmentMeasurementScale,
+            {
+              where: { id: payload.measurementScaleId },
+            },
+          );
+          if (!measurementScale) {
+            throw new NotFoundException(
+              `Measurement scale ${payload.measurementScaleId} not found`,
+            );
+          }
+          currentState = measurementScale.rate;
+        } else if (payload.currentState) {
+          currentState = payload.currentState;
+        }
+
+        Object.assign(subComponentRoadmap, {
+          answerId: payload.answerId || subComponentRoadmap.answerId,
+          subComponentId:
+            payload.subComponentId || subComponentRoadmap.subComponentId,
+          measurementScaleId:
+            payload.measurementScaleId ||
+            subComponentRoadmap.measurementScaleId,
+          target: payload.target || subComponentRoadmap.target,
+          currentState,
+          activities: payload.activities || subComponentRoadmap.activities,
+          responsible: payload.responsible || subComponentRoadmap.responsible,
+          resources: payload.resources || subComponentRoadmap.resources,
+          documentation:
+            payload.documentation || subComponentRoadmap.documentation,
+          startTime: payload.startTime
+            ? new Date(payload.startTime)
+            : subComponentRoadmap.startTime,
+          endTime: payload.endTime
+            ? new Date(payload.endTime)
+            : subComponentRoadmap.endTime,
+        });
+        await manager.save(AssessmentSubComponentRoadmap, subComponentRoadmap);
       }
 
-      return manager.save(Roadmap, {
-        ...roadmap,
-        ...payload,
-        currentState,
-        startTime: payload.startTime
-          ? new Date(payload.startTime)
-          : roadmap.startTime,
-        endTime: payload.endTime ? new Date(payload.endTime) : roadmap.endTime,
-      });
+      roadmap.percentage = await PercentageUtil.calculatePercentage(
+        assessmentId,
+        roadmap.id,
+        manager,
+        'Roadmap',
+      );
+      roadmap.status =
+        roadmap.percentage === 100
+          ? AnswerStatus.COMPLETED
+          : AnswerStatus.INPROGRESS;
+      return manager.save(Roadmap, roadmap);
     });
   }
 
@@ -158,13 +356,13 @@ export class RoadmapService {
     userId: string,
   ): Promise<Roadmap> {
     return this.dataSource.transaction(async (manager) => {
+      await this.validateAssessment(assessmentId);
       const roadmap = await manager.findOne(Roadmap, {
-        where: { id, assessmentAnswer: { assessmentId } },
-        relations: ['assessmentAnswer'],
+        where: { id, assessmentId, userId },
       });
       if (!roadmap) throw new NotFoundException(`Roadmap ${id} not found`);
 
-      await this.validateMemberAccess(assessmentId, userId);
+      await this.validator.validateMembership(assessmentId, userId, manager);
 
       return manager.softRemove(Roadmap, roadmap);
     });
@@ -176,14 +374,14 @@ export class RoadmapService {
     userId: string,
   ): Promise<Roadmap> {
     return this.dataSource.transaction(async (manager) => {
+      await this.validateAssessment(assessmentId);
       const roadmap = await manager.findOne(Roadmap, {
-        where: { id, assessmentAnswer: { assessmentId } },
+        where: { id, assessmentId, userId },
         withDeleted: true,
-        relations: ['assessmentAnswer'],
       });
       if (!roadmap) throw new NotFoundException(`Roadmap ${id} not found`);
 
-      await this.validateMemberAccess(assessmentId, userId);
+      await this.validator.validateMembership(assessmentId, userId, manager);
 
       return manager.recover(Roadmap, roadmap);
     });
@@ -195,24 +393,5 @@ export class RoadmapService {
     ) {
       throw new NotFoundException('Assessment not found');
     }
-  }
-
-  private async validateMemberAccess(
-    assessmentId: string,
-    userId: string,
-    requiredRole: MemberRole = MemberRole.PRIMARY,
-  ) {
-    const member = await this.memberRepository.findOne({
-      where: { assessmentId, userId },
-    });
-    if (!member) {
-      throw new NotFoundException('Assessment member not found');
-    }
-    if (member.role !== requiredRole) {
-      throw new BadRequestException(
-        `Only ${requiredRole} role members can perform this action`,
-      );
-    }
-    return member;
   }
 }
