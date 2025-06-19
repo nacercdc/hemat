@@ -1,56 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Content } from "./components/Content";
-import type { AssessmentMeasurementScale } from "../../../types/index";
-import { Sidebar } from "../../Sidebar";
 
-//TODO Replace with real data
-const measurementScales: AssessmentMeasurementScale[] = [
-  {
-    id: "1",
-    name: "MeasurementScale 1",
-    code: "Initial description",
-    description: "Initial description about Leadership and Governance",
-    assessmentId: "assessment-123",
-  },
-  {
-    id: "2",
-    name: "MeasurementScale 2",
-    code: "Initial description",
-    description: "Initial description about Management and Workforce",
-    assessmentId: "assessment-123",
-  },
-  {
-    id: "3",
-    name: "MeasurementScale 3",
-    code: "Initial description",
-    description: "Initial description about ICT Infrastructure",
-    assessmentId: "assessment-124",
-  },
-  {
-    id: "4",
-    name: "MeasurementScale 4",
-    code: "Initial description",
-    description: "Initial description about Standards and Interoperability",
-    assessmentId: "assessment-124",
-  },
-];
+import { Sidebar } from "../../Sidebar";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import { useParams } from "next/navigation";
+import { EmptyTableDataElement } from "~/components/modules/components/EmptyTableDataElement";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measurement-scale.model";
 
 export function MeasurementScales() {
-  const [activeMeasurementScale, setActiveMeasurementScale] =
-    useState<AssessmentMeasurementScale | null>(measurementScales[0] ?? null);
+  const params = useParams();
+  const { id: assessmentId } = params;
+  const { data: components, ...componentsState } =
+    useFindAll<AssessmentMeasurementScale>({
+      path: `/assessments/${assessmentId as string}/measurement-scales`,
+    });
+  const [activeComponent, setActiveComponent] =
+    useState<AssessmentMeasurementScale | null>(null);
 
-  return (
+  useEffect(() => {
+    if (components?.data && components.data.length > 0) {
+      setActiveComponent(components.data[0] || null);
+    }
+  }, [components]);
+
+  return components?.data && components.data.length > 0 ? (
     <div className="flex flex-col md:flex-row h-full">
-      <Sidebar
-        list={measurementScales}
-        activeItem={activeMeasurementScale}
-        onItemSelect={setActiveMeasurementScale}
+      <Sidebar<AssessmentMeasurementScale>
+        list={components?.data ?? []}
+        activeItem={activeComponent}
+        isLoading={componentsState.isLoading}
+        onItemSelect={setActiveComponent}
         displayKey="name"
       />
-      <Content activeMeasurementScale={activeMeasurementScale} />
+      <Content
+        activeMeasurementScale={activeComponent}
+        assessmentId={assessmentId as string}
+        refetchMeasurementScales={componentsState.refetch}
+      />
+    </div>
+  ) : (
+    <div className="flex flex-col items-center justify-center h-full  min-h-96">
+      <EmptyTableDataElement
+        title="No components found"
+        icon={
+          <Icon
+            icon="material-symbols-light:component-rounded"
+            className="!w-[30px] !h-[30px]"
+          />
+        }
+      />
     </div>
   );
 }
