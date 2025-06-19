@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { isNill } from "@etm/utilities/string.utils";
+import { SortDirectionEnum } from "./types";
 import type {
   Method,
   QueryManyRequest,
@@ -70,6 +71,19 @@ export function buildQueryString<
 
   if (query.search !== undefined) {
     params.set("search", query.search.toString());
+  }
+
+  if (query.sorts !== undefined) {
+    if (SortDirectionEnum.ASC in query.sorts)
+      params.set(
+        `${SortDirectionEnum.ASC}`,
+        query.sorts[SortDirectionEnum.ASC] as string
+      );
+    if (SortDirectionEnum.DESC in query.sorts)
+      params.set(
+        `${SortDirectionEnum.DESC}`,
+        query.sorts[SortDirectionEnum.DESC] as string
+      );
   }
 
   if (query.page !== undefined) {
