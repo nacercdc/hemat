@@ -32,45 +32,23 @@ export class ComponentService {
 
   async findAll(
     query: FindAllComponentDto,
-  ): Promise<FindAllResponseDto<Component & { subComponentsCount: number }>> {
-    try {
-      const { data: components, total } = await new QueryService<Component>(
-        this.componentRepository,
-      )
-        .join(query.include)
-        .filter(this.filters(query), {
-          fields: ['code', 'name'],
-          value: query.search,
-        })
-        .sort({ ascending: query.ascending, descending: query.descending })
-        .take(query.take)
-        .skip(query.skip)
-        .getManyAndCount();
-
-      const componentsWithCounts = await Promise.all(
-        components.map(async (component: Component) => {
-          const subComponentsCount = await this.subComponentRepository.count({
-            where: { componentId: component.id },
-          });
-
-          return {
-            ...component,
-            subComponentsCount,
-          };
-        }),
-      );
-
-      return {
-        data: componentsWithCounts,
-        total,
-      };
-    } catch (err) {
-      this.logger.error('findAll:', err);
-      throw new BadRequestException('Failed to fetch components.');
-    }
+  ): Promise<FindAllResponseDto<Component>> {
+    return new QueryService<Component>(this.componentRepository)
+      .join(query.include)
+      .filter(this.filters(query), {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
-  async findOne(id: string, query: FindOneComponentDto): Promise<Component & { subComponentsCount: number }> {
+  async findOne(
+    id: string,
+    query: FindOneComponentDto,
+  ): Promise<Component & { subComponentsCount: number }> {
     const component = await this.componentRepository.findOne({
       where: { id },
       relations: query.include,
@@ -154,7 +132,7 @@ export class ComponentService {
   async delete(id: string): Promise<Component> {
     const component = await this.componentRepository.findOne({
       where: { id },
-      relations: ['subComponents']
+      relations: ['subComponents'],
     });
 
     if (!component) {
@@ -168,7 +146,7 @@ export class ComponentService {
     const component = await this.componentRepository.findOne({
       where: { id },
       withDeleted: true,
-      relations: ['subComponents']
+      relations: ['subComponents'],
     });
 
     if (!component) {
@@ -182,30 +160,30 @@ export class ComponentService {
     id: string,
     query: FindAllSubComponentDto,
   ): Promise<FindAllResponseDto<SubComponent>> {
-      const component = await this.componentRepository.findOne({
-        where: { id },
-      });
-      if (!component) {
-        throw new NotFoundException(`Component ${id} not found.`);
-      }
+    const component = await this.componentRepository.findOne({
+      where: { id },
+    });
+    if (!component) {
+      throw new NotFoundException(`Component ${id} not found.`);
+    }
 
-      const filters = this.filters(query);
-      filters.push({
-        field: 'componentId',
-        operator: '=',
-        value: id,
-      });
+    const filters = this.filters(query);
+    filters.push({
+      field: 'componentId',
+      operator: '=',
+      value: id,
+    });
 
-      return await new QueryService<SubComponent>(this.subComponentRepository)
-        .filter(filters, {
-          fields: ['code', 'name'],
-          value: query.search,
-        })
-        .join(query.include)
-        .sort({ ascending: query.ascending, descending: query.descending })
-        .take(query.take)
-        .skip(query.skip)
-        .getManyAndCount();
+    return await new QueryService<SubComponent>(this.subComponentRepository)
+      .filter(filters, {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
+      .join(query.include)
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   private filters(query: FindAllDomainDto): Filter[] {

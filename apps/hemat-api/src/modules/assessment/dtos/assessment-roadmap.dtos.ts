@@ -15,22 +15,22 @@ import { IsExists } from '@shared/validators';
 
 export class RoadmapCreateRequestDto {
   @ApiProperty({
-    description: 'ID of the associated assessment answer',
+    description: 'ID of the associated answer (isPrimary=true)',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
-  @IsNotEmpty({ message: 'validation.assessmentAnswerId.isNotEmpty' })
-  @IsUUID('4', { message: 'validation.assessmentAnswerId.isUUID' })
+  @IsNotEmpty({ message: 'validation.answerId.isNotEmpty' })
+  @IsUUID('4', { message: 'validation.answerId.isUUID' })
   @IsExists(
-    { tableName: 'assessment_answers', columns: ['id'] },
-    { message: 'validation.assessmentAnswerId.isExists' },
+    { tableName: 'answers', columns: ['id'] },
+    { message: 'validation.answerId.isExists' },
   )
   @Type(() => String)
-  assessmentAnswerId: string;
+  answerId: string;
 
   @ApiProperty({
     description: 'ID of the associated sub-component',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    example: '6ac728ed-073b-4cd1-9ba8-35a1a900d5c7',
     type: String,
   })
   @IsNotEmpty({ message: 'validation.subComponentId.isNotEmpty' })
@@ -44,7 +44,7 @@ export class RoadmapCreateRequestDto {
 
   @ApiProperty({
     description: 'ID of the associated measurement scale',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    example: '0145fa94-841e-49ee-988f-6a8690bf58fe',
     type: String,
   })
   @IsNotEmpty({ message: 'validation.measurementScaleId.isNotEmpty' })
@@ -146,22 +146,22 @@ export class RoadmapCreateRequestDto {
 
 export class RoadmapUpdateRequestDto {
   @ApiPropertyOptional({
-    description: 'ID of the associated assessment answer',
+    description: 'ID of the associated answer (isPrimary=true)',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
   @IsOptional()
-  @IsUUID('4', { message: 'validation.assessmentAnswerId.isUUID' })
+  @IsUUID('4', { message: 'validation.answerId.isUUID' })
   @IsExists(
-    { tableName: 'assessment_answers', columns: ['id'] },
-    { message: 'validation.assessmentAnswerId.isExists' },
+    { tableName: 'answers', columns: ['id'] },
+    { message: 'validation.answerId.isExists' },
   )
   @Type(() => String)
-  assessmentAnswerId?: string;
+  answerId?: string;
 
   @ApiPropertyOptional({
     description: 'ID of the associated sub-component',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    example: '6ac728ed-073b-4cd1-9ba8-35a1a900d5c7',
     type: String,
   })
   @IsOptional()
@@ -175,13 +175,13 @@ export class RoadmapUpdateRequestDto {
 
   @ApiPropertyOptional({
     description: 'ID of the associated measurement scale',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    example: '0145fa94-841e-49ee-988f-6a8690bf58fe',
     type: String,
   })
   @IsOptional()
   @IsUUID('4', { message: 'validation.measurementScaleId.isUUID' })
   @IsExists(
-    { tableName: 'assessment_measurement_scales', columns: ['id'] },
+    { tableName: 'assessment_measurement_scale', columns: ['id'] },
     { message: 'validation.measurementScaleId.isExists' },
   )
   @Type(() => String)

@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, Length, IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty, Length} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ComponentTranslationDto } from '../../../shared/dtos';
 import { IsUnique } from '@shared/validators';

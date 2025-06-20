@@ -35,6 +35,7 @@ import {
   DomainCreateRequestDto,
   DomainUpdateRequestDto,
   FindAllComponentDto,
+  FindOneDomainDto,
 } from '../dtos';
 
 @ApiBearerAuth()
@@ -96,8 +97,11 @@ export class DomainController {
     ],
   })
   @Get(':id')
-  async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.domainService.findOne(id);
+  async findOne(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: FindOneDomainDto,
+  ) {
+    return this.domainService.findOne(id, query);
   }
 
   @ApiOperation({ summary: 'Create', description: 'Create a new domain' })

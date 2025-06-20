@@ -9,10 +9,11 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
-import { AssessmentAnswer } from './assessment-answer.entity';
 import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
 import { MeasurementScaleTranslationDto } from 'src/shared/dtos';
 import { Roadmap } from './roadmap.entity';
+import { AssessmentSubComponentAnswer } from './assessment-sub-component-answer.entity';
+import { AssessmentSubComponentRoadmap } from './assessment-sub-component-roadmap.entity';
 
 @Entity('assessment_measurement_scale')
 export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
@@ -74,12 +75,19 @@ export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
   )
   subComponents: AssessmentMeasurementScaleSubComponent[];
 
-  @OneToMany(() => AssessmentAnswer, (answer) => answer.measurementScale, {
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
-  })
-  answers: AssessmentAnswer[];
+  @OneToMany(
+    () => AssessmentSubComponentAnswer,
+    (answer) => answer.measurementScale,
+    {
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    },
+  )
+  answers: AssessmentSubComponentAnswer[];
 
-  @OneToMany(() => Roadmap, (roadmap) => roadmap.measurementScale)
-  roadmaps: Roadmap[];
+  @OneToMany(
+    () => AssessmentSubComponentRoadmap,
+    (roadmap) => roadmap.measurementScale,
+  )
+  roadmaps: AssessmentSubComponentRoadmap[];
 }

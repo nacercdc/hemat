@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
-import { Assessment } from '@database/entities';
+import { Repository, DataSource, In } from 'typeorm';
+import { Assessment, Language } from '@database/entities';
 import { Filter, QueryService } from '@shared/services';
 import {
   FindAllAssessmentDto,
@@ -28,6 +28,8 @@ export class AssessmentService {
   constructor(
     @InjectRepository(Assessment)
     private readonly assessmentRepository: Repository<Assessment>,
+    @InjectRepository(Language)
+    private readonly languageRepository: Repository<Language>,
     private readonly dataSource: DataSource,
     private readonly assessmentDomainService: AssessmentDomainService,
     private readonly assessmentComponentService: AssessmentComponentService,
@@ -40,7 +42,7 @@ export class AssessmentService {
     query: FindAllAssessmentDto,
   ): Promise<FindAllResponseDto<Assessment>> {
     return await new QueryService<Assessment>(this.assessmentRepository)
-      .join(query.include)
+      .join([...(query.include || []), 'country', 'languages'])
       .filter(this.filters(query), { fields: ['name'], value: query.search })
       .sort({ ascending: query.ascending, descending: query.descending })
       .take(query.take)
@@ -51,7 +53,7 @@ export class AssessmentService {
   async findOne(id: string, query: FindOneAssessmentDto): Promise<Assessment> {
     const assessment = await this.assessmentRepository.findOne({
       where: { id },
-      relations: query.include,
+      relations: [...(query.include || []), 'country', 'languages'],
     });
 
     if (!assessment) {
@@ -70,6 +72,14 @@ export class AssessmentService {
         throw new BadRequestException('End date cannot be before start date');
       }
 
+      const languages = await this.languageRepository.find({
+        where: { code: In(payload.languages) },
+      });
+
+      if (languages.length !== payload.languages.length) {
+        throw new BadRequestException('One or more language codes are invalid');
+      }
+
       const savedAssessment = await this.dataSource.transaction(
         async (manager) => {
           const assessment = manager.create(Assessment, {
@@ -77,8 +87,10 @@ export class AssessmentService {
             userId,
             startDate: new Date(payload.startDate),
             endDate: new Date(payload.endDate),
+            languages, 
           });
-          await manager.insert(Assessment, assessment);
+          await manager.save(Assessment, assessment);
+
           const { templateDomainId } =
             await this.assessmentDomainService.create(manager, assessment.id);
 
@@ -133,11 +145,23 @@ export class AssessmentService {
     return await this.dataSource.transaction(async (manager) => {
       const assessment = await manager.getRepository(Assessment).findOne({
         where: { id },
-        relations: ['user', 'country'],
+        relations: ['user', 'country', 'languages'],
       });
 
       if (!assessment) {
         throw new NotFoundException(`Assessment ${id} not found.`);
+      }
+
+      let languages = assessment.languages;
+      if (payload.languages) {
+        languages = await this.languageRepository.find({
+          where: { code: In(payload.languages) },
+        });
+        if (languages.length !== payload.languages.length) {
+          throw new BadRequestException(
+            'One or more language codes are invalid',
+          );
+        }
       }
 
       const updatedPayload = {
@@ -148,6 +172,7 @@ export class AssessmentService {
         endDate: payload.endDate
           ? new Date(payload.endDate)
           : assessment.endDate,
+        languages,
       };
 
       const updatedAssessment = await manager.getRepository(Assessment).save({

@@ -13,9 +13,11 @@ import {
   DomainCreateRequestDto,
   DomainUpdateRequestDto,
   FindAllComponentDto,
+  FindOneDomainDto,
 } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 import { Component } from '@database/entities';
+import { Not, IsNull } from 'typeorm';
 
 @Injectable()
 export class DomainService {
@@ -28,16 +30,8 @@ export class DomainService {
     private readonly componentRepository: Repository<Component>,
   ) {}
 
-  async findAll(
-    query: FindAllDomainDto,
-  ): Promise<
-    FindAllResponseDto<
-      Domain & { componentsCount: number; subComponentsCount: number }
-    >
-  > {
-    const { data: domains, total } = await new QueryService<Domain>(
-      this.domainRepository,
-    )
+  async findAll(query: FindAllDomainDto): Promise<FindAllResponseDto<Domain>> {
+    return new QueryService<Domain>(this.domainRepository)
       .join(query.include)
       .filter(this.filters(query), {
         fields: ['code', 'name'],
@@ -47,52 +41,29 @@ export class DomainService {
       .take(query.take)
       .skip(query.skip)
       .getManyAndCount();
-
-    const domainsWithCounts = await Promise.all(
-      domains.map(async (domain: Domain) => {
-        const [componentsCount, subComponentsCount] = await Promise.all([
-          this.componentRepository.count({ where: { domainId: domain.id } }),
-          this.componentRepository
-            .createQueryBuilder('component')
-            .innerJoin('component.subComponents', 'subComponent')
-            .where('component.domainId = :domainId', { domainId: domain.id })
-            .select('COUNT(DISTINCT subComponent.id)', 'count')
-            .getRawOne()
-            .then((result) => parseInt(result.count, 10) || 0),
-        ]);
-
-        return {
-          ...domain,
-          componentsCount,
-          subComponentsCount,
-        };
-      }),
-    );
-
-    return {
-      data: domainsWithCounts,
-      total,
-    };
   }
 
   async findOne(
     id: string,
+    query: FindOneDomainDto,
   ): Promise<Domain & { componentsCount: number; subComponentsCount: number }> {
-    const domain = await this.domainRepository.findOne({ where: { id } });
+    const domain = await this.domainRepository.findOne({
+      where: { id },
+      relations: query.include,
+    });
 
     if (!domain) {
       throw new NotFoundException(`Domain ${id} not found.`);
     }
 
     const [componentsCount, subComponentsCount] = await Promise.all([
-      this.componentRepository.count({ where: { domainId: id } }),
-      this.componentRepository
-        .createQueryBuilder('component')
-        .innerJoin('component.subComponents', 'subComponent')
-        .where('component.domainId = :domainId', { domainId: id })
-        .select('COUNT(DISTINCT subComponent.id)', 'count')
-        .getRawOne()
-        .then((result) => parseInt(result.count, 10) || 0),
+      this.componentRepository.count({
+        where: { domainId: id },
+      }),
+      this.componentRepository.count({
+        where: { domainId: id, subComponents: { id: Not(IsNull()) } },
+        relations: ['subComponents'],
+      }),
     ]);
 
     return {
@@ -151,28 +122,28 @@ export class DomainService {
     id: string,
     query: FindAllComponentDto,
   ): Promise<FindAllResponseDto<Component>> {
-      const domain = await this.domainRepository.findOne({ where: { id } });
-      if (!domain) {
-        throw new NotFoundException(`Domain ${id} not found.`);
-      }
+    const domain = await this.domainRepository.findOne({ where: { id } });
+    if (!domain) {
+      throw new NotFoundException(`Domain ${id} not found.`);
+    }
 
-      const filters = this.filters(query);
-      filters.push({
-        field: 'domainId',
-        operator: '=',
-        value: id,
-      });
+    const filters = this.filters(query);
+    filters.push({
+      field: 'domainId',
+      operator: '=',
+      value: id,
+    });
 
-      return await new QueryService<Component>(this.componentRepository)
-        .filter(filters, {
-          fields: ['code', 'name'],
-          value: query.search,
-        })
-        .join(query.include)
-        .sort({ ascending: query.ascending, descending: query.descending })
-        .take(query.take)
-        .skip(query.skip)
-        .getManyAndCount();
+    return await new QueryService<Component>(this.componentRepository)
+      .filter(filters, {
+        fields: ['code', 'name'],
+        value: query.search,
+      })
+      .join(query.include)
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   private filters(query: FindAllDomainDto): Filter[] {

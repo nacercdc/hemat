@@ -6,15 +6,23 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { AssessmentSubComponent, SubComponent } from '@database/entities';
+import {
+  Answer,
+  AssessmentMember,
+  AssessmentSubComponent,
+  AssessmentSubComponentAnswer,
+  SubComponent,
+} from '@database/entities';
 import { UUID } from '@shared/helpers';
 import { Filter, QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
 import {
   AssessmentSubComponentDto,
+  FindAllAssessmentAnswerDto,
   FindAllAssessmentSubComponentDto,
   FindOneAssessmentSubComponentDto,
 } from '../dtos';
+import { MemberRole } from '@shared/enums';
 @Injectable()
 export class AssessmentSubComponentService {
   private readonly loggerService = new Logger(
@@ -24,6 +32,14 @@ export class AssessmentSubComponentService {
   constructor(
     @InjectRepository(AssessmentSubComponent)
     private readonly assessmentSubComponentRepository: Repository<AssessmentSubComponent>,
+    @InjectRepository(AssessmentSubComponentAnswer)
+    private subComponentAnswerRepository: Repository<AssessmentSubComponentAnswer>,
+    @InjectRepository(AssessmentSubComponent)
+    private subComponentRepository: Repository<AssessmentSubComponent>,
+    @InjectRepository(AssessmentMember)
+    private memberRepository: Repository<AssessmentMember>,
+    @InjectRepository(Answer)
+    private answerRepository: Repository<Answer>,
   ) {}
 
   async create(
@@ -131,7 +147,50 @@ export class AssessmentSubComponentService {
       );
     }
   }
-  private filters(query: FindAllAssessmentSubComponentDto): Filter[] {
+
+  async findAllBySubComponent(
+    subComponentId: string,
+    userId: string,
+    query: FindAllAssessmentAnswerDto,
+  ): Promise<FindAllResponseDto<AssessmentSubComponentAnswer>> {
+    const subComponent = await this.subComponentRepository.findOne({
+      where: { id: subComponentId },
+    });
+    if (!subComponent)
+      throw new NotFoundException(`Sub-component ${subComponentId} not found`);
+
+    const member = await this.memberRepository.findOne({
+      where: { assessmentId: subComponent.assessmentId, userId },
+    });
+    if (!member)
+      throw new NotFoundException(
+        `User ${userId} is not a member of assessment ${subComponent.assessmentId}`,
+      );
+
+    const isTeamLeader = member.role === MemberRole.TEAM_LEADER;
+    const queryService = new QueryService<AssessmentSubComponentAnswer>(
+      this.subComponentAnswerRepository,
+    )
+      .join(query.include)
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .filter([
+        { field: 'subComponentId', operator: '=', value: subComponentId },
+      ]);
+
+    if (!isTeamLeader) {
+      const answers = await this.answerRepository.find({
+        where: { assessmentId: subComponent.assessmentId, userId },
+      });
+      queryService.filter([
+        { field: 'answerId', operator: 'IN', value: answers.map((a) => a.id) },
+      ]);
+    }
+
+    return queryService.getManyAndCount();
+  }
+  private filters(query: FindAllAssessmentSubComponentDto & { assessmentId?: string }): Filter[] {
     const filters: Filter[] = [];
     if (typeof query.isActive === 'boolean') {
       filters.push({
@@ -140,7 +199,13 @@ export class AssessmentSubComponentService {
         value: query.isActive,
       });
     }
-
+    if (query.assessmentId) {
+      filters.push({
+        field: 'assessmentId',
+        operator: '=',
+        value: query.assessmentId,
+      });
+    }
     return filters;
   }
 }

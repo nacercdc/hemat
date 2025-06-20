@@ -4,7 +4,7 @@ interface Country {
 }
 
 export const africanCountries: Country[] = [
-  { code: "DZ", name: "Algeria" },
+  { code: "AL", name: "Algeria" },
   { code: "AO", name: "Angola" },
   { code: "BJ", name: "Benin" },
   { code: "BW", name: "Botswana" },

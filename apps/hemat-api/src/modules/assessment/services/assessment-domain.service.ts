@@ -76,16 +76,39 @@ export class AssessmentDomainService {
 
   async findAll(
     query: FindAllAssessmentDomainDto & { assessmentId: string },
-  ): Promise<FindAllResponseDto<AssessmentDomain>> {
-    return new QueryService<AssessmentDomain>(this.assessmentDomainRepository)
-      .filter(this.filters(query), {
-        fields: ['code', 'name'],
-        value: query.search,
+  ): Promise<FindAllResponseDto<AssessmentDomainWithCounts>> {
+    const qb = this.assessmentDomainRepository
+      .createQueryBuilder('domain')
+      .leftJoin('domain.components', 'component')
+      .leftJoin('component.subComponents', 'subComponent')
+      .select([
+        'domain.*',
+        'CAST(COUNT(DISTINCT component.id) AS INTEGER) as "componentsCount"',
+        'CAST(COUNT(DISTINCT subComponent.id) AS INTEGER) as "subComponentsCount"',
+      ])
+      .where('domain.assessmentId = :assessmentId', {
+        assessmentId: query.assessmentId,
       })
-      .sort({ ascending: query.ascending, descending: query.descending })
-      .take(query.take)
-      .skip(query.skip)
-      .getManyAndCount();
+      .groupBy('domain.id');
+
+    query.search && qb.andWhere('(domain.code ILIKE :search OR domain.name ILIKE :search)', {
+      search: `%${query.search}%`,
+    });
+
+    const sortFields = query.ascending?.length ? query.ascending : query.descending?.length ? query.descending : ['createdAt'];
+    const sortOrder = query.ascending?.length ? 'ASC' : 'DESC';
+    
+    sortFields.forEach(field => qb.addOrderBy(`domain.${field}`, sortOrder));
+
+    const [domains, total] = await Promise.all([
+      qb.skip(query.skip).take(query.take).getRawMany(),
+      qb.getCount(),
+    ]);
+
+    return {
+      data: domains,
+      total,
+    };
   }
 
   async findOne(assessmentId: string, id: string): Promise<AssessmentDomain> {
@@ -151,7 +174,7 @@ export class AssessmentDomainService {
       .getManyAndCount();
   }
 
-  private filters(query: FindAllAssessmentDomainDto): Filter[] {
+  private filters(query: FindAllAssessmentDomainDto & { assessmentId?: string }): Filter[] {
     const filters: Filter[] = [];
     if (typeof query.isActive === 'boolean') {
       filters.push({
@@ -160,7 +183,13 @@ export class AssessmentDomainService {
         value: query.isActive,
       });
     }
-
+    if (query.assessmentId) {
+      filters.push({
+        field: 'assessmentId',
+        operator: '=',
+        value: query.assessmentId,
+      });
+    }
     return filters;
   }
 }

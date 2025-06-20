@@ -2,7 +2,7 @@ import React from "react";
 import type { ColumnDef } from "@etm/web-ui-components";
 import RolesAction from "./RolesAction";
 import type { Role } from "~/libs/models/role.model";
-import { PermissionModule } from "../form";
+import type { PermissionModule } from "../form";
 
 interface Props {
   refetch: () => void;
@@ -24,7 +24,7 @@ export const RolesTableColumns = ({
 
   {
     header: "Permissions",
-    enableSorting: true,
+    enableSorting: false,
     id: "permissions",
     accessorFn: (row) => row.permissions?.length.toString() ?? "--",
   },

@@ -40,6 +40,7 @@ export function useFindAll<
     options.path,
     options.queries?.filters,
     options.queries?.search,
+    options.queries?.sorts,
     options?.queries?.limit?.toString(),
     options?.queries?.page?.toString(),
     ...(options.tqOptions?.queryKey?.map(String) || []),
