@@ -1,10 +1,16 @@
+// export const safeDate = (input: unknown): Date | undefined => {
+//   if (!input) return undefined;
+//   if (input instanceof Date && !isNaN(input.getTime())) return input;
+//   const date = new Date(input as string | number);
+//   return isNaN(date.getTime()) ? undefined : date;
+// };
+
 export const safeDate = (input: unknown): Date | undefined => {
   if (!input) return undefined;
   if (input instanceof Date && !isNaN(input.getTime())) return input;
   const date = new Date(input as string | number);
   return isNaN(date.getTime()) ? undefined : date;
 };
-
 export const formatSafeDateToYYYYMMDD = (
   input: unknown
 ): string | undefined => {

@@ -100,7 +100,7 @@ export function AssessmentForm({
       name: "",
       startDate: new Date(),
       endDate: new Date(),
-      country: {},
+      country: { code: "" },
       organization: "",
       languages: [],
       description: "",
@@ -118,15 +118,17 @@ export function AssessmentForm({
     if (!assessment) return;
     reset({
       name: assessment?.name,
-      startDate: safeDate(assessment.startDate),
-      endDate: safeDate(assessment.endDate),
-      country: {
-        code: assessment?.countryCode,
-      },
+      startDate: safeDate(assessment?.startDate),
+      endDate: safeDate(assessment?.endDate),
+      country: assessment?.country?.code
+        ? { code: assessment.country.code }
+        : undefined,
       organization: assessment?.organization,
-
       languages: Array.isArray(assessment?.languages)
-        ? assessment.languages.map((lang) => ({ code: lang.code }))
+        ? assessment.languages.map((lang) => ({
+            code: lang.code,
+            name: lang.name,
+          }))
         : [],
 
       description: assessment?.description,

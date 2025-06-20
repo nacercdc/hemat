@@ -1,13 +1,9 @@
 import { Filter, Sort } from "../tanstack-api-query/helpers/types";
+import { Country } from "./country.model";
 import { Language } from "./language.model";
 
 export interface User {
   name: string;
-}
-
-export interface Country {
-  name: string;
-  emojiU: symbol | string;
 }
 
 export interface GroupMember {
