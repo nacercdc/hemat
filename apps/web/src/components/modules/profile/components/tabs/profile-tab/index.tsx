@@ -1,93 +1,181 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import {
   AvatarInput,
   Button,
+  DateTimePickerRHF,
   InputRHF,
   PhoneNumberInputRHF,
   SelectRHF,
+  useToast,
 } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import type { Country } from "~/libs/models/assessment.model";
+import { useGetMe } from "~/providers/me/useGetMe";
+import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
+import type { Profile, UpdateProfile } from "~/libs/models/profile.model";
+import { ProfileTabSkeleton } from "./ProfileTabSkeleton";
+const PERSONAL_TITLES = [
+  "Mr.",
+  "Mrs.",
+  "Miss",
+  "Ms.",
+  "Mx.",
+  "Dr.",
+  "Prof.",
+  "Eng.",
+  "Arch.",
+  "Adv.",
+  "CPA",
+  "Esq.",
+];
 
-// Dummy type tobe replaced
 interface GenderType {
   id: string;
   name: "Male" | "Female";
 }
 
-// Dummy type tobe replaced
-interface CountryType {
-  id: string;
-  name: string;
-}
-
-// Dummy interface tobe replaced
 const genderOptions: GenderType[] = [
   { id: "male", name: "Male" },
   { id: "female", name: "Female" },
 ];
 
-// Dummy interface tobe replaced
-const countryOptions: CountryType[] = [
-  { id: "eth", name: "Ethiopia" },
-  { id: "us", name: "USA" },
-];
+const titleSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
 
 const GenderSchema = z.object({
-  id: z.string().min(1, { message: "Gender ID is required" }),
-  name: z.string().min(1, { message: "Gender name is required" }),
+  id: z.string(),
+  name: z.string(),
 });
 
 const CountrySchema = z.object({
-  id: z.string().min(1, { message: "Country ID is required" }),
-  name: z.string().min(1, { message: "Country name is required" }),
+  id: z.string(),
+  name: z.string(),
 });
 
 const ProfileDetailSchema = z.object({
+  title: titleSchema.optional(),
   firstName: z.string().min(1, { message: "First name is required" }),
-  middleName: z.string().min(1, { message: "Middle name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
-  email: z
-    .string()
-    .min(1, { message: "Email is required" })
-    .email({ message: "Invalid Email address" }),
   phoneNumber: z
     .string()
-    .min(1, { message: "Mobile phone is required" })
-    .refine(isValidPhoneNumber, { message: "Invalid phone number" }),
-  gender: GenderSchema,
-  country: CountrySchema,
+    .optional()
+    .refine((val: string | undefined) => !val || isValidPhoneNumber(val), {
+      message: "Invalid phone number",
+    }),
+  gender: GenderSchema.optional(),
+  country: CountrySchema.optional(),
+  jobTitle: z.string().min(1, { message: "Job title is required" }),
+  email: z.string().optional(),
+  dateOfBirth: z.date().optional(),
 });
 
 export type ProfileDetailFormData = z.infer<typeof ProfileDetailSchema>;
 
 export default function ProfileTab() {
-  const { control, handleSubmit } = useForm<ProfileDetailFormData>({
+  const [profilePic, setProfilePic] = useState<File | undefined>();
+  const profilePicRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const { data: currentUser, ...currentUserState } = useGetMe();
+  const { data: countries, ...countriesState } = useFindAll<Country>({
+    path: "/countries",
+    tqOptions: {
+      enabled: false,
+    },
+  });
+
+  const { mutate: updateProfile, ...updateProfileState } = usePutMutation<
+    Profile,
+    UpdateProfile
+  >(`/profiles`);
+
+  const { control, handleSubmit, reset } = useForm<ProfileDetailFormData>({
     defaultValues: {
       firstName: "",
-      middleName: "",
       lastName: "",
-      email: "",
-      phoneNumber: "",
     },
     resolver: zodResolver(ProfileDetailSchema),
     mode: "onChange",
   });
-  const [profilePic, setProfilePic] = useState<File | undefined>();
-  const profilePicRef = useRef<HTMLInputElement>(null);
 
   const onProfilePicChangeHandler = (file?: File) => {
     setProfilePic(file);
   };
 
-  const onProfileDetailSubmitHandler = (_values: ProfileDetailFormData) => {
-    //TODO: implement profile detail submit
+  const onProfileDetailSubmitHandler = (values: ProfileDetailFormData) => {
+    const updatedProfile: UpdateProfile = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      country: values.country?.id,
+      title: values?.title?.id,
+      jobTitle: values.jobTitle,
+      gender: values.gender?.id,
+      phoneNumber: values?.phoneNumber,
+      dateOfBirth: values?.dateOfBirth?.toString(),
+    };
+    updateProfile(
+      {
+        data: updatedProfile,
+      },
+      {
+        onSuccess: () => {
+          currentUserState.refetch();
+          toast({
+            title: "Success",
+            message: "You profile has been updated successfully.",
+            variant: "success",
+          });
+        },
+      }
+    );
   };
+
+  useEffect(() => {
+    if (currentUser) {
+      reset({
+        email: currentUser.email,
+        title: currentUser.profile?.title
+          ? {
+              id: currentUser.profile.title,
+              name: currentUser.profile.title,
+            }
+          : undefined,
+        jobTitle: currentUser.profile?.jobTitle ?? "",
+        firstName: currentUser.profile?.firstName ?? "",
+        lastName: currentUser.profile?.lastName ?? "",
+        country: currentUser.profile.country
+          ? {
+              id: currentUser.profile.country,
+              name: currentUser.profile.country,
+            }
+          : undefined,
+        gender: currentUser.profile?.gender
+          ? {
+              id: currentUser.profile.gender,
+              name: currentUser.profile.gender,
+            }
+          : undefined,
+
+        phoneNumber: currentUser.profile?.phoneNumber ?? "",
+        dateOfBirth:
+          (currentUser.profile?.dateOfBirth as unknown as Date) ?? "",
+      });
+    }
+  }, [currentUserState.isSuccess, currentUser]);
+
+  if (currentUserState.isLoading) {
+    return <ProfileTabSkeleton />;
+  }
 
   return (
     <form
@@ -111,11 +199,25 @@ export default function ProfileTab() {
           </div>
         </div>
         <div className="flex flex-col">
-          <span className="text-lg font-bold">Eniola Wale</span>
-          <span className="text-dark-light text-xs">example@gmail.com</span>
+          <span className="text-lg font-bold">{currentUser?.name}</span>
+          <span className="text-dark-light text-xs">{currentUser?.email}</span>
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <SelectRHF
+          name="title"
+          control={control}
+          displayLabel="Title"
+          size="lg"
+          labelVariant="medium"
+          valueKey="id"
+          labelKey="name"
+          options={PERSONAL_TITLES.map((title) => ({
+            id: title,
+            name: title,
+          }))}
+          placeholder="Select title"
+        />
         <InputRHF
           name="firstName"
           control={control}
@@ -124,14 +226,7 @@ export default function ProfileTab() {
           labelVariant="medium"
           placeholder="Enter first name"
         />
-        <InputRHF
-          name="middleName"
-          control={control}
-          label="Middle Name"
-          size="lg"
-          labelVariant="medium"
-          placeholder="Enter middle name"
-        />
+
         <InputRHF
           name="lastName"
           control={control}
@@ -161,8 +256,13 @@ export default function ProfileTab() {
           labelVariant="medium"
           valueKey="id"
           labelKey="name"
-          options={countryOptions}
+          options={(countries?.data ?? []).map((country) => ({
+            id: country.name,
+            name: country.name,
+          }))}
           placeholder="Select country"
+          onOpenChange={() => countriesState.refetch()}
+          loading={countriesState.isLoading || countriesState.isFetching}
         />
         <PhoneNumberInputRHF
           control={control}
@@ -174,6 +274,26 @@ export default function ProfileTab() {
           placeholder="Enter your phone phone"
         />
       </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 max-w-7xl">
+        <InputRHF
+          name="jobTitle"
+          control={control}
+          label="Job title"
+          size="lg"
+          labelVariant="medium"
+          placeholder="Enter job title"
+        />
+        <DateTimePickerRHF
+          name="dateOfBirth"
+          control={control}
+          showTime={false}
+          labelVariant="medium"
+          label="Date of birth"
+          size="lg"
+          placeholder="Enter your date of birth"
+          iconDirection="right"
+        />
+      </div>
       <div className="flex flex-col gap-5">
         <div className="flex flex-col">
           <span className="text-lg font-bold">Contact Email</span>
@@ -181,10 +301,10 @@ export default function ProfileTab() {
             Manage your email accounts
           </span>
         </div>
-        {/* TODO: this will be replaced by field array later */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 max-w-7xl">
           <div className="lg:col-span-2">
             <InputRHF
+              control={control}
               leftNode={
                 <Icon
                   icon="ic:outline-email"
@@ -192,20 +312,18 @@ export default function ProfileTab() {
                 />
               }
               name="email"
-              control={control}
+              value={currentUser?.email}
               label="Email"
               size="lg"
               labelVariant="medium"
               placeholder="Enter your email"
+              disabled
             />
           </div>
         </div>
       </div>
-      <div className="flex justify-between">
-        <Button type="button" variant="outline" size="lg">
-          Cancel
-        </Button>
-        <Button type="submit" size="lg">
+      <div className="flex w-full justify-end">
+        <Button type="submit" size="lg" loading={updateProfileState.isPending}>
           Update
         </Button>
       </div>

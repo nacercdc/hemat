@@ -9,14 +9,16 @@ import {
   Spinner,
   useSidebar,
 } from "@etm/web-ui-components";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { getInitials } from "~/utils/string.util";
 import { useAddMutation as useLogout } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import { useGetMe } from "~/providers/me/useGetMe";
+import { TruncatedText } from "~/components/ui/TruncatedText";
 export function NavBar() {
   const [searchValue, setSearchValue] = useState<string>("");
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { isMobile, setOpenMobile } = useSidebar();
+  const { data: currentUser } = useGetMe();
 
   const { mutate: logoutFromServer, ...logoutFromServerState } =
     useLogout("/auth/logout");
@@ -39,13 +41,6 @@ export function NavBar() {
           }
         ),
     });
-  };
-
-  const onProfileDetailClickHandler = () => {
-    const params = new URLSearchParams(searchParams.toString());
-
-    params.set("type", "profile-detail");
-    router.push(`/profile-settings?${params.toString()}`);
   };
 
   const inputChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,26 +85,48 @@ export function NavBar() {
             <Avatar
               src={"http://path-that-goes-no-where.com"}
               alt="user_profile_image"
-              fallback={getInitials("ETM")}
+              fallback={getInitials(currentUser?.name)}
             />
           }
           label={
-            <Avatar
-              src={"http://path-that-goes-no-where.com"}
-              alt="user_profile_image"
-              fallback={getInitials("ETM")}
-            />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-row items-center gap-3 justify-between w-full">
+                <Avatar
+                  src={"http://path-that-goes-no-where.com"}
+                  alt="user_profile_image"
+                  fallback={getInitials(currentUser?.name)}
+                />
+                {currentUser?.roles.length && (
+                  <div className="w-fit px-4 py-1 flex items-center justify-center rounded-sm bg-primary-200/35 border-r-2 rounded-r-none border-primary">
+                    <span className="text-primary">
+                      <TruncatedText
+                        text={currentUser?.roles
+                          .map((role) => role.name)
+                          .join(",")}
+                      />
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold">{currentUser?.name}</span>
+                <span className="text-dark-light text-xs">
+                  {currentUser?.email}
+                </span>
+              </div>
+            </div>
           }
           options={[
             {
               value: "profile_setting",
               label: "Profile Setting",
               leftNode: <Icon icon="tdesign:user-setting" />,
-              onClick: () => {
-                onProfileDetailClickHandler();
-              },
+              separator: false,
+              onClick: () => router.push("/profile"),
             },
+
             {
+              separator: false,
               value: "logout",
               label:
                 logoutFromServerState.isPending ||
@@ -121,7 +138,10 @@ export function NavBar() {
                 logoutFromLocalState.isPending ? (
                   <Spinner color="primary" size="sm" />
                 ) : (
-                  <Icon icon="material-symbols:logout" />
+                  <Icon
+                    icon="solar:logout-outline"
+                    className="text-destructive"
+                  />
                 ),
               onClick:
                 logoutFromServerState.isPending ||

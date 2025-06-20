@@ -125,7 +125,6 @@ export function DropdownMenu({
         align={align}
       >
         {label && <DropdownMenuLabel>{label}</DropdownMenuLabel>}
-        {label && options.length > 0 && <DropdownMenuSeparator />}
         {renderMenuItems(options)}
       </DropdownMenuContent>
     </ShadcnDropdownMenu>
