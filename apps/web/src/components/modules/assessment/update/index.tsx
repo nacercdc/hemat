@@ -10,24 +10,24 @@ import { useToast } from "@etm/web-ui-components";
 import type { AssessmentFormData } from "../components/form";
 import { AssessmentForm } from "../components/form";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
-import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
+import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
+import { ASSESSMENT_LIST_KEY } from "../components/table";
 
 export default function UpdateAssessment() {
   const toaster = useToast();
   const router = useRouter();
   const params = useParams();
   const assessmentId = params.id;
-  const { data: assessment, ...assessmentState } = useFindById<Assessment>({
-    path: `assessments/${assessmentId}`,
-  });
+
   const { mutate: updateAssessment, ...updateAssessmentState } = usePutMutation<
     Assessment,
     AssessmentUpdate
-  >(`assessments/${assessmentId}`);
+  >(`assessments/${assessmentId as string}`);
 
   const onCancelAssessmentFormHandler = () => {
-    router.push("/assessment?refresh=true");
+    router.push("/assessment");
   };
+
   const onSubmitAssessmentFormHandler = (data: AssessmentFormData) => {
     updateAssessment(
       {
@@ -47,10 +47,13 @@ export default function UpdateAssessment() {
         onSuccess: () => {
           toaster.toast({
             title: "Success",
-            message: "Assessment Updated successfully",
+            message: "Assessment has been updated successfully",
             variant: "success",
           });
-          router.push("/assessment?refresh=true");
+          queryClient.invalidateQueries({
+            queryKey: [ASSESSMENT_LIST_KEY],
+          });
+          router.push("/assessment");
         },
       }
     );
@@ -59,7 +62,7 @@ export default function UpdateAssessment() {
   return (
     <PageContainer pageTitle="New Assessment" includeBreadcrumb={false}>
       <AssessmentForm
-        assessment={assessment}
+        assessmentId={assessmentId as string}
         isLoading={updateAssessmentState.isPending}
         onSubmitAssessmentForm={onSubmitAssessmentFormHandler}
         onCancelAssessmentForm={onCancelAssessmentFormHandler}

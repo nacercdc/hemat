@@ -18,6 +18,7 @@ import type { Assessment } from "~/libs/models/assessment.model";
 import { useEffect } from "react";
 import { safeDate } from "~/utils/date.util";
 import { AssessmentFormSkeleton } from "./AssessmentFormSkeleton";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 const languageSchema = z.object({
   code: z
     .string()
@@ -60,18 +61,40 @@ const AssessmentFormSchema = z
 export type AssessmentFormData = z.infer<typeof AssessmentFormSchema>;
 
 interface Props {
+  assessmentId?: string;
+  isLoading?: boolean;
   onSubmitAssessmentForm: (values: AssessmentFormData) => void;
   onCancelAssessmentForm?: () => void;
-  isLoading?: boolean;
-  assessment?: Assessment;
 }
 
 export function AssessmentForm({
+  isLoading,
+  assessmentId,
   onSubmitAssessmentForm,
   onCancelAssessmentForm,
-  isLoading = false,
-  assessment,
 }: Props) {
+  const { data: assessment, ...assessmentState } = useFindById<Assessment>({
+    path: `assessments/${assessmentId}`,
+    tqOptions: {
+      enabled: !!assessmentId,
+    },
+  });
+
+  const { data: languages, ...languagesState } = useFindAll<
+    QueryManyResponse<Language>
+  >({
+    path: "/languages",
+  });
+
+  const { data: country, ...countriesState } = useFindAll<
+    QueryManyResponse<Country>
+  >({
+    path: "/countries",
+    tqOptions: {
+      enabled: false,
+    },
+  });
+
   const { control, handleSubmit, reset } = useForm<AssessmentFormData>({
     defaultValues: {
       name: "",
@@ -90,25 +113,9 @@ export function AssessmentForm({
     onCancelAssessmentForm?.();
     reset();
   };
-  const { data: languages, ...languagesState } = useFindAll<
-    QueryManyResponse<Language>
-  >({
-    path: "/languages",
-  });
-  const { data: country, ...countriesState } = useFindAll<
-    QueryManyResponse<Country>
-  >({
-    path: "/countries",
-  });
-  const languageOptions: Language[] =
-    (languages?.data as unknown as Language[]) ?? [];
-  const countryOptions: Country[] =
-    (country?.data as unknown as Country[]) ?? [];
 
   useEffect(() => {
     if (!assessment) return;
-    console.log("Raw:", assessment.startDate);
-    console.log("Parsed:", safeDate(assessment.startDate));
     reset({
       name: assessment?.name,
       startDate: safeDate(assessment.startDate),
@@ -123,9 +130,11 @@ export function AssessmentForm({
       description: assessment?.description,
     });
   }, [assessment, reset]);
-  if (!assessment) {
+
+  if (assessmentState.isLoading) {
     return <AssessmentFormSkeleton />;
   }
+
   return (
     <form
       onSubmit={handleSubmit((values) => {
@@ -173,8 +182,9 @@ export function AssessmentForm({
           displayLabel="Country"
           labelVariant="bold"
           size="xl"
-          options={countryOptions}
-          loading={countriesState.isLoading}
+          onOpenChange={() => countriesState.refetch()}
+          options={(country?.data as unknown as Country[]) ?? []}
+          loading={countriesState.isLoading || countriesState.isFetching}
         />
         <InputRHF
           control={control}
@@ -188,7 +198,7 @@ export function AssessmentForm({
           control={control}
           name="languages"
           placeholder="Select Languages"
-          options={languageOptions}
+          options={(languages?.data as unknown as Language[]) ?? []}
           valueKey="code"
           labelKey="name"
           displayLabel="Languages"

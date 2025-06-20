@@ -6,12 +6,13 @@ import { Dialog, DropdownMenu, useToast } from "@etm/web-ui-components";
 import type { DialogRef } from "@etm/web-ui-components";
 import type { Assessment } from "~/libs/models/assessment.model";
 import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
+import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
+import { ASSESSMENT_LIST_KEY } from ".";
 
 interface Props {
   assessment: Assessment;
-  onRefetch?: () => void;
 }
-export default function AssessmentAction({ assessment, onRefetch }: Props) {
+export default function AssessmentAction({ assessment }: Props) {
   const deleteDialogRef = useRef<DialogRef>(null);
   const router = useRouter();
   const { toast } = useToast();
@@ -29,7 +30,9 @@ export default function AssessmentAction({ assessment, onRefetch }: Props) {
       {
         onSuccess: () => {
           deleteDialogRef.current?.closeDialog();
-          onRefetch?.();
+          queryClient.invalidateQueries({
+            queryKey: [ASSESSMENT_LIST_KEY],
+          });
           toast({
             title: "Success",
             message: "Assessment has been deleted successfully.",

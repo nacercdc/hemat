@@ -1,80 +1,13 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import type { PaginationState, SortingState } from "@etm/web-ui-components";
 import { Button } from "@etm/web-ui-components";
 import { AssessmentsTable } from "./components/table";
 import { PageContainer } from "../components/PageContainer";
-import { useState, useCallback, useEffect } from "react";
-import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "~/constants";
-import type {
-  Assessment,
-  AssessmentFilterable,
-  AssessmentSortable,
-} from "~/libs/models/assessment.model";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export function Assessments() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const shouldRefresh = searchParams.get("refresh") === "true";
-  const [search, setSearch] = useState("");
-  const [_sort, setSort] = useState<
-    {
-      direction: string;
-      field: string | number | symbol;
-    }[]
-  >([
-    {
-      direction: "desc",
-      field: "created_at",
-    },
-  ]);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: DEFAULT_PAGE_INDEX,
-    pageSize: DEFAULT_PAGE_SIZE,
-  });
-
-  const { data: assessments, ...assessmentsState } = useFindAll<
-    QueryManyResponse<Assessment>,
-    unknown,
-    AssessmentSortable,
-    AssessmentFilterable
-  >({
-    path: "/assessments",
-    queries: {
-      limit: pagination.pageSize,
-      page: pagination.pageIndex + 1,
-      search,
-    },
-  });
-
-  const onSortingChangeHandler = (sortingState: SortingState) => {
-    setSort(
-      sortingState.map((v) => ({
-        direction: v.desc ? "desc" : "asc",
-        field: v.id as keyof Assessment,
-      }))
-    );
-    setPagination({
-      pageIndex: DEFAULT_PAGE_INDEX,
-      pageSize: DEFAULT_PAGE_SIZE,
-    });
-  };
-  const onSearchFilterChangeHandler = useCallback((value: string) => {
-    setSearch(value);
-    setPagination({
-      pageIndex: DEFAULT_PAGE_INDEX,
-      pageSize: DEFAULT_PAGE_SIZE,
-    });
-  }, []);
-  useEffect(() => {
-    if (shouldRefresh) {
-      assessmentsState.refetch();
-    }
-  }, [shouldRefresh]);
 
   return (
     <PageContainer
@@ -82,9 +15,7 @@ export function Assessments() {
       includeBreadcrumb={false}
       actionNodes={
         <Button
-          leftNode={
-            <Icon icon={"material-symbols:add"} className="!w-5 !h-5" />
-          }
+          leftNode={<Icon icon="material-symbols:add" className="!w-5 !h-5" />}
           size="lg"
           onClick={() => {
             router.push("/assessment/create");
@@ -94,14 +25,7 @@ export function Assessments() {
         </Button>
       }
     >
-      <AssessmentsTable
-        assessments={(assessments?.data as unknown as Assessment[]) ?? []}
-        isLoading={assessmentsState.isFetching}
-        refetch={assessmentsState.refetch}
-        onSortingChange={onSortingChangeHandler}
-        onSearchFilterChange={onSearchFilterChangeHandler}
-        onPaginationChange={setPagination}
-      />
+      <AssessmentsTable />
     </PageContainer>
   );
 }

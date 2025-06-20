@@ -11,6 +11,8 @@ import { PageContainer } from "~/components/modules/components/PageContainer";
 import { useToast } from "@etm/web-ui-components";
 import type { AssessmentFormData } from "../components/form";
 import { AssessmentForm } from "../components/form";
+import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
+import { ASSESSMENT_LIST_KEY } from "../components/table";
 
 export default function CreateAssessment() {
   const router = useRouter();
@@ -19,9 +21,11 @@ export default function CreateAssessment() {
     Assessment,
     AssessmentCreate
   >("/assessments");
+
   const onCancelAssessmentFormHandler = () => {
-    router.push("/assessment?refresh=true");
+    router.push("/assessment");
   };
+
   const onSubmitAssessmentFormHandler = (data: AssessmentFormData) => {
     createAssessment(
       {
@@ -40,10 +44,13 @@ export default function CreateAssessment() {
         onSuccess: () => {
           toaster.toast({
             title: "Success",
-            message: "Assessment created successfully",
+            message: "Assessment has been created successfully.",
             variant: "success",
           });
-          router.push("/assessment?refresh=true");
+          queryClient.invalidateQueries({
+            queryKey: [ASSESSMENT_LIST_KEY],
+          });
+          router.push("/assessment");
         },
       }
     );
