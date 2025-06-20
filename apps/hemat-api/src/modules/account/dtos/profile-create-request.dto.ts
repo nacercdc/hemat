@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
   IsEnum,
@@ -12,15 +12,15 @@ import { IsUnique } from '../../../shared/validators';
 import { GenderEnum } from '../../../shared/enums';
 
 export class ProfileCreateRequestDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Title of the user',
-    example: 'Manager',
+    example: 'Mr.,Ms.,Dr.',
     type: String,
   })
   @IsString({ message: 'validation.title.isString' })
-  @IsNotEmpty({ message: 'validation.title.isNotEmpty' })
+  @IsOptional()
   @Type(() => String)
-  title: string;
+  title?: string;
 
   @ApiProperty({
     description: 'First name',
@@ -91,13 +91,13 @@ export class ProfileCreateRequestDto {
   @Type(() => String)
   jobTitle: string;
 
-  @ApiProperty({
-    description: 'Profile status',
-    example: 'active',
+  @ApiPropertyOptional({
+    description: 'Phone number',
+    example: '+251900000000',
     type: String,
   })
-  @IsString({ message: 'validation.status.isString' })
+  @IsString({ message: 'validation.phoneNumber.isString' })
   @IsOptional()
   @Type(() => String)
-  status?: string;
+  phoneNumber?: string;
 }
