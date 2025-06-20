@@ -1,5 +1,6 @@
 import type { Sort } from "../tanstack-api-query/helpers/types";
 import type { Permission } from "./permission.model";
+import type { Profile } from "./profile.model";
 import type { Role } from "./role.model";
 
 export enum UserStatus {
@@ -20,6 +21,7 @@ export interface User {
   lang: string;
   roles: Role[];
   permissions: Permission[];
+  profile: Profile;
   createdAt: string;
 }
 
@@ -37,7 +39,7 @@ export interface UpdateUser extends CreateUser {
   id: string;
 }
 
-export type UserIncludable = "permissions" | "roles";
+export type UserIncludable = "permissions" | "roles" | "profile";
 export type UserSortable = "name" | "createdAt" | "updatedAt";
 
 export type UserSorts = Sort<UserSortable>;

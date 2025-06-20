@@ -11,7 +11,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { Country } from "~/libs/models/country.model";
 import type { Language } from "~/libs/models/language.model";
 import type { Assessment } from "~/libs/models/assessment.model";
@@ -80,15 +79,11 @@ export function AssessmentForm({
     },
   });
 
-  const { data: languages, ...languagesState } = useFindAll<
-    QueryManyResponse<Language>
-  >({
+  const { data: languages, ...languagesState } = useFindAll<Language>({
     path: "/languages",
   });
 
-  const { data: country, ...countriesState } = useFindAll<
-    QueryManyResponse<Country>
-  >({
+  const { data: countries, ...countriesState } = useFindAll<Country>({
     path: "/countries",
     tqOptions: {
       enabled: false,
@@ -183,7 +178,7 @@ export function AssessmentForm({
           labelVariant="bold"
           size="xl"
           onOpenChange={() => countriesState.refetch()}
-          options={(country?.data as unknown as Country[]) ?? []}
+          options={(countries?.data as unknown as Country[]) ?? []}
           loading={countriesState.isLoading || countriesState.isFetching}
         />
         <InputRHF
