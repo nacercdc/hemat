@@ -21,3 +21,4 @@ export {
 } from "./checkbox";
 export * from "./filter";
 export * from "./color-picker";
+export { Switch, SwitchRHF } from "./switch";
