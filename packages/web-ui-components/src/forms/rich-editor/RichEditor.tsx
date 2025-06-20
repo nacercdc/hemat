@@ -12,15 +12,11 @@ import { $generateNodesFromDOM } from "@lexical/html";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import OnChangePlugin from "./plugins/OnChangePlugin";
 import ToolbarPlugin from "./plugins/ToolbarPlugin";
 import ShortcutsPlugin from "./plugins/ShortcutsPlugin";
 import ContentEditable from "./ui/ContentEditable";
-import ETMEditorNodes from "./nodes/ETMEditorNodes";
-import { ToolbarContext } from "./context/ToolbarContext";
 import { useSharedHistoryContext } from "./context/SharedHistoryContext";
-import { theme as EditorTheme } from "./themes/EditorTheme";
 
 import "./themes/editorGlobals.css";
 
@@ -34,25 +30,18 @@ export interface ETMEditorRef {
   isEmpty: () => boolean;
 }
 
-interface RichEditorProps {
-  onStateChange?: (state: string) => void;
+export interface RichEditorProps {
   initialState?: string;
   isEnabled: boolean;
   label: string;
   description?: string;
   placeholder?: string;
+  onChange?: (state: string) => void;
 }
 
-const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
+export const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
   (
-    {
-      onStateChange,
-      initialState,
-      isEnabled,
-      label,
-      description,
-      placeholder = "",
-    },
+    { initialState, isEnabled, label, description, placeholder = "", onChange },
     ref
   ) => {
     const [editor] = useLexicalComposerContext();
@@ -140,7 +129,7 @@ const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
             <TabIndentationPlugin maxIndent={7} />
             <CheckListPlugin />
             <ImagesPlugin />
-            {onStateChange && <OnChangePlugin onChange={onStateChange} />}
+            {onChange && <OnChangePlugin onChange={onChange} />}
           </div>
         </div>
         {description && (
@@ -149,63 +138,6 @@ const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
           </div>
         )}
       </div>
-    );
-  }
-);
-
-interface Props {
-  label: string;
-  description?: string;
-  placeholder?: string;
-  initialEditorState?: string;
-  onEditorStateChange?: (state: string) => void;
-  isEditorEnabled?: boolean;
-}
-
-export const ETMEditor = forwardRef<ETMEditorRef, Props>(
-  (
-    {
-      onEditorStateChange,
-      initialEditorState,
-      isEditorEnabled = true,
-      label,
-      description,
-      placeholder,
-    },
-    ref
-  ) => {
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-      setIsMounted(true);
-    }, []);
-
-    if (!isMounted) {
-      return null;
-    }
-    const initialConfig = {
-      editorState: null,
-      namespace: "ETMEditor",
-      nodes: [...ETMEditorNodes],
-      onError: (error: Error) => {
-        throw error;
-      },
-      theme: EditorTheme,
-    };
-    return (
-      <LexicalComposer initialConfig={initialConfig}>
-        <ToolbarContext>
-          <RichEditor
-            ref={ref}
-            onStateChange={onEditorStateChange}
-            initialState={initialEditorState}
-            isEnabled={isEditorEnabled}
-            label={label}
-            description={description}
-            placeholder={placeholder}
-          />
-        </ToolbarContext>
-      </LexicalComposer>
     );
   }
 );
