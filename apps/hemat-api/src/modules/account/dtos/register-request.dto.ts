@@ -130,4 +130,14 @@ export class RegisterRequestDto {
   @IsOptional()
   @Type(() => String)
   invitationId: string | null = null;
+
+  @ApiPropertyOptional({
+    description: "The user's phone number",
+    example: '+251900000000',
+    type: String,
+  })
+  @IsString({ message: 'validation.phoneNumber.isString' })
+  @IsOptional()
+  @Type(() => String)
+  phoneNumber?: string;
 }

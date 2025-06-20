@@ -25,6 +25,7 @@ import {
   ApiUnprocessableEntityResponse,
   ApiTooManyRequestsResponse,
   ApiNotFoundResponse,
+  ApiBody,
 } from '@nestjs/swagger';
 import { User } from '@database/entities';
 import { Abilities, AuthGuard } from '@shared/modules';
@@ -38,6 +39,13 @@ import {
   UserUpdateRequestDto,
   UpdatePasswordRequestDto,
 } from '../dtos';
+import { IsEnum, IsString } from 'class-validator';
+
+export class UserStatusActionDto {
+  @IsString()
+  @IsEnum(['activate', 'deactivate'], { message: 'action must be activate or deactivate' })
+  action: 'activate' | 'deactivate';
+}
 
 @ApiBearerAuth()
 @ApiTags('Users')
@@ -230,5 +238,57 @@ export class UserController {
   @Post(':id/restore')
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.userService.restore(id);
+  }
+
+  @ApiOperation({
+    summary: 'Set user status',
+    description: 'Activate or deactivate user by ID',
+  })
+  @ApiOkResponse({ description: 'Ok', type: User })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @ApiBody({
+    description: 'Action to perform on user status',
+    schema: {
+      type: 'object',
+      properties: {
+        action: {
+          type: 'string',
+          enum: ['activate', 'deactivate'],
+          example: 'activate',
+        },
+      },
+      required: ['action'],
+      examples: {
+        Activate: {
+          summary: 'Activate user',
+          value: { action: 'activate' },
+        },
+        Deactivate: {
+          summary: 'Deactivate user',
+          value: { action: 'deactivate' },
+        },
+      },
+    },
+  })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.UPDATE,
+        subject: PermissionSubjectEnum.USER,
+      },
+    ],
+  })
+  @Patch(':id/status')
+  async setStatus(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() payload: UserStatusActionDto,
+  ) {
+    return this.userService.setStatus(id, payload.action);
   }
 }
