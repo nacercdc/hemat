@@ -15,6 +15,7 @@ import type { UpdateUser, User } from "~/libs/models/user.model";
 import type { PermissionModule, UserFormData } from "../form";
 import type { PermissionType } from "~/components/modules/administration/types";
 import type { Permission } from "~/libs/models/permission.model";
+import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 
 interface Props {
   user: User;
@@ -25,13 +26,36 @@ interface Props {
 export default function UserAction({ user, modules, permissions }: Props) {
   const updateUserModalRef = useRef<ModalRef>(null);
   const deleteUserDialogRef = useRef<DialogRef>(null);
+
   const queryClient = useQueryClient();
+
   const { toast } = useToast();
 
   const { mutate: updateUser, ...updateUserState } = usePutMutation<
     User,
     UpdateUser
   >("users");
+
+  const { mutate: deleteUser, ...deleteUserState } = useDeleteMutation(
+    `users/${user.id}`
+  );
+
+  const onDeleteUserHandler = () => {
+    deleteUser(
+      {},
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            message: "User has been deleted successfully!",
+            variant: "success",
+          });
+          queryClient.invalidateQueries({ queryKey: ["/users"] });
+          deleteUserDialogRef.current?.closeDialog();
+        },
+      }
+    );
+  };
 
   const onUpdateUserFormSubmitHandler = (
     modulePermissions: Record<string, Record<PermissionType, boolean>>,
@@ -133,9 +157,9 @@ export default function UserAction({ user, modules, permissions }: Props) {
       <Dialog
         ref={deleteUserDialogRef}
         actionLabel="Yes"
-        onAction={() => {
-          //TODO: implement on delete user action
-        }}
+        onAction={onDeleteUserHandler}
+        autoClosable={false}
+        actionLoading={deleteUserState.isPending}
         title="Delete User"
       >
         Are you sure you want to delete this user?
