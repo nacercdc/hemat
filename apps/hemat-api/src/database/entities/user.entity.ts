@@ -17,6 +17,7 @@ import { AssessmentMember } from './assessment-member.entity';
 import { Assessment } from './assessment.entity';
 import { Report } from './report.entity';
 import { Answer } from './answer.entity';
+import { Roadmap } from './roadmap.entity';
 
 @Entity('users')
 export class User extends BaseEntityWithSoftDelete {
@@ -142,6 +143,9 @@ export class User extends BaseEntityWithSoftDelete {
 
   @OneToMany(() => Answer, (answer) => answer.user)
   answers: Answer[] | null;
+
+  @OneToMany(() => Roadmap, (roadmap) => roadmap.user)
+  roadmaps: Roadmap[] | null;
 
   @OneToMany(() => Assessment, (assessment) => assessment.user)
   assessments: Assessment[] | null;

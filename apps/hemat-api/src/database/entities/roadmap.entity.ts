@@ -1,8 +1,17 @@
-import { Entity, Column, OneToMany, Index } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToMany,
+  Index,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { AssessmentSubComponentRoadmap } from './assessment-sub-component-roadmap.entity';
 import { AnswerStatus } from '@shared/enums';
+import { Assessment } from './assessment.entity';
+import { User } from './user.entity';
 
 @Entity('roadmaps')
 export class Roadmap extends BaseEntityWithSoftDelete {
@@ -15,6 +24,10 @@ export class Roadmap extends BaseEntityWithSoftDelete {
   @Column({ type: 'uuid' })
   assessmentId: string;
 
+  @ManyToOne(() => Assessment, (assessment) => assessment.roadmaps)
+  @JoinColumn({ name: 'assessmentId' })
+  assessment: Assessment;
+
   @ApiProperty({
     description: 'ID of the user who created the roadmap',
     example: '07c59665-17d1-4d68-97e8-9b1e2eea1bd9',
@@ -23,6 +36,10 @@ export class Roadmap extends BaseEntityWithSoftDelete {
   @Index()
   @Column({ type: 'uuid' })
   userId: string;
+
+  @ManyToOne(() => User, (user) => user.roadmaps)
+  @JoinColumn({ name: 'userId' })
+  user: User | null;
 
   @ApiProperty({
     description: 'Whether the roadmap is primary',

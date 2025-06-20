@@ -24,6 +24,7 @@ import { AssessmentStatus } from '@shared/enums';
 import { AssessmentGroup } from './assessment-group.entity';
 import { Language } from './language.entity';
 import { Answer } from './answer.entity';
+import { Roadmap } from './roadmap.entity';
 
 @Entity('assessments')
 export class Assessment extends BaseEntityWithSoftDelete {
@@ -158,6 +159,9 @@ export class Assessment extends BaseEntityWithSoftDelete {
 
   @OneToMany(() => Answer, (answers) => answers.assessment)
   answers: Answer[] | null;
+
+  @OneToMany(() => Roadmap, (roadmaps) => roadmaps.assessment)
+  roadmaps: Roadmap[] | null;
 
   @OneToMany(() => Invitation, (invitation) => invitation.assessment)
   invitations: Invitation[] | null;
