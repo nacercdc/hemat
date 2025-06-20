@@ -35,6 +35,11 @@ export interface CreateUser {
   confirmPassword?: string;
 }
 
+export interface PasswordChange {
+  password: string;
+  confirmPassword: string;
+}
+
 export interface UpdateUser extends CreateUser {
   id: string;
 }

@@ -74,7 +74,7 @@ const ProfileDetailSchema = z.object({
     }),
   gender: GenderSchema.optional(),
   country: CountrySchema.optional(),
-  jobTitle: z.string().optional(),
+  jobTitle: z.string().min(1, { message: "Job title is required" }),
   email: z.string().optional(),
   dateOfBirth: z.date().optional(),
 });
@@ -129,6 +129,7 @@ export default function ProfileTab() {
       },
       {
         onSuccess: () => {
+          currentUserState.refetch();
           toast({
             title: "Success",
             message: "You profile has been updated successfully.",
