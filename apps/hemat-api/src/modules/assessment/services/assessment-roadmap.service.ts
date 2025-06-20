@@ -18,7 +18,7 @@ import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
 import { MemberRole, AnswerStatus } from '@shared/enums';
 import { PercentageUtil } from '../utils';
-import { RoadmapValidator } from '../utils/roadmap.validator';
+import { AssessmentRoadmapValidator } from '../utils/assessment-roadmap.validator';
 import {
   RoadmapCreateRequestDto,
   RoadmapUpdateRequestDto,
@@ -27,13 +27,13 @@ import {
 } from '../dtos';
 
 @Injectable()
-export class RoadmapService {
+export class AssessmentRoadmapService {
   constructor(
     @InjectRepository(Roadmap) private roadmapRepository: Repository<Roadmap>,
     @InjectRepository(Assessment)
     private assessmentRepository: Repository<Assessment>,
     private dataSource: DataSource,
-    private validator: RoadmapValidator,
+    private validator: AssessmentRoadmapValidator,
   ) {}
 
   async findAll(
@@ -99,7 +99,6 @@ export class RoadmapService {
         manager,
       );
 
-      // Restrict submission to Primary role
       if (member.role !== MemberRole.PRIMARY) {
         throw new ForbiddenException('Only Primary role can submit roadmaps');
       }
@@ -112,7 +111,6 @@ export class RoadmapService {
         manager,
       );
 
-      // Validate subComponentId belongs to assessmentId
       const subComponent = await manager.findOne(AssessmentSubComponent, {
         where: { id: payload.subComponentId, assessmentId },
       });
@@ -122,17 +120,15 @@ export class RoadmapService {
         );
       }
 
-      // Validate answerId exists, belongs to assessmentId, and isPrimary=true
       const answer = await manager.findOne(Answer, {
         where: { id: payload.answerId, assessmentId, isPrimary: true },
       });
       if (!answer) {
         throw new BadRequestException(
-          `Answer ${payload.answerId} is not primary or does not belong to assessment ${assessmentId}`,
+          `Answer ${payload.answerId} is not primary Answer or does not belong to assessment ${assessmentId}`,
         );
       }
 
-      // Validate measurementScaleId
       const measurementScale = await manager.findOne(
         AssessmentMeasurementScale,
         {
@@ -159,7 +155,6 @@ export class RoadmapService {
         await manager.save(Roadmap, roadmap);
       }
 
-      // Check if the subcomponent roadmap already exists (upsert)
       let subComponentRoadmap = await manager.findOne(
         AssessmentSubComponentRoadmap,
         {
@@ -171,7 +166,6 @@ export class RoadmapService {
       );
 
       if (subComponentRoadmap) {
-        // Update existing subcomponent roadmap
         Object.assign(subComponentRoadmap, {
           answerId: payload.answerId,
           measurementScaleId: payload.measurementScaleId,
@@ -185,7 +179,6 @@ export class RoadmapService {
           endTime: new Date(payload.endTime),
         });
       } else {
-        // Create new subcomponent roadmap
         subComponentRoadmap = manager.create(AssessmentSubComponentRoadmap, {
           roadmapId: roadmap.id,
           subComponentId: payload.subComponentId,
@@ -347,43 +340,6 @@ export class RoadmapService {
           ? AnswerStatus.COMPLETED
           : AnswerStatus.INPROGRESS;
       return manager.save(Roadmap, roadmap);
-    });
-  }
-
-  async delete(
-    assessmentId: string,
-    id: string,
-    userId: string,
-  ): Promise<Roadmap> {
-    return this.dataSource.transaction(async (manager) => {
-      await this.validateAssessment(assessmentId);
-      const roadmap = await manager.findOne(Roadmap, {
-        where: { id, assessmentId, userId },
-      });
-      if (!roadmap) throw new NotFoundException(`Roadmap ${id} not found`);
-
-      await this.validator.validateMembership(assessmentId, userId, manager);
-
-      return manager.softRemove(Roadmap, roadmap);
-    });
-  }
-
-  async restore(
-    assessmentId: string,
-    id: string,
-    userId: string,
-  ): Promise<Roadmap> {
-    return this.dataSource.transaction(async (manager) => {
-      await this.validateAssessment(assessmentId);
-      const roadmap = await manager.findOne(Roadmap, {
-        where: { id, assessmentId, userId },
-        withDeleted: true,
-      });
-      if (!roadmap) throw new NotFoundException(`Roadmap ${id} not found`);
-
-      await this.validator.validateMembership(assessmentId, userId, manager);
-
-      return manager.recover(Roadmap, roadmap);
     });
   }
 

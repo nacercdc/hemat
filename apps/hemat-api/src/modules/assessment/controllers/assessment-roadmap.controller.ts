@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Put,
-  Delete,
   Param,
   Body,
   Query,
@@ -30,7 +29,7 @@ import { Roadmap } from '@database/entities';
 import { Abilities, AuthGuard, AuthDto } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
-import { RoadmapService } from '../services';
+import { AssessmentRoadmapService } from '../services';
 import {
   FindAllRoadmapDto,
   FindOneRoadmapDto,
@@ -59,8 +58,8 @@ import {
 })
 @UseGuards(AuthGuard)
 @Controller('assessments/:assessmentId/roadmaps')
-export class RoadmapController {
-  constructor(private readonly roadmapService: RoadmapService) {}
+export class AssessmentRoadmapController {
+  constructor(private readonly roadmapService: AssessmentRoadmapService) {}
 
   @ApiOperation({
     summary: 'Find all roadmaps',
@@ -183,65 +182,5 @@ export class RoadmapController {
     @Body() payload: RoadmapUpdateRequestDto,
   ): Promise<Roadmap> {
     return this.roadmapService.update(assessmentId, req.user.id, id, payload);
-  }
-
-  @ApiOperation({
-    summary: 'Delete a roadmap',
-    description:
-      'Soft delete a roadmap by ID for the authenticated user (Primary role only)',
-  })
-  @ApiOkResponse({ description: 'Ok', type: Roadmap })
-  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @ApiForbiddenResponse({
-    description: 'Forbidden: Only Primary role can delete',
-    type: ExceptionResponseDto,
-  })
-  @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.DELETE,
-        subject: PermissionSubjectEnum.ROADMAP,
-      },
-    ],
-  })
-  @Delete(':id')
-  async delete(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Request() req: { user: AuthDto },
-  ): Promise<Roadmap> {
-    return this.roadmapService.delete(assessmentId, id, req.user.id);
-  }
-
-  @ApiOperation({
-    summary: 'Restore a roadmap',
-    description:
-      'Restore a soft-deleted roadmap by ID for the authenticated user (Primary role only)',
-  })
-  @ApiOkResponse({ description: 'Ok', type: Roadmap })
-  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @ApiForbiddenResponse({
-    description: 'Forbidden: Only Primary role can restore',
-    type: ExceptionResponseDto,
-  })
-  @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.RESTORE,
-        subject: PermissionSubjectEnum.ROADMAP,
-      },
-    ],
-  })
-  @Post(':id/restore')
-  async restore(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Request() req: { user: AuthDto },
-  ): Promise<Roadmap> {
-    return this.roadmapService.restore(assessmentId, id, req.user.id);
   }
 }

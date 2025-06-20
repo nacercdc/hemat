@@ -5,7 +5,7 @@ import { MemberRole } from '@shared/enums';
 import { RoadmapCreateRequestDto, RoadmapUpdateRequestDto } from '../dtos';
 
 @Injectable()
-export class RoadmapValidator {
+export class AssessmentRoadmapValidator {
   constructor(private dataSource: DataSource) {}
 
   async validateMembership(

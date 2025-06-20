@@ -37,10 +37,10 @@ import {
   AssessmentGroupController,
   AssessmentMemberController,
   AssessmentAnswerController,
-  RoadmapController,
+  AssessmentRoadmapController,
 } from './controllers';
 import { AuthModule } from '@shared/modules';
-import { AssessmentAnswerValidator, RoadmapValidator } from './utils';
+import { AssessmentAnswerValidator, AssessmentRoadmapValidator } from './utils';
 
 @Module({
   imports: [
@@ -78,12 +78,12 @@ import { AssessmentAnswerValidator, RoadmapValidator } from './utils';
     AssessmentGroupController,
     AssessmentMemberController,
     AssessmentAnswerController,
-    RoadmapController,
+    AssessmentRoadmapController,
   ],
   providers: [
     ...ASSESSMENT_SERVICES,
     AssessmentAnswerValidator,
-    RoadmapValidator,
+    AssessmentRoadmapValidator,
   ],
   exports: [AssessmentService, AssessmentMemberService],
 })

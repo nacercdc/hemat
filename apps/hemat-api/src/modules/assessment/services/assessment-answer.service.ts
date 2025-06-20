@@ -91,7 +91,6 @@ export class AssessmentAnswerService {
         manager,
       );
 
-      // Restrict submission to Primary or Team Leader roles
       if (
         member.role !== MemberRole.PRIMARY &&
         member.role !== MemberRole.TEAM_LEADER
@@ -103,14 +102,12 @@ export class AssessmentAnswerService {
 
       const isPrimary = payload.isPrimary ?? false;
 
-      // Validate that Primary role users can submit with isPrimary=true, others cannot
       if (isPrimary && member.role !== MemberRole.PRIMARY) {
         throw new BadRequestException(
           'Only Primary role can submit primary answers',
         );
       }
 
-      // Validate that subComponentId belongs to the assessmentId
       const subComponent = await manager.findOne(AssessmentSubComponent, {
         where: { id: payload.subComponentId, assessmentId },
       });
@@ -144,7 +141,6 @@ export class AssessmentAnswerService {
         await manager.save(Answer, answer);
       }
 
-      // Check if the subcomponent is already answered for this answer
       let subComponentAnswer = await manager.findOne(
         AssessmentSubComponentAnswer,
         {
@@ -156,7 +152,6 @@ export class AssessmentAnswerService {
       );
 
       if (subComponentAnswer) {
-        // Update existing subcomponent answer (upsert behavior)
         Object.assign(subComponentAnswer, {
           measurementScaleId: payload.measurementScaleId,
           evidence: payload.evidence,
@@ -164,7 +159,6 @@ export class AssessmentAnswerService {
           notes: payload.notes,
         });
       } else {
-        // Create new subcomponent answer
         subComponentAnswer = manager.create(AssessmentSubComponentAnswer, {
           subComponentId: payload.subComponentId,
           measurementScaleId: payload.measurementScaleId,
@@ -211,7 +205,6 @@ export class AssessmentAnswerService {
         manager,
       );
 
-      // Restrict updates to Primary or Team Leader roles
       if (
         member.role !== MemberRole.PRIMARY &&
         member.role !== MemberRole.TEAM_LEADER
@@ -221,7 +214,6 @@ export class AssessmentAnswerService {
         );
       }
 
-      // Validate that Primary role users can update isPrimary, others cannot
       if (
         payload.isPrimary !== undefined &&
         member.role !== MemberRole.PRIMARY &&
@@ -232,7 +224,6 @@ export class AssessmentAnswerService {
         );
       }
 
-      // Validate that subComponentId belongs to the assessmentId if provided
       if (payload.subComponentId) {
         const subComponent = await manager.findOne(AssessmentSubComponent, {
           where: { id: payload.subComponentId, assessmentId },
