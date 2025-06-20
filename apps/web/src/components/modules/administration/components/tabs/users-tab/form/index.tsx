@@ -1,24 +1,21 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import React, { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { cn } from "~/utils/cn.util";
 import {
   Button,
   Checkbox,
   InputRHF,
-  PhoneNumberInputRHF,
-  SelectRHF,
+  PhoneNumberInputRHF as _,
+  MultiSelectRHF,
 } from "@etm/web-ui-components";
-import { isValidPhoneNumber } from "libphonenumber-js";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import type { Role } from "~/libs/models/role.model";
-import { cn } from "~/utils/cn.util";
 import type { PermissionType } from "~/components/modules/administration/types";
-
-// Dummy temporary Role data
-const roleOptions: Partial<Role>[] = [
-  { id: "super-administrator", name: "Super Admininistrator" },
-];
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import { generatePassword } from "~/components/modules/administration/utils";
 
 export interface PermissionModule {
   name: string;
@@ -39,17 +36,15 @@ const RoleSchema = z.object({
 });
 
 const UserFormSchema = z.object({
+  title: z.string().min(1, { message: "Title name is required" }),
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
   email: z
     .string()
     .min(1, { message: "Email is required" })
     .email({ message: "Invalid Email address" }),
-  role: RoleSchema,
-  phoneNumber: z
-    .string()
-    .min(1, { message: "Mobile phone is required" })
-    .refine(isValidPhoneNumber, { message: "Invalid phone number" }),
+  password: z.string().min(1, { message: "Password is required" }).optional(),
+  roles: z.array(RoleSchema).min(1, { message: "At least select one role" }),
 });
 
 export type UserFormData = z.infer<typeof UserFormSchema>;
@@ -60,7 +55,8 @@ interface Props {
   rolePermissions?: Record<string, Partial<Record<PermissionType, boolean>>>;
   modules: PermissionModule[];
   onSubmitUserFormHandler: (
-    permissions: Record<string, Record<PermissionType, boolean>>
+    permissions: Record<string, Record<PermissionType, boolean>>,
+    values: UserFormData
   ) => void;
   onCloseModal?: () => void;
   onRefetch?: () => void;
@@ -76,15 +72,15 @@ export function UserForm({
 }: Props) {
   const { control, handleSubmit, reset } = useForm<UserFormData>({
     defaultValues: {
+      title: "Mrs",
       firstName: "",
       lastName: "",
       email: "",
+      password: generatePassword(),
     },
     resolver: zodResolver(UserFormSchema),
     mode: "onChange",
   });
-
-  const [noPermissionSelected, setNoPermissionSelected] = useState(false);
 
   const [permissionState, setPermissionState] = useState<
     Record<string, Record<PermissionType, boolean>>
@@ -102,22 +98,25 @@ export function UserForm({
     return state;
   });
 
+  const { data: roles, ...rolesState } = useFindAll<QueryManyResponse<Role>>({
+    path: "/roles",
+    queries: {
+      limit: 100, //TODO: need all here
+      page: 1,
+      include: ["permissions"],
+    },
+  });
+
   useEffect(() => {
-    if (user) reset(user);
+    //TODO: this is wrong: title should not be updated like this
+    if (user) reset({ ...user, title: "Mrs" });
   }, [user, reset]);
 
-  const onSubmitHandler = () => {
-    if (isAllUnchecked()) {
-      setNoPermissionSelected(true);
-
-      return;
-    }
-    onSubmitUserFormHandler(permissionState);
+  const onSubmitHandler = (values: UserFormData) => {
+    onSubmitUserFormHandler(permissionState, values);
   };
 
   const handleCheckboxChange = (moduleName: string, type: PermissionType) => {
-    if (noPermissionSelected) setNoPermissionSelected(false);
-
     const checked = !permissionState[moduleName]?.[type];
     const newState = {
       ...permissionState,
@@ -141,8 +140,6 @@ export function UserForm({
   };
 
   const handleToggleAllModule = (moduleName: string) => {
-    if (noPermissionSelected) setNoPermissionSelected(false);
-
     const allChecked = permissionTypes.every(
       (type) => permissionState[moduleName]?.[type]
     );
@@ -155,12 +152,6 @@ export function UserForm({
     setPermissionState(newState);
   };
 
-  const isAllUnchecked = () => {
-    return modules.every((module) =>
-      permissionTypes.every((type) => !permissionState[module.name]?.[type])
-    );
-  };
-
   const isAllModuleChecked = (moduleName: string) => {
     return permissionTypes.every((type) => permissionState[moduleName]?.[type]);
   };
@@ -170,7 +161,7 @@ export function UserForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmitHandler)}
-      className="rounded-md flex flex-col w-full gap-5"
+      className="rounded-md flex flex-col w-full max-h-[80vh] gap-5"
     >
       <div className="flex gap-2 px-7">
         <InputRHF
@@ -199,32 +190,26 @@ export function UserForm({
           labelVariant="medium"
           placeholder="Enter email address"
         />
-        <PhoneNumberInputRHF
-          control={control}
-          name="phoneNumber"
-          label="Phone Phone"
-          labelVariant="medium"
-          size="xl"
-          placeholder="Enter your phone phone"
-        />
       </div>
       <div className="px-7">
-        <SelectRHF
-          name="role"
+        <MultiSelectRHF
+          name="roles"
           control={control}
           displayLabel="Role"
           size="xl"
           labelVariant="medium"
           valueKey="id"
           labelKey="name"
-          options={roleOptions}
-          placeholder="Select user's role"
+          options={(roles?.data as unknown as Role[]) || []}
+          placeholder="Select user's roles"
+          onOpenChange={() => rolesState.refetch}
+          loading={rolesState.isFetching || rolesState.isLoading}
         />
       </div>
       <span className="px-7 text-[16px] font-bold">Select Permissions</span>
       <div className="relative overflow-x-auto w-full px-7">
         <div
-          className="grid gap-3 items-center py-4 px-2 w-full rounded-sm rounded-b-none bg-primary-50"
+          className="grid gap-3 items-center py-4 px-2 w-full rounded-sm rounded-b-none bg-dark-lighter/5"
           style={{ gridTemplateColumns }}
         >
           <div className="font-medium text-dark text-sm">Module</div>
@@ -240,14 +225,14 @@ export function UserForm({
             <div
               key={module.name}
               className={cn(
-                "grid gap-3 items-center py-4 px-2 w-full shadow-none rounded-sm rounded-t-none bg-primary-50"
+                "grid gap-3 items-center py-4 px-2 w-full shadow-none rounded-sm rounded-t-none bg-dark-lighter/5"
               )}
               style={{ gridTemplateColumns }}
             >
               <Checkbox
                 checked={isAllModuleChecked(module.name)}
                 onCheckedChange={() => handleToggleAllModule(module.name)}
-                size="lg"
+                size="md"
                 label={module.label}
               />
 
@@ -261,7 +246,7 @@ export function UserForm({
                     onCheckedChange={() =>
                       handleCheckboxChange(module.name, type)
                     }
-                    size="lg"
+                    size="md"
                   />
                 </div>
               ))}
@@ -269,12 +254,7 @@ export function UserForm({
           ))}
         </div>
       </div>
-      {noPermissionSelected && (
-        <span className="text-destructive text-xs px-7">
-          A role must have at least one permission.
-        </span>
-      )}
-      <div className="flex justify-end gap-3 bg-primary-50 py-3 px-7">
+      <div className="flex justify-end gap-3 bg-dark-lighter/5 py-3 px-7">
         <Button
           type="button"
           size="lg"

@@ -3,20 +3,21 @@
 import React, { useCallback, useState } from "react";
 import { Icon } from "@iconify/react";
 import { EmptyTableDataElement } from "~/components/modules/components/EmptyTableDataElement";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import { useRouter } from "next/navigation";
+import { Table as ETMTable } from "@etm/web-ui-components";
+import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "~/constants";
+import { RolesTableColumns } from "./RolesTableColumns";
 import type {
   Role,
   RoleIncludable,
   RoleSortable,
+  RoleSorts,
 } from "~/libs/models/role.model";
-import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import { useRouter } from "next/navigation";
 import type { PaginationState, SortingState } from "@etm/web-ui-components";
-import { Table as ETMTable } from "@etm/web-ui-components";
-import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "~/constants";
+import type { PermissionModule } from "../form";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
-import { RolesTableColumns } from "./RolesTableColumns";
-import { PermissionModule } from "../form";
-import { Permission } from "~/libs/models/permission.model";
+import type { Permission } from "~/libs/models/permission.model";
 
 interface Props {
   modules: PermissionModule[];
@@ -26,12 +27,7 @@ interface Props {
 export function RolesTable({ modules, permissions }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [_sort, setSort] = useState([
-    {
-      direction: "desc",
-      field: "created_at",
-    },
-  ]);
+  const [sort, setSort] = useState<RoleSorts>({});
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: DEFAULT_PAGE_INDEX,
     pageSize: DEFAULT_PAGE_SIZE,
@@ -40,14 +36,14 @@ export function RolesTable({ modules, permissions }: Props) {
   const { data: roles, ...rolesState } = useFindAll<
     QueryManyResponse<Role>,
     RoleIncludable,
-    unknown,
-    RoleSortable
+    unknown
   >({
     path: "/roles",
     queries: {
       limit: pagination.pageSize,
       page: pagination.pageIndex + 1,
       include: ["permissions"],
+      sorts: sort,
       search,
     },
   });
@@ -69,12 +65,13 @@ export function RolesTable({ modules, permissions }: Props) {
   };
 
   const onSortingChangeHandler = (sortingState: SortingState) => {
-    setSort(
-      sortingState.map((v) => ({
-        direction: v.desc ? "desc" : "asc",
-        field: v.id,
-      }))
-    );
+    const newSort: RoleSorts = {};
+
+    sortingState.forEach((v) => {
+      newSort[v.desc ? "descending" : "ascending"] = `${v.id}` as RoleSortable;
+    });
+
+    setSort(newSort);
 
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,

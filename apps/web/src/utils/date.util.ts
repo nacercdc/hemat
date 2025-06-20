@@ -5,6 +5,21 @@ export const safeDate = (input: unknown): Date | undefined => {
   return isNaN(date.getTime()) ? undefined : date;
 };
 
+export const formatSafeDateToYYYYMMDD = (
+  input: unknown
+): string | undefined => {
+  if (!input) return undefined;
+
+  const date =
+    input instanceof Date && !isNaN(input.getTime())
+      ? input
+      : new Date(input as string | number);
+
+  if (isNaN(date.getTime())) return undefined;
+
+  return date.toISOString().split("T")[0];
+};
+
 export const formatHumanDate = (input: unknown): string | undefined => {
   const date = new Date(input as string | number | Date);
   if (isNaN(date.getTime())) return undefined;

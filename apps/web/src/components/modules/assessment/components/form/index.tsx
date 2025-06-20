@@ -124,9 +124,11 @@ export function AssessmentForm({
         code: assessment?.countryCode,
       },
       organization: assessment?.organization,
+
       languages: Array.isArray(assessment?.languages)
         ? assessment.languages.map((lang) => ({ code: lang.code }))
         : [],
+
       description: assessment?.description,
     });
   }, [assessment, reset]);

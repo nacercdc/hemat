@@ -35,8 +35,8 @@ export interface Assessment {
   name: string;
   user: User;
   country: Country;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
+  startDate: Date | string;
+  endDate: Date | string;
   countryCode: string;
   status: StatusType;
   createdAt: string;
@@ -49,8 +49,8 @@ export interface Assessment {
 
 export interface AssessmentCreate {
   name: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
   organization?: string;
   countryCode: string;
   languages?: string[];
@@ -60,8 +60,8 @@ export interface AssessmentCreate {
 export interface AssessmentUpdate {
   id: string;
   name: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
   organization?: string;
   countryCode: string;
   languages?: string[];

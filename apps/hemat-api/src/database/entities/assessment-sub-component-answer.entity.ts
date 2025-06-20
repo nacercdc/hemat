@@ -1,47 +1,12 @@
-import {
-  Entity,
-  Column,
-  OneToMany,
-  Index,
-  JoinColumn,
-  ManyToOne,
-} from 'typeorm';
+import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BaseEntityWithSoftDelete } from './entity';
-import { Roadmap } from './roadmap.entity';
-import { Assessment } from './assessment.entity';
 import { AssessmentSubComponent } from './assessment-sub-component.entity';
 import { AssessmentMeasurementScale } from './assessment-measurement-scale.entity';
-import { User } from './user.entity';
+import { Answer } from './answer.entity';
+import { BaseEntityWithSoftDelete } from './entity';
 
-@Entity('assessment_answers')
-export class AssessmentAnswer extends BaseEntityWithSoftDelete {
-  @ApiProperty({
-    description: 'ID of the associated assessment',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @Index()
-  @Column({ type: 'uuid' })
-  assessmentId: string;
-
-  @ManyToOne(() => Assessment, (assessment) => assessment.answers)
-  @JoinColumn({ name: 'assessmentId' })
-  assessment: Assessment;
-
-  @ApiProperty({
-    description: 'ID of the associated user',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @Column()
-  @Index()
-  userId: string;
-
-  @ManyToOne(() => User, (user) => user.answers)
-  @JoinColumn({ name: 'userId' })
-  user: User | null;
-
+@Entity('assessment_sub_component_answers')
+export class AssessmentSubComponentAnswer extends BaseEntityWithSoftDelete {
   @ApiProperty({
     description: 'ID of the associated sub-component',
     example: '123e4567-e89b-12d3-a456-426614174000',
@@ -59,7 +24,7 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   subComponent: AssessmentSubComponent | null;
 
   @ApiProperty({
-    description: 'ID of the associated measurement',
+    description: 'ID of the associated measurement scale',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,
   })
@@ -73,6 +38,19 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   )
   @JoinColumn({ name: 'measurementScaleId' })
   measurementScale: AssessmentMeasurementScale | null;
+
+  @ApiProperty({
+    description: 'ID of the associated answer',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @Index()
+  @Column({ type: 'uuid' })
+  answerId: string;
+
+  @ManyToOne(() => Answer, (answer) => answer.id)
+  @JoinColumn({ name: 'answerId' })
+  answer: Answer;
 
   @ApiProperty({
     description: 'Evidence supporting the answer',
@@ -95,7 +73,4 @@ export class AssessmentAnswer extends BaseEntityWithSoftDelete {
   })
   @Column({ type: 'text', nullable: true })
   notes: string | null;
-
-  @OneToMany(() => Roadmap, (roadmap) => roadmap.assessmentAnswer)
-  roadmaps: Roadmap[];
 }

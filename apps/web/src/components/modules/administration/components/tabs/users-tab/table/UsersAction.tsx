@@ -2,25 +2,76 @@
 
 import React, { useRef } from "react";
 import { Icon } from "@iconify/react";
-import type { DialogRef, ModalRef } from "@etm/web-ui-components";
-import { Dialog, DropdownMenu, Modal } from "@etm/web-ui-components";
-import type { User } from "~/libs/models/user.model";
-import type { UserFormData } from "../form";
+import { Dialog, DropdownMenu, Modal, useToast } from "@etm/web-ui-components";
 import { UserForm } from "../form";
+import {
+  getPermissionIds,
+  rolePermissions,
+} from "~/components/modules/administration/utils";
+import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
+import { useQueryClient } from "@tanstack/react-query";
+import type { DialogRef, ModalRef } from "@etm/web-ui-components";
+import type { UpdateUser, User } from "~/libs/models/user.model";
+import type { PermissionModule, UserFormData } from "../form";
 import type { PermissionType } from "~/components/modules/administration/types";
+import type { Permission } from "~/libs/models/permission.model";
 
 interface Props {
-  user: Partial<User>;
+  user: User;
   refetch?: () => void;
+  modules: PermissionModule[];
+  permissions?: Permission[];
 }
-export default function UserAction({ user }: Props) {
+export default function UserAction({ user, modules, permissions }: Props) {
   const updateUserModalRef = useRef<ModalRef>(null);
   const deleteUserDialogRef = useRef<DialogRef>(null);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { mutate: updateUser, ...updateUserState } = usePutMutation<
+    User,
+    UpdateUser
+  >("users");
 
   const onUpdateUserFormSubmitHandler = (
-    _permissions: Record<string, Record<PermissionType, boolean>>
+    modulePermissions: Record<string, Record<PermissionType, boolean>>,
+    values: UserFormData
   ) => {
-    //TODO: implement update user
+    let permissionsIds: string[] | undefined = [];
+
+    if (permissions)
+      permissionsIds = getPermissionIds(
+        modules,
+        permissions as unknown as Permission[],
+        modulePermissions
+      );
+
+    const roleIds = values.roles.map((role) => role.id);
+
+    if (!permissionsIds.length) permissionsIds = undefined;
+
+    updateUser(
+      {
+        data: {
+          ...values,
+          roleIds,
+          permissionsIds,
+          id: user.id,
+        },
+        id: user.id,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            message: "User has been updated successfully!",
+            variant: "success",
+          });
+          queryClient.invalidateQueries({ queryKey: ["/users"] });
+          updateUserModalRef.current?.closeModal();
+        },
+      }
+    );
   };
 
   return (
@@ -66,17 +117,17 @@ export default function UserAction({ user }: Props) {
       <Modal ref={updateUserModalRef} title="Edit User">
         <UserForm
           onSubmitUserFormHandler={onUpdateUserFormSubmitHandler}
-          rolePermissions={{ users: { create: true }, roles: { create: true } }}
-          modules={[
-            { name: "users", label: "Users" },
-            { name: "roles", label: "Roles" },
-          ]}
+          rolePermissions={rolePermissions(user.permissions ?? [])}
+          modules={modules}
           onCloseModal={() => updateUserModalRef.current?.closeModal()}
-          onRefetch={() => {
-            //TODO: Implement on refectch func
-          }}
-          user={user as UserFormData}
-          loading={false}
+          user={
+            {
+              ...user,
+              firstName: user.name.split(" ")[0],
+              lastName: user.name.split(" ")[1],
+            } as unknown as UserFormData
+          }
+          loading={updateUserState.isPending}
         />
       </Modal>
       <Dialog

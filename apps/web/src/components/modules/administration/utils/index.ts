@@ -25,5 +25,32 @@ export const getPermissionIds = (
     });
   });
 
-  return permissionIds;
+  return permissionIds.filter(Boolean);
+};
+
+export const rolePermissions = (permissions: Permission[]) => {
+  let rolePerms: Record<string, Partial<Record<PermissionType, boolean>>> = {};
+  permissions.forEach((perm) => {
+    const { action, subject } = perm;
+    rolePerms = {
+      ...rolePerms,
+      [subject]: {
+        ...rolePerms[subject],
+        [action]: true,
+      },
+    };
+  });
+
+  return rolePerms;
+};
+
+//Temporary (be deleted), until the backend is ready
+export const generatePassword = (length = 10) => {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
 };

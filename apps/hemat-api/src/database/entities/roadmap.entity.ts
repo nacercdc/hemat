@@ -1,117 +1,77 @@
-import { Entity, Column, ManyToOne, Index } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToMany,
+  Index,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
-import { AssessmentAnswer } from './assessment-answer.entity';
-import { AssessmentSubComponent } from './assessment-sub-component.entity';
-import { AssessmentMeasurementScale } from './assessment-measurement-scale.entity';
+import { AssessmentSubComponentRoadmap } from './assessment-sub-component-roadmap.entity';
+import { AnswerStatus } from '@shared/enums';
+import { Assessment } from './assessment.entity';
+import { User } from './user.entity';
 
 @Entity('roadmaps')
 export class Roadmap extends BaseEntityWithSoftDelete {
   @ApiProperty({
-    description: 'ID of the associated assessment answer',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'ID of the associated assessment',
+    example: '62de3f94-7550-443f-972e-5553c0180cf2',
     type: String,
   })
   @Index()
   @Column({ type: 'uuid' })
-  assessmentAnswerId: string;
+  assessmentId: string;
 
-  @ManyToOne(() => AssessmentAnswer, (answer) => answer.roadmaps)
-  assessmentAnswer: AssessmentAnswer;
+  @ManyToOne(() => Assessment, (assessment) => assessment.roadmaps)
+  @JoinColumn({ name: 'assessmentId' })
+  assessment: Assessment;
 
   @ApiProperty({
-    description: 'ID of the associated sub-component',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'ID of the user who created the roadmap',
+    example: '07c59665-17d1-4d68-97e8-9b1e2eea1bd9',
     type: String,
   })
   @Index()
   @Column({ type: 'uuid' })
-  subComponentId: string;
+  userId: string;
 
-  @ManyToOne(
-    () => AssessmentSubComponent,
-    (subComponent) => subComponent.roadmaps,
-  )
-  subComponent: AssessmentSubComponent;
+  @ManyToOne(() => User, (user) => user.roadmaps)
+  @JoinColumn({ name: 'userId' })
+  user: User | null;
 
   @ApiProperty({
-    description: 'ID of the associated measurement scale',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
+    description: 'Whether the roadmap is primary',
+    example: true,
+    type: Boolean,
   })
-  @Index()
-  @Column({ type: 'uuid' })
-  measurementScaleId: string;
-
-  @ManyToOne(
-    () => AssessmentMeasurementScale,
-    (measurementScale) => measurementScale.roadmaps,
-  )
-  measurementScale: AssessmentMeasurementScale;
+  @Column({ type: 'boolean', default: true })
+  isPrimary: boolean;
 
   @ApiProperty({
-    description: 'Target of the roadmap',
-    example: 'Increase vaccination coverage',
-    type: String,
-  })
-  @Column({ type: 'varchar', length: 1000 })
-  target: string;
-
-  @ApiProperty({
-    description: 'Current state of the roadmap based on scale rate',
-    example: 3,
+    description: 'Percentage completion of the roadmap',
+    example: 33.33,
     type: Number,
   })
-  @Column({ type: 'int' })
-  currentState: number;
+  @Column({ type: 'float', default: 0 })
+  percentage: number;
 
   @ApiProperty({
-    description: 'Activities planned in the roadmap',
-    example: 'Conduct outreach programs',
-    type: String,
+    description: 'Status of the roadmap',
+    example: AnswerStatus.INPROGRESS,
+    enum: AnswerStatus,
   })
-  @Column({ type: 'text' })
-  activities: string;
+  @Column({
+    type: 'enum',
+    enum: AnswerStatus,
+    default: AnswerStatus.INPROGRESS,
+  })
+  status: AnswerStatus;
 
-  @ApiProperty({
-    description: 'Responsible party for the roadmap',
-    example: 'Health Ministry',
-    type: String,
-  })
-  @Column({ type: 'varchar', length: 500 })
-  responsible: string;
-
-  @ApiProperty({
-    description: 'Resources required for the roadmap',
-    example: 'Funding, staff',
-    type: String,
-  })
-  @Column({ type: 'text' })
-  resources: string;
-
-  @ApiProperty({
-    description: 'Documentation for the roadmap',
-    example: 'Project plan',
-    type: String,
-  })
-  @Column({ type: 'text' })
-  documentation: string;
-
-  @ApiProperty({
-    description: 'Start time of the roadmap',
-    example: '2025-06-01T00:00:00.000Z',
-    type: String,
-    format: 'date-time',
-  })
-  @Column({ type: 'timestamp' })
-  startTime: Date;
-
-  @ApiProperty({
-    description: 'End time of the roadmap',
-    example: '2025-12-31T23:59:59.999Z',
-    type: String,
-    format: 'date-time',
-  })
-  @Column({ type: 'timestamp' })
-  endTime: Date;
+  @OneToMany(
+    () => AssessmentSubComponentRoadmap,
+    (subComponentRoadmap) => subComponentRoadmap.roadmap,
+  )
+  subComponentRoadmaps: AssessmentSubComponentRoadmap[];
 }

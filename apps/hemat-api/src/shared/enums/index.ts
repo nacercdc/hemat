@@ -1,3 +1,4 @@
+export * from './answer-status.enum';
 export * from './assesement.enum';
 export * from './evidence.enum';
 export * from './invitation.enum';
