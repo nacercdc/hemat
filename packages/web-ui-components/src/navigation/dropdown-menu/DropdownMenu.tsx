@@ -33,7 +33,7 @@ export const dropdownMenuVariants = cva("flex gap-2 items-center", {
 
 export interface DropdownMenuOption {
   value: string;
-  label: string;
+  label: React.ReactNode;
   leftNode?: ReactNode;
   separator?: boolean;
   onClick?: () => void;
