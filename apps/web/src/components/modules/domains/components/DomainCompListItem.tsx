@@ -29,6 +29,7 @@ interface Props {
   type: ListTypeLabel;
   onClick?: (item: string) => void;
   refetchList?: (type: ListTypeLabel) => void;
+  parentId?: string;
 }
 
 export function DomainCompListItem({
@@ -64,7 +65,7 @@ export function DomainCompListItem({
     `sub-components/${item?.id}`
   );
 
-  const { data: domain } = useFindById<Domain>({
+  const { data: domain, ...domainState } = useFindById<Domain>({
     path: `/domains/${item?.id}`,
     tqOptions: {
       enabled: !!item?.id && type === "Domain" && drawerOpen,
@@ -72,7 +73,7 @@ export function DomainCompListItem({
     },
   });
 
-  const { data: component } = useFindById<Component>({
+  const { data: component, ...componentState } = useFindById<Component>({
     path: `/components/${item?.id}`,
     tqOptions: {
       enabled: !!item?.id && type === "Component" && drawerOpen,
@@ -80,13 +81,14 @@ export function DomainCompListItem({
     },
   });
 
-  const { data: subComponent } = useFindById<SubComponent>({
-    path: `/sub-components/${item?.id}`,
-    tqOptions: {
-      enabled: !!item?.id && type === "SubComponent" && drawerOpen,
-      queryKey: ["SubComponent", item?.id],
-    },
-  });
+  const { data: subComponent, ...subComponentState } =
+    useFindById<SubComponent>({
+      path: `/sub-components/${item?.id}`,
+      tqOptions: {
+        enabled: !!item?.id && type === "SubComponent" && drawerOpen,
+        queryKey: ["SubComponent", item?.id],
+      },
+    });
 
   const onEditItemSubmitHandler = (values: ItemFormData) => {
     if (type === "SubComponent" && item) {
@@ -251,9 +253,13 @@ export function DomainCompListItem({
         {drawerOpen && (
           <ItemDetails
             type={type}
-            isOpen={drawerOpen}
             item={
               domain || component || (subComponent as unknown as ListItemType)
+            }
+            isLoading={
+              domainState.isPending ||
+              componentState.isPending ||
+              subComponentState.isPending
             }
           />
         )}

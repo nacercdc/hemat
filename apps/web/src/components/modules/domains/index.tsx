@@ -16,10 +16,9 @@ import type {
   SubComponentCreate,
 } from "~/libs/models/subComponent.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import { PageContainer } from "../components/PageContainer";
 
-export type ListType = Domain[] | Component[] | SubComponent[];
+export type ListType = Domain[] | Component[] | SubComponent[] | [];
 export type ListTypeLabel = "Domain" | "Component" | "SubComponent";
 
 export type ListItemType = (Domain | Component | SubComponent | null) & {
@@ -45,15 +44,11 @@ export function Domains() {
 
   const addItemModalRef = useRef<ModalRef>(null);
 
-  const { data: domains, ...domainsState } = useFindAll<
-    QueryManyResponse<Domain>
-  >({
+  const { data: domains, ...domainsState } = useFindAll<Domain>({
     path: "/domains",
   });
 
-  const { data: components, ...componentsState } = useFindAll<
-    QueryManyResponse<Component>
-  >({
+  const { data: components, ...componentsState } = useFindAll<Component>({
     path: `/domains/${selectedDomain}/components`,
     tqOptions: {
       enabled: !!selectedDomain,
@@ -61,15 +56,14 @@ export function Domains() {
     },
   });
 
-  const { data: subComponents, ...subComponentsState } = useFindAll<
-    QueryManyResponse<SubComponent>
-  >({
-    path: `/components/${selectedComponent}/subComponents`,
-    tqOptions: {
-      enabled: !!selectedComponent,
-      queryKey: ["subComponents", selectedComponent],
-    },
-  });
+  const { data: subComponents, ...subComponentsState } =
+    useFindAll<SubComponent>({
+      path: `/components/${selectedComponent}/subComponents`,
+      tqOptions: {
+        enabled: !!selectedComponent,
+        queryKey: ["subComponents", selectedComponent],
+      },
+    });
 
   const { mutate: createDomain, ...createDomainState } = useAddMutation<
     Domain,
@@ -84,13 +78,17 @@ export function Domains() {
   const { mutate: createSubComponent, ...createSubComponentState } =
     useAddMutation<SubComponent, SubComponentCreate>("sub-components");
 
-  const domainsData = (domains?.data as unknown as Domain[]) ?? [];
-  const componentsData = (components?.data as unknown as Component[]) ?? [];
-  const subComponentsData =
-    (subComponents?.data as unknown as SubComponent[]) ?? [];
+  const filteredComponents = components?.data.filter(
+    (component) => component.domainId === selectedDomain
+  );
+
+  const filteredSubComponents = subComponents?.data.filter(
+    (subComponent) => subComponent.componentId === selectedComponent
+  );
 
   const onDomainSelectHandler = (domainId: string) => {
     setSelectedDomain(domainId);
+    setSelectedComponent(null);
   };
 
   const onComponentSelectHandler = (componentID: string) => {
@@ -104,8 +102,11 @@ export function Domains() {
   const refetchListHandler = (listType: ListTypeLabel) => {
     if (listType === "Domain") {
       domainsState.refetch();
+      componentsState.refetch();
+      subComponentsState.refetch();
     } else if (listType === "Component" && selectedDomain) {
       componentsState.refetch();
+      subComponentsState.refetch();
     } else if (listType === "SubComponent" && selectedComponent) {
       subComponentsState.refetch();
     }
@@ -167,6 +168,7 @@ export function Domains() {
         },
         {
           onSuccess: () => {
+            domainsState.refetch();
             addItemModalRef.current?.closeModal();
           },
         }
@@ -184,7 +186,7 @@ export function Domains() {
             onAddActionHandler={onAddItemTriggerHandler}
           >
             <DomainCompList
-              list={domainsData}
+              list={domains?.data ?? []}
               listType="Domain"
               selectedItem={selectedDomain}
               onSelectItem={onDomainSelectHandler}
@@ -200,11 +202,12 @@ export function Domains() {
             onAddActionHandler={onAddItemTriggerHandler}
           >
             <DomainCompList
-              list={componentsData}
+              list={filteredComponents ?? []}
               listType="Component"
               selectedItem={selectedComponent}
               onSelectItem={onComponentSelectHandler}
               refetchList={refetchListHandler}
+              parentId={selectedDomain}
             />
           </DomainCompCard>
         </div>
@@ -216,11 +219,12 @@ export function Domains() {
             onAddActionHandler={onAddItemTriggerHandler}
           >
             <DomainCompList
-              list={subComponentsData}
+              list={filteredSubComponents ?? []}
               listType="SubComponent"
               selectedItem={selectedSubComponent}
               onSelectItem={onSubComponentSelectHandler}
               refetchList={refetchListHandler}
+              parentId={selectedComponent}
             />
           </DomainCompCard>
         </div>

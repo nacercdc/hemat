@@ -3,7 +3,9 @@
 import React from "react";
 import { ListTypeColors } from "./DomainCompCard";
 import { DomainCompListItem } from "./DomainCompListItem";
+
 import type { ListItemType, ListType, ListTypeLabel } from "..";
+import { DomainCompEmptyPlaceHolder } from "./DomainCompEmptyPlaceHolder";
 
 interface Props {
   list: ListType;
@@ -11,11 +13,13 @@ interface Props {
   selectedItem: string | null;
   onSelectItem?: (item: string) => void;
   refetchList?: (type: ListTypeLabel) => void;
+  parentId?: string | null;
 }
 
 export function DomainCompList({
   list,
   listType,
+  parentId,
   selectedItem,
   onSelectItem,
   refetchList,
@@ -23,6 +27,12 @@ export function DomainCompList({
   const isItemSelected = (item: ListItemType) => {
     if (selectedItem) return item?.id === selectedItem;
   };
+
+  if (!list || list.length === 0) {
+    return (
+      <DomainCompEmptyPlaceHolder listType={listType} parentId={parentId} />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-5">

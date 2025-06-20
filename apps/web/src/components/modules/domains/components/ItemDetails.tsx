@@ -1,14 +1,19 @@
 import React from "react";
 import type { ListItemType, ListTypeLabel } from "..";
+import { ItemDetailSkeleton } from "./ItemDetailSkeleton";
 
 interface Props {
   type: ListTypeLabel;
-  isOpen: boolean;
   item: ListItemType;
+  isLoading: boolean;
 }
 
-const ItemDetails = ({ isOpen = false, item }: Props) => {
-  if (!isOpen || !item) {
+const ItemDetails = ({ isLoading = false, item }: Props) => {
+  if (isLoading && !item) {
+    return <ItemDetailSkeleton />;
+  }
+
+  if (!item) {
     return null;
   }
 
@@ -21,18 +26,20 @@ const ItemDetails = ({ isOpen = false, item }: Props) => {
         <h3 className="text-sm font-bold">{item.name}</h3>
       </div>
       <span className="text-xs text-dark-light">{item.description}</span>
-      <div className="flex flex-col gap-2 border border-basic-300 rounded-md p-3">
-        {item?.componentsCount !== undefined && (
-          <h6 className="text-xs font-medium">
-            Components: {item?.componentsCount}
-          </h6>
-        )}
-        {item?.subComponentsCount !== undefined && (
-          <h6 className="text-xs font-medium">
-            Sub-Components: {item?.subComponentsCount}
-          </h6>
-        )}
-      </div>
+      {(item?.componentsCount || item?.subComponentsCount) && (
+        <div className="flex flex-col gap-2 border border-basic-300 rounded-md p-3">
+          {item?.componentsCount !== undefined && (
+            <h6 className="text-xs font-medium">
+              Components: {item?.componentsCount}
+            </h6>
+          )}
+          {item?.subComponentsCount !== undefined && (
+            <h6 className="text-xs font-medium">
+              Sub-Components: {item?.subComponentsCount}
+            </h6>
+          )}
+        </div>
+      )}
     </div>
   );
 };
