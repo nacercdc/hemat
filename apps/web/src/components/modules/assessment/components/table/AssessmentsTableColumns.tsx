@@ -14,12 +14,7 @@ const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
   Completed: "success",
 };
 
-interface Props {
-  refetch: () => void;
-}
-export const AssessmentsTableColumns = ({
-  refetch,
-}: Props): ColumnDef<Assessment>[] => [
+export const AssessmentsTableColumns: ColumnDef<Assessment>[] = [
   {
     header: "Name",
     accessorKey: "name",
@@ -34,7 +29,11 @@ export const AssessmentsTableColumns = ({
     accessorKey: "startDate",
     enableColumnFilter: false,
     cell: ({ row }) => (
-      <span>{new Date(row.original.startDate).toLocaleDateString()}</span>
+      <span>
+        {row.original.startDate
+          ? new Date(row.original.startDate).toLocaleDateString()
+          : "--"}
+      </span>
     ),
   },
 
@@ -43,7 +42,11 @@ export const AssessmentsTableColumns = ({
     accessorKey: "endDate",
     enableColumnFilter: false,
     cell: ({ row }) => (
-      <span>{new Date(row.original.endDate).toLocaleDateString()}</span>
+      <span>
+        {row.original.endDate
+          ? new Date(row.original.endDate).toLocaleDateString()
+          : "--"}
+      </span>
     ),
   },
 
@@ -51,9 +54,8 @@ export const AssessmentsTableColumns = ({
     header: "Country",
     accessorKey: "country",
     enableColumnFilter: false,
-    cell: ({ row }) => <span>{row.original.countryCode}</span>,
+    cell: ({ row }) => <span>{row.original.country.name}</span>,
   },
-
   {
     header: "Status",
     accessorKey: "status",
@@ -81,8 +83,6 @@ export const AssessmentsTableColumns = ({
     accessorKey: "",
     enableColumnFilter: false,
     enableSorting: false,
-    cell: ({ row }) => (
-      <AssessmentAction assessment={row.original} onRefetch={refetch} />
-    ),
+    cell: ({ row }) => <AssessmentAction assessment={row.original} />,
   },
 ];

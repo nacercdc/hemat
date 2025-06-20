@@ -2,7 +2,7 @@ import React from "react";
 
 interface Props {
   label: string;
-  value: string | number | null | undefined | Date;
+  value: string | number | null | undefined | Date | React.ReactNode;
   boldLabel?: boolean;
 }
 

@@ -14,42 +14,7 @@ import LabeledValue from "./components/LabeledValue";
 import MemberRoleCard from "../../members/MemberRoleCard";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 import { safeDate } from "~/utils/date.util";
-const groups = [
-  {
-    groupName: "Group A",
-    members: [
-      {
-        name: "Dr.Kebede Alemu",
-        email: "kebede@gmail.com",
-        isLeader: true,
-        avatarUrl: "http://path-that-goes-no-where.com",
-      },
-      {
-        name: "Sara Mengistu",
-        email: "sara@gmail.com",
-        isLeader: false,
-        avatarUrl: "http://path-that-goes-no-where.com",
-      },
-    ],
-  },
-  {
-    groupName: "Group B",
-    members: [
-      {
-        name: "Tadesse Worku",
-        email: "tadesse@gmail.com",
-        isLeader: true,
-        avatarUrl: "http://path-that-goes-no-where.com",
-      },
-      {
-        name: "Hanna Bekele",
-        email: "hanna@gmail.com",
-        isLeader: false,
-        avatarUrl: "http://path-that-goes-no-where.com",
-      },
-    ],
-  },
-];
+
 export default function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
     Draft: "dark",
@@ -67,7 +32,7 @@ export default function AssessmentOverview() {
   >({
     path: `assessments/${assessmentId}`,
     queries: {
-      include: ["user", "country", "members", "groups"],
+      include: ["user", "members", "groups"],
     },
   });
 
@@ -89,7 +54,7 @@ export default function AssessmentOverview() {
             }
           />
         </div>
-        <div className="bg-dark-lighter/5 p-4 rounded-sm  flex gap-10">
+        <div className="bg-dark-lighter/5 p-4 rounded-sm  flex flex-wrap gap-10">
           <div className="flex flex-col gap-3">
             <LabeledValue label="Name :" value={assessment?.name} />
             <LabeledValue
@@ -100,6 +65,25 @@ export default function AssessmentOverview() {
             <LabeledValue
               label="Organization :"
               value={assessment?.organization ?? "----"}
+            />
+
+            <LabeledValue
+              label="Languages :"
+              value={
+                assessment?.languages ? (
+                  <div className="flex flex-wrap gap-1 ">
+                    {assessment?.languages?.map((lang) => (
+                      <Badge
+                        text={`${lang?.name}`}
+                        shape={"circular"}
+                        variant={"success"}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  "---"
+                )
+              }
             />
           </div>
           <div className="flex flex-col gap-3">

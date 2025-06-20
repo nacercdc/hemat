@@ -11,6 +11,9 @@ import { PageContainer } from "~/components/modules/components/PageContainer";
 import { useToast } from "@etm/web-ui-components";
 import type { AssessmentFormData } from "../components/form";
 import { AssessmentForm } from "../components/form";
+import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
+import { ASSESSMENT_LIST_KEY } from "../components/table";
+import { safeDate } from "~/utils/date.util";
 
 export default function CreateAssessment() {
   const router = useRouter();
@@ -19,16 +22,18 @@ export default function CreateAssessment() {
     Assessment,
     AssessmentCreate
   >("/assessments");
+
   const onCancelAssessmentFormHandler = () => {
-    router.push("/assessment?refresh=true");
+    router.push("/assessment");
   };
+
   const onSubmitAssessmentFormHandler = (data: AssessmentFormData) => {
     createAssessment(
       {
         data: {
           name: data.name,
-          startDate: data.startDate,
-          endDate: data.endDate,
+          startDate: safeDate(data.startDate),
+          endDate: safeDate(data.endDate ?? "---"),
           countryCode: data.country.code ?? "",
           organization: data.organization,
           description: data.description,
@@ -40,10 +45,13 @@ export default function CreateAssessment() {
         onSuccess: () => {
           toaster.toast({
             title: "Success",
-            message: "Assessment created successfully",
+            message: "Assessment has been created successfully.",
             variant: "success",
           });
-          router.push("/assessment?refresh=true");
+          queryClient.invalidateQueries({
+            queryKey: [ASSESSMENT_LIST_KEY],
+          });
+          router.push("/assessment");
         },
       }
     );
