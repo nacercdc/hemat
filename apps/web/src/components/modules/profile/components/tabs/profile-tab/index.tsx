@@ -167,6 +167,8 @@ export default function ProfileTab() {
           : undefined,
 
         phoneNumber: currentUser.profile?.phoneNumber ?? "",
+        dateOfBirth:
+          (currentUser.profile?.dateOfBirth as unknown as Date) ?? "",
       });
     }
   }, [currentUserState.isSuccess, currentUser]);

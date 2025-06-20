@@ -175,8 +175,6 @@ export function DomainFill() {
   const assessmentName = "Assessment 1";
   const assessmentId = "1";
 
-  console.log(watch("evidence"));
-
   // Initialize first component and subcomponent
   useEffect(() => {
     if (domain.components.length > 0) {
