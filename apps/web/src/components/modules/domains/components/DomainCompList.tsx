@@ -3,30 +3,39 @@
 import React from "react";
 import { ListTypeColors } from "./DomainCompCard";
 import { DomainCompListItem } from "./DomainCompListItem";
+import { DomainCompListSkeleton } from "./DomainCompListSkeleton";
 
 import type { ListItemType, ListType, ListTypeLabel } from "..";
 import { DomainCompEmptyPlaceHolder } from "./DomainCompEmptyPlaceHolder";
 
 interface Props {
   list: ListType;
+  isLoading?: boolean;
   listType: ListTypeLabel;
+  parentId?: string | null;
   selectedItem: string | null;
   onSelectItem?: (item: string) => void;
   refetchList?: (type: ListTypeLabel) => void;
-  parentId?: string | null;
 }
 
 export function DomainCompList({
   list,
+  isLoading,
   listType,
   parentId,
+  refetchList,
   selectedItem,
   onSelectItem,
-  refetchList,
 }: Props) {
   const isItemSelected = (item: ListItemType) => {
     if (selectedItem) return item?.id === selectedItem;
   };
+
+  console.log(isLoading, "isLoading");
+
+  if (isLoading && !list && !isLoading) {
+    return <DomainCompListSkeleton />;
+  }
 
   if (!list || list.length === 0) {
     return (

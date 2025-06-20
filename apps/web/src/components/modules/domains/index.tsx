@@ -4,8 +4,7 @@ import React, { useRef, useState } from "react";
 import { DomainCompCard } from "./components/DomainCompCard";
 
 import type { ModalRef } from "@etm/web-ui-components";
-import { Modal } from "@etm/web-ui-components";
-import type { ItemFormData } from "./components/form";
+import { Modal, useToast } from "@etm/web-ui-components";
 import { DomainComponentForm } from "./components/form";
 import type { Domain, DomainCreate } from "~/libs/models/domain.model";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
@@ -17,6 +16,10 @@ import type {
 } from "~/libs/models/subComponent.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { PageContainer } from "../components/PageContainer";
+import { SubComponentForm } from "./components/form/subComponents";
+import type { ItemFormData } from "./components/form";
+import type { ScalesFormData } from "./components/form/subComponents/ScalesForm";
+import type { Scale } from "~/libs/models/scale.model";
 
 export type ListType = Domain[] | Component[] | SubComponent[] | [];
 export type ListTypeLabel = "Domain" | "Component" | "SubComponent";
@@ -42,7 +45,9 @@ export function Domains() {
   const [actionTypeLabel, setActionTypeLabel] =
     useState<ListTypeLabel>("Domain");
 
+  console.log(selectedSubComponent, "selectedSubComponent");
   const addItemModalRef = useRef<ModalRef>(null);
+  const { toast } = useToast();
 
   const { data: domains, ...domainsState } = useFindAll<Domain>({
     path: "/domains",
@@ -78,6 +83,13 @@ export function Domains() {
   const { mutate: createSubComponent, ...createSubComponentState } =
     useAddMutation<SubComponent, SubComponentCreate>("sub-components");
 
+  const {
+    mutate: createSubComponentMeasurementScales,
+    ..._createSubComponentMeasurementScalesState
+  } = useAddMutation<Scale, ScalesFormData>(
+    `sub-components/${selectedSubComponent}/measurement-scales`
+  );
+
   const filteredComponents = components?.data.filter(
     (component) => component.domainId === selectedDomain
   );
@@ -102,11 +114,8 @@ export function Domains() {
   const refetchListHandler = (listType: ListTypeLabel) => {
     if (listType === "Domain") {
       domainsState.refetch();
-      componentsState.refetch();
-      subComponentsState.refetch();
     } else if (listType === "Component" && selectedDomain) {
       componentsState.refetch();
-      subComponentsState.refetch();
     } else if (listType === "SubComponent" && selectedComponent) {
       subComponentsState.refetch();
     }
@@ -118,25 +127,6 @@ export function Domains() {
   };
 
   const onAddItemSubmitHandler = (values: ItemFormData) => {
-    if (actionTypeLabel === "SubComponent" && selectedComponent) {
-      createSubComponent(
-        {
-          data: {
-            name: values.name,
-            code: values.code,
-            description: values.description,
-            componentId: selectedComponent,
-            translations: values.translations,
-          },
-        },
-        {
-          onSuccess: () => {
-            subComponentsState.refetch();
-            addItemModalRef.current?.closeModal();
-          },
-        }
-      );
-    }
     if (actionTypeLabel === "Component" && selectedDomain) {
       createComponent(
         {
@@ -176,6 +166,57 @@ export function Domains() {
     }
   };
 
+  const onAddSubComponentSubmitHandler = (values: ItemFormData) => {
+    if (selectedComponent) {
+      createSubComponent(
+        {
+          data: {
+            name: values.name,
+            code: values.code,
+            description: values.description,
+            componentId: selectedComponent,
+            translations: values.translations,
+          },
+        },
+        {
+          onSuccess: (data) => {
+            setSelectedSubComponent(data.id);
+            toast({
+              title: "Success",
+              message: "Sub Component created successfully",
+              variant: "success",
+            });
+
+            subComponentsState.refetch();
+          },
+        }
+      );
+    }
+  };
+  const onScalesSubmitHandler = (values: ScalesFormData) => {
+    if (selectedComponent) {
+      createSubComponentMeasurementScales(
+        {
+          data: {
+            scales: values.scales,
+          },
+        },
+        {
+          onSuccess: (data) => {
+            setSelectedSubComponent(data.id);
+            toast({
+              title: "Success",
+              message: "Sub Component created successfully",
+              variant: "success",
+            });
+
+            subComponentsState.refetch();
+          },
+        }
+      );
+    }
+  };
+
   return (
     <PageContainer pageTitle="Domains" includeBreadcrumb={false}>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-0 h-full">
@@ -191,6 +232,7 @@ export function Domains() {
               selectedItem={selectedDomain}
               onSelectItem={onDomainSelectHandler}
               refetchList={refetchListHandler}
+              isLoading={domainsState.isLoading}
             />
           </DomainCompCard>
         </div>
@@ -231,16 +273,23 @@ export function Domains() {
       </div>
 
       <Modal ref={addItemModalRef} title={`Add ${actionTypeLabel}`}>
-        <DomainComponentForm
-          loading={
-            createDomainState.isPending ||
-            createComponentState.isPending ||
-            createSubComponentState.isPending
-          }
-          type={actionTypeLabel}
-          onSubmitHandler={onAddItemSubmitHandler}
-          onCloseModal={() => addItemModalRef.current?.closeModal()}
-        />
+        {actionTypeLabel === "SubComponent" ? (
+          <SubComponentForm
+            onDefaultFieldsSubmit={onAddSubComponentSubmitHandler}
+            onScalesSubmit={onScalesSubmitHandler}
+            onCloseModal={() => addItemModalRef.current?.closeModal()}
+            loading={createSubComponentState.isPending}
+            createdSubComponentId={selectedSubComponent}
+          />
+        ) : (
+          <DomainComponentForm
+            loading={
+              createDomainState.isPending || createComponentState.isPending
+            }
+            onSubmitHandler={onAddItemSubmitHandler}
+            onCloseModal={() => addItemModalRef.current?.closeModal()}
+          />
+        )}
       </Modal>
     </PageContainer>
   );
