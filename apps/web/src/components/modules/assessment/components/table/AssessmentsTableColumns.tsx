@@ -14,31 +14,14 @@ const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
   Completed: "success",
 };
 
-interface Props {
-  refetch: () => void;
-}
-export const AssessmentsTableColumns = ({
-  refetch,
-}: Props): ColumnDef<Assessment>[] => [
+export const AssessmentsTableColumns: ColumnDef<Assessment>[] = [
   {
     header: "Name",
     accessorKey: "name",
-    enableColumnFilter: false,
+    enableColumnFilter: true,
     cell: ({ row }) => {
       return <span>{row.original.name}</span>;
     },
-  },
-  {
-    header: "Created By",
-    accessorKey: "createdBy",
-    enableColumnFilter: false,
-    cell: ({
-      row: {
-        original: {
-          createdBy: { firstName, lastName },
-        },
-      },
-    }) => <span>{`${firstName} ${lastName}`}</span>,
   },
 
   {
@@ -46,7 +29,11 @@ export const AssessmentsTableColumns = ({
     accessorKey: "startDate",
     enableColumnFilter: false,
     cell: ({ row }) => (
-      <span>{new Date(row.original.startDate).toLocaleDateString()}</span>
+      <span>
+        {row.original.startDate
+          ? new Date(row.original.startDate).toLocaleDateString()
+          : "--"}
+      </span>
     ),
   },
 
@@ -55,7 +42,11 @@ export const AssessmentsTableColumns = ({
     accessorKey: "endDate",
     enableColumnFilter: false,
     cell: ({ row }) => (
-      <span>{new Date(row.original.endDate).toLocaleDateString()}</span>
+      <span>
+        {row.original.endDate
+          ? new Date(row.original.endDate).toLocaleDateString()
+          : "--"}
+      </span>
     ),
   },
 
@@ -63,7 +54,7 @@ export const AssessmentsTableColumns = ({
     header: "Country",
     accessorKey: "country",
     enableColumnFilter: false,
-    cell: ({ row }) => <span>{row.original.country.name}</span>,
+    cell: ({ row }) => <span>{row.original.countryCode}</span>,
   },
 
   {
@@ -93,8 +84,6 @@ export const AssessmentsTableColumns = ({
     accessorKey: "",
     enableColumnFilter: false,
     enableSorting: false,
-    cell: ({ row }) => (
-      <AssessmentAction assessment={row.original} refetch={refetch} />
-    ),
+    cell: ({ row }) => <AssessmentAction assessment={row.original} />,
   },
 ];

@@ -1,35 +1,38 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
-import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import { useParams, useRouter } from "next/navigation";
 import type {
   Assessment,
-  AssessmentCreate,
+  AssessmentUpdate,
 } from "~/libs/models/assessment.model";
 import { PageContainer } from "~/components/modules/components/PageContainer";
 import { useToast } from "@etm/web-ui-components";
 import type { AssessmentFormData } from "../components/form";
 import { AssessmentForm } from "../components/form";
+import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
 import { ASSESSMENT_LIST_KEY } from "../components/table";
 
-export default function CreateAssessment() {
-  const router = useRouter();
+export default function UpdateAssessment() {
   const toaster = useToast();
-  const { mutate: createAssessment, ...createAssessmentState } = useAddMutation<
+  const router = useRouter();
+  const params = useParams();
+  const assessmentId = params.id;
+
+  const { mutate: updateAssessment, ...updateAssessmentState } = usePutMutation<
     Assessment,
-    AssessmentCreate
-  >("/assessments");
+    AssessmentUpdate
+  >(`assessments/${assessmentId as string}`);
 
   const onCancelAssessmentFormHandler = () => {
     router.push("/assessment");
   };
 
   const onSubmitAssessmentFormHandler = (data: AssessmentFormData) => {
-    createAssessment(
+    updateAssessment(
       {
         data: {
+          id: assessmentId as string,
           name: data.name,
           startDate: data.startDate,
           endDate: data.endDate,
@@ -44,7 +47,7 @@ export default function CreateAssessment() {
         onSuccess: () => {
           toaster.toast({
             title: "Success",
-            message: "Assessment has been created successfully.",
+            message: "Assessment has been updated successfully",
             variant: "success",
           });
           queryClient.invalidateQueries({
@@ -59,7 +62,8 @@ export default function CreateAssessment() {
   return (
     <PageContainer pageTitle="New Assessment" includeBreadcrumb={false}>
       <AssessmentForm
-        isLoading={createAssessmentState.isPending}
+        assessmentId={assessmentId as string}
+        isLoading={updateAssessmentState.isPending}
         onSubmitAssessmentForm={onSubmitAssessmentFormHandler}
         onCancelAssessmentForm={onCancelAssessmentFormHandler}
       />
