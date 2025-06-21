@@ -181,9 +181,7 @@ export function DomainComponentForm({
 
   useEffect(() => {
     if (item && languageOptions.length > 0) {
-      // Extract language codes from item.translations
       const translationLangCodes = Object.keys(item.translations || {});
-      // Find corresponding Language objects from languageOptions
       const initialSelectedLanguages = languageOptions.filter((lang) =>
         translationLangCodes.includes(lang.code)
       );

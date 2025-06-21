@@ -31,8 +31,6 @@ export function DomainCompList({
     if (selectedItem) return item?.id === selectedItem;
   };
 
-  console.log(isLoading, "isLoading");
-
   if (isLoading && !list && !isLoading) {
     return <DomainCompListSkeleton />;
   }
@@ -44,7 +42,7 @@ export function DomainCompList({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 overflow-y-auto">
       {list?.map((listItem) => (
         <div
           key={listItem.id}

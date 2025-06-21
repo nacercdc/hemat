@@ -1,55 +1,56 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import type { DefaultFieldsFormData } from "./DefaultFieldsForm";
 import { DefaultFieldsForm } from "./DefaultFieldsForm";
 import type { ScalesFormData } from "./ScalesForm";
 import { ScalesForm } from "./ScalesForm";
-import type { ListItemType } from "../../..";
-import type { Language } from "~/libs/models/language.model";
+import type {
+  SubComponent,
+  SubComponentIncludable,
+} from "~/libs/models/subComponent.model";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 
 interface Props {
   loading?: boolean;
-  item?: ListItemType;
+  item?: SubComponent;
   onCloseModal?: () => void;
-  createdSubComponentId?: string | null;
+  subComponentId?: string | null;
   onScalesSubmit: (data: ScalesFormData) => void;
   onDefaultFieldsSubmit: (data: DefaultFieldsFormData) => void;
 }
 
 export function SubComponentForm({
-  item,
   loading,
   onCloseModal,
   onScalesSubmit,
+  subComponentId,
   onDefaultFieldsSubmit,
-  createdSubComponentId,
 }: Props) {
-  const [selectedLanguages, setSelectedLanguages] = useState<Language[]>([]);
-
-  const onLanguageSelect = (langs: Language[]) => {
-    console.log(langs, "Trigerr");
-    setSelectedLanguages(langs);
-  };
-
-  console.log(createdSubComponentId, "First");
-  console.log(selectedLanguages, "Selected Languages");
+  const { data: subComponent, ..._subComponentState } = useFindById<
+    SubComponent,
+    SubComponentIncludable
+  >({
+    path: `sub-components/${subComponentId}`,
+    queries: {
+      include: ["measurementScales"],
+    },
+  });
 
   return (
     <div className="flex flex-col gap-2 w-full max-h-[700px] overflow-y-auto">
       <DefaultFieldsForm
-        item={item}
-        onSubmit={onDefaultFieldsSubmit}
-        onCloseModal={onCloseModal}
-        onLanguageSelect={onLanguageSelect}
         loading={loading}
+        item={subComponent}
+        onCloseModal={onCloseModal}
+        onSubmit={onDefaultFieldsSubmit}
       />
       <ScalesForm
         loading={loading}
-        onCloseModal={onCloseModal}
-        // selectedLanguages={selectedLanguages}
+        item={subComponent}
         onSubmit={onScalesSubmit}
-        createdSubComponentId={createdSubComponentId}
+        onCloseModal={onCloseModal}
+        subComponentId={subComponentId}
       />
     </div>
   );

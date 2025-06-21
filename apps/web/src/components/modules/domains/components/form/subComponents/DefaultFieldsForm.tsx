@@ -1,19 +1,18 @@
 "use client";
 
-import React, { useCallback, useEffect } from "react";
-import { z } from "zod";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
   InputRHF,
   MultiSelectRHF,
   TextAreaRHF,
 } from "@etm/web-ui-components";
-import { zodResolver } from "@hookform/resolvers/zod";
 import type { Language } from "~/libs/models/language.model";
-import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 import { useGetLanguages } from "~/providers/languages/useGetLanguages";
-import type { ListItemType } from "../../..";
+import type { SubComponent } from "~/libs/models/subComponent.model";
 
 const languageSchema = z.object({
   name: z.string().min(1, { message: "Language name is required" }),
@@ -21,29 +20,23 @@ const languageSchema = z.object({
   native: z.string().min(1, { message: "Native language name is required" }),
 });
 
+const translationSchema = z.object({
+  name: z.string().min(1, { message: "Translation name is required" }),
+  description: z
+    .string()
+    .min(1, { message: "Translation description is required" }),
+  code: z.string().min(1, { message: "Translation code is required" }),
+});
+
 const defaultFieldsSchema = z
   .object({
     name: z.string().min(1, { message: "Name is required" }),
     description: z.string().min(1, { message: "Description is required" }),
     code: z
-      .string({ message: "Code is required" })
-      .min(2, { message: "Code must be at least 2 characters" })
+      .string()
+      .min(1, { message: "Code is required" })
       .max(10, { message: "Code must be less than 10 characters" }),
-    translations: z.record(
-      z.string(),
-      z.object({
-        name: z.string().min(1, { message: "Translation name is required" }),
-        description: z
-          .string()
-          .min(1, { message: "Translation description is required" }),
-        code: z
-          .string({ message: "Translation code is required" })
-          .min(2, { message: "Translation code must be at least 2 characters" })
-          .max(10, {
-            message: "Translation code must be less than 10 characters",
-          }),
-      })
-    ),
+    translations: z.record(z.string(), translationSchema).optional(),
     selectedLanguages: z.array(languageSchema).optional(),
   })
   .superRefine((data, ctx) => {
@@ -68,18 +61,20 @@ const defaultFieldsSchema = z
           message: `Translation name for ${lang.name.toUpperCase()} is required`,
         });
       }
-      if (!translation.code?.trim()) {
-        ctx.addIssue({
-          path: ["translations", lang.code, "code"],
-          code: z.ZodIssueCode.custom,
-          message: `Translation code for ${lang.name.toUpperCase()} is required`,
-        });
-      }
+
       if (!translation.description?.trim()) {
         ctx.addIssue({
           path: ["translations", lang.code, "description"],
           code: z.ZodIssueCode.custom,
           message: `Translation description for ${lang.name.toUpperCase()} is required`,
+        });
+      }
+
+      if (!translation.code?.trim()) {
+        ctx.addIssue({
+          path: ["translations", lang.code, "code"],
+          code: z.ZodIssueCode.custom,
+          message: `Translation code for ${lang.name.toUpperCase()} is required`,
         });
       }
     }
@@ -88,37 +83,28 @@ const defaultFieldsSchema = z
 export type DefaultFieldsFormData = z.infer<typeof defaultFieldsSchema>;
 
 interface Props {
-  item?: ListItemType;
-  onSubmit: (data: DefaultFieldsFormData) => void;
-  onCloseModal?: () => void;
-  onLanguageSelect: (langs: Language[]) => void;
   loading?: boolean;
+  item?: SubComponent;
+  onCloseModal?: () => void;
+  onSubmit: (data: DefaultFieldsFormData) => void;
 }
 
 export function DefaultFieldsForm({
   item,
+  loading,
   onSubmit,
   onCloseModal,
-  onLanguageSelect,
-  loading,
 }: Props) {
   const { data: languages, ...languagesState } = useGetLanguages();
 
-  const languageOptions: Language[] = React.useMemo(
-    () =>
-      languages?.data
-        ? (languages.data as unknown as Language[]).filter(
-            (lang) => languageSchema.safeParse(lang).success
-          )
-        : [],
-    [languages]
-  );
+  const languageOptions: Language[] = languages?.data
+    ? languages.data.filter((lang) => languageSchema.safeParse(lang).success)
+    : [];
 
   const {
     control,
     handleSubmit,
     reset,
-    setValue,
     watch,
     formState: { errors },
   } = useForm<DefaultFieldsFormData>({
@@ -134,32 +120,6 @@ export function DefaultFieldsForm({
   });
 
   const selectedLanguages = watch("selectedLanguages");
-
-  const onLanguageSelectHandler = useCallback(
-    (langs: Language[]) => {
-      const validLangs = langs.filter(
-        (lang) => languageSchema.safeParse(lang).success
-      );
-      setValue("selectedLanguages", validLangs);
-      onLanguageSelect(validLangs);
-
-      validLangs.forEach((lang) => {
-        if (
-          !selectedLanguages?.some((selected) => selected.code === lang.code)
-        ) {
-          setValue(`translations.${lang.code}`, {
-            name: lang.code === DEFAULT_LANGUAGE_CODE ? (item?.name ?? "") : "",
-            description:
-              lang.code === DEFAULT_LANGUAGE_CODE
-                ? (item?.description ?? "")
-                : "",
-            code: lang.code === DEFAULT_LANGUAGE_CODE ? (item?.code ?? "") : "",
-          });
-        }
-      });
-    },
-    [item, selectedLanguages, setValue, onLanguageSelect]
-  );
 
   const onFormSubmit = (values: DefaultFieldsFormData) => {
     const filteredTranslations = Object.fromEntries(
@@ -195,17 +155,16 @@ export function DefaultFieldsForm({
         translations: item.translations,
         selectedLanguages: initialSelectedLanguages,
       });
-      onLanguageSelect(initialSelectedLanguages);
     } else if (!item) {
       reset({
         name: "",
-        description: "",
         code: "",
+        description: "",
         translations: {},
         selectedLanguages: [],
       });
     }
-  }, [item, languageOptions, reset, onLanguageSelect]);
+  }, [item, languages, reset]);
 
   return (
     <form
@@ -222,7 +181,6 @@ export function DefaultFieldsForm({
         labelKey="native"
         displayLabel="Languages"
         labelVariant="bold"
-        onChange={() => onLanguageSelectHandler}
         size="lg"
         loading={languagesState.isLoading}
         error={errors.selectedLanguages?.message}

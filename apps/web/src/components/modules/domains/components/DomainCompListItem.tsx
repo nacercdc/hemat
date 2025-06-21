@@ -8,6 +8,7 @@ import {
   Drawer,
   DropdownMenu,
   Modal,
+  useToast,
 } from "@etm/web-ui-components";
 import { DomainComponentForm } from "./form";
 import type { DialogRef, ModalRef } from "@etm/web-ui-components";
@@ -18,11 +19,16 @@ import type { Component, ComponentEdit } from "~/libs/models/component.model";
 import type {
   SubComponent,
   SubComponentEdit,
+  SubComponentMeasurementScale,
+  SubComponentMeasurementScaleCreate,
 } from "~/libs/models/subComponent.model";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 import ItemDetails from "./ItemDetails";
+import { SubComponentForm } from "./form/subComponents";
+import type { DefaultFieldsFormData } from "./form/subComponents/DefaultFieldsForm";
+import type { ScalesFormData } from "./form/subComponents/ScalesForm";
 
 interface Props {
   item: ListItemType;
@@ -41,6 +47,7 @@ export function DomainCompListItem({
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const editItemModalRef = useRef<ModalRef>(null);
   const deleteDialogRef = useRef<DialogRef>(null);
+  const { toast } = useToast();
 
   const { mutate: editDomain, ...editDomainState } = usePutMutation<
     Domain,
@@ -56,6 +63,14 @@ export function DomainCompListItem({
     SubComponent,
     SubComponentEdit
   >(`sub-components/${item?.id}`);
+
+  const {
+    mutate: editSubComponentMeasurementScales,
+    ...editSubComponentMeasurementScalesState
+  } = usePutMutation<
+    SubComponentMeasurementScale[],
+    SubComponentMeasurementScaleCreate[]
+  >(`sub-components/${item.id}/measurement-scales`);
 
   const { mutate: deleteDomain } = useDeleteMutation(`domains/${item?.id}`);
   const { mutate: deleteComponent } = useDeleteMutation(
@@ -91,26 +106,6 @@ export function DomainCompListItem({
     });
 
   const onEditItemSubmitHandler = (values: ItemFormData) => {
-    if (type === "SubComponent" && item) {
-      editSubComponent(
-        {
-          data: {
-            id: item.id,
-            name: values.name,
-            code: values.code,
-            description: values.description,
-            componentId: (item as SubComponent).componentId,
-            translations: values.translations,
-          },
-        },
-        {
-          onSuccess: () => {
-            refetchList?.("SubComponent");
-            editItemModalRef.current?.closeModal();
-          },
-        }
-      );
-    }
     if (type === "Component" && item) {
       editComponent(
         {
@@ -125,6 +120,11 @@ export function DomainCompListItem({
         },
         {
           onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Component updated successfully",
+              variant: "success",
+            });
             refetchList?.("Component");
             editItemModalRef.current?.closeModal();
           },
@@ -144,8 +144,66 @@ export function DomainCompListItem({
         },
         {
           onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Domain updated successfully",
+              variant: "success",
+            });
             refetchList?.("Domain");
             editItemModalRef.current?.closeModal();
+          },
+        }
+      );
+    }
+  };
+
+  const onEditSubComponentSubmitHandler = (values: DefaultFieldsFormData) => {
+    if (type === "SubComponent" && item) {
+      editSubComponent(
+        {
+          data: {
+            id: item.id,
+            name: values.name,
+            code: values.code,
+            description: values.description,
+            componentId: (item as SubComponent).componentId,
+            translations: values.translations ?? {},
+          },
+        },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Sub Component updated successfully",
+              variant: "success",
+            });
+            refetchList?.("SubComponent");
+            editItemModalRef.current?.closeModal();
+          },
+        }
+      );
+    }
+  };
+
+  const onEditScalesSubmitHandler = (values: ScalesFormData) => {
+    if (item) {
+      editSubComponentMeasurementScales(
+        {
+          data: values.scales.map((scale) => ({
+            subComponentId: item.id ?? "",
+            measurementScaleId: scale.measurementScaleId ?? "",
+            description: scale.description ?? "",
+            translations: scale.translations ?? {},
+          })),
+        },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Sub Component measurement scale created successfully",
+              variant: "success",
+            });
+            refetchList?.("SubComponent");
           },
         }
       );
@@ -158,6 +216,11 @@ export function DomainCompListItem({
         {},
         {
           onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Sub Component deleted successfully",
+              variant: "success",
+            });
             refetchList?.("SubComponent");
             deleteDialogRef.current?.closeDialog();
           },
@@ -169,6 +232,11 @@ export function DomainCompListItem({
         {},
         {
           onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Component deleted successfully",
+              variant: "success",
+            });
             refetchList?.("Component");
             deleteDialogRef.current?.closeDialog();
           },
@@ -180,6 +248,11 @@ export function DomainCompListItem({
         {},
         {
           onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Domain deleted successfully",
+              variant: "success",
+            });
             refetchList?.("Domain");
             deleteDialogRef.current?.closeDialog();
           },
@@ -265,17 +338,26 @@ export function DomainCompListItem({
         )}
       </Drawer>
       <Modal ref={editItemModalRef} title={`Edit ${type}`}>
-        <DomainComponentForm
-          type={type}
-          onSubmitHandler={onEditItemSubmitHandler}
-          onCloseModal={() => editItemModalRef.current?.closeModal()}
-          item={item}
-          loading={
-            editDomainState.isPending ||
-            editComponentState.isPending ||
-            editSubComponentState.isPending
-          }
-        />
+        {type === "SubComponent" ? (
+          <SubComponentForm
+            onScalesSubmit={onEditScalesSubmitHandler}
+            subComponentId={item.id}
+            item={item as unknown as SubComponent}
+            loading={
+              editSubComponentState.isPending ||
+              editSubComponentMeasurementScalesState.isPending
+            }
+            onDefaultFieldsSubmit={onEditSubComponentSubmitHandler}
+            onCloseModal={() => editItemModalRef.current?.closeModal()}
+          />
+        ) : (
+          <DomainComponentForm
+            item={item}
+            onSubmitHandler={onEditItemSubmitHandler}
+            onCloseModal={() => editItemModalRef.current?.closeModal()}
+            loading={editDomainState.isPending || editComponentState.isPending}
+          />
+        )}
       </Modal>
       <Dialog
         ref={deleteDialogRef}

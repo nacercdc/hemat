@@ -13,13 +13,15 @@ import type { Component, ComponentCreate } from "~/libs/models/component.model";
 import type {
   SubComponent,
   SubComponentCreate,
+  SubComponentMeasurementScale,
+  SubComponentMeasurementScaleCreate,
 } from "~/libs/models/subComponent.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { PageContainer } from "../components/PageContainer";
 import { SubComponentForm } from "./components/form/subComponents";
 import type { ItemFormData } from "./components/form";
 import type { ScalesFormData } from "./components/form/subComponents/ScalesForm";
-import type { Scale } from "~/libs/models/scale.model";
+import type { DefaultFieldsFormData } from "./components/form/subComponents/DefaultFieldsForm";
 
 export type ListType = Domain[] | Component[] | SubComponent[] | [];
 export type ListTypeLabel = "Domain" | "Component" | "SubComponent";
@@ -45,7 +47,6 @@ export function Domains() {
   const [actionTypeLabel, setActionTypeLabel] =
     useState<ListTypeLabel>("Domain");
 
-  console.log(selectedSubComponent, "selectedSubComponent");
   const addItemModalRef = useRef<ModalRef>(null);
   const { toast } = useToast();
 
@@ -85,10 +86,11 @@ export function Domains() {
 
   const {
     mutate: createSubComponentMeasurementScales,
-    ..._createSubComponentMeasurementScalesState
-  } = useAddMutation<Scale, ScalesFormData>(
-    `sub-components/${selectedSubComponent}/measurement-scales`
-  );
+    ...createSubComponentMeasurementScalesState
+  } = useAddMutation<
+    SubComponentMeasurementScale[],
+    SubComponentMeasurementScaleCreate[]
+  >(`sub-components/${selectedSubComponent}/measurement-scales`);
 
   const filteredComponents = components?.data.filter(
     (component) => component.domainId === selectedDomain
@@ -166,7 +168,7 @@ export function Domains() {
     }
   };
 
-  const onAddSubComponentSubmitHandler = (values: ItemFormData) => {
+  const onAddSubComponentSubmitHandler = (values: DefaultFieldsFormData) => {
     if (selectedComponent) {
       createSubComponent(
         {
@@ -175,7 +177,7 @@ export function Domains() {
             code: values.code,
             description: values.description,
             componentId: selectedComponent,
-            translations: values.translations,
+            translations: values.translations ?? {},
           },
         },
         {
@@ -193,20 +195,22 @@ export function Domains() {
       );
     }
   };
-  const onScalesSubmitHandler = (values: ScalesFormData) => {
+  const onAddScalesSubmitHandler = (values: ScalesFormData) => {
     if (selectedComponent) {
       createSubComponentMeasurementScales(
         {
-          data: {
-            scales: values.scales,
-          },
+          data: values.scales.map((scale) => ({
+            subComponentId: selectedSubComponent ?? "",
+            measurementScaleId: scale.measurementScaleId ?? "",
+            description: scale.description ?? "",
+            translations: scale.translations ?? {},
+          })),
         },
         {
-          onSuccess: (data) => {
-            setSelectedSubComponent(data.id);
+          onSuccess: () => {
             toast({
               title: "Success",
-              message: "Sub Component created successfully",
+              message: "Sub Component measurement scale created successfully",
               variant: "success",
             });
 
@@ -275,19 +279,22 @@ export function Domains() {
       <Modal ref={addItemModalRef} title={`Add ${actionTypeLabel}`}>
         {actionTypeLabel === "SubComponent" ? (
           <SubComponentForm
+            onScalesSubmit={onAddScalesSubmitHandler}
+            subComponentId={selectedSubComponent}
+            loading={
+              createSubComponentState.isPending ||
+              createSubComponentMeasurementScalesState.isPending
+            }
             onDefaultFieldsSubmit={onAddSubComponentSubmitHandler}
-            onScalesSubmit={onScalesSubmitHandler}
             onCloseModal={() => addItemModalRef.current?.closeModal()}
-            loading={createSubComponentState.isPending}
-            createdSubComponentId={selectedSubComponent}
           />
         ) : (
           <DomainComponentForm
+            onSubmitHandler={onAddItemSubmitHandler}
+            onCloseModal={() => addItemModalRef.current?.closeModal()}
             loading={
               createDomainState.isPending || createComponentState.isPending
             }
-            onSubmitHandler={onAddItemSubmitHandler}
-            onCloseModal={() => addItemModalRef.current?.closeModal()}
           />
         )}
       </Modal>
