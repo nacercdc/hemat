@@ -1,14 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-import { $getRoot, $insertNodes, $isParagraphNode } from "lexical";
+import { forwardRef, useImperativeHandle, useState } from "react";
+import { $getRoot, $isParagraphNode } from "lexical";
 import { AutoFocusPlugin } from "@lexical/react/LexicalAutoFocusPlugin";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
-import { $generateNodesFromDOM } from "@lexical/html";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
@@ -18,30 +17,47 @@ import ShortcutsPlugin from "./plugins/ShortcutsPlugin";
 import ContentEditable from "./ui/ContentEditable";
 import { useSharedHistoryContext } from "./context/SharedHistoryContext";
 
-import "./themes/editorGlobals.css";
-
 import dynamic from "next/dynamic";
 import { Separator } from "../../shadcn-ui/separator";
+import { FormControl, FormControlVariants } from "../form-control";
+import { cn } from "../../shadcn-ui/utils/cn";
 const ImagesPlugin = dynamic(() => import("./plugins/ImagesPlugin"), {
   ssr: false,
 });
 
-export interface ETMEditorRef {
+import "./themes/editorGlobals.css";
+
+export interface EditorRef {
   isEmpty: () => boolean;
 }
 
-export interface RichEditorProps {
-  initialState?: string;
-  isEnabled: boolean;
+export interface EditorProps {
+  name: string;
+  value: string;
   label: string;
+  labelVariant?: FormControlVariants["variant"];
+  labelSize?: FormControlVariants["size"];
   description?: string;
+  error?: string;
+  isEnabled?: boolean;
   placeholder?: string;
   onChange?: (state: string) => void;
 }
 
-export const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
+export const Editor = forwardRef<EditorRef, EditorProps>(
   (
-    { initialState, isEnabled, label, description, placeholder = "", onChange },
+    {
+      name,
+      value,
+      label,
+      labelSize,
+      labelVariant,
+      description,
+      error,
+      isEnabled = true,
+      placeholder = "Start typing...",
+      onChange,
+    },
     ref
   ) => {
     const [editor] = useLexicalComposerContext();
@@ -49,23 +65,6 @@ export const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
     const { historyState } = useSharedHistoryContext();
 
     editor.setEditable(isEnabled);
-
-    const parseHTMLIntoEditor = React.useCallback(
-      (htmlString: string) => {
-        editor.update(() => {
-          const parser = new DOMParser();
-          const dom = parser.parseFromString(htmlString, "text/html");
-
-          const nodes = $generateNodesFromDOM(editor, dom);
-
-          const root = $getRoot();
-          root.clear();
-
-          $insertNodes(nodes);
-        });
-      },
-      [editor]
-    );
 
     const isEmpty = React.useCallback(() => {
       let empty = true;
@@ -95,14 +94,21 @@ export const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
       };
     }, [isEmpty]);
 
-    useEffect(() => {
-      if (initialState) parseHTMLIntoEditor(initialState);
-    }, [initialState, parseHTMLIntoEditor]);
-
     return (
-      <div className="flex flex-col gap-2">
-        {label && <div className="text-sm font-bold">{label}</div>}
-        <div className="flex flex-col border border-basic-300 rounded-md">
+      <FormControl
+        name={name}
+        label={label}
+        error={error}
+        variant={labelVariant}
+        size={labelSize}
+        description={description}
+      >
+        <div
+          className={cn(
+            "flex flex-col border border-basic-300 rounded-md",
+            error && "border-destructive-500"
+          )}
+        >
           <ToolbarPlugin
             editor={editor}
             activeEditor={activeEditor}
@@ -110,7 +116,7 @@ export const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
           />
           <Separator className="h-px bg-basic-300 w-full" />
           <ShortcutsPlugin editor={activeEditor} />
-          <div className={`editor-container tree-view`}>
+          <div className="editor-container tree-view">
             <AutoFocusPlugin />
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
@@ -119,7 +125,10 @@ export const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
                   <div
                     className={`editor bg-white rounded-b-md ${!isEnabled && "rounded-md"}`}
                   >
-                    <ContentEditable placeholder={placeholder} />
+                    <ContentEditable
+                      placeholder={placeholder}
+                      className="!focus:border-none h-full outline-none px-2 py-2"
+                    />
                   </div>
                 </div>
               }
@@ -129,15 +138,10 @@ export const RichEditor = forwardRef<ETMEditorRef, RichEditorProps>(
             <TabIndentationPlugin maxIndent={7} />
             <CheckListPlugin />
             <ImagesPlugin />
-            {onChange && <OnChangePlugin onChange={onChange} />}
+            {onChange && <OnChangePlugin onChange={onChange} value={value} />}
           </div>
         </div>
-        {description && (
-          <div className="font-medium text-xs text-dark-light">
-            {description}
-          </div>
-        )}
-      </div>
+      </FormControl>
     );
   }
 );

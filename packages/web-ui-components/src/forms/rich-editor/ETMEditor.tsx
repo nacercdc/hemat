@@ -2,32 +2,30 @@
 
 import { forwardRef, useEffect, useState } from "react";
 import { theme as EditorTheme } from "./themes/EditorTheme";
-import { RichEditor } from "./RichEditor";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ToolbarContext } from "./context/ToolbarContext";
 import ETMEditorNodes from "./nodes/ETMEditorNodes";
-import type { ETMEditorRef } from "./RichEditor";
+import type { EditorProps, EditorRef } from "./Editor";
 
 import "./themes/editorGlobals.css";
+import { TextNode } from "lexical";
+import { ExtendedTextNode } from "./nodes/ExtendedTextNode";
+import { Editor } from "./Editor";
 
-interface Props {
-  label: string;
-  description?: string;
-  placeholder?: string;
-  initialEditorState?: string;
-  isEditorEnabled?: boolean;
-  onEditorStateChange?: (state: string) => void;
-}
+interface Props extends EditorProps {}
 
-export const ETMEditor = forwardRef<ETMEditorRef, Props>(
+export const ETMEditor = forwardRef<EditorRef, Props>(
   (
     {
-      initialEditorState,
-      isEditorEnabled = true,
+      name,
+      value,
       label,
+      labelSize,
+      labelVariant,
       description,
+      isEnabled,
       placeholder,
-      onEditorStateChange,
+      onChange,
     },
     ref
   ) => {
@@ -43,7 +41,15 @@ export const ETMEditor = forwardRef<ETMEditorRef, Props>(
     const initialConfig = {
       editorState: null,
       namespace: "ETMEditor",
-      nodes: [...ETMEditorNodes],
+      nodes: [
+        ...ETMEditorNodes,
+        ExtendedTextNode,
+        {
+          replace: TextNode,
+          with: (node: TextNode) => new ExtendedTextNode(node.__text),
+          withKlass: ExtendedTextNode,
+        },
+      ],
       onError: (error: Error) => {
         throw error;
       },
@@ -52,14 +58,17 @@ export const ETMEditor = forwardRef<ETMEditorRef, Props>(
     return (
       <LexicalComposer initialConfig={initialConfig}>
         <ToolbarContext>
-          <RichEditor
+          <Editor
             ref={ref}
-            initialState={initialEditorState}
-            isEnabled={isEditorEnabled}
+            name={name}
             label={label}
+            labelSize={labelSize}
+            labelVariant={labelVariant}
+            value={value}
             description={description}
+            isEnabled={isEnabled}
             placeholder={placeholder}
-            onChange={onEditorStateChange}
+            onChange={onChange}
           />
         </ToolbarContext>
       </LexicalComposer>
