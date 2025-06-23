@@ -72,14 +72,3 @@ export class BatchUpdateAssessmentMeasurementScaleSubComponentDto extends Assess
   @Type(() => String)
   measurementScaleId: string;
 }
-
-export class FindAllAssessmentMeasurementScaleSubComponentDto {
-  @ApiProperty({
-    description: 'ID of the sub-component to filter by',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    type: String,
-  })
-  @IsUUID()
-  @IsNotEmpty()
-  subComponentId?: string;
-}

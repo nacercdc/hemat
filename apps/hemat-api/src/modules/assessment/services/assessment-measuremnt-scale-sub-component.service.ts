@@ -16,8 +16,8 @@ import { FindAllResponseDto } from '@shared/dtos';
 import {
   AssessmentMeasurementScaleSubComponentDto,
   AssessmentMeasurementScaleSubComponentUpdateDto,
-  FindAllAssessmentMeasurementScaleSubComponentDto,
 } from '../dtos';
+import { FindAllAssessmentMeasurementScaleSubComponentDto } from '../dtos';
 
 @Injectable()
 export class AssessmentMeasurementScaleSubComponentService {
@@ -82,15 +82,21 @@ export class AssessmentMeasurementScaleSubComponentService {
   async findAll(
     query: FindAllAssessmentMeasurementScaleSubComponentDto,
   ): Promise<FindAllResponseDto<AssessmentMeasurementScaleSubComponentDto>> {
-    const [data, total] = await this.assessmentMeasurementScaleSubComponentRepository.findAndCount({
-      where: {
-        subComponentId: query.subComponentId,
-      },
+    const queryBuilder = this.assessmentMeasurementScaleSubComponentRepository.createQueryBuilder('assessmentMeasurementScaleSubComponent');
+
+    if (query.include?.includes('measurementScale')) {
+      queryBuilder.leftJoinAndSelect('assessmentMeasurementScaleSubComponent.measurementScale', 'measurementScale');
+    }
+
+    queryBuilder.where('assessmentMeasurementScaleSubComponent.subComponentId = :subComponentId', { 
+      subComponentId: query.subComponentId 
     });
+
+    const [data, total] = await queryBuilder.getManyAndCount();
 
     return {
       data,
-      total,
+      total
     };
   }
 
@@ -98,12 +104,16 @@ export class AssessmentMeasurementScaleSubComponentService {
     subComponentId: string,
     measurementScaleId: string,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
-    const measurementScale = await this.assessmentMeasurementScaleSubComponentRepository.findOne({
-      where: {
-        subComponentId,
-        measurementScaleId,
-      },
-    });
+    const measurementScale =
+      await this.assessmentMeasurementScaleSubComponentRepository.findOne({
+        where: {
+          subComponentId,
+          measurementScaleId,
+        },
+        relations: {
+          measurementScale: true,
+        },
+      });
 
     if (!measurementScale) {
       throw new NotFoundException(
@@ -119,7 +129,10 @@ export class AssessmentMeasurementScaleSubComponentService {
     measurementScaleId: string,
     payload: AssessmentMeasurementScaleSubComponentUpdateDto,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
-    const existingMeasurementScale = await this.findOne(subComponentId, measurementScaleId);
+    const existingMeasurementScale = await this.findOne(
+      subComponentId,
+      measurementScaleId,
+    );
 
     try {
       const entity = {
