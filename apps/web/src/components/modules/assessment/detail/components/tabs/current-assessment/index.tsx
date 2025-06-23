@@ -2,6 +2,7 @@
 
 import React from "react";
 import { GroupedAssessment } from "./components/GroupedAssessment";
+import AssessmentFillHeader from "../components/AssessmentFillHeader";
 export interface Domain {
   id: string;
   name: string;
@@ -9,17 +10,6 @@ export interface Domain {
   subComponentsCount: number;
   progress: number;
 }
-
-export interface FilterOption {
-  year: number;
-}
-
-const filterOptions: FilterOption[] = [
-  { year: 2023 },
-  { year: 2022 },
-  { year: 2021 },
-  { year: 2020 },
-];
 
 const dummyGroups = [
   {
@@ -49,7 +39,6 @@ const dummyGroups = [
         progress: 90,
       },
     ],
-    filter: filterOptions,
   },
   {
     title: "Team one",
@@ -83,17 +72,22 @@ const dummyGroups = [
 
 export function CurrentAssessment() {
   return (
-    <div className="flex flex-col w-full bg-layout-bg/15 rounded-md gap-3 p-3">
-      {dummyGroups.map((group) => (
-        <GroupedAssessment
-          key={group.title}
-          groupId={group.id || ""}
-          title={group.title}
-          subtitle={group.subtitle}
-          domains={group.domains}
-          filterOptions={group.filter}
-        />
-      ))}
+    <div className="flex flex-col  bg-layout-bg/15 rounded-md">
+      <AssessmentFillHeader
+        title="All Assessments"
+        subTitle="Team and team leader's assessments"
+      />
+      <div className="flex flex-col w-full  rounded-md gap-3 p-3">
+        {dummyGroups.map((group) => (
+          <GroupedAssessment
+            key={group.title}
+            groupId={group.id || ""}
+            title={group.title}
+            subtitle={group.subtitle}
+            domains={group.domains}
+          />
+        ))}
+      </div>
     </div>
   );
 }
