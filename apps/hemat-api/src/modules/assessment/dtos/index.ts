@@ -7,7 +7,7 @@ export * from './assessment-measurement-scale-sub-component.dto';
 export * from './assessment-group.dto';
 export * from './assessment-member.dto';
 export * from './assessment-answer.dto';
-export * from './roadmap.dtos';
+export * from './assessment-roadmap.dtos';
 export * from './query-assessment.dto';
 export * from './query-assessment-domain.dto';
 export * from './query-assessment-component.dto';

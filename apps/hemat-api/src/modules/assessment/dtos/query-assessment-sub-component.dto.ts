@@ -1,4 +1,3 @@
-// src/assessment-sub-component/dtos/find-all-assessment-sub-component.dto.ts
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';

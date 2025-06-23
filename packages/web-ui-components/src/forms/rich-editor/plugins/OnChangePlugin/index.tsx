@@ -1,30 +1,44 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $generateHtmlFromNodes } from "@lexical/html";
+import { OnChangePlugin as LexicalOnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
+import { useEffect, useState } from "react";
+import { $getRoot, $insertNodes } from "lexical";
 
 export default function OnChangePlugin({
+  value,
   onChange,
 }: {
-  onChange: (editorState: string) => void;
+  value: string;
+  onChange: (stateStr: string) => void;
 }) {
   const [editor] = useLexicalComposerContext();
-
-  const getEditorStateAsHTML = useCallback(() => {
-    return new Promise((resolve) => {
-      editor.update(() => {
-        const html = $generateHtmlFromNodes(editor, null);
-        resolve(html);
-      });
-    });
-  }, [editor]);
+  const [isFirstRender, setIsFirstRender] = useState(true);
 
   useEffect(() => {
-    return editor.registerUpdateListener(async () =>
-      onChange(JSON.stringify(await getEditorStateAsHTML())),
-    );
-  }, [editor, getEditorStateAsHTML, onChange]);
+    if (!value || !isFirstRender) return;
 
-  return null;
+    setIsFirstRender(false);
+    editor.update(() => {
+      const currentHTML = $generateHtmlFromNodes(editor);
+      if (currentHTML !== value) {
+        const parser = new DOMParser();
+        const dom = parser.parseFromString(value, "text/html");
+        const nodes = $generateNodesFromDOM(editor, dom);
+        $getRoot().clear();
+        $insertNodes(nodes);
+      }
+    });
+  }, [editor, value, isFirstRender]);
+
+  return (
+    <LexicalOnChangePlugin
+      onChange={(editorState) => {
+        editorState.read(() => {
+          onChange($generateHtmlFromNodes(editor));
+        });
+      }}
+    />
+  );
 }

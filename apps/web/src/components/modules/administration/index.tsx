@@ -4,22 +4,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import { PageContainer } from "../components/PageContainer";
-import type { ModalRef } from "@etm/web-ui-components";
 import { Button, Modal, useToast } from "@etm/web-ui-components";
 import { UpsideDownInvertedTabs } from "~/components/ui/upside-down-inverted-tabs";
 import { RolesTable } from "./components/tabs/roles-tab";
-import type { PermissionModule } from "./components/tabs/roles-tab/form";
 import { RoleForm } from "./components/tabs/roles-tab/form";
 import { UsersTable } from "./components/tabs/users-tab/table";
-// import { UserForm } from "./components/tabs/users-tab/form";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
-import type { Permission } from "~/libs/models/permission.model";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
-import type { CreateRole, Role } from "~/libs/models/role.model";
 import { getPermissionIds } from "./utils";
-import type { PermissionType } from "./types";
 import { useQueryClient } from "@tanstack/react-query";
+import type { UserFormData } from "./components/tabs/users-tab/form";
+import { UserForm } from "./components/tabs/users-tab/form";
+import type { PermissionModule } from "./components/tabs/roles-tab/form";
+import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import type { ModalRef } from "@etm/web-ui-components";
+import type { Permission } from "~/libs/models/permission.model";
+import type { CreateRole, Role } from "~/libs/models/role.model";
+import type { PermissionType } from "./types";
+import type { CreateUser, User } from "~/libs/models/user.model";
 
 type TabsType = "USERS" | "ROLES";
 
@@ -37,6 +39,11 @@ export function Administration() {
     Role,
     CreateRole
   >("roles");
+
+  const { mutate: createUser, ...createUserState } = useAddMutation<
+    User,
+    CreateUser
+  >("users");
 
   const { data: permissions, ...permissionsState } = useFindAll<
     QueryManyResponse<Permission>
@@ -76,10 +83,44 @@ export function Administration() {
     );
   };
 
-  const _onAddNewUserFormSubmitHandler = (
-    permissions: Record<string, Record<PermissionType, boolean>>
+  const onAddNewUserFormSubmitHandler = (
+    modulePermissions: Record<string, Record<PermissionType, boolean>>,
+    values: UserFormData
   ) => {
-    console.log(permissions);
+    let permissionsIds: string[] | undefined = [];
+
+    if (permissions)
+      permissionsIds = getPermissionIds(
+        modules,
+        permissions.data as unknown as Permission[],
+        modulePermissions
+      );
+
+    const roleIds = values.roles.map((role) => role.id);
+
+    if (!permissionsIds.length) permissionsIds = undefined;
+
+    createUser(
+      {
+        data: {
+          ...values,
+          roleIds,
+          permissionsIds,
+          confirmPassword: values.password,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            message: "User has been created successfully!",
+            variant: "success",
+          });
+          queryClient.invalidateQueries({ queryKey: ["/users"] });
+          addUserModalRef.current?.closeModal();
+        },
+      }
+    );
   };
 
   const onUserRoleModalOpenHandler = () => {
@@ -91,7 +132,26 @@ export function Administration() {
     }
   };
 
-  const onTabClickHandler = (tab: TabsType) => setActiveTab(tab);
+  const onRefetchHandler = async (key: string) => {
+    queryClient.removeQueries({
+      queryKey: [`${key}`],
+    });
+
+    await queryClient.invalidateQueries({
+      queryKey: [`${key}`],
+      refetchType: "active",
+    });
+  };
+
+  const onTabClickHandler = (tab: TabsType) => {
+    if (tab === "USERS") {
+      onRefetchHandler("/users");
+    }
+    if (tab === "ROLES") {
+      onRefetchHandler("/roles");
+    }
+    setActiveTab(tab);
+  };
 
   useEffect(() => {
     if (permissions?.data && permissionsState.isSuccess) {
@@ -134,7 +194,10 @@ export function Administration() {
               label: "Users",
               content: (
                 <div className="mt-7">
-                  <UsersTable />
+                  <UsersTable
+                    modules={modules}
+                    permissions={permissions?.data as unknown as Permission[]}
+                  />
                 </div>
               ),
             },
@@ -163,17 +226,14 @@ export function Administration() {
           loading={createRoleState.isPending}
         />
       </Modal>
-      {/* <Modal ref={addUserModalRef} title="Add User">
+      <Modal ref={addUserModalRef} title="Add User">
         <UserForm
           onSubmitUserFormHandler={onAddNewUserFormSubmitHandler}
           onCloseModal={addUserModalRef.current?.closeModal}
-          onRefetch={() => {
-            //TODO: replace with refetch func
-          }}
           modules={modules}
-          loading={false}
+          loading={createUserState.isPending}
         />
-      </Modal> */}
+      </Modal>
     </PageContainer>
   );
 }

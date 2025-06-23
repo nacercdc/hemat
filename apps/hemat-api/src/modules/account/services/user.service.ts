@@ -57,7 +57,7 @@ export class UserService {
 
     try {
       await this.dataSource.transaction(async function (manager) {
-        const { title, firstName, middleName, lastName } = payload;
+        const { title, firstName, middleName, lastName, phoneNumber } = payload;
         const user = manager.create(User, {
           email: payload.email,
           password: payload.password,
@@ -109,6 +109,7 @@ export class UserService {
           dateOfBirth: payload.dateOfBirth,
           country: payload.country,
           jobTitle: payload.jobTitle,
+          phoneNumber,
         });
 
         await manager.insert(Profile, profile);

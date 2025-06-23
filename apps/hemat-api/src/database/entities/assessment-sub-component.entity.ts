@@ -12,9 +12,10 @@ import { SubComponentTranslationDto } from '@shared/dtos';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentComponent } from './assessment-component.entity';
-import { AssessmentAnswer } from './assessment-answer.entity';
 import { Roadmap } from './roadmap.entity';
 import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
+import { AssessmentSubComponentAnswer } from './assessment-sub-component-answer.entity';
+import { AssessmentSubComponentRoadmap } from './assessment-sub-component-roadmap.entity';
 
 @Entity('assessment_sub_components')
 @Unique(['code', 'assessmentId'])
@@ -69,17 +70,21 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
   @JoinColumn({ name: 'componentId' })
   component: AssessmentComponent;
 
-  @OneToMany(() => AssessmentAnswer, (answer) => answer.subComponent, {
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
-  })
-  answers: AssessmentAnswer[];
+  @OneToMany(
+    () => AssessmentSubComponentAnswer,
+    (answer) => answer.subComponent,
+    {
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    },
+  )
+  answers: AssessmentSubComponentAnswer[];
 
-  @OneToMany(() => Roadmap, (roadmap) => roadmap.subComponent, {
+  @OneToMany(() => AssessmentSubComponentRoadmap, (roadmap) => roadmap.subComponent, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  roadmaps: Roadmap | null;
+  roadmaps: AssessmentSubComponentRoadmap | null;
 
   @ApiPropertyOptional({
     description: 'Assessments related to this domain',

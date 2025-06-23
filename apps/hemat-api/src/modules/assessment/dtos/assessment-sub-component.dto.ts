@@ -2,13 +2,11 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   IsNotEmpty,
-  Length,
-  IsUUID,
-  IsObject,
+  Length
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { SubComponentTranslationDto } from '../../../shared/dtos';
-import { IsExists, IsUnique } from '@shared/validators';
+import { IsUnique } from '@shared/validators';
 
 export class AssessmentSubComponentDto {
   @ApiPropertyOptional({

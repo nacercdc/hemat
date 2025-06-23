@@ -5,6 +5,7 @@ import {
   IsUUID,
   IsOptional,
   Length,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { IsExists } from '@shared/validators';
@@ -91,7 +92,18 @@ export class AssessmentAnswerCreateRequestDto {
   })
   @Type(() => String)
   notes?: string;
+
+  @ApiProperty({
+    description:
+      'Indicates if the answer is submitted as PRIMARY for the assessment',
+    example: false,
+    type: Boolean,
+  })
+  @IsBoolean({ message: 'validation.isPrimary.isBoolean' })
+  @Type(() => Boolean)
+  isPrimary: boolean;
 }
+
 export class AssessmentAnswerUpdateRequestDto {
   @ApiPropertyOptional({
     description: 'ID of the associated assessment',
@@ -174,4 +186,15 @@ export class AssessmentAnswerUpdateRequestDto {
   })
   @Type(() => String)
   notes?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Indicates if the answer is submitted as PRIMARY for the assessment',
+    example: false,
+    type: Boolean,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'validation.isPrimary.isBoolean' })
+  @Type(() => Boolean)
+  isPrimary?: boolean;
 }

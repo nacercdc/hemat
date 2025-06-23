@@ -4,6 +4,8 @@ import UserAction from "./UsersAction";
 
 import type { BadgeVariants, ColumnDef } from "@etm/web-ui-components";
 import type { User, UserStatus } from "~/libs/models/user.model";
+import type { PermissionModule } from "../form";
+import type { Permission } from "~/libs/models/permission.model";
 
 const StatusVariantClasses: Record<UserStatus, BadgeVariants["variant"]> = {
   active: "success",
@@ -12,10 +14,14 @@ const StatusVariantClasses: Record<UserStatus, BadgeVariants["variant"]> = {
 
 interface Props {
   refetch: () => void;
+  modules: PermissionModule[];
+  permissions?: Permission[];
 }
 export const UsersTableColumns = ({
   refetch,
-}: Props): ColumnDef<Partial<User>>[] => [
+  modules,
+  permissions,
+}: Props): ColumnDef<User>[] => [
   {
     header: "Name",
     accessorKey: "name",
@@ -47,20 +53,26 @@ export const UsersTableColumns = ({
     header: "Role",
     accessorKey: "roles",
     enableColumnFilter: false,
-    cell: ({ row }) => (
-      <span>{row.original.roles?.map((role) => role.name).join(" ")}</span>
-    ),
+    cell: ({
+      row: {
+        original: { roles },
+      },
+    }) => <span>{roles?.map((role) => role.name).join(", ")}</span>,
   },
 
   {
     header: "Status",
     accessorKey: "status",
     enableColumnFilter: false,
-    cell: ({ row }) => {
+    cell: ({
+      row: {
+        original: { status },
+      },
+    }) => {
       return (
         <Badge
-          text={row.original.status as string}
-          variant={StatusVariantClasses[row.original.status || "active"]}
+          text={status as string}
+          variant={StatusVariantClasses[status]}
           shape="circular"
         />
       );
@@ -72,6 +84,13 @@ export const UsersTableColumns = ({
     accessorKey: "",
     enableColumnFilter: false,
     enableSorting: false,
-    cell: ({ row }) => <UserAction user={row.original} refetch={refetch} />,
+    cell: ({ row }) => (
+      <UserAction
+        user={row.original}
+        refetch={refetch}
+        modules={modules}
+        permissions={permissions}
+      />
+    ),
   },
 ];

@@ -1,41 +1,67 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Table as ETMTable } from "@etm/web-ui-components";
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "~/constants";
 import { EmptyTableDataElement } from "~/components/modules/components/EmptyTableDataElement";
 import { UsersTableColumns } from "./UsersTableColumns";
 
-import type { SortingState, PaginationState } from "@etm/web-ui-components";
-import { UserStatus } from "~/libs/models/user.model";
-import type { User } from "~/libs/models/user.model";
-import type { StatusType } from "./Toolbar";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import Toolbar from "./Toolbar";
+import type {
+  User,
+  UserIncludable,
+  UserSortable,
+  UserSorts,
+} from "~/libs/models/user.model";
+import type { SortingState, PaginationState } from "@etm/web-ui-components";
+import type { StatusType } from "./Toolbar";
+import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import type { PermissionModule } from "../form";
+import type { Permission } from "~/libs/models/permission.model";
 
-export function UsersTable() {
-  const [usersData, setUsersData] = useState<Partial<User>[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [sorting, setSorting] = useState<SortingState>();
-  const [searchValue, setSearchValue] = useState("");
+interface Props {
+  modules: PermissionModule[];
+  permissions?: Permission[];
+}
 
+export function UsersTable({ modules, permissions }: Props) {
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<UserSorts>({});
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: DEFAULT_PAGE_INDEX,
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  useEffect(() => {
-    setIsLoading(true);
-    mockUsersFetch(pagination).then((data) => {
-      setUsersData(data.users);
-      setIsLoading(false);
-    });
-  }, [pagination, sorting, searchValue]);
+  const { data: users, ...usersState } = useFindAll<
+    QueryManyResponse<User>,
+    UserIncludable,
+    unknown
+  >({
+    path: "/users",
+    queries: {
+      limit: pagination.pageSize,
+      page: pagination.pageIndex + 1,
+      include: ["permissions", "roles"],
+      sorts: sort,
+      search,
+    },
+  });
+
+  const onPageChangeHandler = (pageState: PaginationState) => {
+    setPagination(pageState);
+  };
 
   const onSortingChangeHandler = (sortingState: SortingState) => {
-    // TODO: Replace with a code that triggers our query hook with new sorting state
+    const newSort: UserSorts = {};
 
-    setSorting(sortingState);
+    sortingState.forEach((v) => {
+      newSort[v.desc ? "descending" : "ascending"] = `${v.id}` as UserSortable;
+    });
+
+    setSort(newSort);
+
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,
       pageSize: DEFAULT_PAGE_SIZE,
@@ -43,20 +69,20 @@ export function UsersTable() {
   };
 
   const onSearchFilterChangeHandler = useCallback((value: string) => {
-    // TODO: Replace with a code that triggers our query hook with new search filter state
+    setSearch(value);
 
-    setSearchValue(value);
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,
       pageSize: DEFAULT_PAGE_SIZE,
     });
   }, []);
 
-  const onPageChangeHandler = (pageState: PaginationState) => {
-    // TODO: Replace with a code that triggers our query hook with new pagination state
-
-    setPagination(pageState);
-  };
+  const onStatusFilterChangeHandler = useCallback(
+    (_statusType: StatusType[] | undefined) => {
+      //TODO: implement status filter once the backend is ready
+    },
+    []
+  );
 
   const OnEmptyDataElement = (
     <EmptyTableDataElement
@@ -71,85 +97,23 @@ export function UsersTable() {
   );
 
   return (
-    <ETMTable<Partial<User>>
+    <ETMTable<User>
       columns={UsersTableColumns({
-        refetch: () => {
-          //TODO: will be replaced with user refetch func
-        },
+        refetch: usersState.refetch,
+        modules,
+        permissions,
       })}
-      data={usersData}
-      totalItems={125}
+      data={(users?.data as unknown as User[]) ?? []}
+      totalItems={users?.total ?? DEFAULT_PAGE_SIZE}
       onPaginationChange={onPageChangeHandler}
-      isLoading={isLoading}
+      isLoading={usersState.isLoading}
       onSortingChange={onSortingChangeHandler}
       onSearchFilterChange={onSearchFilterChangeHandler}
       pageSizeOptions={[10, 25, 50, 100]}
       enableRowSelection={false}
       initialPagination={pagination}
       onEmptyDataElement={OnEmptyDataElement}
-      toolbar={
-        <Toolbar
-          onStatusTypeCheck={(stc) =>
-            ((st?: StatusType[]) => console.log(st))(stc)
-          }
-        />
-      }
+      toolbar={<Toolbar onStatusTypeCheck={onStatusFilterChangeHandler} />}
     />
   );
-}
-
-// Temporary mock users fetch
-async function mockUsersFetch({
-  pageIndex = 0,
-  pageSize = 10,
-}: {
-  pageIndex?: number;
-  pageSize?: number;
-}): Promise<{
-  users: Partial<User>[];
-  total: number;
-  startIndex: number;
-  endIndex: number;
-}> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const totalUsers = 125;
-  const startIndex = pageIndex * pageSize;
-  const endIndex = startIndex + pageSize;
-
-  const mockUsers: Partial<User>[] = Array.from(
-    { length: Math.min(pageSize, totalUsers - startIndex) },
-    (_, i) => ({
-      id: `${startIndex + i + 1}`,
-      name: `Firstname - ${startIndex + i + 1} Lastname - ${startIndex + i + 1}`,
-      firstName: `Firstname - ${startIndex + i + 1}`,
-      lastName: `Lastname - ${startIndex + i + 1}`,
-      email: `example-email-${startIndex + i + 1}@gmail.com`,
-      roles: [
-        {
-          id: "1",
-          name: "User",
-          description: "User Role",
-          permissions: [
-            {
-              id: `perm-${startIndex + i + 1}`,
-              action: "read",
-              subject: "USER",
-            },
-          ],
-          createdAt: "2023-01-15T08:30:00Z",
-          updatedAt: "2023-01-15T08:30:00Z",
-        },
-      ],
-      status: UserStatus.ACTIVE,
-      createdAt: "2023-01-15T08:30:00Z",
-    })
-  );
-
-  return {
-    users: mockUsers,
-    total: totalUsers,
-    startIndex,
-    endIndex,
-  };
 }

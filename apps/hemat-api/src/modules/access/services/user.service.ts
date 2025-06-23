@@ -20,6 +20,7 @@ import {
 } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
 import { LanguageEnum } from '@shared/enums';
+import { UserStatusEnum } from '@shared/enums';
 
 @Injectable()
 export class UserService {
@@ -63,7 +64,9 @@ export class UserService {
     return user;
   }
 
-  async create(payload: UserCreateRequestDto): Promise<User> {
+  async create(
+    payload: UserCreateRequestDto,
+  ): Promise<User> {
     return this.dataSource.transaction(async (manager) => {
       const roles = await manager
         .getRepository(Role)
@@ -74,11 +77,13 @@ export class UserService {
             .findBy({ id: In(payload.permissionsIds) })
         : [];
 
+      const generatedPassword = this.generateRandomPassword();
+
       const user = manager.getRepository(User).create({
         isAdmin: true,
         name: `${payload.firstName} ${payload.lastName}`,
         email: payload.email,
-        password: payload.password,
+        password: generatedPassword,
         roles,
         permissions,
         lang: LanguageEnum.EN,
@@ -97,7 +102,7 @@ export class UserService {
         });
 
         await manager.getRepository(Profile).save(profile);
-        return savedUser;
+        return { ...savedUser };
       } catch (err) {
         this.logger.error('create:', err);
         throw new BadRequestException('Failed to create user.');
@@ -246,6 +251,81 @@ export class UserService {
         throw new BadRequestException('Failed to restore user.');
       }
     });
+  }
+
+  async deactivate(id: string): Promise<User> {
+    return this.dataSource.transaction(async (manager) => {
+      const user = await manager.getRepository(User).findOne({
+        where: { id, isAdmin: true },
+      });
+      if (!user) {
+        throw new NotFoundException(`User ${id} not found.`);
+      }
+      if (
+        user.email ===
+        this.configService.getOrThrow('app.adminEmail', { infer: true })
+      ) {
+        throw new ForbiddenException('Cannot deactivate super admin user.');
+      }
+      user.status = UserStatusEnum.INACTIVE;
+      user.disabled = true;
+      user.disabledAt = new Date();
+      try {
+        return await manager.getRepository(User).save(user);
+      } catch (err) {
+        this.logger.error('deactivate:', err);
+        throw new BadRequestException('Failed to deactivate user.');
+      }
+    });
+  }
+
+  async activate(id: string): Promise<User> {
+    return this.dataSource.transaction(async (manager) => {
+      const user = await manager.getRepository(User).findOne({
+        where: { id, isAdmin: true },
+      });
+      if (!user) {
+        throw new NotFoundException(`User ${id} not found.`);
+      }
+      if (
+        user.email ===
+        this.configService.getOrThrow('app.adminEmail', { infer: true })
+      ) {
+        throw new ForbiddenException('Cannot activate super admin user.');
+      }
+      user.status = UserStatusEnum.ACTIVE;
+      user.disabled = false;
+      user.disabledAt = null;
+      try {
+        return await manager.getRepository(User).save(user);
+      } catch (err) {
+        this.logger.error('activate:', err);
+        throw new BadRequestException('Failed to activate user.');
+      }
+    });
+  }
+
+  private generateRandomPassword(length = 12): string {
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  }
+
+  async setStatus(
+    id: string,
+    action: 'activate' | 'deactivate',
+  ): Promise<User> {
+    if (action === 'activate') {
+      return this.activate(id);
+    } else if (action === 'deactivate') {
+      return this.deactivate(id);
+    } else {
+      throw new BadRequestException('Invalid action.');
+    }
   }
 
   private filters(query: FindAllUserDto): Filter[] {

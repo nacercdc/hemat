@@ -25,7 +25,7 @@ const userStatus = Object.values(UserStatusEnum).join(', ');
 const genders = Object.values(GenderEnum).join(', ');
 
 export class UserBaseRequestDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Title',
     example: 'Mr',
     minLength: 2,
@@ -36,9 +36,9 @@ export class UserBaseRequestDto {
     message: 'validation.title.length args: min:2 | max:10',
   })
   @IsAlphaSpaceOnly({ message: 'validation.title.isAlphaSpaceOnly' })
-  @IsNotEmpty({ message: 'validation.title.isNotEmpty' })
+  @IsOptional()
   @Type(() => String)
-  title: string;
+  title?: string | null = null;
 
   @ApiProperty({
     description: 'First name',
@@ -151,6 +151,16 @@ export class UserBaseRequestDto {
   @IsOptional()
   @Type(() => String)
   permissionsIds?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Phone number',
+    example: '+1234567890',
+    type: String,
+  })
+  @IsString({ message: 'validation.phoneNumber.isString' })
+  @IsOptional()
+  @Type(() => String)
+  phoneNumber?: string | null = null;
 }
 
 export class UserCreateRequestDto extends UserBaseRequestDto {
@@ -170,33 +180,6 @@ export class UserCreateRequestDto extends UserBaseRequestDto {
   @IsNotEmpty({ message: 'validation.email.isNotEmpty' })
   @Type(() => String)
   email: string;
-
-  @ApiProperty({
-    description: 'New password',
-    example: 'e6Uyb&j90Qh',
-    minLength: 8,
-    maxLength: 64,
-    type: String,
-  })
-  @Length(8, 64, { message: 'validation.password.length args: min:8 | max:64' })
-  @IsNotEmpty({ message: 'validation.password.isNotEmpty' })
-  @IsString({ message: 'validation.password.isString' })
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'validation.password.isWeak',
-  })
-  @Type(() => String)
-  password: string;
-
-  @ApiProperty({
-    description: 'Confirm password',
-    example: 'e6Uyb&j90Qh',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.confirmPassword.isNotEmpty' })
-  @IsString({ message: 'validation.confirmPassword.isString' })
-  @IsMatch('password', { message: 'validation.confirmPassword.isMatch' })
-  @Type(() => String)
-  confirmPassword: string;
 }
 
 export class UserUpdateRequestDto extends UserBaseRequestDto {

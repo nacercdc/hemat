@@ -1,6 +1,6 @@
 import React from "react";
-import { Assessment } from "~/components/modules";
+import { Assessments } from "~/components/modules";
 
 export default function AssessmentPage() {
-  return <Assessment />;
+  return <Assessments />;
 }
