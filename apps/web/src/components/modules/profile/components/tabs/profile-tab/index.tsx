@@ -22,6 +22,7 @@ import { useGetMe } from "~/providers/me/useGetMe";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import type { Profile, UpdateProfile } from "~/libs/models/profile.model";
 import { ProfileTabSkeleton } from "./ProfileTabSkeleton";
+import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "@etm/utilities";
 const PERSONAL_TITLES = [
   "Mr.",
   "Mrs.",
@@ -89,9 +90,6 @@ export default function ProfileTab() {
   const { data: currentUser, ...currentUserState } = useGetMe();
   const { data: countries, ...countriesState } = useFindAll<Country>({
     path: "/countries",
-    tqOptions: {
-      enabled: false,
-    },
   });
 
   const { mutate: updateProfile, ...updateProfileState } = usePutMutation<
@@ -103,6 +101,7 @@ export default function ProfileTab() {
     defaultValues: {
       firstName: "",
       lastName: "",
+      dateOfBirth: undefined,
     },
     resolver: zodResolver(ProfileDetailSchema),
     mode: "onChange",
@@ -121,8 +120,11 @@ export default function ProfileTab() {
       jobTitle: values.jobTitle,
       gender: values.gender?.id,
       phoneNumber: values?.phoneNumber,
-      dateOfBirth: values?.dateOfBirth?.toString(),
+      dateOfBirth: values?.dateOfBirth
+        ? formatDateToYYYYMMDD(values?.dateOfBirth)
+        : undefined,
     };
+
     updateProfile(
       {
         data: updatedProfile,
@@ -141,7 +143,7 @@ export default function ProfileTab() {
   };
 
   useEffect(() => {
-    if (currentUser) {
+    if (currentUserState.isSuccess && currentUser) {
       reset({
         email: currentUser.email,
         title: currentUser.profile?.title
@@ -167,11 +169,14 @@ export default function ProfileTab() {
           : undefined,
 
         phoneNumber: currentUser.profile?.phoneNumber ?? "",
-        dateOfBirth:
-          (currentUser.profile?.dateOfBirth as unknown as Date) ?? "",
+        dateOfBirth: currentUser.profile?.dateOfBirth
+          ? (parseYYYYMMDDToDate(
+              currentUser.profile?.dateOfBirth
+            ).toString() as unknown as Date)
+          : undefined,
       });
     }
-  }, [currentUserState.isSuccess, currentUser]);
+  }, [currentUserState.isSuccess, currentUserState.isRefetching, currentUser]);
 
   if (currentUserState.isLoading) {
     return <ProfileTabSkeleton />;
