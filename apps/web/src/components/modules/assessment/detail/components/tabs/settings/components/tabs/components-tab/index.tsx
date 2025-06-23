@@ -16,7 +16,7 @@ export function ComponentTab() {
   const { id: assessmentId } = params;
   const { data: components, ...componentsState } =
     useFindAll<AssessmentComponent>({
-      path: `/components`,
+      path: `/assessments/${assessmentId as string}/components`,
     });
   const [activeComponent, setActiveComponent] =
     useState<AssessmentComponent | null>(null);

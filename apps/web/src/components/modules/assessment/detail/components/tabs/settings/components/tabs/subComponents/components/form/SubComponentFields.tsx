@@ -1,21 +1,21 @@
 import { InputRHF, TextAreaRHF, Accordion } from "@etm/web-ui-components";
 import type { Language } from "~/libs/models/language.model";
 import type { Control, FieldErrors, UseFormWatch } from "react-hook-form";
-import type { SubComponentFormData } from "./SubComponentsForm";
+import type { AssessmentSubComponentFormData } from "./SubComponentsForm";
 
 interface FieldConfig {
   key: "code" | "name" | "description";
   label: string;
-  placeholder: (lang: Language) => string;
+  placeholder: (lang: Pick<Language, "name" | "code" | "native">) => string;
   Component: typeof InputRHF | typeof TextAreaRHF;
   props: Record<string, unknown>;
 }
 
 interface Props {
-  control: Control<SubComponentFormData>;
-  selectedLanguages: Language[];
-  watch: UseFormWatch<SubComponentFormData>;
-  errors: FieldErrors<SubComponentFormData>;
+  control: Control<AssessmentSubComponentFormData>;
+  selectedLanguages: Pick<Language, "name" | "code" | "native">[];
+  watch: UseFormWatch<AssessmentSubComponentFormData>;
+  errors: FieldErrors<AssessmentSubComponentFormData>;
 }
 
 export function Fields({ control, selectedLanguages, watch, errors }: Props) {

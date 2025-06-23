@@ -247,12 +247,10 @@ export function Content({
             variant: "success",
           });
         },
-        onError: (error) => {
+        onError: () => {
           toast({
             title: "Error updating component",
-            message:
-              error.message ||
-              "An error occurred while updating the component.",
+            message: "An error occurred while updating the component.",
             variant: "destructive",
           });
         },

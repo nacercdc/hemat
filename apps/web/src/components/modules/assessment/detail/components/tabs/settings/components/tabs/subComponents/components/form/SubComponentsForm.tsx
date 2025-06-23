@@ -1,35 +1,40 @@
 "use client";
 
-import { Button, MultiSelectRHF } from "@etm/web-ui-components";
+import { Button, MultiSelectRHF, useToast } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useCallback } from "react";
 import type { Language } from "~/libs/models/language.model";
-import type { AssessmentSubComponent } from "../../../../../types";
+
 import { Fields } from "./SubComponentFields";
-import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import type {
+  AssessmentSubComponent,
+  AssessmentSubComponentUpdate,
+} from "~/libs/models/assessment-sub-component.model";
+import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 
 // SubComponent Schema
-export const subComponentFormSchema = z
+export const assessmentSubComponentFormSchema = z
   .object({
     name: z.string().min(1, { message: "Name is required" }),
     description: z.string().min(1, { message: "Description is required" }),
-    code: z.string().min(1, { message: "Code is required" }),
+    code: z.string().min(1, { message: "Code is required" }).max(10, {
+      message: "Code must be at most 10 characters long",
+    }),
     translations: z.record(
       z.string(),
-      z.object({
-        name: z.string().min(1, { message: "Translation name is required" }),
-        description: z
-          .string()
-          .min(1, { message: "Translation description is required" }),
-        code: z.string().min(1, { message: "Translation code is required" }),
-      })
+      z
+        .object({
+          name: z.string().optional(),
+          description: z.string().optional(),
+          code: z.string().optional(),
+        })
+        .optional()
     ),
     selectedLanguages: z
       .array(
         z.object({
-          id: z.string(),
           name: z.string(),
           code: z.string(),
           native: z.string(),
@@ -37,34 +42,58 @@ export const subComponentFormSchema = z
       )
       .min(1, { message: "At least one language is required" }),
   })
-  .refine(
-    (data) => {
-      const translationKeys = Object.keys(data.translations);
-      return data.selectedLanguages.every((lang) =>
-        translationKeys.includes(lang.code)
-      );
-    },
-    {
-      message: "All selected languages must have corresponding translations",
-      path: ["selectedLanguages"],
-    }
-  );
+  .superRefine((data, ctx) => {
+    data.selectedLanguages.forEach((lang) => {
+      const translation = data.translations[lang.code];
 
-export type SubComponentFormData = z.infer<typeof subComponentFormSchema>;
+      if (!translation?.name || translation.name.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Name is required for this language",
+          path: ["translations", lang.code, "name"],
+        });
+      }
 
-interface SubComponentFormProps {
-  activeSubComponent: AssessmentSubComponent | null;
+      if (!translation?.description || translation.description.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Description is required for this language",
+          path: ["translations", lang.code, "description"],
+        });
+      }
+
+      if (!translation?.code || translation.code.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Code is required for this language",
+          path: ["translations", lang.code, "code"],
+        });
+      }
+    });
+  });
+
+export type AssessmentSubComponentFormData = z.infer<
+  typeof assessmentSubComponentFormSchema
+>;
+
+interface Props {
   languageOptions: Language[];
+  assessmentId: string;
+  refetchSubComponents: () => void;
+  activeSubComponent: AssessmentSubComponent | null;
 }
 
-export const SubComponentForm: React.FC<SubComponentFormProps> = ({
-  activeSubComponent,
+export const SubComponentForm = ({
   languageOptions,
-}) => {
-  const { mutate: saveSubComponent } = useAddMutation<
+  assessmentId,
+  activeSubComponent,
+  refetchSubComponents,
+}: Props) => {
+  const { toast } = useToast();
+  const { mutate: saveSubComponent } = usePutMutation<
     AssessmentSubComponent,
-    SubComponentFormData
-  >("/sub-components");
+    AssessmentSubComponentUpdate
+  >(`/assessments/${assessmentId}/sub-components/${activeSubComponent?.id}`);
 
   const {
     control,
@@ -72,7 +101,7 @@ export const SubComponentForm: React.FC<SubComponentFormProps> = ({
     reset,
     watch,
     formState: { errors },
-  } = useForm<SubComponentFormData>({
+  } = useForm<AssessmentSubComponentFormData>({
     defaultValues: {
       name: activeSubComponent?.name ?? "",
       description: activeSubComponent?.description ?? "",
@@ -80,7 +109,7 @@ export const SubComponentForm: React.FC<SubComponentFormProps> = ({
       translations: {},
       selectedLanguages: [],
     },
-    resolver: zodResolver(subComponentFormSchema),
+    resolver: zodResolver(assessmentSubComponentFormSchema),
     mode: "all",
   });
 
@@ -122,15 +151,48 @@ export const SubComponentForm: React.FC<SubComponentFormProps> = ({
     });
   }, [activeSubComponent, getDefaultTranslations, languageOptions, reset]);
 
-  const onSubmitHandler = (values: SubComponentFormData) => {
+  const onSubmitHandler = (values: AssessmentSubComponentFormData) => {
     const filteredTranslations = Object.fromEntries(
-      Object.entries(values.translations).filter(([key]) =>
-        values.selectedLanguages.some((lang) => lang.code === key)
-      )
+      Object.entries(values.translations || {})
+        .filter(([key]) =>
+          values.selectedLanguages?.some((lang) => lang.code === key)
+        )
+        .map(([key, value]) => [
+          key,
+          {
+            name: value?.name || "",
+            description: value?.description || "",
+            code: value?.code || "",
+          },
+        ])
     );
-    saveSubComponent({
-      data: { ...values, translations: filteredTranslations },
-    });
+    saveSubComponent(
+      {
+        data: {
+          ...values,
+          id: activeSubComponent?.id ?? "",
+          componentId: activeSubComponent?.componentId ?? "",
+          translations: filteredTranslations,
+        },
+      },
+      {
+        onSuccess: () => {
+          refetchSubComponents();
+          toast({
+            title: "Component updated successfully",
+            message: "The component has been updated successfully.",
+            variant: "success",
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Error updating component",
+            message: "An error occurred while updating the component.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   useEffect(() => {

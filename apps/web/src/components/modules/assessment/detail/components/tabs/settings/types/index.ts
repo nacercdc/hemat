@@ -6,14 +6,6 @@ export interface AssessmentComponent {
   assessmentId: string;
   domainId: string;
 }
-export interface AssessmentSubComponent {
-  id: string;
-  name: string;
-  code: string;
-  description: string;
-  componentId: string;
-  assessmentId: string;
-}
 
 export interface AssessmentSubComponentMeasurementScale {
   description: string;
