@@ -30,6 +30,7 @@ import { QueryService } from '@shared/services';
 import { GroupService } from './group.service';
 import { AssessmentRoleService } from './assessment-role.service';
 import { generateRandomToken } from '@shared/helpers/token.helper';
+import { MemberRole } from '@shared/enums';
 
 @Injectable()
 export class InvitationService {
@@ -83,6 +84,17 @@ export class InvitationService {
         });
         if (existingInvites.length) {
           throw new BadRequestException('Duplicate invitation email');
+        }
+
+        // Validate: no duplicate emails within the same group
+        for (const group of payload) {
+          const seen = new Set<string>();
+          for (const invite of group.invitations) {
+            if (seen.has(invite.email)) {
+              throw new BadRequestException(`Duplicate invitation email '${invite.email}' in the same group is not allowed.`);
+            }
+            seen.add(invite.email);
+          }
         }
 
         const invitations: Invitation[] = [];
@@ -253,19 +265,47 @@ export class InvitationService {
         await this.dataSource.transaction(async (manager) => {
           if (
             await this.memberService
-              .findOne(invitation.assessmentId, invitation.groupId, user.id, {
-                include: [],
-              })
+              .findOne(invitation.assessmentId, user.id, { include: [] })
               .catch(() => null)
           ) {
             throw new BadRequestException('User already in assessment group');
           }
+
+          // Check for PRIMARY/TEAM_LEADER conflicts in the group and assessment
+          let finalRole = invitation.role;
+          if (invitation.role === MemberRole.PRIMARY || invitation.role === MemberRole.TEAM_LEADER) {
+            // Check group members
+            const groupMembers = await manager.find(AssessmentMember, {
+              where: { assessmentId: invitation.assessmentId, groupId: invitation.groupId },
+            });
+            // Check all assessment members
+            const allMembers = await manager.find(AssessmentMember, {
+              where: { assessmentId: invitation.assessmentId },
+            });
+            // Only one PRIMARY per assessment
+            if (invitation.role === MemberRole.PRIMARY && allMembers.some(m => m.role === MemberRole.PRIMARY)) {
+              finalRole = MemberRole.MEMBER;
+            }
+            // Only one TEAM_LEADER per group, and no group can have both PRIMARY and TEAM_LEADER
+            if (invitation.role === MemberRole.TEAM_LEADER && (groupMembers.some(m => m.role === MemberRole.TEAM_LEADER) || groupMembers.some(m => m.role === MemberRole.PRIMARY))) {
+              finalRole = MemberRole.MEMBER;
+            }
+            // If group already has a TEAM_LEADER, PRIMARY cannot be added
+            if (invitation.role === MemberRole.PRIMARY && groupMembers.some(m => m.role === MemberRole.TEAM_LEADER)) {
+              finalRole = MemberRole.MEMBER;
+            }
+            // If assessment already has a PRIMARY, TEAM_LEADER cannot be added
+            if (invitation.role === MemberRole.TEAM_LEADER && allMembers.some(m => m.role === MemberRole.PRIMARY)) {
+              finalRole = MemberRole.MEMBER;
+            }
+          }
+
           await manager.save(
             manager.create(AssessmentMember, {
               userId: user.id,
               assessmentId: invitation.assessmentId,
               groupId: invitation.groupId,
-              role: invitation.role,
+              role: finalRole,
             }),
           );
           await manager.update(

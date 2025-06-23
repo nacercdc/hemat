@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, In } from 'typeorm';
 import {
   AssessmentMember,
   Assessment,
@@ -20,7 +20,9 @@ import {
   AssessmentMemberUpdateRequestDto,
   FindAllAssessmentMemberDto,
   FindOneAssessmentMemberDto,
+  AssessmentMemberMoveRequestDto,
 } from '../dtos';
+import { AssessmentMemberValidator } from '../utils/assessment-member.validator';
 
 @Injectable()
 export class AssessmentMemberService {
@@ -31,73 +33,44 @@ export class AssessmentMemberService {
     private readonly memberRepository: Repository<AssessmentMember>,
     @InjectRepository(Assessment)
     private readonly assessmentRepository: Repository<Assessment>,
-    @InjectRepository(AssessmentGroup)
-    private readonly groupRepository: Repository<AssessmentGroup>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     private readonly dataSource: DataSource,
   ) {}
 
   async findAll(
     assessmentId: string,
-    groupId: string,
     query: FindAllAssessmentMemberDto,
   ): Promise<FindAllResponseDto<AssessmentMember>> {
-    try {
       const assessment = await this.assessmentRepository.exists({
         where: { id: assessmentId },
       });
       if (!assessment) {
         throw new NotFoundException('Assessment not found');
       }
-
-      const group = await this.groupRepository.exists({
-        where: { id: groupId, assessmentId },
-      });
-      if (!group) {
-        throw new NotFoundException('Assessment group not found');
-      }
-
       return await new QueryService<AssessmentMember>(this.memberRepository)
-        .filter([
-          { field: 'assessmentId', operator: '=', value: assessmentId },
-          { field: 'groupId', operator: '=', value: groupId },
-        ])
+        .filter([{ field: 'assessmentId', operator: '=', value: assessmentId }])
         .join(query.include)
         .filter([], { fields: ['role'], value: query.search })
         .sort({ ascending: query.ascending, descending: query.descending })
         .take(query.take)
         .skip(query.skip)
         .getManyAndCount();
-    } catch (err) {
-      this.logger.error(
-        `Failed to retrieve assessment members: ${err.message}`,
-        err.stack,
-      );
-      throw new BadRequestException('Failed to retrieve assessment members');
-    }
   }
 
   async findOne(
     assessmentId: string,
-    groupId: string,
     userId: string,
     query: FindOneAssessmentMemberDto,
   ): Promise<AssessmentMember> {
     try {
       const relations = query.include || [];
       const member = await this.memberRepository.findOne({
-        where: {
-          assessmentId,
-          groupId,
-          userId,
-        },
+        where: { assessmentId, userId },
         relations,
       });
 
       if (!member) {
         this.logger.error(
-          `Member not found for user ${userId} in group ${groupId}`,
+          `Member not found for user ${userId} in assessment ${assessmentId}`,
         );
         throw new NotFoundException('Member not found');
       }
@@ -111,152 +84,155 @@ export class AssessmentMemberService {
 
   async create(
     assessmentId: string,
-    groupId: string,
     payload: AssessmentMemberCreateRequestDto,
   ): Promise<AssessmentMember> {
     return this.dataSource.transaction(async (manager) => {
-      const assessment = await manager
-        .getRepository(Assessment)
-        .exists({ where: { id: assessmentId } });
-      if (!assessment) {
-        throw new NotFoundException('Assessment not found');
-      }
-
-      const group = await manager
-        .getRepository(AssessmentGroup)
-        .exists({ where: { id: groupId, assessmentId } });
-      if (!group) {
-        throw new NotFoundException('Assessment group not found');
-      }
-
-      const user = await manager
-        .getRepository(User)
-        .exists({ where: { id: payload.userId } });
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-
+      await AssessmentMemberValidator.checkAssessmentExists(
+        manager,
+        assessmentId,
+      );
+      await AssessmentMemberValidator.checkGroupExists(
+        manager,
+        payload.groupId,
+        assessmentId,
+      );
+      await AssessmentMemberValidator.checkUserExists(manager, payload.userId);
       const existingMember = await manager
         .getRepository(AssessmentMember)
         .exists({
-          where: { userId: payload.userId, assessmentId, groupId },
+          where: {
+            userId: payload.userId,
+            assessmentId,
+            groupId: payload.groupId,
+          },
         });
       if (existingMember) {
         throw new BadRequestException(
           'User is already a member of this assessment group',
         );
       }
-
+      const groupMembers = await AssessmentMemberValidator.fetchGroupMembers(
+        manager,
+        payload.groupId,
+        assessmentId,
+      );
+      // Enforce only one PRIMARY per assessment
       if (payload.role === MemberRole.PRIMARY) {
-        const primaryCount = await manager
-          .getRepository(AssessmentMember)
-          .count({
-            where: { groupId, assessmentId, role: MemberRole.PRIMARY },
-          });
-        if (primaryCount > 0) {
-          throw new BadRequestException(
-            'Each group can have only one PRIMARY member',
-          );
-        }
+        const allMembers = await AssessmentMemberValidator.fetchAssessmentMembers(manager, assessmentId);
+        AssessmentMemberValidator.validateAssessmentPrimaryConstraint(payload.role, allMembers);
       }
-
-      if (payload.role === MemberRole.TEAM_LEADER) {
-        const teamLeaderCount = await manager
-          .getRepository(AssessmentMember)
-          .count({
-            where: { assessmentId, role: MemberRole.TEAM_LEADER },
-          });
-        if (teamLeaderCount > 0) {
-          throw new BadRequestException(
-            'Only one TEAM_LEADER is allowed per assessment',
-          );
-        }
-      }
-
+      AssessmentMemberValidator.validateGroupRoleConstraints(
+        payload.role,
+        groupMembers,
+      );
       const newMember = manager.getRepository(AssessmentMember).create({
         userId: payload.userId,
         assessmentId,
-        groupId,
+        groupId: payload.groupId,
         role: payload.role,
       });
-
       return await manager.getRepository(AssessmentMember).save(newMember);
     });
   }
 
   async update(
     assessmentId: string,
-    groupId: string,
     id: string,
     payload: AssessmentMemberUpdateRequestDto,
   ): Promise<AssessmentMember> {
     return this.dataSource.transaction(async (manager) => {
-      try {
-        const member = await manager.getRepository(AssessmentMember).findOne({
-          where: { id, groupId, assessmentId },
-          relations: ['user', 'assessment', 'group'],
-        });
-        if (!member) {
-          throw new NotFoundException(`Assessment member ${id} not found`);
-        }
-
-        if (payload.role) {
-          // Check PRIMARY role constraint
-          if (
-            payload.role === MemberRole.PRIMARY &&
-            member.role !== MemberRole.PRIMARY
-          ) {
-            const primaryCount = await manager
-              .getRepository(AssessmentMember)
-              .count({
-                where: { groupId, assessmentId, role: MemberRole.PRIMARY },
-              });
-            if (primaryCount > 0) {
-              throw new BadRequestException(
-                'Each group can have only one PRIMARY member',
-              );
-            }
-          }
-
-          // Check TEAM_LEADER role constraint
-          if (
-            payload.role === MemberRole.TEAM_LEADER &&
-            member.role !== MemberRole.TEAM_LEADER
-          ) {
-            const teamLeaderCount = await manager
-              .getRepository(AssessmentMember)
-              .count({
-                where: { assessmentId, role: MemberRole.TEAM_LEADER },
-              });
-            if (teamLeaderCount > 0) {
-              throw new BadRequestException(
-                'Only one TEAM_LEADER is allowed per assessment',
-              );
-            }
-          }
-        }
-
-        member.role = payload.role ?? member.role;
-        return await manager.getRepository(AssessmentMember).save(member);
-      } catch (err) {
-        this.logger.error(
-          `Failed to update assessment member: ${err.message}`,
-          err.stack,
-        );
-        throw new BadRequestException('Failed to update assessment member');
+      const member = await manager.getRepository(AssessmentMember).findOne({
+        where: { id, assessmentId },
+        relations: ['user', 'assessment', 'group'],
+      });
+      if (!member) {
+        throw new NotFoundException(`Assessment member ${id} not found`);
       }
+      if (payload.role && payload.role !== member.role) {
+        // Only one PRIMARY per assessment
+        if (payload.role === MemberRole.PRIMARY) {
+          const allMembers = await AssessmentMemberValidator.fetchAssessmentMembers(manager, assessmentId);
+          const oldPrimary = allMembers.find(m => m.role === MemberRole.PRIMARY && m.id !== member.id);
+          if (oldPrimary) {
+            await manager.getRepository(AssessmentMember).update({ id: oldPrimary.id }, { role: MemberRole.MEMBER });
+          }
+        }
+        // Only one TEAM_LEADER per group, and no group can have both PRIMARY and TEAM_LEADER
+        const groupMembers = await AssessmentMemberValidator.fetchGroupMembers(manager, member.groupId, assessmentId);
+        AssessmentMemberValidator.validateGroupRoleConstraints(payload.role, groupMembers.filter(m => m.id !== member.id));
+        member.role = payload.role;
+      }
+      return await manager.getRepository(AssessmentMember).save(member);
     });
   }
 
-  async delete(
+  async moveMembers(
     assessmentId: string,
-    groupId: string,
-    id: string,
-  ): Promise<AssessmentMember> {
+    payload: AssessmentMemberMoveRequestDto,
+  ): Promise<AssessmentMember[]> {
+    return this.dataSource.transaction(async (manager) => {
+      await AssessmentMemberValidator.checkAssessmentExists(
+        manager,
+        assessmentId,
+      );
+      const updatedMemberIds: string[] = [];
+      for (const { userIds, group: groupInput } of payload.groups) {
+        let groupId: string = groupInput as string;
+        await AssessmentMemberValidator.checkGroupExists(
+          manager,
+          groupId,
+          assessmentId,
+        );
+        const groupMembers = await AssessmentMemberValidator.fetchGroupMembers(
+          manager,
+          groupId,
+          assessmentId,
+        );
+        for (const userId of userIds) {
+          await AssessmentMemberValidator.checkUserExists(manager, userId);
+          const member = await manager
+            .getRepository(AssessmentMember)
+            .findOne({ where: { userId, assessmentId } });
+          AssessmentMemberValidator.validateIsMember(
+            member ?? undefined,
+            userId,
+          );
+          await AssessmentMemberValidator.checkDuplicateMembership(
+            manager,
+            userId,
+            assessmentId,
+          );
+          // Enforce only one PRIMARY per assessment
+          if (member!.role === MemberRole.PRIMARY) {
+            const allMembers = await AssessmentMemberValidator.fetchAssessmentMembers(manager, assessmentId);
+            AssessmentMemberValidator.validateAssessmentPrimaryConstraint(member!.role, allMembers.filter(m => m.id !== member!.id));
+          }
+          AssessmentMemberValidator.validateGroupRoleConstraints(
+            member!.role,
+            groupMembers,
+          );
+          if (member!.groupId === groupId) {
+            throw new BadRequestException(
+              `User ${userId} is already in group ${groupId}`,
+            );
+          }
+          await manager
+            .getRepository(AssessmentMember)
+            .update({ id: member!.id }, { groupId });
+          updatedMemberIds.push(member!.id);
+        }
+      }
+      return await manager
+        .getRepository(AssessmentMember)
+        .find({ where: { id: In(updatedMemberIds) }, relations: ['group'] });
+    });
+  }
+
+  async delete(assessmentId: string, id: string): Promise<AssessmentMember> {
     return this.dataSource.transaction(async (manager) => {
       try {
         const member = await manager.getRepository(AssessmentMember).findOne({
-          where: { id, groupId, assessmentId },
+          where: { id, assessmentId },
           relations: ['user', 'assessment', 'group'],
         });
         if (!member) {
@@ -265,7 +241,7 @@ export class AssessmentMemberService {
 
         await manager
           .getRepository(AssessmentMember)
-          .softDelete({ id, groupId, assessmentId });
+          .softDelete({ id, assessmentId });
         return member;
       } catch (err) {
         this.logger.error(
@@ -277,15 +253,11 @@ export class AssessmentMemberService {
     });
   }
 
-  async restore(
-    assessmentId: string,
-    groupId: string,
-    id: string,
-  ): Promise<AssessmentMember> {
+  async restore(assessmentId: string, id: string): Promise<AssessmentMember> {
     return this.dataSource.transaction(async (manager) => {
       try {
         const member = await manager.getRepository(AssessmentMember).findOne({
-          where: { id, groupId, assessmentId },
+          where: { id, assessmentId },
           withDeleted: true,
         });
         if (!member) {
