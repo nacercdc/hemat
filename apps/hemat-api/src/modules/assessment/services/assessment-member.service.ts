@@ -254,4 +254,8 @@ export class AssessmentMemberService {
       return updated;
     });
   }
+
+  async findByUser(userId: string): Promise<AssessmentMember[]> {
+    return this.memberRepository.find({ where: { userId } });
+  }
 }
