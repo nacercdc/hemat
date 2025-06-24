@@ -6,10 +6,18 @@ interface Props {
 export default function ActiveListProvider({ children }: Props) {
   const [domainId, setDomainId] = useState<string | null>(null);
   const [componentId, setComponentId] = useState<string | null>(null);
+  const [subComponentId, setSubComponentId] = useState<string | null>(null);
 
   return (
     <ActiveListContext.Provider
-      value={{ domainId, componentId, setDomainId, setComponentId }}
+      value={{
+        domainId,
+        componentId,
+        subComponentId,
+        setDomainId,
+        setComponentId,
+        setSubComponentId,
+      }}
     >
       {children}
     </ActiveListContext.Provider>

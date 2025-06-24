@@ -14,10 +14,10 @@ import { useActiveList } from "../../providers/active-list/useActiveList";
 import type { ModalRef } from "@etm/web-ui-components";
 import { Modal, useToast } from "@etm/web-ui-components";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
-import { DomainComponentForm } from "../../../domains-old/components-old/form";
-import type { ItemFormData } from "../../../domains-old/components-old/form";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
 import { Domain } from "./domain";
+import type { ItemFormData } from "../form";
+import { DomainComponentForm } from "../form";
 
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;

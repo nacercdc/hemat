@@ -9,8 +9,7 @@ import { useActiveList } from "../../providers/active-list/useActiveList";
 import type { ModalRef } from "@etm/web-ui-components";
 import { Modal, useToast } from "@etm/web-ui-components";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
-import { DomainComponentForm } from "../../../domains-old/components-old/form";
-import type { ItemFormData } from "../../../domains-old/components-old/form";
+
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
 import { Component } from "./domain-component";
 import type {
@@ -19,6 +18,8 @@ import type {
 } from "~/libs/models/component.model";
 import { ComponentsSkeleton } from "./ComponentsSkeleton";
 import { ComponentsEmptyPlaceHolder } from "./ComponentsEmptyPlaceHolder";
+import type { ItemFormData } from "../form";
+import { DomainComponentForm } from "../form";
 
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;
@@ -69,9 +70,12 @@ export function DomainComponents({ modalRef }: Props) {
   return (
     <div className="flex flex-col gap-5 overflow-y-auto">
       {componentsState.isLoading && <ComponentsSkeleton />}
-      {componentsState.isSuccess && components?.total && (
+
+      {componentsState.isSuccess &&
+      components?.total &&
+      components?.total > 0 ? (
         <>
-          {components.data?.map((component) => (
+          {components?.data?.map((component) => (
             <div
               key={component.id}
               className="rounded-lg"
@@ -86,11 +90,10 @@ export function DomainComponents({ modalRef }: Props) {
             </div>
           ))}
         </>
+      ) : (
+        !componentsState.isLoading && <ComponentsEmptyPlaceHolder />
       )}
 
-      {componentsState.isSuccess &&
-        components?.total &&
-        components.total === 0 && <ComponentsEmptyPlaceHolder />}
       <Modal ref={modalRef} title={`Add Domain`}>
         <DomainComponentForm
           onSubmitHandler={onAddItemSubmitHandler}

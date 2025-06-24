@@ -1,5 +1,146 @@
+"use client";
+
 import React from "react";
 
-export default function DomainSubComponents() {
-  return <div>DomainSubComponents</div>;
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+
+import { useActiveList } from "../../providers/active-list/useActiveList";
+import type { ModalRef } from "@etm/web-ui-components";
+import { Modal, useToast } from "@etm/web-ui-components";
+import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import type {
+  SubComponent as ISubComponent,
+  SubComponentCreate,
+  SubComponentMeasurementScale,
+  SubComponentMeasurementScaleCreate,
+} from "~/libs/models/subComponent.model";
+import { SubComponentsSkeleton } from "./SubComponentsSkeleton";
+import { SubComponentsEmptyPlaceHolder } from "./SubComponentsEmptyPlaceHolder";
+import { ListTypeColors } from "../DomainCompCard";
+import { SubComponent } from "./domain-sub-component";
+import { SubComponentForm } from "../form/subComponents";
+import type { DefaultFieldsFormData } from "../form/subComponents/DefaultFieldsForm";
+import type { ScalesFormData } from "../form/subComponents/ScalesForm";
+
+interface Props {
+  modalRef: React.RefObject<ModalRef | null>;
+}
+export function DomainSubComponents({ modalRef }: Props) {
+  const { domainId, componentId, subComponentId, setSubComponentId } =
+    useActiveList();
+  const { toast } = useToast();
+
+  const { data: subComponents, ...subComponentsState } =
+    useFindAll<ISubComponent>({
+      path: `/domains/${domainId}/subComponents`,
+      tqOptions: {
+        enabled: !!domainId,
+        queryKey: ["subComponents", domainId],
+      },
+    });
+
+  const { mutate: createSubComponent, ...createSubComponentState } =
+    useAddMutation<ISubComponent, SubComponentCreate>("subComponents");
+
+  const {
+    mutate: createSubComponentMeasurementScales,
+    ...createSubComponentMeasurementScalesState
+  } = useAddMutation<
+    SubComponentMeasurementScale[],
+    SubComponentMeasurementScaleCreate[]
+  >(`sub-components/${subComponentId}/measurement-scales`);
+
+  const onAddSubComponentSubmitHandler = (values: DefaultFieldsFormData) => {
+    if (componentId) {
+      createSubComponent(
+        {
+          data: {
+            name: values.name,
+            code: values.code,
+            description: values.description,
+            componentId: componentId,
+            translations: values.translations ?? {},
+          },
+        },
+        {
+          onSuccess: (data) => {
+            setSubComponentId(data.id);
+            toast({
+              title: "Success",
+              message: "Sub Component created successfully",
+              variant: "success",
+            });
+
+            subComponentsState.refetch();
+          },
+        }
+      );
+    }
+  };
+  const onAddScalesSubmitHandler = (values: ScalesFormData) => {
+    if (subComponentId) {
+      createSubComponentMeasurementScales(
+        {
+          data: values.scales.map((scale) => ({
+            subComponentId: subComponentId ?? "",
+            measurementScaleId: scale.measurementScaleId ?? "",
+            description: scale.description ?? "",
+            translations: scale.translations ?? {},
+          })),
+        },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Sub Component measurement scale created successfully",
+              variant: "success",
+            });
+
+            subComponentsState.refetch();
+          },
+        }
+      );
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-5 overflow-y-auto">
+      {subComponentsState.isLoading && <SubComponentsSkeleton />}
+
+      {subComponentsState.isSuccess &&
+      subComponents?.total &&
+      subComponents?.total > 0 ? (
+        <>
+          {subComponents?.data?.map((subComponent) => (
+            <div
+              key={subComponent.id}
+              className="rounded-lg"
+              style={{
+                backgroundColor:
+                  componentId === subComponent.id
+                    ? `${ListTypeColors.Component}`
+                    : "",
+              }}
+            >
+              <SubComponent subComponent={subComponent} />
+            </div>
+          ))}
+        </>
+      ) : (
+        !subComponentsState.isLoading && <SubComponentsEmptyPlaceHolder />
+      )}
+
+      <Modal ref={modalRef} title={`Add Domain`}>
+        <SubComponentForm
+          onScalesSubmit={onAddScalesSubmitHandler}
+          loading={
+            createSubComponentState.isPending ||
+            createSubComponentMeasurementScalesState.isPending
+          }
+          onDefaultFieldsSubmit={onAddSubComponentSubmitHandler}
+          onCloseModal={() => modalRef.current?.closeModal()}
+        />
+      </Modal>
+    </div>
+  );
 }
