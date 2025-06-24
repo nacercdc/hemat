@@ -65,7 +65,7 @@ export function Drawer({
 
       <SheetContent
         side={direction}
-        className={cn(sizeClasses[size], "flex flex-col space-y-1")}
+        className={cn(sizeClasses[size], "flex flex-col space-y-1 bg-card")}
       >
         {(title || description) && (
           <div className="flex flex-col space-y-1 p-2">

@@ -19,6 +19,7 @@ import type { Component, ComponentEdit } from "~/libs/models/component.model";
 import type {
   SubComponent,
   SubComponentEdit,
+  SubComponentIncludable,
   SubComponentMeasurementScale,
   SubComponentMeasurementScaleCreate,
 } from "~/libs/models/subComponent.model";
@@ -96,14 +97,19 @@ export function DomainCompListItem({
     },
   });
 
-  const { data: subComponent, ...subComponentState } =
-    useFindById<SubComponent>({
-      path: `/sub-components/${item?.id}`,
-      tqOptions: {
-        enabled: !!item?.id && type === "SubComponent" && drawerOpen,
-        queryKey: ["SubComponent", item?.id],
-      },
-    });
+  const { data: subComponent, ...subComponentState } = useFindById<
+    SubComponent,
+    SubComponentIncludable
+  >({
+    path: `/sub-components/${item?.id}`,
+    queries: {
+      include: ["measurementScales"],
+    },
+    tqOptions: {
+      enabled: !!item?.id && type === "SubComponent" && drawerOpen,
+      queryKey: ["SubComponent", item?.id],
+    },
+  });
 
   const onEditItemSubmitHandler = (values: ItemFormData) => {
     if (type === "Component" && item) {
@@ -326,9 +332,7 @@ export function DomainCompListItem({
         {drawerOpen && (
           <ItemDetails
             type={type}
-            item={
-              domain || component || (subComponent as unknown as ListItemType)
-            }
+            item={domain || component || subComponent}
             isLoading={
               domainState.isPending ||
               componentState.isPending ||

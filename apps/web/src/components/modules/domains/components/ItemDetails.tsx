@@ -1,4 +1,3 @@
-import React from "react";
 import type { ListItemType, ListTypeLabel } from "..";
 import { ItemDetailSkeleton } from "./ItemDetailSkeleton";
 
@@ -25,7 +24,7 @@ const ItemDetails = ({ isLoading = false, item }: Props) => {
         </div>
         <h3 className="text-sm font-bold">{item.name}</h3>
       </div>
-      <span className="text-xs text-dark-light">{item.description}</span>
+      <span className="text-xs text-dark">{item.description}</span>
       {(item?.componentsCount || item?.subComponentsCount) && (
         <div className="flex flex-col gap-2 border border-basic-300 rounded-md p-3">
           {item?.componentsCount !== undefined && (
@@ -39,6 +38,19 @@ const ItemDetails = ({ isLoading = false, item }: Props) => {
             </h6>
           )}
         </div>
+      )}
+      {item?.measurementScales && item.measurementScales.length > 0 && (
+        <>
+          <h6 className="text-sm font-bold ">Measurement Scales</h6>
+          {item.measurementScales.map((scale) => (
+            <div className="flex flex-col gap-2 border border-basic-300 rounded-md p-3">
+              <div key={scale.id} className="flex items-center gap-2">
+                <h6 className="text-xs font-medium">{scale.name}</h6>
+                <span className="text-xs text-dark">{scale.description}</span>
+              </div>
+            </div>
+          ))}
+        </>
       )}
     </div>
   );
