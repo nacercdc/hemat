@@ -10,36 +10,34 @@ import type {
   SubComponentIncludable,
 } from "~/libs/models/subComponent.model";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
-import { useActiveList } from "../../../providers/active-list/useActiveList";
 
 interface Props {
-  defaultFieldsLoading?: boolean;
   scalesLoading?: boolean;
-  item?: SubComponent;
   onCloseModal?: () => void;
+  subComponent?: SubComponent;
+  defaultFieldsLoading?: boolean;
   onScalesSubmit: (data: ScalesFormData) => void;
   onDefaultFieldsSubmit: (data: DefaultFieldsFormData) => void;
 }
 
 export function SubComponentForm({
-  defaultFieldsLoading,
-  scalesLoading,
-  item,
+  subComponent,
   onCloseModal,
+  scalesLoading,
   onScalesSubmit,
+  defaultFieldsLoading,
   onDefaultFieldsSubmit,
 }: Props) {
-  const { subComponentId } = useActiveList();
-  const { data: subComponent, ..._subComponentState } = useFindById<
+  const { data: subComponentDetail, ..._subComponentState } = useFindById<
     SubComponent,
     SubComponentIncludable
   >({
-    path: `sub-components/${subComponentId}`,
+    path: `sub-components/${subComponent?.id}`,
     queries: {
       include: ["measurementScales"],
     },
     tqOptions: {
-      enabled: !!subComponentId && !!item,
+      enabled: !!subComponent,
     },
   });
 
@@ -47,16 +45,15 @@ export function SubComponentForm({
     <div className="flex flex-col gap-2 w-full max-h-[700px] overflow-y-auto">
       <DefaultFieldsForm
         loading={defaultFieldsLoading}
-        item={subComponent}
+        item={subComponentDetail}
         onCloseModal={onCloseModal}
         onSubmit={onDefaultFieldsSubmit}
       />
       <ScalesForm
         loading={scalesLoading}
-        item={subComponent}
+        item={subComponentDetail}
         onSubmit={onScalesSubmit}
         onCloseModal={onCloseModal}
-        subComponentId={subComponentId}
       />
     </div>
   );

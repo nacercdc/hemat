@@ -28,8 +28,6 @@ export function DomainListContent() {
   const { domainId: selectedDomainId, componentId: selectedComponentId } =
     useActiveList();
 
-  console.log(selectedDomainId, selectedComponentId, "selectedDomainId"); // TODO: remove this
-
   return (
     <PageContainer pageTitle="Domains" includeBreadcrumb={false}>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-0 h-full">

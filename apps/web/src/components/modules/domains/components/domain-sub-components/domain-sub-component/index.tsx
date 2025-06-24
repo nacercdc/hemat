@@ -32,7 +32,7 @@ interface Props {
 }
 export function SubComponent({ subComponent }: Props) {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-  const { setSubComponentId, subComponentId } = useActiveList();
+  const { setSubComponentId } = useActiveList();
   const editSubComponentModalRef = useRef<ModalRef>(null);
   const deleteDialogRef = useRef<DialogRef>(null);
   const { toast } = useToast();
@@ -40,7 +40,7 @@ export function SubComponent({ subComponent }: Props) {
   const { mutate: editSubComponent, ...editSubComponentState } = usePutMutation<
     SubComponent,
     SubComponentEdit
-  >(`sub-components/${subComponentId}`);
+  >(`sub-components/${subComponent.id}`);
 
   const {
     mutate: editSubComponentMeasurementScales,
@@ -48,7 +48,7 @@ export function SubComponent({ subComponent }: Props) {
   } = usePutMutation<
     SubComponentMeasurementScale[],
     SubComponentMeasurementScaleCreate[]
-  >(`sub-components/${subComponentId}/measurement-scales`);
+  >(`sub-components/${subComponent.id}/measurement-scales`);
 
   const { mutate: deleteSubComponent, ...deleteSubComponentState } =
     useDeleteMutation(`sub-components/${subComponent.id}`);
@@ -85,11 +85,11 @@ export function SubComponent({ subComponent }: Props) {
   };
 
   const onEditScalesSubmitHandler = (values: ScalesFormData) => {
-    if (subComponentId) {
+    if (subComponent.id) {
       editSubComponentMeasurementScales(
         {
           data: values.scales.map((scale) => ({
-            subComponentId: subComponentId ?? "",
+            subComponentId: scale.subComponentId ?? "",
             measurementScaleId: scale.measurementScaleId ?? "",
             description: scale.description ?? "",
             translations: scale.translations ?? {},
@@ -197,12 +197,12 @@ export function SubComponent({ subComponent }: Props) {
       </Drawer>
       <Modal ref={editSubComponentModalRef} title={`Edit Sub Component`}>
         <SubComponentForm
-          item={subComponent}
-          onDefaultFieldsSubmit={onEditSubComponentSubmitHandler}
+          subComponent={subComponent}
           onScalesSubmit={onEditScalesSubmitHandler}
-          onCloseModal={() => editSubComponentModalRef.current?.closeModal()}
           defaultFieldsLoading={editSubComponentState.isPending}
+          onDefaultFieldsSubmit={onEditSubComponentSubmitHandler}
           scalesLoading={editSubComponentMeasurementScalesState.isPending}
+          onCloseModal={() => editSubComponentModalRef.current?.closeModal()}
         />
       </Modal>
       <Dialog

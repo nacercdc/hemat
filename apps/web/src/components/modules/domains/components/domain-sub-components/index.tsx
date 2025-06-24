@@ -26,7 +26,11 @@ interface Props {
   modalRef: React.RefObject<ModalRef | null>;
 }
 export function DomainSubComponents({ modalRef }: Props) {
-  const { componentId, subComponentId, setSubComponentId } = useActiveList();
+  const {
+    componentId,
+    subComponentId: createdSubComponentId,
+    setSubComponentId: setCreatedSubComponentId,
+  } = useActiveList();
   const { toast } = useToast();
 
   const { data: subComponents, ...subComponentsState } =
@@ -47,7 +51,7 @@ export function DomainSubComponents({ modalRef }: Props) {
   } = useAddMutation<
     SubComponentMeasurementScale[],
     SubComponentMeasurementScaleCreate[]
-  >(`sub-components/${subComponentId}/measurement-scales`);
+  >(`sub-components/${createdSubComponentId}/measurement-scales`);
 
   const onAddSubComponentSubmitHandler = (values: DefaultFieldsFormData) => {
     if (componentId) {
@@ -63,7 +67,7 @@ export function DomainSubComponents({ modalRef }: Props) {
         },
         {
           onSuccess: (data) => {
-            setSubComponentId(data.id);
+            setCreatedSubComponentId(data.id);
             toast({
               title: "Success",
               message: "Sub Component created successfully",
@@ -77,11 +81,11 @@ export function DomainSubComponents({ modalRef }: Props) {
     }
   };
   const onAddScalesSubmitHandler = (values: ScalesFormData) => {
-    if (subComponentId) {
+    if (createdSubComponentId) {
       createSubComponentMeasurementScales(
         {
           data: values.scales.map((scale) => ({
-            subComponentId: subComponentId ?? "",
+            subComponentId: createdSubComponentId ?? "",
             measurementScaleId: scale.measurementScaleId ?? "",
             description: scale.description ?? "",
             translations: scale.translations ?? {},

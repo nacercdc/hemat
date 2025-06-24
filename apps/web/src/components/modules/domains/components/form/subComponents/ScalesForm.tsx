@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import type { SubComponent } from "~/libs/models/subComponent.model";
 import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 import { useGetLanguages } from "~/providers/languages/useGetLanguages";
+import { useActiveList } from "../../../providers/active-list/useActiveList";
 
 const languageSchema = z.object({
   name: z.string().min(1, { message: "Language name is required" }),
@@ -90,17 +91,11 @@ interface Props {
   loading?: boolean;
   item?: SubComponent;
   onCloseModal?: () => void;
-  subComponentId?: string | null;
   onSubmit: (data: ScalesFormData) => void;
 }
 
-export function ScalesForm({
-  item,
-  loading,
-  onSubmit,
-  onCloseModal,
-  subComponentId,
-}: Props) {
+export function ScalesForm({ item, loading, onSubmit, onCloseModal }: Props) {
+  const { subComponentId: createdSubComponentId } = useActiveList();
   const { data: scales, ...scalesState } = useFindAll<
     Scale,
     unknown,
@@ -114,8 +109,6 @@ export function ScalesForm({
   });
 
   const { data: languages, ...languagesState } = useGetLanguages();
-
-  console.log(languages);
 
   const languageOptions: Language[] = languages?.data
     ? languages.data.filter(
@@ -141,6 +134,7 @@ export function ScalesForm({
   });
 
   const selectedLanguages = watch("selectedLanguages");
+
   const getDefaultSelectedLanguages = () => {
     if (item?.measurementScales && item.measurementScales.length > 0) {
       const firstScale = item.measurementScales[0];
@@ -157,7 +151,7 @@ export function ScalesForm({
   const defaultSelectedLanguages = getDefaultSelectedLanguages();
 
   useEffect(() => {
-    if (scales?.data && subComponentId) {
+    if (scales?.data) {
       const initialScales =
         item?.measurementScales && item.measurementScales.length > 0
           ? item.measurementScales.map((scale) => ({
@@ -177,7 +171,7 @@ export function ScalesForm({
             }))
           : scales.data.map((scale) => ({
               measurementScaleId: scale.id,
-              subComponentId: subComponentId,
+              subComponentId: item?.id,
               description: scale.description,
               translations: defaultSelectedLanguages.reduce(
                 (acc, lang) => {
@@ -201,15 +195,15 @@ export function ScalesForm({
           defaultSelectedLanguages.length > 0 ? defaultSelectedLanguages : [],
       });
     }
-  }, [scales, subComponentId, item, languages]);
+  }, [scales, createdSubComponentId, item, languages]);
 
   const onFormSubmit = (values: ScalesFormData) => {
     const filteredScales = values.scales.map((scale) => {
       return {
         id: item?.id,
-        description: scale.description || "",
+        description: scale.description,
         measurementScaleId: scale.measurementScaleId,
-        subComponentId: subComponentId || "",
+        subComponentId: scale.subComponentId ?? createdSubComponentId,
         translations:
           (values.selectedLanguages || []).length > 0
             ? Object.fromEntries(
