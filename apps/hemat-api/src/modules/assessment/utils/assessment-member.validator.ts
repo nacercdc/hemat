@@ -14,11 +14,23 @@ export class AssessmentMemberValidator {
       .find({ where: { groupId, assessmentId } });
   }
 
-  static async checkUserExists(manager: any, userId: string): Promise<void> {
+  static async fetchAssessmentMembers(
+    manager: any,
+    assessmentId: string,
+  ): Promise<AssessmentMember[]> {
+    return manager
+      .getRepository(AssessmentMember)
+      .find({ where: { assessmentId } });
+  }
+
+  static async checkAssessmentExists(
+    manager: any,
+    assessmentId: string,
+  ): Promise<void> {
     const exists = await manager
-      .getRepository(User)
-      .exists({ where: { id: userId } });
-    if (!exists) throw new NotFoundException('User not found');
+      .getRepository(AssessmentGroup)
+      .exists({ where: { assessmentId } });
+    if (!exists) throw new NotFoundException('Assessment not found');
   }
 
   static async checkGroupExists(
@@ -32,14 +44,11 @@ export class AssessmentMemberValidator {
     if (!exists) throw new NotFoundException('Assessment group not found');
   }
 
-  static async checkAssessmentExists(
-    manager: any,
-    assessmentId: string,
-  ): Promise<void> {
+  static async checkUserExists(manager: any, userId: string): Promise<void> {
     const exists = await manager
-      .getRepository('Assessment')
-      .exists({ where: { id: assessmentId } });
-    if (!exists) throw new NotFoundException('Assessment not found');
+      .getRepository(User)
+      .exists({ where: { id: userId } });
+    if (!exists) throw new NotFoundException('User not found');
   }
 
   static async checkDuplicateMembership(
@@ -61,13 +70,19 @@ export class AssessmentMemberValidator {
     role: MemberRole,
     groupMembers: AssessmentMember[],
   ) {
-    const hasPrimary = groupMembers.some((m) => m.role === MemberRole.PRIMARY);
-    const hasTeamLeader = groupMembers.some(
-      (m) => m.role === MemberRole.TEAM_LEADER,
-    );
+    // Rule 1: Only one TEAM_LEADER per group
     const teamLeaderCount = groupMembers.filter(
       (m) => m.role === MemberRole.TEAM_LEADER,
     ).length;
+    if (role === MemberRole.TEAM_LEADER && teamLeaderCount > 0) {
+      throw new BadRequestException(
+        'Only one TEAM_LEADER is allowed per group.',
+      );
+    }
+
+    // Rule 2: Cannot have both PRIMARY and TEAM_LEADER in same group
+    const hasPrimary = groupMembers.some((m) => m.role === MemberRole.PRIMARY);
+    const hasTeamLeader = groupMembers.some((m) => m.role === MemberRole.TEAM_LEADER);
 
     if (role === MemberRole.PRIMARY && hasTeamLeader) {
       throw new BadRequestException(
@@ -79,10 +94,18 @@ export class AssessmentMemberValidator {
         'Cannot add TEAM_LEADER to a group that already has a PRIMARY.',
       );
     }
-    if (role === MemberRole.TEAM_LEADER && teamLeaderCount > 0) {
-      throw new BadRequestException(
-        'Only one TEAM_LEADER is allowed per group.',
-      );
+  }
+
+  static validateAssessmentPrimaryConstraint(
+    role: MemberRole,
+    allMembers: AssessmentMember[],
+  ) {
+    // Rule: Only one PRIMARY in entire assessment
+    if (role === MemberRole.PRIMARY) {
+      const hasPrimary = allMembers.some((m) => m.role === MemberRole.PRIMARY);
+      if (hasPrimary) {
+        throw new BadRequestException('Only one PRIMARY member is allowed per assessment');
+      }
     }
   }
 
@@ -97,19 +120,13 @@ export class AssessmentMemberValidator {
     }
   }
 
-  static validateAssessmentPrimaryConstraint(
-    role: MemberRole,
-    allMembers: AssessmentMember[],
+  static validateSourceGroupNotEmpty(
+    sourceGroupMembers: AssessmentMember[],
+    promoteUserId?: string,
   ) {
-    if (role === MemberRole.PRIMARY) {
-      const hasPrimary = allMembers.some((m) => m.role === MemberRole.PRIMARY);
-      if (hasPrimary) {
-        throw new BadRequestException('Only one PRIMARY member is allowed per assessment');
-      }
+    // Rule: Source group cannot be empty after move
+    if (sourceGroupMembers.length <= 2 && !promoteUserId) {
+      throw new BadRequestException('Source group cannot be empty after move, promoteUserId is required');
     }
-  }
-
-  static async fetchAssessmentMembers(manager: any, assessmentId: string): Promise<AssessmentMember[]> {
-    return manager.getRepository(AssessmentMember).find({ where: { assessmentId } });
   }
 }

@@ -10,7 +10,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Query,
-  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,7 +23,8 @@ import {
   ApiUnprocessableEntityResponse,
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
-} from '@nestjs/swagger';
+  ApiBody,
+} from '@nestjs/swagger';W
 import { AuthGuard, Abilities } from '../../../shared/modules';
 import {
   PermissionActionEnum,
@@ -34,7 +35,7 @@ import { AssessmentMemberService } from '../services';
 import {
   AssessmentMemberCreateRequestDto,
   AssessmentMemberUpdateRequestDto,
-  AssessmentMemberMoveRequestDto,
+  AssessmentMemberMoveSimpleDto,
 } from '../dtos/assessment-member.dto';
 import { AssessmentMember } from '../../../database/entities';
 import {
@@ -43,6 +44,7 @@ import {
 } from '../dtos';
 import { Not } from 'typeorm';
 import { MemberRole } from '../../../shared/enums';
+import { IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Members')
@@ -143,20 +145,40 @@ export class AssessmentMemberController {
   }
 
   @ApiOperation({
-    summary: 'Update an assessment member',
-    description: 'Update the role of an assessment member by ID',
+    summary: 'Move an assessment member to a group',
+    description:
+      'Move a single member to a new group. Example:\n{\n  "userId": "397ffc1c-e36b-45cc-a6a6-d00cb08bf69e",\n  "toGroupId": "9620d61c-3de2-4861-94f4-7aa8f2a8adf9",\n  "promoteUserId": "9b5cc889-f40a-45d4-8d22-8ae30c04a3cd"\n}',
   })
-  @ApiOkResponse({ description: 'Ok', type: AssessmentMember })
-  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(200)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.UPDATE,
-        subject: PermissionSubjectEnum.ASSESSMENT,
+  @ApiBody({
+    type: AssessmentMemberMoveSimpleDto,
+    schema: {
+      example: {
+        userId: '397ffc1c-e36b-45cc-a6a6-d00cb08bf69e',
+        toGroupId: '9620d61c-3de2-4861-94f4-7aa8f2a8adf9',
+        promoteUserId: '9b5cc889-f40a-45d4-8d22-8ae30c04a3cd',
       },
-    ],
+    },
+  })
+  @Post('move')
+  async moveMember(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Body() payload: AssessmentMemberMoveSimpleDto,
+  ): Promise<AssessmentMember> {
+    return this.assessmentMemberService.moveMember(assessmentId, payload);
+  }
+
+  @ApiOperation({
+    summary: 'Update an assessment member',
+    description:
+      'Update the role of an assessment member by ID.\n\nExample: Update MEMBER to TEAM_LEADER, promote another MEMBER in the group.\nRequest body:\n{\n  "role": "TEAM_LEADER",\n  "promoteUserId": "other-member-uuid"\n}\n\nExample: Update PRIMARY to TEAM_LEADER, promote a TEAM_LEADER in any group to PRIMARY.\nRequest body:\n{\n  "role": "TEAM_LEADER",\n  "promoteUserId": "team-leader-uuid"\n}\n',
+  })
+  @ApiBody({
+    schema: {
+      example: {
+        role: 'TEAM_LEADER',
+        promoteUserId: 'other-member-uuid',
+      },
+    },
   })
   @Put(':id')
   async update(
@@ -165,34 +187,6 @@ export class AssessmentMemberController {
     @Body() payload: AssessmentMemberUpdateRequestDto,
   ): Promise<AssessmentMember> {
     return this.assessmentMemberService.update(assessmentId, id, payload);
-  }
-
-  @ApiOperation({
-    summary: 'Move assessment members to groups',
-    description: 'Move multiple members to existing or new groups',
-  })
-  @ApiOkResponse({ description: 'Ok', type: [AssessmentMember] })
-  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @ApiBadRequestResponse({
-    description: 'Bad request',
-    type: ExceptionResponseDto,
-  })
-  @HttpCode(200)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.UPDATE,
-        subject: PermissionSubjectEnum.ASSESSMENT,
-      },
-    ],
-  })
-  @Post('move')
-  async moveMembers(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Body() payload: AssessmentMemberMoveRequestDto,
-  ): Promise<AssessmentMember[]> {
-    return this.assessmentMemberService.moveMembers(assessmentId, payload);
   }
 
   @ApiOperation({

@@ -56,65 +56,34 @@ export class AssessmentMemberUpdateRequestDto {
   @IsEnum(MemberRole, { message: 'validation.role.isEnum' })
   @Type(() => String)
   role?: MemberRole;
-}
 
-export class AssessmentMemberMoveItemDto {
-  @ApiProperty({
-    description: 'The groupId to move the user(s) to',
+  @ApiPropertyOptional({
+    description: 'UserId to promote to TEAM_LEADER in the current group (required when updating MEMBER to TEAM_LEADER)',
     type: String,
-    example: '123e4567-e89b-12d3-a456-426614174002',
-  })
-  @IsNotEmpty()
-  @IsUUID('4')
-  toGroupId: string;
-
-  @ApiProperty({
-    description: 'The userIds to move',
-    type: [String],
-    example: ['71a84068-6060-4751-8710-d82ad3caad8f'],
-  })
-  @ArrayNotEmpty()
-  @IsArray()
-  @IsUUID('4', { each: true })
-  userIds: string[];
-
-  @ApiProperty({
-    description: 'The new role for the user(s) in the destination group',
-    enum: MemberRole,
-    example: MemberRole.PRIMARY,
-  })
-  @IsNotEmpty()
-  @IsEnum(MemberRole)
-  newRole: MemberRole;
-
-  @ApiProperty({
-    description: 'The userId in the old group to promote to TEAM_LEADER (required if moving a PRIMARY)',
-    type: String,
-    example: 'user-to-promote-in-old-group',
     required: false,
   })
   @IsOptional()
   @IsUUID('4')
   promoteUserId?: string;
+}
 
-  @ApiProperty({
-    description: 'The userId of a Team Leader from another group to promote to PRIMARY for the assessment (required if there are 3 or more groups and moving a TEAM_LEADER)',
+export class AssessmentMemberMoveSimpleDto {
+  @ApiProperty({ description: 'The userId to move', type: String })
+  @IsNotEmpty()
+  @IsUUID('4')
+  userId: string;
+
+  @ApiProperty({ description: 'The groupId to move the user to', type: String })
+  @IsNotEmpty()
+  @IsUUID('4')
+  toGroupId: string;
+
+  @ApiPropertyOptional({
+    description: 'The userId in the old group to promote to TEAM_LEADER (required if moving a PRIMARY or TEAM_LEADER)',
     type: String,
-    example: 'userH',
     required: false,
   })
   @IsOptional()
   @IsUUID('4')
-  promotePrimaryId?: string;
-}
-
-export class AssessmentMemberMoveRequestDto {
-  @ApiProperty({
-    description: 'Array of move operations',
-    type: [AssessmentMemberMoveItemDto],
-  })
-  @ArrayNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => AssessmentMemberMoveItemDto)
-  moves: AssessmentMemberMoveItemDto[];
+  promoteUserId?: string;
 }
