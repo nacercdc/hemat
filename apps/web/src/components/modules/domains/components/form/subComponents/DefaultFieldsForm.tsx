@@ -13,6 +13,7 @@ import {
 import type { Language } from "~/libs/models/language.model";
 import { useGetLanguages } from "~/providers/languages/useGetLanguages";
 import type { SubComponent } from "~/libs/models/subComponent.model";
+import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 
 const languageSchema = z.object({
   name: z.string().min(1, { message: "Language name is required" }),
@@ -98,7 +99,11 @@ export function DefaultFieldsForm({
   const { data: languages, ...languagesState } = useGetLanguages();
 
   const languageOptions: Language[] = languages?.data
-    ? languages.data.filter((lang) => languageSchema.safeParse(lang).success)
+    ? languages.data.filter(
+        (lang) =>
+          lang.code !== DEFAULT_LANGUAGE_CODE &&
+          languageSchema.safeParse(lang).success
+      )
     : [];
 
   const {
@@ -178,7 +183,7 @@ export function DefaultFieldsForm({
         placeholder="Select Languages"
         options={languageOptions}
         valueKey="code"
-        labelKey="native"
+        labelKey="name"
         displayLabel="Languages"
         labelVariant="bold"
         size="lg"

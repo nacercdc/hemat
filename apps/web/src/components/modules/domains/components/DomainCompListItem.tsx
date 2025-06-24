@@ -200,7 +200,7 @@ export function DomainCompListItem({
           onSuccess: () => {
             toast({
               title: "Success",
-              message: "Sub Component measurement scale created successfully",
+              message: "Sub Component measurement scale updated successfully",
               variant: "success",
             });
             refetchList?.("SubComponent");

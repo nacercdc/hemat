@@ -37,12 +37,9 @@ const itemFormSchema = z
         description: z
           .string()
           .min(1, { message: "Translation description is required" }),
-        code: z
-          .string({ message: "Translation code is required" })
-          .min(2, { message: "Translation code must be at least 2 characters" })
-          .max(10, {
-            message: "Translation code must be less than 10 characters",
-          }),
+        code: z.string({ message: "Translation code is required" }).min(2, {
+          message: "Translation code must be at least 2 characters",
+        }),
       })
     ),
     selectedLanguages: z.array(languageSchema).optional(),
@@ -103,15 +100,13 @@ export function DomainComponentForm({
 }: Props) {
   const { data: languages, ...languagesState } = useGetLanguages();
 
-  const languageOptions: Language[] = React.useMemo(
-    () =>
-      languages?.data
-        ? (languages.data as unknown as Language[]).filter(
-            (lang) => languageSchema.safeParse(lang).success
-          )
-        : [],
-    [languages]
-  );
+  const languageOptions: Language[] = languages?.data
+    ? languages.data.filter(
+        (lang) =>
+          lang.code !== DEFAULT_LANGUAGE_CODE &&
+          languageSchema.safeParse(lang).success
+      )
+    : [];
 
   const {
     control,
@@ -201,7 +196,7 @@ export function DomainComponentForm({
         selectedLanguages: [],
       });
     }
-  }, [item, languageOptions, reset]);
+  }, [item, languages, reset]);
 
   return (
     <form
@@ -281,7 +276,7 @@ export function DomainComponentForm({
           placeholder="Select Languages"
           options={languageOptions}
           valueKey="code"
-          labelKey="native"
+          labelKey="name"
           displayLabel="Languages"
           labelVariant="bold"
           onChange={() => onLanguageSelectHandler}

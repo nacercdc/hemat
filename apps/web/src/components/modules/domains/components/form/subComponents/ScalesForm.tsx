@@ -17,9 +17,10 @@ import type {
   ScaleSortable,
 } from "~/libs/models/scale.model";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { useEffect, useMemo } from "react";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import { useEffect } from "react";
 import type { SubComponent } from "~/libs/models/subComponent.model";
+import { DEFAULT_LANGUAGE_CODE } from "~/constants";
+import { useGetLanguages } from "~/providers/languages/useGetLanguages";
 
 const languageSchema = z.object({
   name: z.string().min(1, { message: "Language name is required" }),
@@ -112,16 +113,15 @@ export function ScalesForm({
     },
   });
 
-  const { data: languages, ...languagesState } = useFindAll<
-    QueryManyResponse<Language>
-  >({
-    path: "/languages",
-  });
+  const { data: languages, ...languagesState } = useGetLanguages();
 
-  const languageOptions = useMemo(
-    () => (languages?.data as unknown as Language[]) ?? [],
-    [languages?.data]
-  );
+  const languageOptions: Language[] = languages?.data
+    ? languages.data.filter(
+        (lang) =>
+          lang.code !== DEFAULT_LANGUAGE_CODE &&
+          languageSchema.safeParse(lang).success
+      )
+    : [];
 
   const {
     control,
@@ -199,7 +199,7 @@ export function ScalesForm({
           defaultSelectedLanguages.length > 0 ? defaultSelectedLanguages : [],
       });
     }
-  }, [scales, subComponentId, item]);
+  }, [scales, subComponentId, item, languages]);
 
   const onFormSubmit = (values: ScalesFormData) => {
     const filteredScales = values.scales.map((scale) => {
@@ -247,7 +247,7 @@ export function ScalesForm({
             placeholder="Select Languages"
             options={languageOptions}
             valueKey="code"
-            labelKey="native"
+            labelKey="name"
             displayLabel="Languages"
             labelVariant="bold"
             size="lg"

@@ -142,6 +142,11 @@ export function Domains() {
         },
         {
           onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Component created successfully",
+              variant: "success",
+            });
             componentsState.refetch();
             addItemModalRef.current?.closeModal();
           },
@@ -160,6 +165,11 @@ export function Domains() {
         },
         {
           onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Domain created successfully",
+              variant: "success",
+            });
             domainsState.refetch();
             addItemModalRef.current?.closeModal();
           },
