@@ -115,6 +115,8 @@ export function ScalesForm({
 
   const { data: languages, ...languagesState } = useGetLanguages();
 
+  console.log(languages);
+
   const languageOptions: Language[] = languages?.data
     ? languages.data.filter(
         (lang) =>

@@ -178,7 +178,6 @@ export function DomainCompListItem({
               variant: "success",
             });
             refetchList?.("SubComponent");
-            editItemModalRef.current?.closeModal();
           },
         }
       );
@@ -204,6 +203,7 @@ export function DomainCompListItem({
               variant: "success",
             });
             refetchList?.("SubComponent");
+            editItemModalRef.current?.closeModal();
           },
         }
       );

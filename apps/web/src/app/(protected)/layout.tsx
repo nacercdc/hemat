@@ -8,9 +8,9 @@ interface Props {
 export default function ProtectedLayout({ children }: Props) {
   return (
     <MeProvider>
-      <LanguagesProvider>
-        <ProtectedInternalLayout>{children}</ProtectedInternalLayout>
-      </LanguagesProvider>
+      <ProtectedInternalLayout>
+        <LanguagesProvider>{children}</LanguagesProvider>
+      </ProtectedInternalLayout>
     </MeProvider>
   );
 }
