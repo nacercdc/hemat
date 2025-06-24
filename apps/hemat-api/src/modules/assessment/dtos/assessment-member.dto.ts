@@ -11,32 +11,6 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MemberRole } from '@shared/enums';
-import {
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-} from 'class-validator';
-
-@ValidatorConstraint({ name: 'consistentGroupTypes', async: false })
-export class ConsistentGroupTypesConstraint
-  implements ValidatorConstraintInterface
-{
-  validate(groups: MoveGroupDto[]) {
-    const types = groups.map((g) => {
-      if (g.group === null) return 'null';
-      if (
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-          g.group,
-        )
-      )
-        return 'uuid';
-      return 'string';
-    });
-    return new Set(types).size === 1;
-  }
-  defaultMessage() {
-    return 'validation.groups.consistentTypes';
-  }
-}
 
 export class AssessmentMemberCreateRequestDto {
   @ApiProperty({
@@ -84,40 +58,63 @@ export class AssessmentMemberUpdateRequestDto {
   role?: MemberRole;
 }
 
-export class MoveGroupDto {
+export class AssessmentMemberMoveItemDto {
   @ApiProperty({
-    description:
-      'Group ID or name (null for new group with auto-generated name)',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    nullable: true,
+    description: 'The groupId to move the user(s) to',
+    type: String,
+    example: '123e4567-e89b-12d3-a456-426614174002',
   })
-  @IsOptional()
-  @IsString({ message: 'validation.group.isString' })
-  @Type(() => String)
-  group: string | null;
+  @IsNotEmpty()
+  @IsUUID('4')
+  toGroupId: string;
 
   @ApiProperty({
-    description: 'List of user IDs to move to the group',
-    example: [
-      '123e4567-e89b-12d3-a456-426614174001',
-      '123e4567-e89b-12d3-a456-426614174002',
-    ],
+    description: 'The userIds to move',
     type: [String],
+    example: ['71a84068-6060-4751-8710-d82ad3caad8f'],
   })
-  @ArrayNotEmpty({ message: 'validation.userIds.arrayNotEmpty' })
+  @ArrayNotEmpty()
   @IsArray()
-  @IsUUID('4', { each: true, message: 'validation.userIds.isUUID' })
-  @Type(() => String)
+  @IsUUID('4', { each: true })
   userIds: string[];
+
+  @ApiProperty({
+    description: 'The new role for the user(s) in the destination group',
+    enum: MemberRole,
+    example: MemberRole.PRIMARY,
+  })
+  @IsNotEmpty()
+  @IsEnum(MemberRole)
+  newRole: MemberRole;
+
+  @ApiProperty({
+    description: 'The userId in the old group to promote to TEAM_LEADER (required if moving a PRIMARY)',
+    type: String,
+    example: 'user-to-promote-in-old-group',
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID('4')
+  promoteUserId?: string;
+
+  @ApiProperty({
+    description: 'The userId of a Team Leader from another group to promote to PRIMARY for the assessment (required if there are 3 or more groups and moving a TEAM_LEADER)',
+    type: String,
+    example: 'userH',
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID('4')
+  promotePrimaryId?: string;
 }
 
 export class AssessmentMemberMoveRequestDto {
   @ApiProperty({
-    description: 'List of groups with users to move',
-    type: [MoveGroupDto],
+    description: 'Array of move operations',
+    type: [AssessmentMemberMoveItemDto],
   })
-  @ArrayNotEmpty({ message: 'validation.groups.arrayNotEmpty' })
+  @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => MoveGroupDto)
-  groups: MoveGroupDto[];
+  @Type(() => AssessmentMemberMoveItemDto)
+  moves: AssessmentMemberMoveItemDto[];
 }
