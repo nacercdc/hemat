@@ -4,7 +4,8 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import { Button } from "@etm/web-ui-components";
 import { cn } from "~/utils/cn.util";
-import type { ListTypeLabel } from "../types";
+
+import type { ListTypeLabel } from "..";
 
 export const ListTypeColors: Record<ListTypeLabel, string> = {
   Domain: "#edf4fb",
