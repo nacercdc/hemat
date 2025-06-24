@@ -24,7 +24,7 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
   ApiBody,
-} from '@nestjs/swagger';W
+} from '@nestjs/swagger';
 import { AuthGuard, Abilities } from '../../../shared/modules';
 import {
   PermissionActionEnum,
