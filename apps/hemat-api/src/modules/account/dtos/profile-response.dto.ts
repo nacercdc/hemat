@@ -61,6 +61,13 @@ export class ProfileResponseDto {
   })
   jobTitle: string;
 
+  @ApiPropertyOptional({
+    description: 'Phone number',
+    example: '+251900000000',
+    type: String,
+  })
+  phoneNumber?: string | null;
+
   constructor(entity: Profile) {
     this.id = entity.id;
     this.title = entity.title;
@@ -70,5 +77,6 @@ export class ProfileResponseDto {
     this.dateOfBirth = entity.dateOfBirth;
     this.country = entity.country;
     this.jobTitle = entity.jobTitle;
+    this.phoneNumber = entity.phoneNumber;
   }
 }

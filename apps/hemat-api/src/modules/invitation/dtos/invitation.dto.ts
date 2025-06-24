@@ -14,39 +14,8 @@ import { MemberRole } from '@shared/enums';
 import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
+  ValidationArguments,
 } from 'class-validator';
-@ValidatorConstraint({ name: 'uniqueEmails', async: false })
-export class UniqueEmailsConstraint implements ValidatorConstraintInterface {
-  validate(groups: GroupInvitationDto[]) {
-    const emails = groups.flatMap((g) => g.invitations.map((i) => i.email));
-    return new Set(emails).size === emails.length;
-  }
-  defaultMessage() {
-    return 'validation.invitations.uniqueEmails';
-  }
-}
-
-@ValidatorConstraint({ name: 'consistentGroupTypes', async: false })
-export class ConsistentGroupTypesConstraint
-  implements ValidatorConstraintInterface
-{
-  validate(groups: GroupInvitationDto[]) {
-    const types = groups.map((g) => {
-      if (g.group === null) return 'null';
-      if (
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-          g.group,
-        )
-      )
-        return 'uuid';
-      return 'string';
-    });
-    return new Set(types).size === 1;
-  }
-  defaultMessage() {
-    return 'validation.groups.consistentTypes';
-  }
-}
 
 export class InvitationItemDto {
   @ApiProperty({
@@ -65,6 +34,15 @@ export class InvitationItemDto {
   @IsNotEmpty({ message: 'validation.role.isNotEmpty' })
   @IsEnum(MemberRole, { message: 'validation.role.isEnum' })
   role: MemberRole;
+
+  @ApiProperty({
+    description: 'If adding a team-leader to a group with a primary, specify which team-leader should be promoted to primary',
+    required: false,
+    example: 'existing.teamleader@email.com',
+  })
+  @IsOptional()
+  @IsEmail({}, { message: 'validation.promoteToPrimaryEmail.isEmail' })
+  promoteToPrimaryEmail?: string;
 }
 
 export class GroupInvitationDto {

@@ -51,6 +51,14 @@ export class Profile extends BaseEntityWithSoftDelete {
   lastName: string;
 
   @ApiPropertyOptional({
+    description: 'Phone number',
+    example: '+251900000000',
+    type: String,
+  })
+  @Column({ type: String, length: 15, unique: true, nullable: true })
+  phoneNumber: string | null;
+
+  @ApiPropertyOptional({
     description: 'Gender',
     enum: GenderEnum,
     example: GenderEnum.MALE,

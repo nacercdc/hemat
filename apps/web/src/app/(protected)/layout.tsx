@@ -1,5 +1,6 @@
 import React from "react";
 import LanguagesProvider from "~/providers/languages/LanguagesProvider";
+import ProtectedInternalLayout from "~/components/layouts/protected";
 import MeProvider from "~/providers/me/MeProvider";
 interface Props {
   children: React.ReactNode;
@@ -7,7 +8,9 @@ interface Props {
 export default function ProtectedLayout({ children }: Props) {
   return (
     <MeProvider>
-      <LanguagesProvider>{children}</LanguagesProvider>
+      <LanguagesProvider>
+        <ProtectedInternalLayout>{children}</ProtectedInternalLayout>
+      </LanguagesProvider>
     </MeProvider>
   );
 }

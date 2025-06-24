@@ -29,6 +29,7 @@ import {
   SubComponentMeasurementScaleDto,
   UpdateSubComponentMeasurementScaleDto,
   FindAllSubComponentMeasurementScaleDto,
+  BatchUpdateSubComponentMeasurementScaleDto,
 } from '../dtos';
 import { MeasurementScaleSubComponent } from '../../../database/entities';
 import { AuthGuard, Abilities } from '../../../shared/modules';
@@ -89,9 +90,9 @@ export class SubComponentMeasurementScaleController {
   @Post()
   async create(
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
-    @Body() payload: SubComponentMeasurementScaleDto,
-  ): Promise<MeasurementScaleSubComponent> {
-    return this.subComponentMeasurementScaleService.create(
+    @Body() payload: SubComponentMeasurementScaleDto[],
+  ): Promise<MeasurementScaleSubComponent[]> {
+    return this.subComponentMeasurementScaleService.batchCreate(
       subComponentId,
       payload,
     );
@@ -99,11 +100,12 @@ export class SubComponentMeasurementScaleController {
 
   @ApiOperation({
     summary:
-      'Update the description and/or translations of a measurement scale for a sub-component',
+      'Batch update the description and/or translations of measurement scales for a sub-component',
   })
   @ApiOkResponse({
     description: 'Updated',
     type: MeasurementScaleSubComponent,
+    isArray: true,
   })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @ApiBadRequestResponse({
@@ -120,16 +122,13 @@ export class SubComponentMeasurementScaleController {
       },
     ],
   })
-  @Put(':measurementScaleId')
-  async update(
+  @Put()
+  async batchUpdate(
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
-    @Param('measurementScaleId', new ParseUUIDPipe())
-    measurementScaleId: string,
-    @Body() payload: UpdateSubComponentMeasurementScaleDto,
-  ): Promise<MeasurementScaleSubComponent> {
-    return this.subComponentMeasurementScaleService.update(
+    @Body() payload: BatchUpdateSubComponentMeasurementScaleDto[],
+  ): Promise<MeasurementScaleSubComponent[]> {
+    return this.subComponentMeasurementScaleService.batchUpdate(
       subComponentId,
-      measurementScaleId,
       payload,
     );
   }

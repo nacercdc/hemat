@@ -51,24 +51,9 @@ import { ProfileCreateRequestDto, AccountResponseDto } from '../dtos';
 @Controller('profiles')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
-
-  @ApiOperation({ summary: 'Create', description: 'Create profile.' })
-  @ApiCreatedResponse({ description: 'Created', type: AccountResponseDto })
-  @HttpCode(HttpStatus.CREATED)
-  @Abilities({ isAdmin: false })
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
-  @Post()
-  async create(
-    @AuthUser() auth: AuthDto,
-    @Body() payload: ProfileCreateRequestDto,
-  ) {
-    return this.profileService.updateProfile(auth, payload);
-  }
-
   @ApiOperation({ summary: 'Update', description: 'Update profile.' })
   @ApiOkResponse({ description: 'Ok', type: AccountResponseDto })
   @HttpCode(HttpStatus.OK)
-  @Abilities({ isAdmin: false })
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Put()
   async update(
