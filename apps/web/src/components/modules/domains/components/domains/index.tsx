@@ -67,25 +67,23 @@ export function Domains({ modalRef }: Props) {
   return (
     <div className="flex flex-col gap-5 overflow-y-auto">
       {domainsState.isLoading && <DomainsSkeleton />}
-      {domainsState.isSuccess && domains?.total && (
+      {domainsState.isSuccess && domains?.total && domains?.total > 0 ? (
         <>
-          {domains.data?.map((domain) => (
+          {domains?.data?.map((domain) => (
             <div
               key={domain.id}
               className="rounded-lg"
               style={{
                 backgroundColor:
-                  domainId === domain.id ? `${ListTypeColors.Domain}` : "",
+                  domainId === domain.id ? `${ListTypeColors.Component}` : "",
               }}
             >
               <Domain domain={domain} />
             </div>
           ))}
         </>
-      )}
-
-      {domainsState.isSuccess && domains?.total && domains.total === 0 && (
-        <DomainsEmptyPlaceHolder />
+      ) : (
+        !domainsState.isLoading && <DomainsEmptyPlaceHolder />
       )}
       <Modal ref={modalRef} title={`Add Domain`}>
         <DomainComponentForm

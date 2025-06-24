@@ -101,7 +101,7 @@ export function ScalesForm({
   onCloseModal,
   subComponentId,
 }: Props) {
-  const { data: scales, ..._scalesState } = useFindAll<
+  const { data: scales, ...scalesState } = useFindAll<
     Scale,
     unknown,
     ScaleFilterable,
@@ -257,36 +257,52 @@ export function ScalesForm({
             error={errors.selectedLanguages?.message}
           />
 
-          {scales?.data.map((scale, index) => (
-            <div key={scale.id} className="flex flex-col items-start gap-3">
-              <div className="text-xs font-medium">{`${scale.name}`}</div>
-              <TextAreaRHF<ScalesFormData>
-                control={control}
-                name={`scales.${index}.description`}
-                placeholder={`Write ${scale.name} Description`}
-                labelVariant="bold"
-                rows={4}
-                error={errors.scales?.[index]?.description?.message}
-              />
-              {(selectedLanguages || []).length > 0 &&
-                (selectedLanguages || []).map((lang) => (
-                  <div key={lang.code} className="flex gap-2 w-full">
-                    <div className="text-sm font-medium">{`${lang.code.toUpperCase()}:`}</div>
-                    <TextAreaRHF<ScalesFormData>
-                      control={control}
-                      name={`scales.${index}.translations.${lang.code}.description`}
-                      placeholder={`Write ${lang.name} Description for ${scale.name}`}
-                      labelVariant="bold"
-                      rows={4}
-                      error={
-                        errors.scales?.[index]?.translations?.[lang.code]
-                          ?.description?.message
-                      }
-                    />
-                  </div>
-                ))}
+          {scalesState.isSuccess && scales?.total === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 px-4">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-basic-100 flex items-center justify-center">
+                  <Icon
+                    icon="mdi:file-document-outline"
+                    className="w-8 h-8 text-basic-400"
+                  />
+                </div>
+                <h3 className="text-lg font-medium text-basic mb-2">
+                  No scales found for this sub component
+                </h3>
+              </div>
             </div>
-          ))}
+          ) : (
+            scales?.data.map((scale, index) => (
+              <div key={scale.id} className="flex flex-col items-start gap-3">
+                <div className="text-xs font-medium">{`${scale.name}`}</div>
+                <TextAreaRHF<ScalesFormData>
+                  control={control}
+                  name={`scales.${index}.description`}
+                  placeholder={`Write ${scale.name} Description`}
+                  labelVariant="bold"
+                  rows={4}
+                  error={errors.scales?.[index]?.description?.message}
+                />
+                {(selectedLanguages || []).length > 0 &&
+                  (selectedLanguages || []).map((lang) => (
+                    <div key={lang.code} className="flex gap-2 w-full">
+                      <div className="text-sm font-medium">{`${lang.code.toUpperCase()}:`}</div>
+                      <TextAreaRHF<ScalesFormData>
+                        control={control}
+                        name={`scales.${index}.translations.${lang.code}.description`}
+                        placeholder={`Write ${lang.name} Description for ${scale.name}`}
+                        labelVariant="bold"
+                        rows={4}
+                        error={
+                          errors.scales?.[index]?.translations?.[lang.code]
+                            ?.description?.message
+                        }
+                      />
+                    </div>
+                  ))}
+              </div>
+            ))
+          )}
           <div className="flex items-center justify-end gap-4">
             <Button
               type="button"

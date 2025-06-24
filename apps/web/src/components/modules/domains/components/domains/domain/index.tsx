@@ -28,7 +28,7 @@ export function Domain({ domain }: Props) {
   const editItemModalRef = useRef<ModalRef>(null);
   const deleteDialogRef = useRef<DialogRef>(null);
   const { toast } = useToast();
-  const { setDomainId } = useActiveList();
+  const { setDomainId, setComponentId } = useActiveList();
 
   const { mutate: editDomain, ...editDomainState } = usePutMutation<
     Domain,
@@ -41,6 +41,7 @@ export function Domain({ domain }: Props) {
 
   const onDomainSelectHandler = () => {
     setDomainId(domain.id);
+    setComponentId(null);
   };
 
   const onEditItemSubmitHandler = (values: ItemFormData) => {

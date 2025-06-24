@@ -26,21 +26,20 @@ interface Props {
   modalRef: React.RefObject<ModalRef | null>;
 }
 export function DomainSubComponents({ modalRef }: Props) {
-  const { domainId, componentId, subComponentId, setSubComponentId } =
-    useActiveList();
+  const { componentId, subComponentId, setSubComponentId } = useActiveList();
   const { toast } = useToast();
 
   const { data: subComponents, ...subComponentsState } =
     useFindAll<ISubComponent>({
-      path: `/domains/${domainId}/subComponents`,
+      path: `/components/${componentId}/subComponents`,
       tqOptions: {
-        enabled: !!domainId,
-        queryKey: ["subComponents", domainId],
+        enabled: !!componentId,
+        queryKey: ["subComponents", componentId],
       },
     });
 
   const { mutate: createSubComponent, ...createSubComponentState } =
-    useAddMutation<ISubComponent, SubComponentCreate>("subComponents");
+    useAddMutation<ISubComponent, SubComponentCreate>("sub-components");
 
   const {
     mutate: createSubComponentMeasurementScales,
@@ -133,10 +132,8 @@ export function DomainSubComponents({ modalRef }: Props) {
       <Modal ref={modalRef} title={`Add Domain`}>
         <SubComponentForm
           onScalesSubmit={onAddScalesSubmitHandler}
-          loading={
-            createSubComponentState.isPending ||
-            createSubComponentMeasurementScalesState.isPending
-          }
+          defaultFieldsLoading={createSubComponentState.isPending}
+          scalesLoading={createSubComponentMeasurementScalesState.isPending}
           onDefaultFieldsSubmit={onAddSubComponentSubmitHandler}
           onCloseModal={() => modalRef.current?.closeModal()}
         />

@@ -51,7 +51,7 @@ export function SubComponent({ subComponent }: Props) {
   >(`sub-components/${subComponentId}/measurement-scales`);
 
   const { mutate: deleteSubComponent, ...deleteSubComponentState } =
-    useDeleteMutation(`sub-components/${subComponentId}`);
+    useDeleteMutation(`sub-components/${subComponent.id}`);
 
   const onSubComponentSelectHandler = () => {
     setSubComponentId(subComponent.id);
@@ -201,10 +201,8 @@ export function SubComponent({ subComponent }: Props) {
           onDefaultFieldsSubmit={onEditSubComponentSubmitHandler}
           onScalesSubmit={onEditScalesSubmitHandler}
           onCloseModal={() => editSubComponentModalRef.current?.closeModal()}
-          loading={
-            editSubComponentState.isPending ||
-            editSubComponentMeasurementScalesState.isPending
-          }
+          defaultFieldsLoading={editSubComponentState.isPending}
+          scalesLoading={editSubComponentMeasurementScalesState.isPending}
         />
       </Modal>
       <Dialog

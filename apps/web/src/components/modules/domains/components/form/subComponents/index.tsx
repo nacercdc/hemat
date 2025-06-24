@@ -13,7 +13,8 @@ import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 import { useActiveList } from "../../../providers/active-list/useActiveList";
 
 interface Props {
-  loading?: boolean;
+  defaultFieldsLoading?: boolean;
+  scalesLoading?: boolean;
   item?: SubComponent;
   onCloseModal?: () => void;
   onScalesSubmit: (data: ScalesFormData) => void;
@@ -21,7 +22,9 @@ interface Props {
 }
 
 export function SubComponentForm({
-  loading,
+  defaultFieldsLoading,
+  scalesLoading,
+  item,
   onCloseModal,
   onScalesSubmit,
   onDefaultFieldsSubmit,
@@ -35,18 +38,21 @@ export function SubComponentForm({
     queries: {
       include: ["measurementScales"],
     },
+    tqOptions: {
+      enabled: !!subComponentId && !!item,
+    },
   });
 
   return (
     <div className="flex flex-col gap-2 w-full max-h-[700px] overflow-y-auto">
       <DefaultFieldsForm
-        loading={loading}
+        loading={defaultFieldsLoading}
         item={subComponent}
         onCloseModal={onCloseModal}
         onSubmit={onDefaultFieldsSubmit}
       />
       <ScalesForm
-        loading={loading}
+        loading={scalesLoading}
         item={subComponent}
         onSubmit={onScalesSubmit}
         onCloseModal={onCloseModal}
