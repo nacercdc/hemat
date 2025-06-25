@@ -19,6 +19,7 @@ import {
   FindAllAssessmentComponentDto,
   FindAllAssessmentSubComponentDto,
 } from '../dtos';
+import { getTranslated } from '@shared/helpers/translation.helper';
 
 interface AssessmentComponentWithCounts extends AssessmentComponent {
   subComponentsCount: number;
@@ -165,7 +166,7 @@ export class AssessmentComponentService {
 
   async findSubComponents(
     id: string,
-    query: FindAllAssessmentSubComponentDto,
+    query: FindAllAssessmentSubComponentDto & { language?: string },
   ): Promise<FindAllResponseDto<AssessmentSubComponent>> {
     const component = await this.assessmentComponentRepository.findOne({
       where: { id },
@@ -174,18 +175,45 @@ export class AssessmentComponentService {
       throw new NotFoundException(`Component ${id} not found.`);
     }
 
-    return await new QueryService<AssessmentSubComponent>(
-      this.assessmentSubComponentRepository,
-    )
-      .filter([], {
-        fields: ['code', 'name'],
-        value: query.search,
-      })
-      .join(query.include)
-      .sort({ ascending: query.ascending, descending: query.descending })
-      .take(query.take)
-      .skip(query.skip)
-      .getManyAndCount();
+    // Filter by componentId and assessmentId
+    const qb = this.assessmentSubComponentRepository
+      .createQueryBuilder('subComponent')
+      .where('subComponent.componentId = :componentId', { componentId: id })
+      .andWhere('subComponent.assessmentId = :assessmentId', { assessmentId: component.assessmentId });
+
+    if (query.search) {
+      qb.andWhere('subComponent.code ILIKE :search OR subComponent.name ILIKE :search', {
+        search: `%${query.search}%`,
+      });
+    }
+
+    const sortFields = query.ascending?.length
+      ? query.ascending
+      : query.descending?.length
+        ? query.descending
+        : ['createdAt'];
+    const sortOrder = query.ascending?.length ? 'ASC' : 'DESC';
+    sortFields.forEach((field) => qb.addOrderBy(`subComponent.${field}`, sortOrder));
+
+    const [subComponents, total] = await Promise.all([
+      qb.skip(query.skip).take(query.take).getMany(),
+      qb.getCount(),
+    ]);
+
+    // Add translation if language param is provided
+    const language = query.language;
+    const data = language
+      ? subComponents.map((subComponent) => ({
+          ...subComponent,
+          name: getTranslated(subComponent, language, 'name', subComponent.name),
+          description: getTranslated(subComponent, language, 'description', subComponent.description),
+        }))
+      : subComponents;
+
+    return {
+      data,
+      total,
+    };
   }
 
   private filters(query: FindAllAssessmentComponentDto & { assessmentId?: string }): Filter[] {
