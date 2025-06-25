@@ -77,6 +77,13 @@ export function UsersTable({ modules, permissions }: Props) {
     });
   }, []);
 
+  const onStatusFilterChangeHandler = useCallback(
+    (_statusType: StatusType[] | undefined) => {
+      //TODO: implement status filter once the backend is ready
+    },
+    []
+  );
+
   const OnEmptyDataElement = (
     <EmptyTableDataElement
       icon={<Icon icon="mdi:users-outline" className="w-16 h-16" />}
@@ -106,13 +113,7 @@ export function UsersTable({ modules, permissions }: Props) {
       enableRowSelection={false}
       initialPagination={pagination}
       onEmptyDataElement={OnEmptyDataElement}
-      toolbar={
-        <Toolbar
-          onStatusTypeCheck={(stc) =>
-            ((st?: StatusType[]) => console.log(st))(stc)
-          }
-        />
-      }
+      toolbar={<Toolbar onStatusTypeCheck={onStatusFilterChangeHandler} />}
     />
   );
 }

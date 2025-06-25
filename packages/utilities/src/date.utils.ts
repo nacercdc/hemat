@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 export const getTokenExpireMilliseconds = (time?: string): number => {
   const minutes = getTokenExpireInMinutes(time);
   const now = new Date();
@@ -5,14 +6,14 @@ export const getTokenExpireMilliseconds = (time?: string): number => {
 };
 
 export const getTokenExpireInMinutes = (time?: string) => {
-  let minutes = 15; // default: 15 minutes
+  let minutes = 15;
   let unit = "m";
   const match = time?.match(/^(\d+)([msd])$/);
   if (match) {
-    const matchIndex1 = match[1]; // Extracted number
+    const matchIndex1 = match[1];
     let number = 0;
     if (matchIndex1) number = parseInt(matchIndex1, 10);
-    unit = match[2] ?? unit; // Extracted unit
+    unit = match[2] ?? unit;
     if (unit === "s") {
       minutes = number / 60;
     }
@@ -32,4 +33,17 @@ export const rFC2822ToISO8601 = (rFC2822Date: string | Date) => {
     return null;
   }
   return date.toISOString().split("T")[0];
+};
+
+export const formatDateToYYYYMMDD = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+export const parseYYYYMMDDToDate = (dateString: string): Date => {
+  const [year, month, day] = dateString.split("-").map(Number);
+  return new Date(year!, month! - 1, day);
 };

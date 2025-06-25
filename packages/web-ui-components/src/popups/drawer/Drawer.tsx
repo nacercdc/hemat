@@ -65,18 +65,20 @@ export function Drawer({
 
       <SheetContent
         side={direction}
-        className={cn(sizeClasses[size], "flex flex-col space-y-1")}
+        className={cn(sizeClasses[size], "flex flex-col space-y-1 bg-card")}
       >
-        <div className="flex flex-col space-y-1 p-2">
-          {title && (
-            <SheetTitle className="text-lg font-medium">{title}</SheetTitle>
-          )}
-          {description && (
-            <SheetDescription className="text-sm text-basic-600">
-              {description}
-            </SheetDescription>
-          )}
-        </div>
+        {(title || description) && (
+          <div className="flex flex-col space-y-1 p-2">
+            {title && (
+              <SheetTitle className="text-lg font-medium">{title}</SheetTitle>
+            )}
+            {description && (
+              <SheetDescription className="text-sm text-basic-600">
+                {description}
+              </SheetDescription>
+            )}
+          </div>
+        )}
 
         <div className="p-2">{children}</div>
         {closeNode && (

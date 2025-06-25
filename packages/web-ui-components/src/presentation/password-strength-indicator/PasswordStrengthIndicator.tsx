@@ -1,3 +1,5 @@
+/* eslint-disable no-useless-escape */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React from "react";
 import { cn } from "../../shadcn-ui/utils/cn";
 
@@ -7,26 +9,60 @@ export type PasswordIncludeType =
   | "Number"
   | "SpecialChar";
 
+export const PasswordIncludeTypeMap: Record<
+  PasswordIncludeType,
+  { label: string; func: (password: string) => boolean }
+> = {
+  LowerCase: {
+    label: "At least 1 lowercase letter (a-z)",
+    func: (password: string) => /[a-z]/.test(password),
+  },
+  UpperCase: {
+    label: "At least 1 uppercase letter (A-Z)",
+    func: (password: string) => /[A-Z]/.test(password),
+  },
+  Number: {
+    label: "At least 1 number (0-9)",
+    func: (password: string) => /[0-9]/.test(password),
+  },
+  SpecialChar: {
+    label: "At least 1 special character (!@#$%&*, etc.)",
+    func: (password: string) =>
+      /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+  },
+};
+
+const hasMinimumLength = (password: string, minLength: number) =>
+  password.length >= minLength;
+
 export const checkPasswordStrength = (
   password: string,
   minLength = 8,
-  mustIncludeTypes: PasswordIncludeType[] = [],
+  mustIncludeTypes: PasswordIncludeType[] = []
 ) => {
   let score = 0;
 
-  const hasMinimumLength = password.length >= minLength;
-  const hasUppercase = /[A-Z]/.test(password);
-  const hasLowercase = /[a-z]/.test(password);
-  const hasNumbers = /[0-9]/.test(password);
-  const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
-    password,
-  );
-
-  if (hasMinimumLength) score += 1;
-  if (mustIncludeTypes.includes("UpperCase") && hasUppercase) score += 1;
-  if (mustIncludeTypes.includes("LowerCase") && hasLowercase) score += 1;
-  if (mustIncludeTypes.includes("Number") && hasNumbers) score += 1;
-  if (mustIncludeTypes.includes("SpecialChar") && hasSpecialChars) score += 1;
+  if (hasMinimumLength(password, minLength)) score += 1;
+  if (
+    mustIncludeTypes.includes("UpperCase") &&
+    PasswordIncludeTypeMap.UpperCase.func(password)
+  )
+    score += 1;
+  if (
+    mustIncludeTypes.includes("LowerCase") &&
+    PasswordIncludeTypeMap.LowerCase.func(password)
+  )
+    score += 1;
+  if (
+    mustIncludeTypes.includes("Number") &&
+    PasswordIncludeTypeMap.Number.func(password)
+  )
+    score += 1;
+  if (
+    mustIncludeTypes.includes("SpecialChar") &&
+    PasswordIncludeTypeMap.SpecialChar.func(password)
+  )
+    score += 1;
 
   score = Math.min(score, 5);
 
@@ -45,18 +81,31 @@ export function PasswordStrengthIndicator({
   mustIncludeTypes = [],
 }: Props) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-2">
       {Array.from({ length: mustIncludeTypes.length + 1 }).map((_, index) => (
-        <div
-          key={index + 1}
-          className={cn(
-            "flex-1 h-2 w-14 rounded-full",
-            index + 1 <=
-              checkPasswordStrength(password, minLength, mustIncludeTypes)
-              ? "bg-success-400"
-              : "bg-white",
+        <div className="flex items-center gap-1.5" key={index + 1}>
+          <div
+            className={cn(
+              "h-2.5 w-2.5 rounded-full border-[1px]",
+              (index === 0 && hasMinimumLength(password, minLength)) ||
+                (index > 0 &&
+                  mustIncludeTypes.length > 0 &&
+                  PasswordIncludeTypeMap[mustIncludeTypes[index - 1]!].func(
+                    password
+                  ))
+                ? "bg-primary"
+                : "bg-white"
+            )}
+          ></div>
+          {index === 0 && (
+            <span className="text-xs">{`At least ${minLength} characters long`}</span>
           )}
-        ></div>
+          {index > 0 && mustIncludeTypes.length > 0 && (
+            <span className="text-xs">
+              {PasswordIncludeTypeMap[mustIncludeTypes[index - 1]!].label}
+            </span>
+          )}
+        </div>
       ))}
     </div>
   );

@@ -63,24 +63,13 @@ export class AssessmentController {
   constructor(private readonly assessmentService: AssessmentService) {}
 
   @ApiOperation({
-    summary: 'Find all',
-    description: 'Get all assessments with pagination',
+    summary: 'Get assessments for the logged-in user',
+    description: 'Returns all assessments where the logged-in user is a member.'
   })
-  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Assessment> })
-  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.READ,
-        subject: PermissionSubjectEnum.ASSESSMENT,
-      },
-    ],
-  })
-  @Get()
-  async findAll(@Query() query: FindAllAssessmentDto) {
-    return this.assessmentService.findAll(query);
+  @ApiOkResponse({ description: 'Ok', type: [Assessment] })
+  @Get('me')
+  async getMyAssessments(@Request() req: { user: AuthDto }) {
+    return this.assessmentService.findAssessmentsByUser(req.user.id);
   }
 
   @ApiOperation({ summary: 'Find one', description: 'Get an assessment by ID' })
@@ -102,6 +91,27 @@ export class AssessmentController {
     @Query() query: FindOneAssessmentDto,
   ) {
     return this.assessmentService.findOne(id, query);
+  }
+
+  @ApiOperation({
+    summary: 'Find all',
+    description: 'Get all assessments with pagination',
+  })
+  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Assessment> })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Get()
+  async findAll(@Query() query: FindAllAssessmentDto) {
+    return this.assessmentService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Create', description: 'Create a new assessment' })
@@ -204,5 +214,18 @@ export class AssessmentController {
   @Post(':id/restore')
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.assessmentService.restore(id);
+  }
+
+  @ApiOperation({
+    summary: 'Get logged-in user\'s role and group for an assessment',
+    description: 'Returns the user\'s role and group for the given assessment.'
+  })
+  @ApiOkResponse({ description: 'Ok', schema: { example: { role: 'TEAM_MEMBER', groupId: 'uuid' } } })
+  @Get(':id/me')
+  async getMyAssessmentRoleAndGroup(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Request() req: { user: AuthDto }
+  ) {
+    return this.assessmentService.findUserRoleAndGroupInAssessment(id, req.user.id);
   }
 }

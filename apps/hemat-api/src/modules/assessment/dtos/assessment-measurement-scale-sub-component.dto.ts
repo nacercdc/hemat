@@ -60,3 +60,15 @@ export class AssessmentMeasurementScaleSubComponentUpdateDto {
   @Type(() => MeasurementScaleSubComponentTranslationDto)
   translations: Record<string, MeasurementScaleSubComponentTranslationDto> = {};
 }
+
+export class BatchUpdateAssessmentMeasurementScaleSubComponentDto extends AssessmentMeasurementScaleSubComponentUpdateDto {
+  @ApiProperty({
+    description: 'ID of the measurement scale',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @IsNotEmpty({ message: 'validation.measurementScaleId.isNotEmpty' })
+  @IsUUID('4', { message: 'validation.measurementScaleId.isUUID' })
+  @Type(() => String)
+  measurementScaleId: string;
+}

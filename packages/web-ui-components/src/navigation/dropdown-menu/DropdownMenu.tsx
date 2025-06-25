@@ -33,7 +33,7 @@ export const dropdownMenuVariants = cva("flex gap-2 items-center", {
 
 export interface DropdownMenuOption {
   value: string;
-  label: string;
+  label: React.ReactNode;
   leftNode?: ReactNode;
   separator?: boolean;
   onClick?: () => void;
@@ -125,7 +125,6 @@ export function DropdownMenu({
         align={align}
       >
         {label && <DropdownMenuLabel>{label}</DropdownMenuLabel>}
-        {label && options.length > 0 && <DropdownMenuSeparator />}
         {renderMenuItems(options)}
       </DropdownMenuContent>
     </ShadcnDropdownMenu>

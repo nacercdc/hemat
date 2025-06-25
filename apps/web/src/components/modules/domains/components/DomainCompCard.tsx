@@ -4,8 +4,7 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import { Button } from "@etm/web-ui-components";
 import { cn } from "~/utils/cn.util";
-
-import type { ListTypeLabel } from "..";
+import type { ListTypeLabel } from "../types";
 
 export const ListTypeColors: Record<ListTypeLabel, string> = {
   Domain: "#edf4fb",
@@ -17,6 +16,7 @@ interface Props {
   cardListType: ListTypeLabel;
   children: React.ReactNode;
   actionDisabled?: boolean;
+  className?: string;
   onAddActionHandler: (itemType: ListTypeLabel) => void;
 }
 
@@ -24,10 +24,16 @@ export function DomainCompCard({
   cardListType,
   children,
   actionDisabled = true,
+  className,
   onAddActionHandler,
 }: Props) {
   return (
-    <div className="h-full w-full flex flex-col bg-tbaccent">
+    <div
+      className={cn(
+        "h-full w-full flex flex-col bg-tbaccent border rounded-lg lg:rounded-none lg:border-t lg:border-b overflow-hidden max-h-max min-h-[36rem] flex-1",
+        className
+      )}
+    >
       <div
         className="flex justify-between items-center px-4 py-2"
         style={{ backgroundColor: `${ListTypeColors[cardListType]}` }}
@@ -44,7 +50,7 @@ export function DomainCompCard({
           <Icon icon="tabler:plus" className={cn("!w-6 !h-6")} />
         </Button>
       </div>
-      <div className="px-4 my-5">{children}</div>
+      <div className="px-4 my-5 flex-1">{children}</div>
     </div>
   );
 }
