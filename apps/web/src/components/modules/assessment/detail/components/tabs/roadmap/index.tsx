@@ -51,12 +51,7 @@ export function Roadmap() {
       />
       <div className="flex flex-col w-full  rounded-md gap-3 p-3">
         {dummyGroups.map((group) => (
-          <AssessmentRoadmap
-            key={group.title}
-            title={group.title}
-            subtitle={group.subtitle}
-            domains={group.domains}
-          />
+          <AssessmentRoadmap domains={group.domains} />
         ))}
       </div>
     </div>
