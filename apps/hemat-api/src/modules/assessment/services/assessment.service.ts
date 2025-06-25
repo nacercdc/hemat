@@ -70,7 +70,7 @@ export class AssessmentService {
     payload: AssessmentCreateRequestDto,
   ): Promise<Assessment> {
     try {
-      if (new Date(payload.endDate) < new Date(payload.startDate)) {
+      if (payload.endDate < payload.startDate) {
         throw new BadRequestException('End date cannot be before start date');
       }
 
@@ -87,9 +87,7 @@ export class AssessmentService {
           const assessment = manager.create(Assessment, {
             ...payload,
             userId,
-            startDate: new Date(payload.startDate),
-            endDate: new Date(payload.endDate),
-            languages, 
+            languages,
           });
           await manager.save(Assessment, assessment);
 
@@ -139,7 +137,7 @@ export class AssessmentService {
     if (
       payload.endDate &&
       payload.startDate &&
-      new Date(payload.endDate) < new Date(payload.startDate)
+      payload.endDate < payload.startDate
     ) {
       throw new BadRequestException('End date cannot be before start date');
     }
@@ -168,12 +166,8 @@ export class AssessmentService {
 
       const updatedPayload = {
         ...payload,
-        startDate: payload.startDate
-          ? new Date(payload.startDate)
-          : assessment.startDate,
-        endDate: payload.endDate
-          ? new Date(payload.endDate)
-          : assessment.endDate,
+        startDate: payload.startDate ?? assessment.startDate,
+        endDate: payload.endDate ?? assessment.endDate,
         languages,
       };
 
