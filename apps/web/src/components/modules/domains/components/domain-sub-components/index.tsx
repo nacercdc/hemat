@@ -133,7 +133,7 @@ export function DomainSubComponents({ modalRef }: Props) {
         !subComponentsState.isLoading && <SubComponentsEmptyPlaceHolder />
       )}
 
-      <Modal ref={modalRef} title={`Add Domain`}>
+      <Modal ref={modalRef} title={`Add Sub-component`}>
         <SubComponentForm
           onScalesSubmit={onAddScalesSubmitHandler}
           defaultFieldsLoading={createSubComponentState.isPending}

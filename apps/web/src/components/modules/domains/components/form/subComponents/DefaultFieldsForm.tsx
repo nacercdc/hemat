@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useEffect } from "react";
@@ -169,7 +170,7 @@ export function DefaultFieldsForm({
         selectedLanguages: [],
       });
     }
-  }, [item, languages, reset]);
+  }, [item, languages]);
 
   return (
     <form

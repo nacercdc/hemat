@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useCallback, useEffect } from "react";
@@ -196,7 +197,7 @@ export function DomainComponentForm({
         selectedLanguages: [],
       });
     }
-  }, [item, languages, reset]);
+  }, [item, languages]);
 
   return (
     <form

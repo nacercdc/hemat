@@ -9,7 +9,6 @@ import type {
   DomainCreate,
 } from "~/libs/models/domain.model";
 import { DomainsEmptyPlaceHolder } from "./DomainsEmptyPlaceHolder";
-import { ListTypeColors } from "../../../domains-old/components-old/DomainCompCard";
 import { useActiveList } from "../../providers/active-list/useActiveList";
 import type { ModalRef } from "@etm/web-ui-components";
 import { Modal, useToast } from "@etm/web-ui-components";
@@ -18,6 +17,7 @@ import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQuery
 import { Domain } from "./domain";
 import type { ItemFormData } from "../form";
 import { DomainComponentForm } from "../form";
+import { ListTypeColors } from "../DomainCompCard";
 
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;

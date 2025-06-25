@@ -17,9 +17,9 @@ import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
 import { useActiveList } from "../../../providers/active-list/useActiveList";
-import { DomainComponentForm } from "~/components/modules/domains-old/components-old/form";
-import type { ItemFormData } from "~/components/modules/domains-old/components-old/form";
 import DomainDetail from "./domain-detail";
+import { DomainComponentForm } from "../../form";
+import type { ItemFormData } from "../../form";
 interface Props {
   domain: Domain;
 }

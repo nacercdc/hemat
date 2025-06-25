@@ -4,7 +4,6 @@ import React from "react";
 
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 
-import { ListTypeColors } from "../../../domains-old/components-old/DomainCompCard";
 import { useActiveList } from "../../providers/active-list/useActiveList";
 import type { ModalRef } from "@etm/web-ui-components";
 import { Modal, useToast } from "@etm/web-ui-components";
@@ -20,6 +19,7 @@ import { ComponentsSkeleton } from "./ComponentsSkeleton";
 import { ComponentsEmptyPlaceHolder } from "./ComponentsEmptyPlaceHolder";
 import type { ItemFormData } from "../form";
 import { DomainComponentForm } from "../form";
+import { ListTypeColors } from "../DomainCompCard";
 
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;
@@ -94,7 +94,7 @@ export function DomainComponents({ modalRef }: Props) {
         !componentsState.isLoading && <ComponentsEmptyPlaceHolder />
       )}
 
-      <Modal ref={modalRef} title={`Add Domain`}>
+      <Modal ref={modalRef} title={`Add Component`}>
         <DomainComponentForm
           onSubmitHandler={onAddItemSubmitHandler}
           onCloseModal={() => modalRef.current?.closeModal()}

@@ -16,13 +16,13 @@ import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
 import { useActiveList } from "../../../providers/active-list/useActiveList";
-import { DomainComponentForm } from "~/components/modules/domains-old/components-old/form";
-import type { ItemFormData } from "~/components/modules/domains-old/components-old/form";
 import type {
   ComponentEdit,
   Component as IComponent,
 } from "~/libs/models/component.model";
 import ComponentDetail from "./component-detail";
+import type { ItemFormData } from "../../form";
+import { DomainComponentForm } from "../../form";
 interface Props {
   component: IComponent;
 }
