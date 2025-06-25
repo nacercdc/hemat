@@ -15,9 +15,9 @@ import type { Country } from "~/libs/models/country.model";
 import type { Language } from "~/libs/models/language.model";
 import type { Assessment } from "~/libs/models/assessment.model";
 import { useEffect } from "react";
-import { safeDate } from "~/utils/date.util";
 import { AssessmentFormSkeleton } from "./AssessmentFormSkeleton";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
+import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "@etm/utilities";
 const languageSchema = z.object({
   code: z
     .string()
@@ -101,30 +101,40 @@ export function AssessmentForm({
     mode: "all",
   });
 
+  const onSubmitHandler = (values: AssessmentFormData) => {
+    onSubmitAssessmentForm({
+      ...values,
+      startDate: new Date(formatDateToYYYYMMDD(values.startDate)),
+      endDate: new Date(formatDateToYYYYMMDD(values.endDate)),
+    });
+    reset();
+  };
+
   const onCancelHandler = () => {
     onCancelAssessmentForm?.();
     reset();
   };
 
   useEffect(() => {
-    if (!assessment) return;
-    reset({
-      name: assessment?.name,
-      startDate: safeDate(assessment?.startDate),
-      endDate: safeDate(assessment?.endDate),
-      country: assessment?.country?.code
-        ? { code: assessment.country.code }
-        : undefined,
-      organization: assessment?.organization,
-      languages: Array.isArray(assessment?.languages)
-        ? assessment.languages.map((lang) => ({
-            code: lang.code,
-            name: lang.name,
-          }))
-        : [],
+    if (assessment) {
+      reset({
+        name: assessment?.name,
+        startDate: parseYYYYMMDDToDate(assessment.startDate),
+        endDate: parseYYYYMMDDToDate(assessment.endDate),
+        country: assessment?.country?.code
+          ? { code: assessment.country.code }
+          : undefined,
+        organization: assessment?.organization,
+        languages: Array.isArray(assessment?.languages)
+          ? assessment.languages.map((lang) => ({
+              code: lang.code,
+              name: lang.name,
+            }))
+          : [],
 
-      description: assessment?.description,
-    });
+        description: assessment?.description,
+      });
+    }
   }, [assessment, reset]);
 
   if (assessmentState.isLoading) {
@@ -133,10 +143,7 @@ export function AssessmentForm({
 
   return (
     <form
-      onSubmit={handleSubmit((values) => {
-        onSubmitAssessmentForm(values);
-        reset();
-      })}
+      onSubmit={handleSubmit(onSubmitHandler)}
       className="flex flex-col  md:w-[744px]  rounded-md   mx-auto bg-dark-lighter/5"
     >
       <div className="flex flex-col gap-6 px-8 pt-8">

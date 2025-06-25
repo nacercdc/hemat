@@ -1,6 +1,6 @@
-import { Filter, Sort } from "../tanstack-api-query/helpers/types";
-import { Country } from "./country.model";
-import { Language } from "./language.model";
+import type { Filter, Sort } from "../tanstack-api-query/helpers/types";
+import type { Country } from "./country.model";
+import type { Language } from "./language.model";
 
 export interface User {
   name: string;
@@ -31,8 +31,8 @@ export interface Assessment {
   name: string;
   user: User;
   country: Country;
-  startDate: Date | string;
-  endDate: Date | string;
+  startDate: string;
+  endDate: string;
   countryCode: string;
   status: StatusType;
   createdAt: string;
@@ -45,8 +45,8 @@ export interface Assessment {
 
 export interface AssessmentCreate {
   name: string;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
+  startDate: string;
+  endDate: string;
   organization?: string;
   countryCode: string;
   languages?: string[];
@@ -56,8 +56,8 @@ export interface AssessmentCreate {
 export interface AssessmentUpdate {
   id: string;
   name: string;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
+  startDate: string;
+  endDate: string;
   organization?: string;
   countryCode: string;
   languages?: string[];

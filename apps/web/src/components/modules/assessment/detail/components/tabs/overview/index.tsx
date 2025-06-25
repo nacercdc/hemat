@@ -2,18 +2,19 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import {
+import type {
   Assessment,
   AssessmentsIncludeAble,
   StatusType,
 } from "~/libs/models/assessment.model";
-import { Badge, BadgeVariants } from "@etm/web-ui-components";
+import type { BadgeVariants } from "@etm/web-ui-components";
+import { Badge } from "@etm/web-ui-components";
 import SkeletonForDetail from "./components/SkeletonForDetail";
 import GroupsList from "../../members/GroupsList";
 import LabeledValue from "./components/LabeledValue";
 import MemberRoleCard from "../../members/MemberRoleCard";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
-import { safeDate } from "~/utils/date.util";
+import { formatDateToYYYYMMDD } from "@etm/utilities";
 
 export default function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
@@ -30,7 +31,7 @@ export default function AssessmentOverview() {
     Assessment,
     AssessmentsIncludeAble
   >({
-    path: `assessments/${assessmentId}`,
+    path: `assessments/${assessmentId as string}`,
     queries: {
       include: ["user", "members", "groups"],
     },
@@ -50,7 +51,7 @@ export default function AssessmentOverview() {
             variant={
               assessment?.status
                 ? StatusVariantClasses[assessment.status]
-                : StatusVariantClasses["Pending"]
+                : StatusVariantClasses.Pending
             }
           />
         </div>
@@ -89,11 +90,21 @@ export default function AssessmentOverview() {
           <div className="flex flex-col gap-3">
             <LabeledValue
               label="Start Date :"
-              value={safeDate(assessment?.startDate)}
+              value={
+                assessment?.startDate
+                  ? formatDateToYYYYMMDD(
+                      assessment.startDate as unknown as Date
+                    )
+                  : undefined
+              }
             />
             <LabeledValue
               label="End Date :"
-              value={safeDate(assessment?.endDate)}
+              value={
+                assessment?.endDate
+                  ? formatDateToYYYYMMDD(assessment.endDate as unknown as Date)
+                  : undefined
+              }
             />
           </div>
         </div>
