@@ -30,38 +30,34 @@ export function DomainListContent() {
 
   return (
     <PageContainer pageTitle="Domains" includeBreadcrumb={false}>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-0 h-full">
-        <div className="rounded-lg lg:rounded-tr-none lg:rounded-br-none border overflow-hidden h-full">
-          <DomainCompCard
-            cardListType="Domain"
-            actionDisabled={false}
-            onAddActionHandler={() => addDomainModalRef.current?.openModal()}
-          >
-            <Domains modalRef={addDomainModalRef} />
-          </DomainCompCard>
-        </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-0 max-h-max min-h-[36rem]">
+        <DomainCompCard
+          cardListType="Domain"
+          className="lg:rounded-l-lg"
+          actionDisabled={false}
+          onAddActionHandler={() => addDomainModalRef.current?.openModal()}
+        >
+          <Domains modalRef={addDomainModalRef} />
+        </DomainCompCard>
 
-        <div className="border rounded-lg lg:rounded-none lg:border-t lg:border-b overflow-hidden">
-          <DomainCompCard
-            cardListType="Component"
-            actionDisabled={!selectedDomainId}
-            onAddActionHandler={() => addComponentModalRef.current?.openModal()}
-          >
-            <DomainComponents modalRef={addComponentModalRef} />
-          </DomainCompCard>
-        </div>
+        <DomainCompCard
+          cardListType="Component"
+          actionDisabled={!selectedDomainId}
+          onAddActionHandler={() => addComponentModalRef.current?.openModal()}
+        >
+          <DomainComponents modalRef={addComponentModalRef} />
+        </DomainCompCard>
 
-        <div className="rounded-lg lg:rounded-tl-none lg:rounded-bl-none border overflow-hidden">
-          <DomainCompCard
-            cardListType="SubComponent"
-            actionDisabled={!selectedComponentId}
-            onAddActionHandler={() =>
-              addSubComponentModalRef.current?.openModal()
-            }
-          >
-            <DomainSubComponents modalRef={addSubComponentModalRef} />
-          </DomainCompCard>
-        </div>
+        <DomainCompCard
+          cardListType="SubComponent"
+          className="lg:rounded-r-lg"
+          actionDisabled={!selectedComponentId}
+          onAddActionHandler={() =>
+            addSubComponentModalRef.current?.openModal()
+          }
+        >
+          <DomainSubComponents modalRef={addSubComponentModalRef} />
+        </DomainCompCard>
       </div>
     </PageContainer>
   );

@@ -16,6 +16,7 @@ interface Props {
   cardListType: ListTypeLabel;
   children: React.ReactNode;
   actionDisabled?: boolean;
+  className?: string;
   onAddActionHandler: (itemType: ListTypeLabel) => void;
 }
 
@@ -23,10 +24,16 @@ export function DomainCompCard({
   cardListType,
   children,
   actionDisabled = true,
+  className,
   onAddActionHandler,
 }: Props) {
   return (
-    <div className="h-full w-full flex flex-col bg-tbaccent">
+    <div
+      className={cn(
+        "h-full w-full flex flex-col bg-tbaccent border rounded-lg lg:rounded-none lg:border-t lg:border-b overflow-hidden",
+        className
+      )}
+    >
       <div
         className="flex justify-between items-center px-4 py-2"
         style={{ backgroundColor: `${ListTypeColors[cardListType]}` }}
