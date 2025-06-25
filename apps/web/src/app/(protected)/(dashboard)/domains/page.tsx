@@ -1,6 +1,6 @@
 import React from "react";
-import { Domains } from "~/components/modules";
+import { DomainList } from "~/components/modules/domains";
 
 export default function DomainsPage() {
-  return <Domains />;
+  return <DomainList />;
 }
