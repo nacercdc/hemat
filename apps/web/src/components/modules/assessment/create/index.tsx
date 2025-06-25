@@ -33,8 +33,8 @@ export default function CreateAssessment() {
         data: {
           name: data.name,
           startDate: safeDate(data.startDate),
-          endDate: safeDate(data.endDate ?? "---"),
-          countryCode: data.country.code ?? "",
+          endDate: safeDate(data.endDate),
+          countryCode: data.country.code,
           organization: data.organization,
           description: data.description,
           languages: data.languages.map((language) => language.code),

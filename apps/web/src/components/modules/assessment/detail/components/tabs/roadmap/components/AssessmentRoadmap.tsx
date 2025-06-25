@@ -10,12 +10,10 @@ export interface Domain {
   progress: number;
 }
 interface Props {
-  title: string;
-  subtitle: string;
   domains: Domain[];
 }
 
-export function AssessmentRoadmap({ title, subtitle, domains }: Props) {
+export function AssessmentRoadmap({ domains }: Props) {
   const router = useRouter();
   const onDetailViewClickHandler = (id: string) => {
     //TODO: Implement navigation to the domain detail page

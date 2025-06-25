@@ -90,9 +90,6 @@ export function AssessmentForm({
     QueryManyResponse<Country>
   >({
     path: "/countries",
-    tqOptions: {
-      enabled: false,
-    },
   });
 
   const { control, handleSubmit, reset } = useForm<AssessmentFormData>({
