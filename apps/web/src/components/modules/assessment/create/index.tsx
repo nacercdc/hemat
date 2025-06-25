@@ -13,6 +13,7 @@ import type { AssessmentFormData } from "../components/form";
 import { AssessmentForm } from "../components/form";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
 import { ASSESSMENT_LIST_KEY } from "../components/table";
+import { formatDateToYYYYMMDD } from "@etm/utilities";
 
 export default function CreateAssessment() {
   const router = useRouter();
@@ -31,9 +32,9 @@ export default function CreateAssessment() {
       {
         data: {
           name: data.name,
-          startDate: data.startDate,
-          endDate: data.endDate,
-          countryCode: data.country.code ?? "",
+          startDate: formatDateToYYYYMMDD(data.startDate),
+          endDate: formatDateToYYYYMMDD(data.endDate),
+          countryCode: data.country.code,
           organization: data.organization,
           description: data.description,
           languages: data.languages.map((language) => language.code),

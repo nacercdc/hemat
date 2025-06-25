@@ -17,12 +17,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { Country } from "~/libs/models/assessment.model";
 import { useGetMe } from "~/providers/me/useGetMe";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import type { Profile, UpdateProfile } from "~/libs/models/profile.model";
 import { ProfileTabSkeleton } from "./ProfileTabSkeleton";
 import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "@etm/utilities";
+import type { Country } from "~/libs/models/country.model";
 const PERSONAL_TITLES = [
   "Mr.",
   "Mrs.",

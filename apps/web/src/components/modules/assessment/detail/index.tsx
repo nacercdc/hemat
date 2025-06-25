@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useCallback } from "react";
@@ -9,6 +8,7 @@ import MemberInvitation from "./components/tabs/members";
 import AssessmentOverview from "./components/tabs/overview";
 import { PageContainer } from "../../components/PageContainer";
 import { useParams, useRouter } from "next/navigation";
+import { Roadmap } from "./components/tabs/roadmap";
 
 export function AssessmentDetail() {
   const assessmentName = "Assessment 1";
@@ -49,6 +49,11 @@ export function AssessmentDetail() {
               value: "current-assessment",
               label: "Current assessment",
               content: <CurrentAssessment />,
+            },
+            {
+              value: "roadmap",
+              label: "Roadmap",
+              content: <Roadmap />,
             },
           ]}
           defaultValue="detail"

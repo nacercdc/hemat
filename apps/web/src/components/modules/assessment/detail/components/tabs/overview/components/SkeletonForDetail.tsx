@@ -36,7 +36,7 @@ export default function SkeletonForDetail() {
         </div>
 
         {/* Right Side */}
-        <div className="flex-1 bg-layout-bg/90 p-2 rounded-sm gap-2 flex flex-col">
+        <div className="flex-1 bg-dark-lighter/5 p-2 rounded-sm gap-2 flex flex-col">
           <Skeleton className="w-full h-24" />
           <Skeleton className="w-full h-24" />
         </div>
