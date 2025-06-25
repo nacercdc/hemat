@@ -159,7 +159,8 @@ export class AssessmentComponentController {
   async findSubComponents(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query() query: FindAllAssessmentSubComponentDto,
+    @Query('language') language?: string,
   ) {
-    return this.assessmentComponentService.findSubComponents(id, query);
+    return this.assessmentComponentService.findSubComponents(id, { ...query, language });
   }
 }

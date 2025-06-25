@@ -104,8 +104,9 @@ export class AssessmentDomainController {
   @Get('assessments/:assessmentId/domains/progress')
   async findAllWithProgress(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Query('language') language?: string,
   ) {
-    return this.assessmentDomainService.findAllWithProgress(assessmentId);
+    return this.assessmentDomainService.findAllWithProgress(assessmentId, language);
   }
 
   @ApiOperation({
@@ -126,8 +127,9 @@ export class AssessmentDomainController {
   @Get('assessments/:assessmentId/domains/primary-progress')
   async findPrimaryProgress(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Query('language') language?: string,
   ) {
-    return this.assessmentDomainService.findPrimaryProgress(assessmentId);
+    return this.assessmentDomainService.findPrimaryProgress(assessmentId, language);
   }
 
   @ApiOperation({
@@ -203,8 +205,9 @@ export class AssessmentDomainController {
   async findComponents(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query() query: FindAllAssessmentComponentDto,
+    @Query('language') language?: string,
   ) {
-    return this.assessmentDomainService.findComponents(id, query);
+    return this.assessmentDomainService.findComponents(id, { ...query, language });
   }
 
   @ApiOperation({
@@ -226,7 +229,8 @@ export class AssessmentDomainController {
   async findGroupProgress(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('groupId', new ParseUUIDPipe()) groupId: string,
+    @Query('language') language?: string,
   ) {
-    return this.assessmentDomainService.findGroupProgress(assessmentId, groupId);
+    return this.assessmentDomainService.findGroupProgress(assessmentId, groupId, language);
   }
 }
