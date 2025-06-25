@@ -65,7 +65,7 @@ export function Domains({ modalRef }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-5 overflow-y-auto">
+    <div className="flex flex-col gap-5 overflow-y-auto h-full">
       {domainsState.isLoading && <DomainsSkeleton />}
       {domainsState.isSuccess && domains?.total && domains?.total > 0 ? (
         <>

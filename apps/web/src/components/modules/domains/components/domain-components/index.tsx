@@ -68,7 +68,7 @@ export function DomainComponents({ modalRef }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-5 overflow-y-auto">
+    <div className="flex flex-col gap-5 overflow-y-auto h-full">
       {componentsState.isLoading && <ComponentsSkeleton />}
 
       {componentsState.isSuccess &&

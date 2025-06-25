@@ -5,7 +5,7 @@ import { Icon } from "@iconify/react";
 
 export function DomainsEmptyPlaceHolder() {
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4">
+    <div className="flex flex-col items-center justify-center py-12 px-4 h-full flex-1">
       <div className="text-center">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-basic-100 flex items-center justify-center">
           <Icon

@@ -30,7 +30,7 @@ export function DomainCompCard({
   return (
     <div
       className={cn(
-        "h-full w-full flex flex-col bg-tbaccent border rounded-lg lg:rounded-none lg:border-t lg:border-b overflow-hidden",
+        "h-full w-full flex flex-col bg-tbaccent border rounded-lg lg:rounded-none lg:border-t lg:border-b overflow-hidden max-h-max min-h-[36rem] flex-1",
         className
       )}
     >
@@ -50,7 +50,7 @@ export function DomainCompCard({
           <Icon icon="tabler:plus" className={cn("!w-6 !h-6")} />
         </Button>
       </div>
-      <div className="px-4 my-5">{children}</div>
+      <div className="px-4 my-5 flex-1">{children}</div>
     </div>
   );
 }

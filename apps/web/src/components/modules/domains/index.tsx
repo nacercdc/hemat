@@ -30,7 +30,7 @@ export function DomainListContent() {
 
   return (
     <PageContainer pageTitle="Domains" includeBreadcrumb={false}>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-0 max-h-max min-h-[36rem]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-0">
         <DomainCompCard
           cardListType="Domain"
           className="lg:rounded-l-lg"
