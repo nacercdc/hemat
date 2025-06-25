@@ -10,6 +10,7 @@ import {
   Answer,
   AssessmentSubComponentAnswer,
   AssessmentSubComponent,
+  AssessmentMeasurementScale,
 } from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
@@ -100,7 +101,7 @@ export class AssessmentAnswerService {
         );
       }
 
-      const isPrimary = payload.isPrimary ?? false;
+      const isPrimary = typeof payload.isPrimary === 'boolean' ? payload.isPrimary : false;
 
       if (isPrimary && member.role !== MemberRole.PRIMARY) {
         throw new BadRequestException(
@@ -114,6 +115,16 @@ export class AssessmentAnswerService {
       if (!subComponent) {
         throw new BadRequestException(
           `Sub-component ${payload.subComponentId} does not belong to assessment ${assessmentId}`,
+        );
+      }
+
+      // Validate that the measurement scale belongs to this assessment
+      const measurementScale = await manager.findOne(AssessmentMeasurementScale, {
+        where: { id: payload.measurementScaleId },
+      });
+      if (!measurementScale || measurementScale.assessmentId !== assessmentId) {
+        throw new BadRequestException(
+          `Measurement scale ${payload.measurementScaleId} does not belong to assessment ${assessmentId}`,
         );
       }
 
