@@ -43,8 +43,7 @@ export const getSession = async (): Promise<LoginResponse> => {
     }
 
     return session;
-  } catch (error) {
-    console.error("Session retrieval error:", error);
+  } catch {
     throw new Error("Invalid session.");
   }
 };

@@ -37,8 +37,6 @@ export default function HelpSupportButton() {
             />
           </div>
         </div>
-
-        <span className="text-sm text-basic-800">Help & Support</span>
       </motion.button>
       {open && <HelpSupportWidget onClose={() => setOpen(false)} />}
     </>

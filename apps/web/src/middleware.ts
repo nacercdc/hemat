@@ -1,24 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { refreshAccessToken, setAuthCookies } from "./app/api/utils";
 
 const DASHBOARD = "/";
 const LOGIN = "/login";
 
 const PUBLIC_ROUTES = new Set([LOGIN]);
-
-export function middleware(request: NextRequest) {
-  const { nextUrl, cookies } = request;
-  const pathname = nextUrl.pathname;
-  const token = cookies.get("token")?.value;
-
-  const isPublicRoute = isPublic(pathname);
-
-  if (!token) {
-    return isPublicRoute ? NextResponse.next() : redirectTo(LOGIN, nextUrl);
-  }
-
-  return isPublicRoute ? redirectTo(DASHBOARD, nextUrl) : NextResponse.next();
-}
 
 function isPublic(pathname: string): boolean {
   return (
@@ -29,6 +16,43 @@ function isPublic(pathname: string): boolean {
 
 function redirectTo(path: string, baseUrl: URL): NextResponse {
   return NextResponse.redirect(new URL(path, baseUrl));
+}
+
+export async function middleware(request: NextRequest) {
+  const { nextUrl, cookies } = request;
+  const pathname = nextUrl.pathname;
+
+  const token = cookies.get("token")?.value;
+  const refreshToken = cookies.get("refreshToken")?.value;
+  const expires = cookies.get("expires")?.value;
+
+  const isPublicRoute = isPublic(pathname);
+
+  if (!token) {
+    return isPublicRoute ? NextResponse.next() : redirectTo(LOGIN, nextUrl);
+  }
+
+  const response = NextResponse.next();
+
+  if (refreshToken && expires && Date.now() >= Number(expires)) {
+    try {
+      const session = await refreshAccessToken(refreshToken);
+
+      if (session) {
+        setAuthCookies(response, session);
+      } else {
+        return redirectTo(LOGIN, nextUrl);
+      }
+    } catch {
+      return redirectTo(LOGIN, nextUrl);
+    }
+  }
+
+  if (isPublicRoute) {
+    return redirectTo(DASHBOARD, nextUrl);
+  }
+
+  return response;
 }
 
 export const config = {
