@@ -99,9 +99,10 @@ export class AssessmentAnswerCreateRequestDto {
     example: false,
     type: Boolean,
   })
+  @IsOptional()
   @IsBoolean({ message: 'validation.isPrimary.isBoolean' })
   @Type(() => Boolean)
-  isPrimary: boolean;
+  isPrimary?: boolean;
 }
 
 export class AssessmentAnswerUpdateRequestDto {

@@ -87,6 +87,50 @@ export class AssessmentDomainController {
   }
 
   @ApiOperation({
+    summary: 'Get assessment domains progress',
+    description: 'Get all domains for an assessment with progress for each member/group/role',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Object })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Get('assessments/:assessmentId/domains/progress')
+  async findAllWithProgress(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+  ) {
+    return this.assessmentDomainService.findAllWithProgress(assessmentId);
+  }
+
+  @ApiOperation({
+    summary: 'Get assessment domains primary progress',
+    description: 'Get assessment-level (primary) progress for each domain (isPrimary === true, groupId === null)',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Object })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Get('assessments/:assessmentId/domains/primary-progress')
+  async findPrimaryProgress(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+  ) {
+    return this.assessmentDomainService.findPrimaryProgress(assessmentId);
+  }
+
+  @ApiOperation({
     summary: 'Get one assessment domain',
     description: 'Retrieve a specific domain for an assessment',
   })
@@ -161,5 +205,28 @@ export class AssessmentDomainController {
     @Query() query: FindAllAssessmentComponentDto,
   ) {
     return this.assessmentDomainService.findComponents(id, query);
+  }
+
+  @ApiOperation({
+    summary: 'Get assessment domains group progress',
+    description: 'Get group-level progress for each domain for a specific groupId',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Object })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Get('assessments/:assessmentId/domains/group-progress/:groupId')
+  async findGroupProgress(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('groupId', new ParseUUIDPipe()) groupId: string,
+  ) {
+    return this.assessmentDomainService.findGroupProgress(assessmentId, groupId);
   }
 }

@@ -182,4 +182,37 @@ export class AssessmentSubComponentController {
       query,
     );
   }
+
+  @ApiOperation({
+    summary: 'Get primary answers for a sub-component',
+    description: 'Retrieve only primary answers for a specific sub-component',
+  })
+  @ApiOkResponse({
+    description: 'Ok',
+    type: FindAllResponseDto<AssessmentSubComponentAnswer>,
+  })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT_ANSWER,
+      },
+    ],
+  })
+  @Get(':id/primary-answers')
+  async findPrimaryAnswers(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Request() req: { user: AuthDto },
+    @Query() query: FindAllAssessmentAnswerDto,
+  ): Promise<FindAllResponseDto<AssessmentSubComponentAnswer>> {
+    return this.assessmentSubComponentService.findPrimaryAnswerBySubComponent(
+      id,
+      req.user.id,
+      query,
+    );
+  }
 }
