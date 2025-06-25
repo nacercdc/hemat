@@ -19,23 +19,23 @@ interface FormLanguage {
 
 interface Props {
   scalesLoading?: boolean;
-  createdSubComponentId?: string | null;
+  scalesSuccess?: boolean;
   subComponent?: SubComponent;
   defaultFieldsLoading?: boolean;
   defaultFieldsSuccess?: boolean;
-  scalesSuccess?: boolean;
+  createdSubComponentId?: string | null;
   onScalesSubmit: (data: ScalesFormData) => void;
   onDefaultFieldsSubmit: (data: DefaultFieldsFormData) => void;
 }
 
 export function SubComponentForm({
   subComponent,
-  createdSubComponentId,
   scalesLoading,
   onScalesSubmit,
-  defaultFieldsLoading,
-  defaultFieldsSuccess,
   scalesSuccess,
+  defaultFieldsSuccess,
+  defaultFieldsLoading,
+  createdSubComponentId,
   onDefaultFieldsSubmit,
 }: Props) {
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -58,7 +58,7 @@ export function SubComponentForm({
 
   const shouldShowScalesForm = !!createdSubComponentId || !!subComponent;
 
-  const handleDefaultFieldsSubmit = (data: DefaultFieldsFormData) => {
+  const onDefaultFieldsSubmitHandler = (data: DefaultFieldsFormData) => {
     onDefaultFieldsSubmit(data);
     if (!subComponent) {
       setScalesStepInitialLanguages(data.selectedLanguages || []);
@@ -66,7 +66,7 @@ export function SubComponentForm({
     setCurrentStep(2);
   };
 
-  const handleScalesSubmit = (data: ScalesFormData) => {
+  const onScalesSubmitHandler = (data: ScalesFormData) => {
     onScalesSubmit(data);
   };
 
@@ -132,7 +132,7 @@ export function SubComponentForm({
         <DefaultFieldsForm
           loading={defaultFieldsLoading}
           subComponent={subComponentDetail}
-          onSubmit={handleDefaultFieldsSubmit}
+          onSubmit={onDefaultFieldsSubmitHandler}
         />
       )}
 
@@ -142,28 +142,11 @@ export function SubComponentForm({
           createdSubComponentId={createdSubComponentId}
           loading={scalesLoading}
           item={subComponentDetail}
-          onSubmit={handleScalesSubmit}
+          onSubmit={onScalesSubmitHandler}
           initialSelectedLanguages={scalesStepInitialLanguages}
           onBack={() => setCurrentStep(1)}
         />
       )}
-
-      {/* Show both forms when editing existing subcomponent */}
-      {/* {subComponent && shouldShowScalesForm && (
-        <>
-          <DefaultFieldsForm
-            loading={defaultFieldsLoading}
-            item={subComponentDetail}
-            onSubmit={handleDefaultFieldsSubmit}
-          />
-          <ScalesForm
-            createdSubComponentId={createdSubComponentId}
-            loading={scalesLoading}
-            item={subComponentDetail}
-            onSubmit={handleScalesSubmit}
-          />
-        </>
-      )} */}
     </div>
   );
 }

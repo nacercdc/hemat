@@ -160,8 +160,7 @@ export function ScalesForm({
     }
   }, [scalesField?.map((s) => s.description).join("|")]);
 
-  // Remove language from selectedLanguages
-  const handleRemoveLanguage = (code: string) => {
+  const onRemoveLanguageHandler = (code: string) => {
     setValue(
       "selectedLanguages",
       selectedLanguages.filter((l) => l.code !== code)
@@ -289,7 +288,6 @@ export function ScalesForm({
             </div>
           </div>
         ) : (
-          // Group by language, not by scale
           [
             { code: "en", name: "English" },
             ...selectedLanguages.filter((lang) => lang.code !== "en"),
@@ -305,7 +303,7 @@ export function ScalesForm({
                 <button
                   type="button"
                   className="ml-auto text-xl px-2 py-1 bg-muted/50 rounded-tr-md rounded-bl-md absolute top-0 right-0"
-                  onClick={() => handleRemoveLanguage(lang.code)}
+                  onClick={() => onRemoveLanguageHandler(lang.code)}
                 >
                   <Icon icon="mdi:close" />
                 </button>

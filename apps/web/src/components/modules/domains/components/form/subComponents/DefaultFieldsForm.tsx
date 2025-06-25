@@ -104,10 +104,10 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
 
   const {
     control,
-    handleSubmit,
     reset,
     watch,
     setValue,
+    handleSubmit,
     formState: { errors },
   } = useForm<DefaultFieldsFormData>({
     defaultValues: {
@@ -158,13 +158,11 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
     });
   };
 
-  // Helper to remove a language
-  const handleRemoveLanguage = (code: string) => {
+  const onRemoveLanguageHandler = (code: string) => {
     const newLangs = (selectedLanguages || []).filter((l) => l.code !== code);
     setValue("selectedLanguages", newLangs);
   };
 
-  // Keep English fields in sync with default fields
   const syncEnglishFields = () => {
     const name = watch("name");
     const code = watch("code");
@@ -273,7 +271,7 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
           <button
             type="button"
             className="ml-auto text-xl px-2 py-1 bg-muted/50 rounded-tr-md rounded-bl-md absolute top-0 right-0"
-            onClick={() => handleRemoveLanguage(lang.code)}
+            onClick={() => onRemoveLanguageHandler(lang.code)}
           >
             <Icon icon="mdi:close" />
           </button>
