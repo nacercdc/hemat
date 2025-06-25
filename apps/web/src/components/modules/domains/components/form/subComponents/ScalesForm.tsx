@@ -3,12 +3,7 @@
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import {
-  Button,
-  TextAreaRHF,
-  Accordion,
-  MultiSelectRHF,
-} from "@etm/web-ui-components";
+import { Button, TextAreaRHF, MultiSelectRHF } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Language } from "~/libs/models/language.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
@@ -22,7 +17,7 @@ import { useEffect } from "react";
 import type { SubComponent } from "~/libs/models/subComponent.model";
 import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 import { useGetLanguages } from "~/providers/languages/useGetLanguages";
-import { useActiveList } from "../../../providers/active-list/useActiveList";
+import React from "react";
 
 const languageSchema = z.object({
   name: z.string().min(1, { message: "Language name is required" }),
@@ -91,12 +86,20 @@ export type ScalesFormData = z.infer<typeof scalesSchema>;
 interface Props {
   loading?: boolean;
   item?: SubComponent;
-  onCloseModal?: () => void;
+  createdSubComponentId?: string | null;
   onSubmit: (data: ScalesFormData) => void;
+  initialSelectedLanguages?: Omit<Language, "id">[];
+  onBack?: () => void;
 }
 
-export function ScalesForm({ item, loading, onSubmit, onCloseModal }: Props) {
-  const { subComponentId: createdSubComponentId } = useActiveList();
+export function ScalesForm({
+  item,
+  loading,
+  onSubmit,
+  createdSubComponentId,
+  initialSelectedLanguages,
+  onBack,
+}: Props) {
   const { data: scales, ...scalesState } = useFindAll<
     Scale,
     unknown,
@@ -105,7 +108,7 @@ export function ScalesForm({ item, loading, onSubmit, onCloseModal }: Props) {
   >({
     path: "/measurement-scales",
     tqOptions: {
-      enabled: !item,
+      enabled: item?.measurementScales && item?.measurementScales?.length === 0,
     },
   });
 
@@ -124,19 +127,51 @@ export function ScalesForm({ item, loading, onSubmit, onCloseModal }: Props) {
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<ScalesFormData>({
     defaultValues: {
       scales: [],
-      selectedLanguages: [],
+      selectedLanguages: initialSelectedLanguages
+        ? languageOptions.filter((lang) =>
+            initialSelectedLanguages.some((sel) => sel.code === lang.code)
+          )
+        : [],
     },
     resolver: zodResolver(scalesSchema),
     mode: "all",
   });
 
-  const selectedLanguages = watch("selectedLanguages");
+  const selectedLanguages: Omit<Language, "id">[] =
+    watch("selectedLanguages") || [];
+  const scalesField = watch("scales");
+
+  useEffect(() => {
+    if (scalesField) {
+      scalesField.forEach((scale, idx) => {
+        if (scale.description !== scale.translations?.en?.description) {
+          setValue(
+            `scales.${idx}.translations.en.description`,
+            scale.description,
+            { shouldValidate: false }
+          );
+        }
+      });
+    }
+  }, [scalesField?.map((s) => s.description).join("|")]);
+
+  // Remove language from selectedLanguages
+  const handleRemoveLanguage = (code: string) => {
+    setValue(
+      "selectedLanguages",
+      selectedLanguages.filter((l) => l.code !== code)
+    );
+  };
 
   const getDefaultSelectedLanguages = () => {
+    if (initialSelectedLanguages && initialSelectedLanguages.length > 0) {
+      return initialSelectedLanguages;
+    }
     if (item?.measurementScales && item.measurementScales.length > 0) {
       const firstScale = item.measurementScales[0];
       if (firstScale?.translations) {
@@ -150,6 +185,32 @@ export function ScalesForm({ item, loading, onSubmit, onCloseModal }: Props) {
   };
 
   const defaultSelectedLanguages = getDefaultSelectedLanguages();
+
+  const onFormSubmit = (values: ScalesFormData) => {
+    const filteredScales = values.scales.map((scale) => {
+      const translations = {
+        ...scale.translations,
+        en: { description: scale.description },
+      };
+      const filteredTranslations = Object.fromEntries(
+        Object.entries(translations).filter(
+          ([langCode]) =>
+            langCode === "en" ||
+            (values.selectedLanguages || []).some(
+              (lang) => lang.code === langCode
+            )
+        )
+      );
+      return {
+        ...scale,
+        translations: filteredTranslations,
+      };
+    });
+    onSubmit({
+      scales: filteredScales,
+      selectedLanguages: values.selectedLanguages || [],
+    });
+  };
 
   useEffect(() => {
     if (scales?.data) {
@@ -172,7 +233,7 @@ export function ScalesForm({ item, loading, onSubmit, onCloseModal }: Props) {
             }))
           : scales.data.map((scale) => ({
               measurementScaleId: scale.id,
-              subComponentId: item?.id,
+              subComponentId: item?.id || createdSubComponentId || "",
               description: scale.description,
               translations: defaultSelectedLanguages.reduce(
                 (acc, lang) => {
@@ -184,126 +245,111 @@ export function ScalesForm({ item, loading, onSubmit, onCloseModal }: Props) {
             }));
       reset({
         scales: initialScales,
-        selectedLanguages:
-          defaultSelectedLanguages.length > 0
-            ? defaultSelectedLanguages
-            : selectedLanguages,
+        selectedLanguages: defaultSelectedLanguages,
       });
     } else {
       reset({
         scales: [],
-        selectedLanguages:
-          defaultSelectedLanguages.length > 0 ? defaultSelectedLanguages : [],
+        selectedLanguages: defaultSelectedLanguages,
       });
     }
   }, [scales, createdSubComponentId, item, languages]);
 
-  const onFormSubmit = (values: ScalesFormData) => {
-    const filteredScales = values.scales.map((scale) => {
-      return {
-        id: item?.id,
-        description: scale.description,
-        measurementScaleId: scale.measurementScaleId,
-        subComponentId: scale.subComponentId ?? createdSubComponentId,
-        translations:
-          (values.selectedLanguages || []).length > 0
-            ? Object.fromEntries(
-                Object.entries(scale.translations || {}).filter(([langCode]) =>
-                  (values.selectedLanguages || []).some(
-                    (lang) => lang.code === langCode
-                  )
-                )
-              )
-            : {},
-      };
-    });
+  return (
+    <div className="flex flex-col gap-4 p-2">
+      <form
+        onSubmit={handleSubmit(onFormSubmit)}
+        className="flex flex-col gap-4 max-h-[700px] overflow-x-hidden overflow-y-auto p-4"
+      >
+        <MultiSelectRHF
+          control={control}
+          name="selectedLanguages"
+          placeholder="Select Languages"
+          options={languageOptions}
+          valueKey="code"
+          labelKey="name"
+          displayLabel="Languages"
+          labelVariant="bold"
+          size="lg"
+          loading={languagesState.isLoading}
+          error={errors.selectedLanguages?.message}
+        />
+        {scalesState.isSuccess && scales?.total === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-basic-100 flex items-center justify-center">
+                <Icon
+                  icon="mdi:file-document-outline"
+                  className="w-8 h-8 text-basic-400"
+                />
+              </div>
+              <h3 className="text-lg font-medium text-basic mb-2">
+                No scales found for this sub component
+              </h3>
+            </div>
+          </div>
+        ) : (
+          // Group by language, not by scale
+          [
+            { code: "en", name: "English" },
+            ...selectedLanguages.filter((lang) => lang.code !== "en"),
+          ].map((lang) => (
+            <div
+              key={lang.code}
+              className="rounded-md bg-layout-bg/30 p-4 mb-4 relative"
+            >
+              <span className=" flex items-center mb-3 absolute -top-2 px-2 py-1 bg-destructive-700/10 text-destructive-700 rounded text-xs font-medium mr-2">
+                {lang.name}
+              </span>
+              {lang.code !== "en" && (
+                <button
+                  type="button"
+                  className="ml-auto text-xl px-2 py-1 bg-muted/50 rounded-tr-md rounded-bl-md absolute top-0 right-0"
+                  onClick={() => handleRemoveLanguage(lang.code)}
+                >
+                  <Icon icon="mdi:close" />
+                </button>
+              )}
 
-    onSubmit({
-      scales: filteredScales,
-      selectedLanguages: values.selectedLanguages || [],
-    });
-  };
-
-  const accordionItems = [
-    {
-      value: "scales",
-      trigger: (
-        <div className="flex items-center">
-          <Icon icon="cheveron-down" className="w-4 h-4" />
-          <span className="text-sm font-bold">Measurement scales</span>
-        </div>
-      ),
-      content: (
-        <form
-          onSubmit={handleSubmit(onFormSubmit)}
-          className="flex flex-col gap-4 max-h-[700px] overflow-x-hidden overflow-y-auto p-4"
-        >
-          <MultiSelectRHF<Language, ScalesFormData>
-            control={control}
-            name="selectedLanguages"
-            placeholder="Select Languages"
-            options={languageOptions}
-            valueKey="code"
-            labelKey="name"
-            displayLabel="Languages"
-            labelVariant="bold"
-            size="lg"
-            loading={languagesState.isLoading}
-            error={errors.selectedLanguages?.message}
-          />
-
-          {scalesState.isSuccess && scales?.total === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-4">
-              <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-basic-100 flex items-center justify-center">
-                  <Icon
-                    icon="mdi:file-document-outline"
-                    className="w-8 h-8 text-basic-400"
+              {scales?.data.map((scale, index) => (
+                <div key={scale.id} className="mb-4 mt-2">
+                  <div className="font-semibold mb-1 text-[15px]">
+                    {scale.name}
+                  </div>
+                  <TextAreaRHF<ScalesFormData>
+                    control={control}
+                    name={
+                      lang.code === "en"
+                        ? `scales.${index}.description`
+                        : `scales.${index}.translations.${lang.code}.description`
+                    }
+                    placeholder={`Write ${lang.name} Description for ${scale.name}`}
+                    labelVariant="bold"
+                    rows={4}
+                    error={
+                      lang.code === "en"
+                        ? errors.scales?.[index]?.description?.message
+                        : errors.scales?.[index]?.translations?.[lang.code]
+                            ?.description?.message
+                    }
                   />
                 </div>
-                <h3 className="text-lg font-medium text-basic mb-2">
-                  No scales found for this sub component
-                </h3>
-              </div>
+              ))}
             </div>
-          ) : (
-            scales?.data.map((scale, index) => (
-              <div key={scale.id} className="flex flex-col items-start gap-3">
-                <div className="text-xs font-medium">{`${scale.name}`}</div>
-                <TextAreaRHF<ScalesFormData>
-                  control={control}
-                  name={`scales.${index}.description`}
-                  placeholder={`Write ${scale.name} Description`}
-                  labelVariant="bold"
-                  rows={4}
-                  error={errors.scales?.[index]?.description?.message}
-                />
-                {(selectedLanguages || []).length > 0 &&
-                  (selectedLanguages || []).map((lang) => (
-                    <div key={lang.code} className="flex gap-2 w-full">
-                      <div className="text-sm font-medium">{`${lang.code.toUpperCase()}:`}</div>
-                      <TextAreaRHF<ScalesFormData>
-                        control={control}
-                        name={`scales.${index}.translations.${lang.code}.description`}
-                        placeholder={`Write ${lang.name} Description for ${scale.name}`}
-                        labelVariant="bold"
-                        rows={4}
-                        error={
-                          errors.scales?.[index]?.translations?.[lang.code]
-                            ?.description?.message
-                        }
-                      />
-                    </div>
-                  ))}
-              </div>
-            ))
+          ))
+        )}
+        <div className="flex items-center justify-between w-full gap-4">
+          {onBack && (
+            <Button type="button" variant="outline" size="lg" onClick={onBack}>
+              Back
+            </Button>
           )}
-          <div className="flex items-center justify-end gap-4">
+          <div className="flex items-center gap-4">
             <Button
               type="button"
               variant="outline"
               size="lg"
-              onClick={onCloseModal}
+              onClick={() => reset()}
             >
               Cancel
             </Button>
@@ -311,14 +357,8 @@ export function ScalesForm({ item, loading, onSubmit, onCloseModal }: Props) {
               {item ? "Edit scale" : "Add scale"}
             </Button>
           </div>
-        </form>
-      ),
-    },
-  ];
-
-  return (
-    <div className="flex p-7">
-      <Accordion items={accordionItems} />
+        </div>
+      </form>
     </div>
   );
 }

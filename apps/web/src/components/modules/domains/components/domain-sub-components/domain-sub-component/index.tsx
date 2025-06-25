@@ -3,7 +3,6 @@
 import React, { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import {
-  Button,
   Dialog,
   Drawer,
   DropdownMenu,
@@ -15,7 +14,6 @@ import type { DialogRef, ModalRef } from "@etm/web-ui-components";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
-import { useActiveList } from "../../../providers/active-list/useActiveList";
 import type {
   SubComponentEdit,
   SubComponent,
@@ -25,17 +23,27 @@ import type {
 import ComponentDetail from "./sub-component-detail";
 import { SubComponentForm } from "../../form/subComponents";
 import type { DefaultFieldsFormData } from "../../form/subComponents/DefaultFieldsForm";
+import { ScalesForm } from "../../form/subComponents/ScalesForm";
 import type { ScalesFormData } from "../../form/subComponents/ScalesForm";
+import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 
 interface Props {
   subComponent: SubComponent;
 }
 export function SubComponent({ subComponent }: Props) {
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-  const { setSubComponentId } = useActiveList();
   const editSubComponentModalRef = useRef<ModalRef>(null);
+  const addMeasurementScaleModalRef = useRef<ModalRef>(null);
   const deleteDialogRef = useRef<DialogRef>(null);
   const { toast } = useToast();
+
+  const {
+    mutate: createSubComponentMeasurementScales,
+    ...createSubComponentMeasurementScalesState
+  } = useAddMutation<
+    SubComponentMeasurementScale[],
+    SubComponentMeasurementScaleCreate[]
+  >(`sub-components/${subComponent.id}/measurement-scales`);
 
   const { mutate: editSubComponent, ...editSubComponentState } = usePutMutation<
     SubComponent,
@@ -52,10 +60,6 @@ export function SubComponent({ subComponent }: Props) {
 
   const { mutate: deleteSubComponent, ...deleteSubComponentState } =
     useDeleteMutation(`sub-components/${subComponent.id}`);
-
-  const onSubComponentSelectHandler = () => {
-    setSubComponentId(subComponent.id);
-  };
 
   const onEditSubComponentSubmitHandler = (values: DefaultFieldsFormData) => {
     editSubComponent(
@@ -82,6 +86,35 @@ export function SubComponent({ subComponent }: Props) {
         },
       }
     );
+  };
+
+  const onAddScalesSubmitHandler = (values: ScalesFormData) => {
+    if (subComponent.id) {
+      createSubComponentMeasurementScales(
+        {
+          data: values.scales.map((scale) => ({
+            subComponentId: subComponent.id ?? "",
+            measurementScaleId: scale.measurementScaleId ?? "",
+            description: scale.description ?? "",
+            translations: scale.translations ?? {},
+          })),
+        },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Success",
+              message: "Sub Component measurement scale created successfully",
+              variant: "success",
+            });
+
+            queryClient.invalidateQueries({
+              queryKey: ["subComponents"],
+            });
+            addMeasurementScaleModalRef.current?.closeModal();
+          },
+        }
+      );
+    }
   };
 
   const onEditScalesSubmitHandler = (values: ScalesFormData) => {
@@ -154,6 +187,7 @@ export function SubComponent({ subComponent }: Props) {
               setDrawerOpen(true);
             },
           },
+
           {
             value: "edit",
             label: "Edit",
@@ -178,36 +212,46 @@ export function SubComponent({ subComponent }: Props) {
             ),
             onClick: () => deleteDialogRef.current?.openDialog(),
           },
+          {
+            value: "add-measurement-scale",
+            label: "Add Measurement Scale",
+            leftNode: (
+              <Icon
+                icon="iconamoon:edit-light"
+                className="!text-dark !w-4 !h-4"
+              />
+            ),
+            onClick: () => {
+              addMeasurementScaleModalRef.current?.openModal();
+            },
+          },
         ]}
       />
-      <div
-        className="flex items-center justify-between w-full gap-5 cursor-pointer"
-        onClick={onSubComponentSelectHandler}
-      >
+      <div className="flex items-center justify-between w-full gap-5 ">
         <h5 className="text-sm font-medium">{subComponent?.name}</h5>
-        <Button type="button" variant="ghost">
-          <Icon
-            icon="ion:chevron-back-outline"
-            className="!w-4 !h-4 !text-dark rotate-180"
-          />
-        </Button>
       </div>
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
         {drawerOpen && <ComponentDetail id={subComponent.id} />}
       </Drawer>
-      <Modal ref={editSubComponentModalRef} title={`Edit Sub Component`}>
+      <Modal ref={editSubComponentModalRef} title={`Edit sub component`}>
         <SubComponentForm
           subComponent={subComponent}
           onScalesSubmit={onEditScalesSubmitHandler}
           defaultFieldsLoading={editSubComponentState.isPending}
           onDefaultFieldsSubmit={onEditSubComponentSubmitHandler}
           scalesLoading={editSubComponentMeasurementScalesState.isPending}
-          onCloseModal={() => editSubComponentModalRef.current?.closeModal()}
+        />
+      </Modal>
+      <Modal ref={addMeasurementScaleModalRef} title={`Add Measurement Scale`}>
+        <ScalesForm
+          onSubmit={onAddScalesSubmitHandler}
+          createdSubComponentId={subComponent.id}
+          loading={createSubComponentMeasurementScalesState.isPending}
         />
       </Modal>
       <Dialog
         ref={deleteDialogRef}
-        title={`Delete Sub Component`}
+        title={`Delete sub component`}
         actionLabel="Delete"
         actionVariant="destructive"
         onAction={onDeleteHandler}

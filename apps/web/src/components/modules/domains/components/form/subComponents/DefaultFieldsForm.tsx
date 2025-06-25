@@ -15,6 +15,7 @@ import type { Language } from "~/libs/models/language.model";
 import { useGetLanguages } from "~/providers/languages/useGetLanguages";
 import type { SubComponent } from "~/libs/models/subComponent.model";
 import { DEFAULT_LANGUAGE_CODE } from "~/constants";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 const languageSchema = z.object({
   name: z.string().min(1, { message: "Language name is required" }),
@@ -86,17 +87,11 @@ export type DefaultFieldsFormData = z.infer<typeof defaultFieldsSchema>;
 
 interface Props {
   loading?: boolean;
-  item?: SubComponent;
-  onCloseModal?: () => void;
+  subComponent?: SubComponent;
   onSubmit: (data: DefaultFieldsFormData) => void;
 }
 
-export function DefaultFieldsForm({
-  item,
-  loading,
-  onSubmit,
-  onCloseModal,
-}: Props) {
+export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
   const { data: languages, ...languagesState } = useGetLanguages();
 
   const languageOptions: Language[] = languages?.data
@@ -112,26 +107,41 @@ export function DefaultFieldsForm({
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<DefaultFieldsFormData>({
     defaultValues: {
-      name: item?.name ?? "",
-      description: item?.description ?? "",
-      code: item?.code ?? "",
-      translations: item?.translations ?? {},
-      selectedLanguages: [],
+      name: subComponent?.name ?? "",
+      description: subComponent?.description ?? "",
+      code: subComponent?.code ?? "",
+      translations: subComponent?.translations ?? {},
+      selectedLanguages:
+        languageOptions.filter((lang) =>
+          Object.keys(subComponent?.translations || {}).includes(lang.code)
+        ) || [],
     },
     resolver: zodResolver(defaultFieldsSchema),
     mode: "all",
   });
 
-  const selectedLanguages = watch("selectedLanguages");
+  const selectedLanguages: Omit<Language, "id">[] =
+    watch("selectedLanguages") || [];
 
   const onFormSubmit = (values: DefaultFieldsFormData) => {
+    const translations = {
+      ...values.translations,
+      en: {
+        name: values.name,
+        code: values.code,
+        description: values.description,
+      },
+    };
     const filteredTranslations = Object.fromEntries(
-      Object.entries(values.translations || {})
-        .filter(([key]) =>
-          values.selectedLanguages?.some((lang) => lang.code === key)
+      Object.entries(translations)
+        .filter(
+          ([key]) =>
+            key === "en" ||
+            values.selectedLanguages?.some((lang) => lang.code === key)
         )
         .map(([key, value]) => [
           key,
@@ -148,20 +158,47 @@ export function DefaultFieldsForm({
     });
   };
 
+  // Helper to remove a language
+  const handleRemoveLanguage = (code: string) => {
+    const newLangs = (selectedLanguages || []).filter((l) => l.code !== code);
+    setValue("selectedLanguages", newLangs);
+  };
+
+  // Keep English fields in sync with default fields
+  const syncEnglishFields = () => {
+    const name = watch("name");
+    const code = watch("code");
+    const description = watch("description");
+    setValue("translations.en.name", name, { shouldValidate: false });
+    setValue("translations.en.code", code, { shouldValidate: false });
+    setValue("translations.en.description", description, {
+      shouldValidate: false,
+    });
+  };
+
   useEffect(() => {
-    if (item && languageOptions.length > 0) {
-      const translationLangCodes = Object.keys(item.translations || {});
+    const subscription = watch((value, { name: changed }) => {
+      if (["name", "code", "description"].includes(changed || "")) {
+        syncEnglishFields();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  useEffect(() => {
+    if (subComponent && languageOptions.length > 0) {
+      const translationLangCodes = Object.keys(subComponent.translations || {});
       const initialSelectedLanguages = languageOptions.filter((lang) =>
         translationLangCodes.includes(lang.code)
       );
       reset({
-        name: item.name,
-        description: item.description,
-        code: item.code,
-        translations: item.translations,
+        name: subComponent.name,
+        description: subComponent.description,
+        code: subComponent.code,
+        translations: subComponent.translations,
         selectedLanguages: initialSelectedLanguages,
       });
-    } else if (!item) {
+    } else if (!subComponent) {
       reset({
         name: "",
         code: "",
@@ -170,13 +207,12 @@ export function DefaultFieldsForm({
         selectedLanguages: [],
       });
     }
-  }, [item, languages]);
+  }, [subComponent, languages]);
 
   return (
     <form
       onSubmit={handleSubmit(onFormSubmit)}
-      className="flex flex-col gap-4 p-4 px-7 min-h-[500px] max-h-[700px] overflow-x-hidden overflow-y-auto
-      "
+      className="flex flex-col gap-4 p-4 px-7 min-h-[500px] h-full overflow-x-hidden overflow-y-auto"
     >
       <MultiSelectRHF
         control={control}
@@ -191,84 +227,95 @@ export function DefaultFieldsForm({
         loading={languagesState.isLoading}
         error={errors.selectedLanguages?.message}
       />
-      <InputRHF<DefaultFieldsFormData>
-        control={control}
-        name="name"
-        label="Name"
-        placeholder="Write Default Name"
-        size="xl"
-        labelVariant="bold"
-        error={errors.name?.message}
-      />
-      {selectedLanguages?.map((lang) => (
-        <div key={lang.code} className="flex gap-2">
-          <div className="text-sm font-medium">{`${lang.code.toUpperCase()}:`}</div>
-          <InputRHF<DefaultFieldsFormData>
+      {/* English translation (default, not removable) */}
+      <div className="rounded-md bg-layout-bg/30 p-4 mb-4 relative">
+        <span className=" flex items-center mb-3 absolute -top-2 px-2 py-1 bg-destructive-700/10 text-destructive-700 rounded text-xs font-medium mr-2">
+          English
+        </span>
+
+        <div className="grid grid-cols-2 gap-4 mb-2 mt-2">
+          <InputRHF
             control={control}
-            name={`translations.${lang.code}.name`}
-            placeholder={`Write ${lang.name} Name`}
-            size="xl"
+            name="name"
+            placeholder="Write sub-component name"
+            label="Name"
             labelVariant="bold"
-            error={errors.translations?.[lang.code]?.name?.message}
+            error={errors.name?.message}
+          />
+          <InputRHF
+            control={control}
+            name="code"
+            placeholder="Write Code"
+            label="Code"
+            labelVariant="bold"
+            error={errors.code?.message}
           />
         </div>
-      ))}
-      <InputRHF<DefaultFieldsFormData>
-        control={control}
-        name="code"
-        label="Code"
-        placeholder="Write Default Code"
-        size="xl"
-        labelVariant="bold"
-        error={errors.code?.message}
-      />
+        <TextAreaRHF
+          control={control}
+          name="description"
+          placeholder="Write description ..."
+          label="Description"
+          labelVariant="bold"
+          error={errors.description?.message}
+        />
+      </div>
+      {/* Other selected languages */}
       {selectedLanguages?.map((lang) => (
-        <div key={lang.code} className="flex gap-2">
-          <div className="text-sm font-medium">{`${lang.code.toUpperCase()}:`}</div>
-          <InputRHF<DefaultFieldsFormData>
-            control={control}
-            name={`translations.${lang.code}.code`}
-            placeholder={`Write ${lang.name} Code`}
-            size="xl"
-            labelVariant="bold"
-            error={errors.translations?.[lang.code]?.code?.message}
-          />
-        </div>
-      ))}
-      <TextAreaRHF<DefaultFieldsFormData>
-        control={control}
-        name="description"
-        label="Description"
-        placeholder="Write Default Description..."
-        labelVariant="bold"
-        rows={4}
-        error={errors.description?.message}
-      />
-      {selectedLanguages?.map((lang) => (
-        <div key={lang.code} className="flex gap-2">
-          <div className="text-sm font-medium">{`${lang.code.toUpperCase()}:`}</div>
-          <TextAreaRHF<DefaultFieldsFormData>
+        <div
+          key={lang.code}
+          className="rounded-md bg-layout-bg/30 p-4 mb-4 relative"
+        >
+          <span className=" flex items-center mb-3 absolute -top-2 px-2 py-1 bg-destructive-700/10 text-destructive-700 rounded text-xs font-medium mr-2">
+            {lang.name}
+          </span>
+
+          <button
+            type="button"
+            className="ml-auto text-xl px-2 py-1 bg-muted/50 rounded-tr-md rounded-bl-md absolute top-0 right-0"
+            onClick={() => handleRemoveLanguage(lang.code)}
+          >
+            <Icon icon="mdi:close" />
+          </button>
+          <div className="grid grid-cols-2 gap-4 mb-2 mt-2">
+            <InputRHF
+              control={control}
+              name={`translations.${lang.code}.name`}
+              placeholder="Write sub-component name"
+              label="Name"
+              labelVariant="bold"
+              error={errors.translations?.[lang.code]?.name?.message}
+            />
+            <InputRHF
+              control={control}
+              name={`translations.${lang.code}.code`}
+              placeholder="Write Code"
+              label="Code"
+              labelVariant="bold"
+              error={errors.translations?.[lang.code]?.code?.message}
+            />
+          </div>
+          <TextAreaRHF
             control={control}
             name={`translations.${lang.code}.description`}
-            placeholder={`Write ${lang.name} Description...`}
+            placeholder="Write description ..."
+            label="Description"
             labelVariant="bold"
-            rows={4}
             error={errors.translations?.[lang.code]?.description?.message}
           />
         </div>
       ))}
-
-      <div className="flex items-center justify-end gap-4">
+      <div className="flex items-center justify-end gap-4 mt-auto">
         <Button
           type="button"
           variant="outline"
           size="lg"
-          onClick={onCloseModal}
+          onClick={() => reset()}
         >
           Cancel
         </Button>
         <Button type="submit" size="lg" loading={loading}>
-          {item ? "Edit" : "Add"}
+          {subComponent ? "Edit" : "Add"}
         </Button>
       </div>
     </form>
