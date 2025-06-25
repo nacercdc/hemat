@@ -23,6 +23,7 @@ import {
   FindAllAssessmentComponentDto,
   FindAllAssessmentDomainDto,
 } from '../dtos';
+import { getTranslated } from '@shared/helpers/translation.helper';
 
 interface AssessmentDomainWithCounts extends AssessmentDomain {
   componentsCount: number;
@@ -103,14 +104,19 @@ export class AssessmentDomainService {
       })
       .groupBy('domain.id');
 
-    query.search && qb.andWhere('(domain.code ILIKE :search OR domain.name ILIKE :search)', {
-      search: `%${query.search}%`,
-    });
+    query.search &&
+      qb.andWhere('(domain.code ILIKE :search OR domain.name ILIKE :search)', {
+        search: `%${query.search}%`,
+      });
 
-    const sortFields = query.ascending?.length ? query.ascending : query.descending?.length ? query.descending : ['createdAt'];
+    const sortFields = query.ascending?.length
+      ? query.ascending
+      : query.descending?.length
+        ? query.descending
+        : ['createdAt'];
     const sortOrder = query.ascending?.length ? 'ASC' : 'DESC';
-    
-    sortFields.forEach(field => qb.addOrderBy(`domain.${field}`, sortOrder));
+
+    sortFields.forEach((field) => qb.addOrderBy(`domain.${field}`, sortOrder));
 
     const [domains, total] = await Promise.all([
       qb.skip(query.skip).take(query.take).getRawMany(),
@@ -164,7 +170,7 @@ export class AssessmentDomainService {
 
   async findComponents(
     id: string,
-    query: FindAllAssessmentComponentDto,
+    query: FindAllAssessmentComponentDto & { language?: string },
   ): Promise<FindAllResponseDto<AssessmentComponent>> {
     const domain = await this.assessmentDomainRepository.findOne({
       where: { id },
@@ -173,20 +179,49 @@ export class AssessmentDomainService {
       throw new NotFoundException(`Domain ${id} not found.`);
     }
 
-    return await new QueryService<AssessmentComponent>(
-      this.assessmentComponentRepository,
-    )
-      .filter([], {
-        fields: ['code', 'name'],
-        value: query.search,
-      })
-      .sort({ ascending: query.ascending, descending: query.descending })
-      .take(query.take)
-      .skip(query.skip)
-      .getManyAndCount();
+    // Only fetch components for this domainId
+    const qb = this.assessmentComponentRepository
+      .createQueryBuilder('component')
+      .where('component.domainId = :domainId', { domainId: id });
+
+    if (query.search) {
+      qb.andWhere('component.code ILIKE :search OR component.name ILIKE :search', {
+        search: `%${query.search}%`,
+      });
+    }
+
+    const sortFields = query.ascending?.length
+      ? query.ascending
+      : query.descending?.length
+        ? query.descending
+        : ['createdAt'];
+    const sortOrder = query.ascending?.length ? 'ASC' : 'DESC';
+    sortFields.forEach((field) => qb.addOrderBy(`component.${field}`, sortOrder));
+
+    const [components, total] = await Promise.all([
+      qb.skip(query.skip).take(query.take).getMany(),
+      qb.getCount(),
+    ]);
+
+    // Add translation if language param is provided
+    const language = query.language;
+    const data = language
+      ? components.map((component) => ({
+          ...component,
+          name: getTranslated(component, language, 'name', component.name),
+          description: getTranslated(component, language, 'description', component.description),
+        }))
+      : components;
+
+    return {
+      data,
+      total,
+    };
   }
 
-  private filters(query: FindAllAssessmentDomainDto & { assessmentId?: string }): Filter[] {
+  private filters(
+    query: FindAllAssessmentDomainDto & { assessmentId?: string },
+  ): Filter[] {
     const filters: Filter[] = [];
     if (typeof query.isActive === 'boolean') {
       filters.push({
@@ -208,7 +243,7 @@ export class AssessmentDomainService {
   /**
    * Fetch all domains for an assessment, including progress for each member/group/role.
    */
-  async findAllWithProgress(assessmentId: string) {
+  async findAllWithProgress(assessmentId: string, language?: string) {
     // 1. Get all domains for the assessment
     const domains = await this.assessmentDomainRepository.find({
       where: { assessmentId },
@@ -216,16 +251,24 @@ export class AssessmentDomainService {
     });
 
     // 2. Get all members for the assessment (include group relation)
-    const members = await this.assessmentMemberRepository.find({ where: { assessmentId }, relations: ['group'] });
+    const members = await this.assessmentMemberRepository.find({
+      where: { assessmentId },
+      relations: ['group'],
+    });
 
     // 3. Get all answers for the assessment
-    const answers = await this.answerRepository.find({ where: { assessmentId } });
+    const answers = await this.answerRepository.find({
+      where: { assessmentId },
+    });
 
     // 4. Get all subcomponent answers for the assessment
     const subComponentAnswers = await this.subComponentAnswerRepository.find();
 
     // 5. Build group map
-    const groupMap: Record<string, { groupId: string, groupName: string, members: any[] }> = {};
+    const groupMap: Record<
+      string,
+      { groupId: string; groupName: string; members: any[] }
+    > = {};
     for (const member of members) {
       const groupId = member.groupId ? String(member.groupId) : 'nogroup';
       if (!groupMap[groupId]) {
@@ -243,32 +286,55 @@ export class AssessmentDomainService {
 
     // 6. For each group, build domains progress
     const data = Object.values(groupMap).map((group) => {
-      const groupMembers = members.filter(m => (m.groupId ? String(m.groupId) : 'nogroup') === group.groupId);
-      const domainsProgress = domains.map(domain => {
+      const groupMembers = members.filter(
+        (m) => (m.groupId ? String(m.groupId) : 'nogroup') === group.groupId,
+      );
+      const domainsProgress = domains.map((domain) => {
+        const domainName = getTranslated(domain, language, 'name', domain.name);
+        const domainDescription = getTranslated(
+          domain,
+          language,
+          'description',
+          domain.description,
+        );
         const components = domain.components || [];
-        const subComponents = components.flatMap((c: any) => c.subComponents || []);
+        const subComponents = components.flatMap((c: any) =>
+          Array.isArray(c.subComponents) ? c.subComponents : [],
+        );
         const subComponentIds = subComponents.map((sc: any) => sc.id);
         const componentsCount = components.length;
         const subComponentsCount = subComponentIds.length;
 
         // Get all group answers for this group and domain (isPrimary: false)
         const groupAnswerIds = answers
-          .filter(a => (a.groupId ? String(a.groupId) : 'nogroup') === group.groupId && a.isPrimary === false)
-          .map(a => a.id);
+          .filter(
+            (a) =>
+              (a.groupId ? String(a.groupId) : 'nogroup') === group.groupId &&
+              a.isPrimary === false,
+          )
+          .map((a) => a.id);
 
         // Get all subcomponent answers for those answers, for subcomponents in this domain
         const filledSubComponentIds = new Set(
           subComponentAnswers
-            .filter(sca => groupAnswerIds.includes(sca.answerId) && subComponentIds.includes(sca.subComponentId))
-            .map(sca => sca.subComponentId)
+            .filter(
+              (sca) =>
+                groupAnswerIds.includes(sca.answerId) &&
+                subComponentIds.includes(sca.subComponentId),
+            )
+            .map((sca) => sca.subComponentId),
         );
 
         const answeredSubComponents = filledSubComponentIds.size;
         const totalSubComponents = subComponentsCount;
-        const percentage = totalSubComponents > 0 ? Math.round((answeredSubComponents / totalSubComponents) * 100) : 0;
+        const percentage =
+          totalSubComponents > 0
+            ? Math.round((answeredSubComponents / totalSubComponents) * 100)
+            : 0;
         return {
           id: domain.id,
-          name: domain.name,
+          name: domainName,
+          description: domainDescription,
           componentsCount,
           subComponentsCount,
           answeredSubComponents,
@@ -292,7 +358,7 @@ export class AssessmentDomainService {
   /**
    * Get assessment-level (primary) progress for each domain (isPrimary === true, groupId === null)
    */
-  async findPrimaryProgress(assessmentId: string) {
+  async findPrimaryProgress(assessmentId: string, language?: string) {
     // 1. Get all domains for the assessment
     const domains = await this.assessmentDomainRepository.find({
       where: { assessmentId },
@@ -306,14 +372,17 @@ export class AssessmentDomainService {
 
     // If there are no primary answers, return all zeros
     if (primaryAnswers.length === 0) {
-      const data = domains.map(domain => {
+      const data = domains.map((domain) => {
         const components = domain.components || [];
-        const subComponents = components.flatMap((c: any) => c.subComponents || []);
+        const subComponents = components.flatMap(
+          (c: any) => c.subComponents || [],
+        );
         const componentsCount = components.length;
         const subComponentsCount = subComponents.length;
         return {
           id: domain.id,
-          name: domain.name,
+          name: getTranslated(domain, language, 'name', domain.name),
+          description: getTranslated(domain, language, 'description', domain.description),
           componentsCount,
           subComponentsCount,
           answeredSubComponents: 0,
@@ -330,11 +399,15 @@ export class AssessmentDomainService {
     // 4. For each domain, calculate progress (only for the primary user's answers)
     // Assume only one primary user per assessment
     const primaryUserId = primaryAnswers[0].userId;
-    const primaryAnswerIds = primaryAnswers.filter(a => a.userId === primaryUserId).map(a => a.id);
+    const primaryAnswerIds = primaryAnswers
+      .filter((a) => a.userId === primaryUserId)
+      .map((a) => a.id);
 
-    const data = domains.map(domain => {
+    const data = domains.map((domain) => {
       const components = domain.components || [];
-      const subComponents = components.flatMap((c: any) => c.subComponents || []);
+      const subComponents = components.flatMap(
+        (c: any) => c.subComponents || [],
+      );
       const subComponentIds = subComponents.map((sc: any) => sc.id);
       const componentsCount = components.length;
       const subComponentsCount = subComponentIds.length;
@@ -342,16 +415,24 @@ export class AssessmentDomainService {
       // Only count subcomponent answers by the primary user
       const filledSubComponentIds = new Set(
         subComponentAnswers
-          .filter(sca => primaryAnswerIds.includes(sca.answerId) && subComponentIds.includes(sca.subComponentId))
-          .map(sca => sca.subComponentId)
+          .filter(
+            (sca) =>
+              primaryAnswerIds.includes(sca.answerId) &&
+              subComponentIds.includes(sca.subComponentId),
+          )
+          .map((sca) => sca.subComponentId),
       );
 
       const answeredSubComponents = filledSubComponentIds.size;
       const totalSubComponents = subComponentsCount;
-      const percentage = totalSubComponents > 0 ? Math.round((answeredSubComponents / totalSubComponents) * 100) : 0;
+      const percentage =
+        totalSubComponents > 0
+          ? Math.round((answeredSubComponents / totalSubComponents) * 100)
+          : 0;
       return {
         id: domain.id,
-        name: domain.name,
+        name: getTranslated(domain, language, 'name', domain.name),
+        description: getTranslated(domain, language, 'description', domain.description),
         componentsCount,
         subComponentsCount,
         answeredSubComponents,
@@ -368,7 +449,7 @@ export class AssessmentDomainService {
   /**
    * Get group-level progress for each domain for a specific groupId
    */
-  async findGroupProgress(assessmentId: string, groupId: string) {
+  async findGroupProgress(assessmentId: string, groupId: string, language?: string) {
     // 1. Get all domains for the assessment
     const domains = await this.assessmentDomainRepository.find({
       where: { assessmentId },
@@ -384,27 +465,37 @@ export class AssessmentDomainService {
     const subComponentAnswers = await this.subComponentAnswerRepository.find();
 
     // 4. For each domain, calculate progress
-    const data = domains.map(domain => {
+    const data = domains.map((domain) => {
       const components = domain.components || [];
-      const subComponents = components.flatMap((c: any) => c.subComponents || []);
+      const subComponents = components.flatMap(
+        (c: any) => c.subComponents || [],
+      );
       const subComponentIds = subComponents.map((sc: any) => sc.id);
       const componentsCount = components.length;
       const subComponentsCount = subComponentIds.length;
 
       // Get all subcomponent answers for group answers, for subcomponents in this domain
-      const groupAnswerIds = groupAnswers.map(a => a.id);
+      const groupAnswerIds = groupAnswers.map((a) => a.id);
       const filledSubComponentIds = new Set(
         subComponentAnswers
-          .filter(sca => groupAnswerIds.includes(sca.answerId) && subComponentIds.includes(sca.subComponentId))
-          .map(sca => sca.subComponentId)
+          .filter(
+            (sca) =>
+              groupAnswerIds.includes(sca.answerId) &&
+              subComponentIds.includes(sca.subComponentId),
+          )
+          .map((sca) => sca.subComponentId),
       );
 
       const answeredSubComponents = filledSubComponentIds.size;
       const totalSubComponents = subComponentsCount;
-      const percentage = totalSubComponents > 0 ? Math.round((answeredSubComponents / totalSubComponents) * 100) : 0;
+      const percentage =
+        totalSubComponents > 0
+          ? Math.round((answeredSubComponents / totalSubComponents) * 100)
+          : 0;
       return {
         id: domain.id,
-        name: domain.name,
+        name: getTranslated(domain, language, 'name', domain.name),
+        description: getTranslated(domain, language, 'description', domain.description),
         componentsCount,
         subComponentsCount,
         answeredSubComponents,
