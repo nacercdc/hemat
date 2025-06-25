@@ -10,7 +10,7 @@ export interface HeaderRef {
 }
 
 interface Props {
-  pageTitle: string;
+  pageTitle: string | React.ReactNode;
   breadcrumb?: boolean;
   actions?: React.ReactNode;
   onBack?: () => void;

@@ -14,7 +14,7 @@ import GroupsList from "../../members/GroupsList";
 import LabeledValue from "./components/LabeledValue";
 import MemberRoleCard from "../../members/MemberRoleCard";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
-import { formatDateToYYYYMMDD } from "@etm/utilities";
+import { formatDateToYYYYMMDD, formatToMonthDayYear } from "@etm/utilities";
 
 export default function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
@@ -60,7 +60,7 @@ export default function AssessmentOverview() {
             <LabeledValue label="Name :" value={assessment?.name} />
             <LabeledValue
               label="Created By :"
-              value={`${assessment?.user.name} `}
+              value={`${assessment?.user?.name} `}
             />
             <LabeledValue label="Country :" value={assessment?.country.name} />
             <LabeledValue
@@ -75,6 +75,7 @@ export default function AssessmentOverview() {
                   <div className="flex flex-wrap gap-1 ">
                     {assessment?.languages?.map((lang) => (
                       <Badge
+                        key={lang.code}
                         text={`${lang?.name}`}
                         shape={"circular"}
                         variant={"success"}
@@ -90,21 +91,27 @@ export default function AssessmentOverview() {
           <div className="flex flex-col gap-3">
             <LabeledValue
               label="Start Date :"
-              value={
-                assessment?.startDate
-                  ? formatDateToYYYYMMDD(
-                      assessment.startDate as unknown as Date
-                    )
-                  : undefined
-              }
+              value={formatToMonthDayYear(
+                assessment?.startDate as unknown as string
+              )}
+              // value={
+              //   assessment?.startDate
+              //     ? formatDateToYYYYMMDD(
+              //         assessment.startDate as unknown as Date
+              //       )
+              //     : undefined
+              // }
             />
             <LabeledValue
               label="End Date :"
-              value={
-                assessment?.endDate
-                  ? formatDateToYYYYMMDD(assessment.endDate as unknown as Date)
-                  : undefined
-              }
+              value={formatToMonthDayYear(
+                assessment?.endDate as unknown as string
+              )}
+              // value={
+              //   assessment?.endDate
+              //     ? formatDateToYYYYMMDD(assessment.endDate as unknown as Date)
+              //     : undefined
+              // }
             />
           </div>
         </div>

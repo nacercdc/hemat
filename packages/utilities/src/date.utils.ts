@@ -47,3 +47,12 @@ export const parseYYYYMMDDToDate = (dateString: string): Date => {
   const [year, month, day] = dateString.split("-").map(Number);
   return new Date(year!, month! - 1, day);
 };
+
+export const formatToMonthDayYear = (isoDate: string): string => {
+  const date = new Date(isoDate);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
