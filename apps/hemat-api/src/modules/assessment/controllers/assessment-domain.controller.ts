@@ -7,6 +7,7 @@ import {
   HttpCode,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -31,6 +32,8 @@ import {
   FindAllAssessmentDomainDto,
 } from '../dtos';
 import { ParseUUIDPipe } from '@nestjs/common';
+import { Request } from 'express';
+import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Domains')
@@ -88,7 +91,8 @@ export class AssessmentDomainController {
 
   @ApiOperation({
     summary: 'Get assessment domains progress',
-    description: 'Get all domains for an assessment with progress for each member/group/role',
+    description:
+      'Get all domains for an assessment with progress for each member/group/role',
   })
   @ApiOkResponse({ description: 'Ok', type: Object })
   @HttpCode(200)
@@ -102,34 +106,21 @@ export class AssessmentDomainController {
     ],
   })
   @Get('assessments/:assessmentId/domains/progress')
-  async findAllWithProgress(
+  @UseGuards(AssessmentRoleGuard)
+  async getDomainProgress(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Req() req: Request,
     @Query('language') language?: string,
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
   ) {
-    return this.assessmentDomainService.findAllWithProgress(assessmentId, language);
-  }
-
-  @ApiOperation({
-    summary: 'Get assessment domains primary progress',
-    description: 'Get assessment-level (primary) progress for each domain (isPrimary === true, groupId === null)',
-  })
-  @ApiOkResponse({ description: 'Ok', type: Object })
-  @HttpCode(200)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.READ,
-        subject: PermissionSubjectEnum.ASSESSMENT,
-      },
-    ],
-  })
-  @Get('assessments/:assessmentId/domains/primary-progress')
-  async findPrimaryProgress(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Query('language') language?: string,
-  ) {
-    return this.assessmentDomainService.findPrimaryProgress(assessmentId, language);
+    const userId = req.user.id;
+    return this.assessmentDomainService.getProgress(
+      assessmentId,
+      { language, page, pageSize },
+      userId,
+      req,
+    );
   }
 
   @ApiOperation({
@@ -207,30 +198,9 @@ export class AssessmentDomainController {
     @Query() query: FindAllAssessmentComponentDto,
     @Query('language') language?: string,
   ) {
-    return this.assessmentDomainService.findComponents(id, { ...query, language });
-  }
-
-  @ApiOperation({
-    summary: 'Get assessment domains group progress',
-    description: 'Get group-level progress for each domain for a specific groupId',
-  })
-  @ApiOkResponse({ description: 'Ok', type: Object })
-  @HttpCode(200)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.READ,
-        subject: PermissionSubjectEnum.ASSESSMENT,
-      },
-    ],
-  })
-  @Get('assessments/:assessmentId/domains/group-progress/:groupId')
-  async findGroupProgress(
-    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('groupId', new ParseUUIDPipe()) groupId: string,
-    @Query('language') language?: string,
-  ) {
-    return this.assessmentDomainService.findGroupProgress(assessmentId, groupId, language);
+    return this.assessmentDomainService.findComponents(id, {
+      ...query,
+      language,
+    });
   }
 }

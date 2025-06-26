@@ -36,6 +36,7 @@ import {
   FindOneAssessmentDto,
   AssessmentCreateRequestDto,
   AssessmentUpdateRequestDto,
+  AssessmentDto,
 } from '../dtos';
 
 @ApiBearerAuth()
@@ -62,16 +63,6 @@ import {
 export class AssessmentController {
   constructor(private readonly assessmentService: AssessmentService) {}
 
-  @ApiOperation({
-    summary: 'Get assessments for the logged-in user',
-    description: 'Returns all assessments where the logged-in user is a member.'
-  })
-  @ApiOkResponse({ description: 'Ok', type: [Assessment] })
-  @Get('me')
-  async getMyAssessments(@Request() req: { user: AuthDto }) {
-    return this.assessmentService.findAssessmentsByUser(req.user.id);
-  }
-
   @ApiOperation({ summary: 'Find one', description: 'Get an assessment by ID' })
   @ApiOkResponse({ description: 'Ok', type: Assessment })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -88,9 +79,10 @@ export class AssessmentController {
   @Get(':id')
   async findOne(
     @Param('id', new ParseUUIDPipe()) id: string,
+    @Request() req: { user: AuthDto },
     @Query() query: FindOneAssessmentDto,
   ) {
-    return this.assessmentService.findOne(id, query);
+    return this.assessmentService.findOneWithMember(id, req.user.id, query);
   }
 
   @ApiOperation({
@@ -110,8 +102,8 @@ export class AssessmentController {
     ],
   })
   @Get()
-  async findAll(@Query() query: FindAllAssessmentDto) {
-    return this.assessmentService.findAll(query);
+  async findAll(@Request() req: { user: AuthDto }, @Query() query: FindAllAssessmentDto) {
+    return this.assessmentService.findAll(query, req.user);
   }
 
   @ApiOperation({ summary: 'Create', description: 'Create a new assessment' })
@@ -134,8 +126,9 @@ export class AssessmentController {
   async create(
     @Request() req: { user: AuthDto },
     @Body() payload: AssessmentCreateRequestDto,
-  ) {
-    return this.assessmentService.create(req.user.id, payload);
+  ): Promise<AssessmentDto> {
+    const assessment = await this.assessmentService.create(req.user.id, payload);
+    return new AssessmentDto(assessment);
   }
 
   @ApiOperation({
@@ -214,18 +207,5 @@ export class AssessmentController {
   @Post(':id/restore')
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.assessmentService.restore(id);
-  }
-
-  @ApiOperation({
-    summary: 'Get logged-in user\'s role and group for an assessment',
-    description: 'Returns the user\'s role and group for the given assessment.'
-  })
-  @ApiOkResponse({ description: 'Ok', schema: { example: { role: 'TEAM_MEMBER', groupId: 'uuid' } } })
-  @Get(':id/me')
-  async getMyAssessmentRoleAndGroup(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Request() req: { user: AuthDto }
-  ) {
-    return this.assessmentService.findUserRoleAndGroupInAssessment(id, req.user.id);
   }
 }

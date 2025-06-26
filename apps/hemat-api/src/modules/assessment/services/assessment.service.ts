@@ -21,6 +21,7 @@ import { AssessmentSubComponentService } from './assessment-sub-component.servic
 import { AssessmentMeasurementScaleService } from './assessment-measuremnt-scale.service';
 import { AssessmentMeasurementScaleSubComponentService } from './assessment-measuremnt-scale-sub-component.service';
 import { AssessmentMemberService } from './assessment-member.service';
+import { AuthDto } from '@shared/modules';
 
 @Injectable()
 export class AssessmentService {
@@ -42,14 +43,32 @@ export class AssessmentService {
 
   async findAll(
     query: FindAllAssessmentDto,
+    user: AuthDto,
   ): Promise<FindAllResponseDto<Assessment>> {
-    return await new QueryService<Assessment>(this.assessmentRepository)
-      .join([...(query.include || []), 'country', 'languages'])
-      .filter(this.filters(query), { fields: ['name'], value: query.search })
-      .sort({ ascending: query.ascending, descending: query.descending })
-      .take(query.take)
-      .skip(query.skip)
-      .getManyAndCount();
+    if (user.isAdmin) {
+      return await new QueryService<Assessment>(this.assessmentRepository)
+        .join([...(query.include || []), 'country', 'languages'])
+        .filter(this.filters(query), { fields: ['name'], value: query.search })
+        .sort({ ascending: query.ascending, descending: query.descending })
+        .take(query.take)
+        .skip(query.skip)
+        .getManyAndCount();
+    } else {
+      // Only fetch assessments where user is a member
+      const memberRecords = await this.assessmentMemberService.findByUser(user.id);
+      const assessmentIds = memberRecords.map(m => m.assessmentId);
+      if (!assessmentIds.length) return { data: [], total: 0 };
+      return await new QueryService<Assessment>(this.assessmentRepository)
+        .join([...(query.include || []), 'country', 'languages'])
+        .filter([
+          ...this.filters(query),
+          { field: 'id', operator: 'IN' as const, value: assessmentIds },
+        ], { fields: ['name'], value: query.search })
+        .sort({ ascending: query.ascending, descending: query.descending })
+        .take(query.take)
+        .skip(query.skip)
+        .getManyAndCount();
+    }
   }
 
   async findOne(id: string, query: FindOneAssessmentDto): Promise<Assessment> {
@@ -216,6 +235,20 @@ export class AssessmentService {
   async findUserRoleAndGroupInAssessment(assessmentId: string, userId: string): Promise<{ role: string, groupId: string }> {
     const member = await this.assessmentMemberService.findOne(assessmentId, userId, { include: [] });
     return { role: member.role, groupId: member.groupId };
+  }
+
+  async findOneWithMember(
+    id: string,
+    userId: string,
+    query: FindOneAssessmentDto,
+  ): Promise<any> {
+    const assessment = await this.findOne(id, query);
+    let member: { role: string | null, groupId: string | null } = { role: null, groupId: null };
+    try {
+      member = await this.findUserRoleAndGroupInAssessment(id, userId);
+    } catch {
+    }
+    return { ...assessment, ...member };
   }
 
   private filters(query: FindAllAssessmentDto): Filter[] {
