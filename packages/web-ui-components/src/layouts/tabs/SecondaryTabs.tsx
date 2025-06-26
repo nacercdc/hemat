@@ -18,7 +18,10 @@ interface Props {
 
 export function SecondaryTabs({ defaultValue, options }: Props) {
   return (
-    <ShadcnTabs defaultValue={defaultValue} className="!mx-0 !px-0">
+    <ShadcnTabs
+      defaultValue={defaultValue}
+      className="!mx-0 !px-0 min-h-full flex flex-col"
+    >
       <TabsList className="flex w-full gap-6 justify-start mb-6 rounded-sm bg-basic-200/30 px-3 py-3 h-14">
         {options.map((op) => (
           <TabsTrigger
@@ -31,7 +34,11 @@ export function SecondaryTabs({ defaultValue, options }: Props) {
         ))}
       </TabsList>
       {options.map((op) => (
-        <TabsContent key={op.value} value={op.value}>
+        <TabsContent
+          key={op.value}
+          value={op.value}
+          className="flex flex-col flex-1 w-full min-h-full"
+        >
           {op.content}
         </TabsContent>
       ))}

@@ -332,7 +332,7 @@ export function Content({
             placeholder="Select Languages"
             options={languageOptions}
             valueKey="code"
-            labelKey="native"
+            labelKey="name"
             displayLabel="Languages"
             labelVariant="bold"
             onChange={() => onLanguageSelectHandler}

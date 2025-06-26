@@ -9,32 +9,30 @@ import ComponentsTab from "./components/tabs/components-tab";
 
 export function Settings() {
   return (
-    <div className="">
-      <SecondaryTabs
-        options={[
-          {
-            value: "domain",
-            label: "Domain",
-            content: <Domain />,
-          },
-          {
-            value: "components",
-            label: "Components",
-            content: <ComponentsTab />,
-          },
-          {
-            value: "subComponents",
-            label: "SubComponents",
-            content: <SubComponents />,
-          },
-          {
-            value: "measurement-scale",
-            label: "Measurement-Scale",
-            content: <MeasurementScales />,
-          },
-        ]}
-        defaultValue="domain"
-      />
-    </div>
+    <SecondaryTabs
+      options={[
+        {
+          value: "domain",
+          label: "Domain",
+          content: <Domain />,
+        },
+        {
+          value: "components",
+          label: "Components",
+          content: <ComponentsTab />,
+        },
+        {
+          value: "subComponents",
+          label: "SubComponents",
+          content: <SubComponents />,
+        },
+        {
+          value: "measurement-scale",
+          label: "Measurement-Scale",
+          content: <MeasurementScales />,
+        },
+      ]}
+      defaultValue="domain"
+    />
   );
 }

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { Content } from "./components/Content";
+import { SidebarSkeleton } from "../../SidebarSkeleton";
+import { ContentSkeleton } from "./components/ContentSkeleton";
 
 import { Sidebar } from "../../Sidebar";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
@@ -27,7 +29,12 @@ export function MeasurementScales() {
     }
   }, [components]);
 
-  return components?.data && components.data.length > 0 ? (
+  return componentsState.isLoading ? (
+    <div className="flex flex-col md:flex-row h-full">
+      <SidebarSkeleton itemCount={5} />
+      <ContentSkeleton />
+    </div>
+  ) : components?.data && components.data.length > 0 ? (
     <div className="flex flex-col md:flex-row h-full">
       <Sidebar<AssessmentMeasurementScale>
         list={components?.data ?? []}

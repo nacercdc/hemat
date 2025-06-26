@@ -27,7 +27,7 @@ export function AssessmentDetail() {
       includeBreadcrumb={false}
       onBack={onBackHandler}
     >
-      <div className="px-8">
+      <div className="px-8 h-full">
         <Tabs
           options={[
             {

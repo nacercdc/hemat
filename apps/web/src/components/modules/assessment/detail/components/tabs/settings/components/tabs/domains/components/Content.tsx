@@ -281,48 +281,46 @@ export function Content({ activeDomain, assessmentId, refetchDomains }: Props) {
   }
 
   return (
-    <div className="flex flex-col w-full md:w-3/4 h-fit bg-card border border-secondary-300 rounded-r-sm">
-      <form
-        onSubmit={handleSubmit(onSubmitHandler)}
-        className="flex flex-col gap-6 w-full flex-1 overflow-y-auto pb-20 p-4"
-      >
-        <>
-          <Fields
-            control={control}
-            selectedLanguages={selectedLanguages}
-            watch={watch}
-            errors={errors}
-          />
-          <MultiSelectRHF
-            control={control}
-            name="selectedLanguages"
-            placeholder="Select Languages"
-            options={languageOptions}
-            valueKey="code"
-            labelKey="native"
-            displayLabel="Languages"
-            labelVariant="bold"
-            onChange={() => onLanguageSelectHandler}
-            size="lg"
-            loading={languagesLoading}
-          />
-        </>
+    <form
+      onSubmit={handleSubmit(onSubmitHandler)}
+      className="flex flex-col w-full md:w-3/4 h-full bg-card border border-secondary-300 rounded-r-sm gap-6 flex-1 overflow-y-auto pb-20 p-4"
+    >
+      <>
+        <Fields
+          control={control}
+          selectedLanguages={selectedLanguages}
+          watch={watch}
+          errors={errors}
+        />
+        <MultiSelectRHF
+          control={control}
+          name="selectedLanguages"
+          placeholder="Select Languages"
+          options={languageOptions}
+          valueKey="code"
+          labelKey="name"
+          displayLabel="Languages"
+          labelVariant="bold"
+          onChange={() => onLanguageSelectHandler}
+          size="lg"
+          loading={languagesLoading}
+        />
+      </>
 
-        <div className="flex justify-end gap-8 items-center w-full bg-basic-200/30 p-4">
-          <Button
-            variant="outline"
-            type="button"
-            color="card"
-            size="lg"
-            onClick={onCancelHandler}
-          >
-            Cancel
-          </Button>
-          <Button size="lg" type="submit" loading={updateDomainState.isPending}>
-            {updateDomainState.isPending ? "Saving..." : "Save"}
-          </Button>
-        </div>
-      </form>
-    </div>
+      <div className="flex justify-end gap-8 items-center w-full bg-basic-200/30 p-4">
+        <Button
+          variant="outline"
+          type="button"
+          color="card"
+          size="lg"
+          onClick={onCancelHandler}
+        >
+          Cancel
+        </Button>
+        <Button size="lg" type="submit" loading={updateDomainState.isPending}>
+          {updateDomainState.isPending ? "Saving..." : "Save"}
+        </Button>
+      </div>
+    </form>
   );
 }

@@ -159,19 +159,6 @@ export const MeasurementsForm = ({
       <div className="flex justify-between items-center">
         <h3 className="text-xs font-bold">Measurement Scales</h3>
       </div>
-      <MultiSelectRHF
-        control={control}
-        name="selectedLanguages"
-        placeholder="Select Languages"
-        options={languageOptions}
-        valueKey="code"
-        labelKey="native"
-        displayLabel="Languages"
-        labelVariant="bold"
-        size="lg"
-        loading={false}
-        error={errors.selectedLanguages?.message}
-      />
       {/* TODO: Replace with empty place holder when no measurements are found */}
       {measurementsLoading ? (
         <div>Loading measurement scales...</div>
@@ -232,6 +219,20 @@ export const MeasurementsForm = ({
           />
         ))
       )}
+
+      <MultiSelectRHF
+        control={control}
+        name="selectedLanguages"
+        placeholder="Select Languages"
+        options={languageOptions}
+        valueKey="code"
+        labelKey="name"
+        displayLabel="Languages"
+        labelVariant="bold"
+        size="lg"
+        loading={false}
+        error={errors.selectedLanguages?.message}
+      />
       <div className="flex justify-end mt-4">
         <Button
           size="lg"

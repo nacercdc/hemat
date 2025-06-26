@@ -31,7 +31,11 @@ export function Tabs({ defaultValue, options }: Props) {
         ))}
       </TabsList>
       {options.map((op) => (
-        <TabsContent key={op.value} value={op.value}>
+        <TabsContent
+          key={op.value}
+          value={op.value}
+          className="flex flex-col flex-1 w-full min-h-full"
+        >
           {op.content}
         </TabsContent>
       ))}

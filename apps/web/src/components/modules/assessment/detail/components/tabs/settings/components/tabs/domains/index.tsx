@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { Content } from "./components/Content";
+import { SidebarSkeleton } from "../../SidebarSkeleton";
+import { ContentSkeleton } from "./components/ContentSkeleton";
 
 import type { AssessmentDomain } from "~/libs/models/assessment-domain.model";
 import { Sidebar } from "../../Sidebar";
@@ -27,8 +29,13 @@ export function Domain() {
     }
   }, [domains]);
 
-  return domains?.data && domains.data.length > 0 ? (
-    <div className="flex flex-col md:flex-row h-full">
+  return domainsState.isLoading ? (
+    <div className="flex flex-col md:flex-row min-h-full">
+      <SidebarSkeleton itemCount={5} />
+      <ContentSkeleton />
+    </div>
+  ) : domains?.data && domains.data.length > 0 ? (
+    <div className="flex flex-col md:flex-row min-h-full">
       <Sidebar<AssessmentDomain>
         list={domains?.data ?? []}
         activeItem={activeDomain}
