@@ -31,10 +31,10 @@ export default function AssessmentDomainCard({
       >
         <h3 className="text-sm font-bold">{domain.name}</h3>
         <div className="flex items-center">
-          <span className="text-xs font-normal">Components :</span>
+          <span className="text-xs font-normal flex-wrap">Components :</span>
           <span className="text-sm font-bold">{domain.componentsCount}</span>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center flex-wrap">
           <span className="text-xs font-normal">Sub-Components :</span>
           <span className="text-sm font-bold">{domain.subComponentsCount}</span>
         </div>

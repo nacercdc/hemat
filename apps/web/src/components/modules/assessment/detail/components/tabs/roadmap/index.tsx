@@ -42,7 +42,7 @@ const dummyGroups = [
   },
 ];
 
-export function Roadmap() {
+export function RoadmapDomainGroup() {
   return (
     <div className="flex flex-col  bg-layout-bg/15 rounded-md">
       <AssessmentFillHeader
@@ -51,12 +51,7 @@ export function Roadmap() {
       />
       <div className="flex flex-col w-full  rounded-md gap-3 p-3">
         {dummyGroups.map((group) => (
-          <AssessmentRoadmap
-            key={group.title}
-            title={group.title}
-            subtitle={group.subtitle}
-            domains={group.domains}
-          />
+          <AssessmentRoadmap key={group.title} domains={group.domains} />
         ))}
       </div>
     </div>
