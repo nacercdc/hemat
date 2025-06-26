@@ -17,6 +17,7 @@ import type { Assessment } from "~/libs/models/assessment.model";
 import { useEffect } from "react";
 import { AssessmentFormSkeleton } from "./AssessmentFormSkeleton";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
+import { parseYYYYMMDDToDate } from "@etm/utilities";
 
 const languageSchema = z.object({
   code: z
@@ -41,10 +42,10 @@ const AssessmentFormSchema = z
     country: countrySchema,
     organization: z
       .string()
-      .min(2, { message: "Organization name is required" })
       .max(100, {
         message: "Organization name must be at most 100 characters",
-      }),
+      })
+      .optional(),
     description: z
       .string()
       .max(500, { message: "Description must be at most 500 characters" })
@@ -119,8 +120,6 @@ export function AssessmentForm({
 
   useEffect(() => {
     if (assessment) {
-      console.log(assessment);
-
       reset({
         name: assessment?.name,
 

@@ -30,12 +30,12 @@ export default function AssessmentAction({ assessment }: Props) {
       {
         onSuccess: () => {
           deleteDialogRef.current?.closeDialog();
-          queryClient.invalidateQueries({
-            queryKey: [ASSESSMENT_LIST_KEY],
-          });
           toast({
             title: "Success",
             message: "Assessment has been deleted successfully.",
+          });
+          queryClient.invalidateQueries({
+            queryKey: [ASSESSMENT_LIST_KEY],
           });
         },
       }
