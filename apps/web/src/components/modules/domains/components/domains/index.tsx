@@ -22,7 +22,7 @@ import { ListTypeColors } from "../DomainCompCard";
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;
 }
-export function Domains({ modalRef }: Props) {
+export function DomainsList({ modalRef }: Props) {
   const { domainId } = useActiveList();
   const { toast } = useToast();
 
