@@ -54,9 +54,8 @@ export const AssessmentsTableColumns: ColumnDef<Assessment>[] = [
     header: "Country",
     accessorKey: "country",
     enableColumnFilter: false,
-    cell: ({ row }) => <span>{row.original.countryCode}</span>,
+    cell: ({ row }) => <span>{row.original.country.name}</span>,
   },
-
   {
     header: "Status",
     accessorKey: "status",

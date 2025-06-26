@@ -20,6 +20,7 @@ import { AssessmentComponentService } from './assessment-component.service';
 import { AssessmentSubComponentService } from './assessment-sub-component.service';
 import { AssessmentMeasurementScaleService } from './assessment-measuremnt-scale.service';
 import { AssessmentMeasurementScaleSubComponentService } from './assessment-measuremnt-scale-sub-component.service';
+import { AssessmentMemberService } from './assessment-member.service';
 
 @Injectable()
 export class AssessmentService {
@@ -36,6 +37,7 @@ export class AssessmentService {
     private readonly assessmentSubComponentService: AssessmentSubComponentService,
     private readonly assessmentMeasurementScaleService: AssessmentMeasurementScaleService,
     private readonly assessmentMeasurementScaleSubComponentService: AssessmentMeasurementScaleSubComponentService,
+    private readonly assessmentMemberService: AssessmentMemberService,
   ) {}
 
   async findAll(
@@ -68,7 +70,7 @@ export class AssessmentService {
     payload: AssessmentCreateRequestDto,
   ): Promise<Assessment> {
     try {
-      if (new Date(payload.endDate) < new Date(payload.startDate)) {
+      if (payload.endDate < payload.startDate) {
         throw new BadRequestException('End date cannot be before start date');
       }
 
@@ -85,9 +87,7 @@ export class AssessmentService {
           const assessment = manager.create(Assessment, {
             ...payload,
             userId,
-            startDate: new Date(payload.startDate),
-            endDate: new Date(payload.endDate),
-            languages, 
+            languages,
           });
           await manager.save(Assessment, assessment);
 
@@ -137,7 +137,7 @@ export class AssessmentService {
     if (
       payload.endDate &&
       payload.startDate &&
-      new Date(payload.endDate) < new Date(payload.startDate)
+      payload.endDate < payload.startDate
     ) {
       throw new BadRequestException('End date cannot be before start date');
     }
@@ -166,12 +166,8 @@ export class AssessmentService {
 
       const updatedPayload = {
         ...payload,
-        startDate: payload.startDate
-          ? new Date(payload.startDate)
-          : assessment.startDate,
-        endDate: payload.endDate
-          ? new Date(payload.endDate)
-          : assessment.endDate,
+        startDate: payload.startDate ?? assessment.startDate,
+        endDate: payload.endDate ?? assessment.endDate,
         languages,
       };
 
@@ -208,6 +204,18 @@ export class AssessmentService {
     }
 
     return await this.assessmentRepository.recover(assessment);
+  }
+
+  async findAssessmentsByUser(userId: string): Promise<Assessment[]> {
+    const memberRecords = await this.assessmentMemberService.findByUser(userId);
+    const assessmentIds = memberRecords.map(m => m.assessmentId);
+    if (!assessmentIds.length) return [];
+    return this.assessmentRepository.find({ where: { id: In(assessmentIds) } });
+  }
+
+  async findUserRoleAndGroupInAssessment(assessmentId: string, userId: string): Promise<{ role: string, groupId: string }> {
+    const member = await this.assessmentMemberService.findOne(assessmentId, userId, { include: [] });
+    return { role: member.role, groupId: member.groupId };
   }
 
   private filters(query: FindAllAssessmentDto): Filter[] {

@@ -1,14 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useParams } from "next/navigation";
-import type { Assessment, StatusType } from "~/libs/models/assessment.model";
+import type {
+  Assessment,
+  AssessmentsIncludeAble,
+  StatusType,
+} from "~/libs/models/assessment.model";
 import type { BadgeVariants } from "@etm/web-ui-components";
 import { Badge } from "@etm/web-ui-components";
 import SkeletonForDetail from "./components/SkeletonForDetail";
 import GroupsList from "../../members/GroupsList";
 import LabeledValue from "./components/LabeledValue";
 import MemberRoleCard from "../../members/MemberRoleCard";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
+import { formatDateToYYYYMMDD } from "@etm/utilities";
 
 export default function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
@@ -19,21 +25,19 @@ export default function AssessmentOverview() {
     "In-Progress": "progress",
     Completed: "success",
   };
-  const [assessmentData, setAssessmentData] = useState<Assessment>();
-  const [isLoading, setIsLoading] = useState(true);
   const params = useParams();
-  const id = params.id;
-  useEffect(() => {
-    setIsLoading(true);
-    if (typeof id === "string") {
-      mockAssessmentsFetch(id).then((data) => {
-        setAssessmentData(data);
-        setIsLoading(false);
-      });
-    }
-  }, [id]);
+  const assessmentId = params.id;
+  const { data: assessment, ...assessmentState } = useFindById<
+    Assessment,
+    AssessmentsIncludeAble
+  >({
+    path: `assessments/${assessmentId as string}`,
+    queries: {
+      include: ["user", "members", "groups"],
+    },
+  });
 
-  if (isLoading) {
+  if (assessmentState.isLoading) {
     return <SkeletonForDetail />;
   }
   return (
@@ -42,41 +46,73 @@ export default function AssessmentOverview() {
         <div className="bg-dark-lighter/5 p-4 rounded-sm">
           <h1 className="text-sm font-bold">Status</h1>
           <Badge
-            text={`${assessmentData?.status}`}
+            text={`${assessment?.status}`}
             shape="circular"
             variant={
-              assessmentData?.status
-                ? StatusVariantClasses[assessmentData.status]
+              assessment?.status
+                ? StatusVariantClasses[assessment.status]
                 : StatusVariantClasses.Pending
             }
           />
         </div>
-        <div className="bg-dark-lighter/5 p-4 rounded-sm  flex gap-10">
+        <div className="bg-dark-lighter/5 p-4 rounded-sm  flex flex-wrap gap-10">
           <div className="flex flex-col gap-3">
-            <LabeledValue label="Name :" value={assessmentData?.name} />
+            <LabeledValue label="Name :" value={assessment?.name} />
             <LabeledValue
               label="Created By :"
-              value={`${assessmentData?.createdBy.firstName} ${assessmentData?.createdBy.lastName}`}
+              value={`${assessment?.user.name} `}
             />
+            <LabeledValue label="Country :" value={assessment?.country.name} />
             <LabeledValue
-              label="Country :"
-              value={assessmentData?.country.name}
+              label="Organization :"
+              value={assessment?.organization ?? "----"}
             />
-            <LabeledValue label="Organization :" value="HCI" />
+
+            <LabeledValue
+              label="Languages :"
+              value={
+                assessment?.languages ? (
+                  <div className="flex flex-wrap gap-1 ">
+                    {assessment?.languages?.map((lang) => (
+                      <Badge
+                        text={`${lang?.name}`}
+                        shape={"circular"}
+                        variant={"success"}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  "---"
+                )
+              }
+            />
           </div>
           <div className="flex flex-col gap-3">
             <LabeledValue
               label="Start Date :"
-              value={assessmentData?.startDate}
+              value={
+                assessment?.startDate
+                  ? formatDateToYYYYMMDD(
+                      assessment.startDate as unknown as Date
+                    )
+                  : undefined
+              }
             />
-            <LabeledValue label="End Date :" value={assessmentData?.endDate} />
+            <LabeledValue
+              label="End Date :"
+              value={
+                assessment?.endDate
+                  ? formatDateToYYYYMMDD(assessment.endDate as unknown as Date)
+                  : undefined
+              }
+            />
           </div>
         </div>
         <div className="bg-dark-lighter/5 p-4 rounded-sm flex flex-col gap-3">
           <h1 className="text-sm font-bold">Description</h1>
           <div className="text-sm bg-white rounded-sm p-4">
-            {assessmentData?.description ? (
-              <p>{assessmentData.description}</p>
+            {assessment?.description ? (
+              <p>{assessment.description}</p>
             ) : (
               <p>No Description</p>
             )}
@@ -84,38 +120,23 @@ export default function AssessmentOverview() {
         </div>
       </div>
       <div className="flex-1 bg-dark-lighter/5 p-2 rounded-sm gap-2 flex flex-col">
-        <MemberRoleCard
-          title="Groups Leader"
-          icon="meteor-icons:user"
-          placeholderText="Group leader here"
-        />
-        <MemberRoleCard
-          title="Team Leader"
-          icon="mdi:group-add-outline"
-          placeholderText="Team leader here"
-        />
-        <GroupsList />
+        {assessment?.groups?.length != 0 ? (
+          <GroupsList groups={assessment?.groups} />
+        ) : (
+          <div className="flex flex-col gap-2 w-full">
+            <MemberRoleCard
+              title="Groups Leader"
+              icon="meteor-icons:user"
+              placeholderText="Group leader here"
+            />
+            <MemberRoleCard
+              title="Team Leader"
+              icon="mdi:group-add-outline"
+              placeholderText="Team leader here"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
-}
-//TODO the is dummy data
-async function mockAssessmentsFetch(id: string): Promise<Assessment> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const mockAssessment: Assessment = {
-    id: parseInt(id),
-    name: "Mock Assessment",
-    createdBy: {
-      firstName: "John",
-      lastName: "Doe",
-    },
-    startDate: "2025-01-01",
-    endDate: "2025-01-31",
-    country: {
-      name: "Ethiopia",
-    },
-    status: "Pending",
-    createdAt: new Date().toISOString(),
-  };
-  return mockAssessment;
 }

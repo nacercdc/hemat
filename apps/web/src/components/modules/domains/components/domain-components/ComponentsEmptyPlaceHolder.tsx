@@ -1,0 +1,31 @@
+"use client";
+
+import React from "react";
+import { Icon } from "@iconify/react";
+import { useActiveList } from "../../providers/active-list/useActiveList";
+
+export function ComponentsEmptyPlaceHolder() {
+  const { domainId } = useActiveList();
+  return (
+    <div className="flex flex-col items-center justify-center py-12 px-4 h-full flex-1">
+      <div className="text-center">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-basic-100 flex items-center justify-center">
+          <Icon
+            icon={
+              domainId
+                ? "mdi:file-document-outline"
+                : "mdi:cursor-default-click"
+            }
+            className="w-8 h-8 text-basic-400"
+          />
+        </div>
+        <h3 className="text-lg font-medium text-basic mb-2">No Components</h3>
+        <p className="text-basic-500 text-sm">
+          {domainId
+            ? "There are no components available for this domain."
+            : "Please select a domain to view available components."}
+        </p>
+      </div>
+    </div>
+  );
+}

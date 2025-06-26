@@ -51,13 +51,7 @@ export class AssessmentAnswerValidator {
         );
       if (payload.isPrimary)
         throw new BadRequestException(`Team leader cannot submit as PRIMARY`);
-      const existingTeamLeaderAnswer = await manager.findOne(Answer, {
-        where: { assessmentId, userId, isPrimary: false },
-      });
-      if (existingTeamLeaderAnswer)
-        throw new BadRequestException(
-          `Team leader has already submitted a group answer for this assessment`,
-        );
+      // Removed duplicate subcomponent answer check to allow upsert (create or update)
     } else {
       throw new BadRequestException(
         `User ${userId} is not authorized to submit answers`,

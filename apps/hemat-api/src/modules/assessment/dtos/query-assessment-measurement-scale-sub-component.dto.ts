@@ -1,5 +1,11 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { FindAllDto } from '@shared/dtos';
 import { IsArrayContains } from '@shared/validators';
@@ -49,4 +55,13 @@ export class FindAllAssessmentMeasurementScaleSubComponentDto extends FindAllDto
     !['true', 'false'].includes(value) ? null : value === 'true',
   )
   isActive: boolean | null = null;
+
+  @ApiProperty({
+    description: 'ID of the sub-component to filter by',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  subComponentId?: string;
 }

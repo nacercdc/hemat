@@ -53,6 +53,9 @@ export function MultiSelect<T>({
   onSelect,
 }: Props<T>) {
   const [open, setOpen] = useState(false);
+  const [buttonWidth, setButtonWidth] = useState<number | undefined>(undefined);
+
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   const isItemSelected = (item: T) =>
     values?.some(
@@ -71,8 +74,9 @@ export function MultiSelect<T>({
 
   const onOpenChangeHandler = (isOpen: boolean) => {
     setOpen(isOpen);
-    if (isOpen) {
+    if (buttonRef.current && isOpen) {
       onOpenChange?.();
+      setButtonWidth(buttonRef.current.offsetWidth);
     }
   };
 
@@ -95,6 +99,7 @@ export function MultiSelect<T>({
       <Popover open={open} onOpenChange={onOpenChangeHandler}>
         <PopoverTrigger asChild className="flex items-center w-full">
           <Button
+            ref={buttonRef}
             variant="outline"
             className={cn(
               selectVariants({ variant, size }),
@@ -143,7 +148,7 @@ export function MultiSelect<T>({
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="min-w-full p-0">
+        <PopoverContent className="w-fit p-0" style={{ width: buttonWidth }}>
           <ScrollArea>
             <Command>
               <div className="flex flex-col items-start gap-1 px-3 pt-2">

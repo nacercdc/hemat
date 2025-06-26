@@ -32,6 +32,7 @@ import {
   AssessmentMeasurementScaleSubComponentDto,
   AssessmentMeasurementScaleSubComponentUpdateDto,
   FindAllAssessmentMeasurementScaleSubComponentDto,
+  BatchUpdateAssessmentMeasurementScaleSubComponentDto,
 } from '../dtos';
 import { ParseUUIDPipe } from '@nestjs/common';
 
@@ -83,11 +84,14 @@ export class AssessmentMeasurementScaleSubComponentController {
   })
   @Get()
   async findAll(
-    @Query() query: FindAllAssessmentMeasurementScaleSubComponentDto,
+    @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
+    @Query() query: Omit<FindAllAssessmentMeasurementScaleSubComponentDto, 'subComponentId'>,
   ): Promise<FindAllResponseDto<AssessmentMeasurementScaleSubComponentDto>> {
-    return this.assessmentMeasurementScaleSubComponentService.findAll({
+    const queryWithSubComponentId: FindAllAssessmentMeasurementScaleSubComponentDto = {
       ...query,
-    });
+      subComponentId,
+    };
+    return this.assessmentMeasurementScaleSubComponentService.findAll(queryWithSubComponentId);
   }
 
   @ApiOperation({
@@ -152,6 +156,38 @@ export class AssessmentMeasurementScaleSubComponentController {
     return this.assessmentMeasurementScaleSubComponentService.update(
       subComponentId,
       measurementScaleId,
+      payload,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Batch update measurement scales for a sub-component',
+    description: 'Batch update the description and translations of multiple measurement scales associated with a specific sub-component',
+  })
+  @ApiOkResponse({
+    description: 'Updated measurement scales for the sub-component',
+    type: AssessmentMeasurementScaleSubComponent,
+    isArray: true,
+  })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({ description: 'Bad Request', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.UPDATE,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Put()
+  async batchUpdate(
+    @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
+    @Body() payload: BatchUpdateAssessmentMeasurementScaleSubComponentDto[],
+  ): Promise<AssessmentMeasurementScaleSubComponent[]> {
+    return this.assessmentMeasurementScaleSubComponentService.batchUpdate(
+      subComponentId,
       payload,
     );
   }
