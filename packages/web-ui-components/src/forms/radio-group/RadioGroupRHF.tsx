@@ -27,6 +27,7 @@ export function RadioGroupRHF<K, T extends FieldValues>({
           {...props}
           id={name}
           error={error?.message}
+          value={field.value}
           onValueChange={field.onChange}
           defaultValue={field.value}
         />
