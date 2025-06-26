@@ -8,11 +8,11 @@ import ActiveListProvider from "../domains/providers/active-list/ActiveListProvi
 import { useActiveList } from "../domains/providers/active-list/useActiveList";
 
 import { DomainCompCard } from "../domains/components/DomainCompCard";
-import { Domains } from "../domains/components/domains";
+import { DomainsList } from "../domains/components/domains";
 import { DomainComponents } from "../domains/components/domain-components";
 import { DomainSubComponents } from "./components/domain-sub-components";
 
-export function DomainList() {
+export function Domains() {
   return (
     <ActiveListProvider>
       <DomainListContent />
@@ -37,7 +37,7 @@ export function DomainListContent() {
           actionDisabled={false}
           onAddActionHandler={() => addDomainModalRef.current?.openModal()}
         >
-          <Domains modalRef={addDomainModalRef} />
+          <DomainsList modalRef={addDomainModalRef} />
         </DomainCompCard>
 
         <DomainCompCard

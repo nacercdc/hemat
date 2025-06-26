@@ -201,6 +201,17 @@ export function SubComponent({ subComponent }: Props) {
               editSubComponentModalRef.current?.openModal();
             },
           },
+
+          {
+            value: "add-measurement-scale",
+            label: "Add Measurement Scale",
+            leftNode: (
+              <Icon icon="tabler:plus" className="!text-dark !w-4 !h-4" />
+            ),
+            onClick: () => {
+              addMeasurementScaleModalRef.current?.openModal();
+            },
+          },
           {
             value: "delete",
             label: "Delete",
@@ -211,19 +222,6 @@ export function SubComponent({ subComponent }: Props) {
               />
             ),
             onClick: () => deleteDialogRef.current?.openDialog(),
-          },
-          {
-            value: "add-measurement-scale",
-            label: "Add Measurement Scale",
-            leftNode: (
-              <Icon
-                icon="iconamoon:edit-light"
-                className="!text-dark !w-4 !h-4"
-              />
-            ),
-            onClick: () => {
-              addMeasurementScaleModalRef.current?.openModal();
-            },
           },
         ]}
       />
