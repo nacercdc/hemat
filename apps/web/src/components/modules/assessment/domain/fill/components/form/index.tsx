@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ETMEditorRHF,
   isHtmlStringEmpty,
@@ -81,6 +81,7 @@ export function SubCompAssessmentForm({
     defaultValues: {
       evidence: "",
       reference: "",
+      measurementScale: { id: "", name: "" },
     },
     resolver: zodResolver(AssessmentFormSchema),
   });
@@ -121,14 +122,14 @@ export function SubCompAssessmentForm({
     },
   });
 
-  const formattedMeasurementScales = useCallback(
-    () =>
-      (measurementScales?.data as unknown as Scale[])?.map((scale) => ({
-        ...scale,
-        name: `${scale.name} (${scale.rate})`,
-      })),
-    [measurementScales?.data]
-  );
+  const formattedMeasurementScales = useMemo(() => {
+    if (!measurementScales?.data) return [];
+
+    return (measurementScales?.data as unknown as Scale[])?.map((scale) => ({
+      ...scale,
+      name: `${scale.name} (${scale.rate})`,
+    }));
+  }, [measurementScales?.data]);
 
   const scaleDescriptionLoading =
     scaleDescriptionState.isFetching || scaleDescriptionState.isLoading;
@@ -149,7 +150,7 @@ export function SubCompAssessmentForm({
         (ans) => ans.subComponentId === subComponent?.id
       );
       if (answer) {
-        const formattedScale = formattedMeasurementScales().find(
+        const formattedScale = formattedMeasurementScales.find(
           (scale) => scale.id === answer.measurementScale.id
         );
         reset({
@@ -165,7 +166,7 @@ export function SubCompAssessmentForm({
       reset({
         evidence: "",
         reference: "",
-        measurementScale: { id: "" },
+        measurementScale: { id: "", name: "" },
       });
     }
   }, [
@@ -199,7 +200,7 @@ export function SubCompAssessmentForm({
         <RadioGroupRHF<MeasurementScaleType, AssessmentFormData>
           control={control}
           name="measurementScale"
-          options={formattedMeasurementScales()}
+          options={formattedMeasurementScales}
           valueKey="id"
           labelKey="name"
           size="sm"
