@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 
@@ -26,11 +26,10 @@ interface Props {
   modalRef: React.RefObject<ModalRef | null>;
 }
 export function DomainSubComponents({ modalRef }: Props) {
-  const {
-    componentId,
-    subComponentId: createdSubComponentId,
-    setSubComponentId: setCreatedSubComponentId,
-  } = useActiveList();
+  const [createdSubComponentId, setCreatedSubComponentId] = useState<
+    string | null
+  >(null);
+  const { componentId } = useActiveList();
   const { toast } = useToast();
 
   const { data: subComponents, ...subComponentsState } =
@@ -80,6 +79,7 @@ export function DomainSubComponents({ modalRef }: Props) {
       );
     }
   };
+
   const onAddScalesSubmitHandler = (values: ScalesFormData) => {
     if (createdSubComponentId) {
       createSubComponentMeasurementScales(
@@ -99,6 +99,8 @@ export function DomainSubComponents({ modalRef }: Props) {
               variant: "success",
             });
 
+            setCreatedSubComponentId(null);
+            modalRef.current?.closeModal();
             subComponentsState.refetch();
           },
         }
@@ -133,13 +135,23 @@ export function DomainSubComponents({ modalRef }: Props) {
         !subComponentsState.isLoading && <SubComponentsEmptyPlaceHolder />
       )}
 
-      <Modal ref={modalRef} title={`Add Sub-component`}>
+      <Modal
+        ref={modalRef}
+        title={`Add sub-component`}
+        onOpenChange={(open) => {
+          if (open) {
+            setCreatedSubComponentId(null);
+          }
+        }}
+      >
         <SubComponentForm
+          createdSubComponentId={createdSubComponentId}
           onScalesSubmit={onAddScalesSubmitHandler}
           defaultFieldsLoading={createSubComponentState.isPending}
+          defaultFieldsSuccess={createSubComponentState.isSuccess}
           scalesLoading={createSubComponentMeasurementScalesState.isPending}
+          scalesSuccess={createSubComponentMeasurementScalesState.isSuccess}
           onDefaultFieldsSubmit={onAddSubComponentSubmitHandler}
-          onCloseModal={() => modalRef.current?.closeModal()}
         />
       </Modal>
     </div>

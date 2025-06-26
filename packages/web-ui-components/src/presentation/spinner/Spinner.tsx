@@ -8,7 +8,8 @@ type ColorType =
   | "secondary"
   | "success"
   | "warning"
-  | "destructive";
+  | "destructive"
+  | "light";
 
 interface Props {
   size: SizeType;
@@ -29,6 +30,7 @@ export function Spinner({ size = "md", color = "primary" }: Props) {
     success: "border-success",
     destructive: "border-destructive",
     warning: "border-warning",
+    light: "border-white",
   };
 
   return (
