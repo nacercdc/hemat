@@ -8,7 +8,7 @@ import type { Props as RadioProps } from "./RadioGroup";
 import { RadioGroup } from "./RadioGroup";
 
 interface Props<K, T extends FieldValues>
-  extends Omit<RadioProps<K>, "defaultValue" | "onValueChange"> {
+  extends Omit<RadioProps<K>, "defaultValue" | "onValueChange" | "value"> {
   name: Path<T>;
   control: Control<T>;
 }
@@ -27,6 +27,7 @@ export function RadioGroupRHF<K, T extends FieldValues>({
           {...props}
           id={name}
           error={error?.message}
+          value={field.value}
           onValueChange={field.onChange}
           defaultValue={field.value}
         />

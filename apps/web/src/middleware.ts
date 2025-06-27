@@ -4,7 +4,6 @@ import { refreshAccessToken, setAuthCookies } from "./app/api/utils";
 
 const DASHBOARD = "/";
 const LOGIN = "/login";
-
 const PUBLIC_ROUTES = new Set([LOGIN]);
 
 function isPublic(pathname: string): boolean {
@@ -14,8 +13,10 @@ function isPublic(pathname: string): boolean {
   );
 }
 
-function redirectTo(path: string, baseUrl: URL): NextResponse {
-  return NextResponse.redirect(new URL(path, baseUrl));
+function redirectTo(path: string, request: NextRequest): NextResponse {
+  const url = request.nextUrl.clone();
+  url.pathname = path;
+  return NextResponse.redirect(url);
 }
 
 export async function middleware(request: NextRequest) {
@@ -27,13 +28,13 @@ export async function middleware(request: NextRequest) {
   const expires = cookies.get("expires")?.value;
 
   const isPublicRoute = isPublic(pathname);
+  const isLoginPage = pathname === LOGIN;
 
   if (!token) {
-    return isPublicRoute ? NextResponse.next() : redirectTo(LOGIN, nextUrl);
+    return isPublicRoute ? NextResponse.next() : redirectTo(LOGIN, request);
   }
 
   const response = NextResponse.next();
-
   if (refreshToken && expires && Date.now() >= Number(expires)) {
     try {
       const session = await refreshAccessToken(refreshToken);
@@ -41,15 +42,15 @@ export async function middleware(request: NextRequest) {
       if (session) {
         setAuthCookies(response, session);
       } else {
-        return redirectTo(LOGIN, nextUrl);
+        return redirectTo(LOGIN, request);
       }
     } catch {
-      return redirectTo(LOGIN, nextUrl);
+      return redirectTo(LOGIN, request);
     }
   }
 
-  if (isPublicRoute) {
-    return redirectTo(DASHBOARD, nextUrl);
+  if (isLoginPage) {
+    return redirectTo(DASHBOARD, request);
   }
 
   return response;

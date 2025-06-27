@@ -35,11 +35,14 @@ export const rFC2822ToISO8601 = (rFC2822Date: string | Date) => {
   return date.toISOString().split("T")[0];
 };
 
-export const formatDateToYYYYMMDD = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-
+export const formatDateToYYYYMMDD = (date: Date | string): string => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) {
+    throw new Error("Invalid date passed to formatDateToYYYYMMDD");
+  }
+  const year = d.getFullYear();
+  const month = `${d.getMonth() + 1}`.padStart(2, "0");
+  const day = `${d.getDate()}`.padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
