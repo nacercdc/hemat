@@ -37,7 +37,6 @@ export default function CreateAssessment() {
       description: data.description,
       languages: data.languages.map((language) => language.code),
     };
-    console.log(newAssessment, "New assessment");
 
     createAssessment(
       {

@@ -25,7 +25,7 @@ interface Props {
   components: Component[];
 }
 
-export default function DomainComponent({ components }: Props) {
+export default function DomainComponent({ components: _ }: Props) {
   return (
     <div className="flex flex-col gap-4 bg-dark-lighter/5 rounded-sm p-4">
       <div className="flex gap-2 items-center  ">

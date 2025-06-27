@@ -14,7 +14,7 @@ import GroupsList from "../../members/GroupsList";
 import LabeledValue from "./components/LabeledValue";
 import MemberRoleCard from "../../members/MemberRoleCard";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
-import { formatDateToYYYYMMDD, formatToMonthDayYear } from "@etm/utilities";
+import { formatDateToYYYYMMDD } from "@etm/utilities";
 
 export default function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
@@ -91,27 +91,21 @@ export default function AssessmentOverview() {
           <div className="flex flex-col gap-3">
             <LabeledValue
               label="Start Date :"
-              value={formatToMonthDayYear(
-                assessment?.startDate as unknown as string
-              )}
-              // value={
-              //   assessment?.startDate
-              //     ? formatDateToYYYYMMDD(
-              //         assessment.startDate as unknown as Date
-              //       )
-              //     : undefined
-              // }
+              value={
+                assessment?.startDate
+                  ? formatDateToYYYYMMDD(
+                      assessment.startDate as unknown as Date
+                    )
+                  : undefined
+              }
             />
             <LabeledValue
               label="End Date :"
-              value={formatToMonthDayYear(
-                assessment?.endDate as unknown as string
-              )}
-              // value={
-              //   assessment?.endDate
-              //     ? formatDateToYYYYMMDD(assessment.endDate as unknown as Date)
-              //     : undefined
-              // }
+              value={
+                assessment?.endDate
+                  ? formatDateToYYYYMMDD(assessment.endDate as unknown as Date)
+                  : undefined
+              }
             />
           </div>
         </div>

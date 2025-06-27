@@ -122,9 +122,8 @@ export function AssessmentForm({
     if (assessment) {
       reset({
         name: assessment?.name,
-
-        // startDate: parseYYYYMMDDToDate(assessment.startDate),
-        // endDate: parseYYYYMMDDToDate(assessment.endDate),
+        startDate: parseYYYYMMDDToDate(assessment.startDate),
+        endDate: parseYYYYMMDDToDate(assessment.endDate),
         country: assessment?.country?.code
           ? { code: assessment.country.code }
           : undefined,

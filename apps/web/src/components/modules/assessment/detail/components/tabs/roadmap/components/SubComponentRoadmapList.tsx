@@ -13,60 +13,60 @@ export interface SubComponent {
 }
 
 interface Props {
-  sub_comp: SubComponent;
+  subComponent: SubComponent;
 }
 
-export default function SubComponentRoadmapList({ sub_comp }: Props) {
+export default function SubComponentRoadmapList({ subComponent }: Props) {
   return (
     <div
       className="flex flex-col gap-4 bg-basic-200/20 p-4 rounded-md"
-      key={sub_comp.code}
+      key={subComponent.code}
     >
       <div className="flex flex-col gap-2 ">
         <div className="text-xs font-bold">
-          {sub_comp.code} {sub_comp.name}
+          {subComponent.code} {subComponent.name}
         </div>
         <div className="flex gap-6 text-xs">
           <div className="flex flex-col gap-2">
             <span>Current State</span>
-            <Badge text={`${sub_comp.current_state}`} variant={"info"} />
+            <Badge text={`${subComponent.current_state}`} variant={"info"} />
           </div>
           <div className="flex flex-col gap-2">
             <span>Target</span>
-            <Badge text={`${sub_comp.target}`} variant={"warning"} />
+            <Badge text={`${subComponent.target}`} variant={"warning"} />
           </div>
         </div>
         <div className="flex flex-col gap-2 text-sm">
           <div className="flex flex-col gap-2 ">
             <span className="font-semibold text-xs">Timeline</span>
-            <p className="text-xs">{sub_comp.gap_address}</p>
+            <p className="text-xs">{subComponent.gap_address}</p>
           </div>
 
           <div className="flex flex-col gap-2 ">
             <span className="font-semibold text-xs">Gap Addressed</span>
-            <p className="text-xs">{sub_comp.gap_address}</p>
+            <p className="text-xs">{subComponent.gap_address}</p>
           </div>
           <div className="flex flex-col gap-2 ">
             <span className="font-semibold text-xs">
               Strategic Initiatives / Activities
             </span>
-            <p className="text-xs">{sub_comp.strategic_invitation}</p>
+            <p className="text-xs">{subComponent.strategic_invitation}</p>
           </div>
           <div className="flex flex-col gap-2 ">
             <span className="font-semibold text-xs">Who is responsible?</span>
-            <p className="text-xs">{sub_comp.who_responsible}</p>
+            <p className="text-xs">{subComponent.who_responsible}</p>
           </div>
           <div className="flex flex-col gap-2 ">
             <span className="font-semibold text-xs">
               What resources are needed?
             </span>
-            <p className="text-xs">{sub_comp.resource_used}</p>
+            <p className="text-xs">{subComponent.resource_used}</p>
           </div>
           <div className="flex flex-col gap-2 ">
             <span className="font-semibold text-xs">
               Documentation / Means of verification
             </span>
-            <p className="text-xs">{sub_comp.upload_document}</p>
+            <p className="text-xs">{subComponent.upload_document}</p>
           </div>
         </div>
       </div>

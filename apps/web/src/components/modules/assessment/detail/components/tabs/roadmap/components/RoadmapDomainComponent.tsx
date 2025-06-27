@@ -1,8 +1,9 @@
 import React from "react";
-import SubComponentRoadmapList, { SubComponent } from "./SubComponentRoadmap";
+import type { SubComponent } from "./SubComponentRoadmapList";
+import SubComponentRoadmapList from "./SubComponentRoadmapList";
 import { Badge } from "@etm/web-ui-components";
 
-interface ComponentProps {
+interface Props {
   component: {
     component_name: string;
     component_code: string;
@@ -12,7 +13,7 @@ interface ComponentProps {
   };
 }
 
-export default function RoadmapDomainComponent({ component }: ComponentProps) {
+export default function RoadmapDomainComponent({ component }: Props) {
   return (
     <div
       className="flex flex-col gap-4 bg-basic-300/10 rounded-sm p-4"
@@ -37,7 +38,10 @@ export default function RoadmapDomainComponent({ component }: ComponentProps) {
       </span>
       <div className="flex flex-col gap-4 ">
         {component.sub_component?.map((sub_comp) => (
-          <SubComponentRoadmapList sub_comp={sub_comp} key={sub_comp.code} />
+          <SubComponentRoadmapList
+            subComponent={sub_comp}
+            key={sub_comp.code}
+          />
         ))}
       </div>
     </div>

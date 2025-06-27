@@ -4,38 +4,6 @@ import React, { useCallback } from "react";
 import { PageContainer } from "~/components/modules/components/PageContainer";
 import DomainComponent from "../components/DomainComponent";
 
-interface Value {
-  point: number;
-  code: string;
-}
-
-interface Answer {
-  evaluation: string;
-  desc: string;
-  value: Value[];
-}
-
-interface SubComponent {
-  name: string;
-  answer: Answer[];
-}
-
-interface Component {
-  component_name: string;
-  component_code: string;
-  sub_component_name: SubComponent[];
-}
-
-interface Domain {
-  name: string;
-  code: string;
-  components: Component[];
-}
-
-interface DummyData {
-  domain: Domain;
-}
-
 export default function DetailAssessmentResponse() {
   const router = useRouter();
   const params = useParams();
@@ -149,7 +117,7 @@ export default function DetailAssessmentResponse() {
               5
             </span>
           </div>
-          <DomainComponent components={dummyData.domain.components} />
+          <DomainComponent components={[]} />
         </div>
       </div>
       <div></div>
