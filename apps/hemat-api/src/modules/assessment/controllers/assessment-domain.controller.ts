@@ -7,7 +7,7 @@ import {
   HttpCode,
   UseGuards,
   Query,
-  Req,
+  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,7 +22,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { AssessmentComponent, AssessmentDomain } from '@database/entities';
-import { AuthGuard, Abilities } from '@shared/modules';
+import { AuthGuard, Abilities, AuthUser, AuthDto } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { AssessmentDomainService } from '../services';
@@ -32,8 +32,9 @@ import {
   FindAllAssessmentDomainDto,
 } from '../dtos';
 import { ParseUUIDPipe } from '@nestjs/common';
-import { Request } from 'express';
 import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
+import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
+import { AssessmentAbilityDto } from '../dtos/assessment-ability.dto';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Domains')
@@ -108,18 +109,15 @@ export class AssessmentDomainController {
   @Get('assessments/:assessmentId/domains/progress')
   @UseGuards(AssessmentRoleGuard)
   async getDomainProgress(
+    @AssessmentAbilityUser() ability: AssessmentAbilityDto,
+    @AuthUser() user: AuthDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Req() req: Request,
     @Query('language') language?: string,
-    @Query('page') page?: number,
-    @Query('pageSize') pageSize?: number,
   ) {
-    const userId = req.user.id;
     return this.assessmentDomainService.getProgress(
       assessmentId,
-      { language, page, pageSize },
-      userId,
-      req,
+      user.id,
+      language,
     );
   }
 

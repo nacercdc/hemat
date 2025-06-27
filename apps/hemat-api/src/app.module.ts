@@ -11,6 +11,7 @@ import {
   InvitationModule,
   LanguageModule,
   MeasurementScaleModule,
+  SupportModule,
   TemplateModule,
 } from './modules';
 import { ExistConstraint, UniqueConstraint } from './shared/validators';
@@ -30,6 +31,7 @@ import { ExistConstraint, UniqueConstraint } from './shared/validators';
     InvitationModule,
     LanguageModule,
     MeasurementScaleModule,
+    SupportModule,
     TemplateModule,
   ],
   providers: [UniqueConstraint, ExistConstraint],

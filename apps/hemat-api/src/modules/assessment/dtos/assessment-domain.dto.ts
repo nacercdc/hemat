@@ -41,7 +41,7 @@ export class AssessmentDomainDto {
     example: 'Public Health',
     type: String,
   })
-  @IsNotEmpty({ message: 'validation.name.isNotEmpty' })
+  @IsNotEmpty({ message: 'validation.name.isNotEmpt  y' })
   @IsString({ message: 'validation.name.isString' })
   @Length(1, 100, { message: 'validation.name.length args: 1,100' })
   @IsUnique(

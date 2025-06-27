@@ -38,6 +38,7 @@ import {
   AssessmentUpdateRequestDto,
   AssessmentDto,
 } from '../dtos';
+import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
 
 @ApiBearerAuth()
 @ApiTags('Assessments')
@@ -67,15 +68,7 @@ export class AssessmentController {
   @ApiOkResponse({ description: 'Ok', type: Assessment })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.READ,
-        subject: PermissionSubjectEnum.ASSESSMENT,
-      },
-    ],
-  })
+  @UseGuards(AuthGuard, AssessmentRoleGuard)
   @Get(':id')
   async findOne(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -92,15 +85,7 @@ export class AssessmentController {
   @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Assessment> })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.READ,
-        subject: PermissionSubjectEnum.ASSESSMENT,
-      },
-    ],
-  })
+  @UseGuards(AuthGuard, AssessmentRoleGuard)
   @Get()
   async findAll(@Request() req: { user: AuthDto }, @Query() query: FindAllAssessmentDto) {
     return this.assessmentService.findAll(query, req.user);

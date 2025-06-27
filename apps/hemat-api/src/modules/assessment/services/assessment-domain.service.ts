@@ -14,6 +14,7 @@ import {
   Answer,
   AssessmentSubComponent,
   AssessmentSubComponentAnswer,
+  Assessment,
 } from '@database/entities';
 import { UUID } from '@shared/helpers';
 import { Filter, QueryService } from '@shared/services';
@@ -24,7 +25,10 @@ import {
   FindAllAssessmentDomainDto,
 } from '../dtos';
 import { getTranslated } from '@shared/helpers/translation.helper';
+import { Request } from 'express';
 import { MemberRole } from '@shared/enums';
+import { AuthDto } from '@shared/modules';
+import { groupBy } from 'rxjs';
 
 interface AssessmentDomainWithCounts extends AssessmentDomain {
   componentsCount: number;
@@ -36,6 +40,8 @@ export class AssessmentDomainService {
   private readonly logger = new Logger(AssessmentDomainService.name);
 
   constructor(
+    @InjectRepository(Assessment)
+    private readonly assessmentRepository: Repository<Assessment>,
     @InjectRepository(AssessmentDomain)
     private readonly assessmentDomainRepository: Repository<AssessmentDomain>,
     @InjectRepository(AssessmentComponent)
@@ -236,111 +242,88 @@ export class AssessmentDomainService {
    */
   async getProgress(
     assessmentId: string,
-    opts: { language?: string; page?: number; pageSize?: number },
     userId: string,
-    req: any, // request object to access assessmentRole and assessmentGroupId
+    language: string = 'en',
   ) {
-    // 1. Get the user's role and group from the guard
-    const role = req.assessmentRole;
-    const groupId = req.assessmentGroupId;
-
-    // 2. Fetch all domains and build a map for quick lookup
-    const domains = await this.assessmentDomainRepository.find({
-      where: { assessmentId },
-      relations: ['components', 'components.subComponents'],
-    });
-    const domainMeta = domains.map((domain) => {
-      const subComponentsCount = Array.isArray(domain.components)
-        ? domain.components.reduce(
-            (sum, c) => sum + (Array.isArray(c.subComponents) ? c.subComponents.length : 0),
-            0,
-          )
-        : 0;
-      return {
-        id: domain.id,
-        name: getTranslated(domain, opts.language, 'name', domain.name),
-        description: getTranslated(domain, opts.language, 'description', domain.description),
-        componentsCount: Array.isArray(domain.components) ? domain.components.length : 0,
-        subComponentsCount,
-      };
-    });
-
-    // Fetch all groups for the assessment (for primary views)
-    const allGroups = (role === MemberRole.PRIMARY)
-      ? await this.assessmentMemberRepository
-          .createQueryBuilder('member')
-          .select('member.groupId')
-          .where('member.assessmentId = :assessmentId', { assessmentId })
-          .andWhere('member.groupId IS NOT NULL')
-          .groupBy('member.groupId')
-          .getRawMany()
-      : [];
-    const groupIdsAll = allGroups.map(g => g.member_groupId);
-
-    // 3. Build answer filters
-    let answerFilters: any[] = [
-      { assessmentId, isPrimary: true, groupId: null }, // always fetch primary
-    ];
-    if (role === MemberRole.PRIMARY) {
-      answerFilters.push({ assessmentId, isPrimary: false }); // all groups
-    } else if (groupId) {
-      answerFilters.push({ assessmentId, isPrimary: false, groupId }); // only their group
-    }
-
-    // 4. Fetch all relevant answers and subcomponent answers
-    const answers = await this.answerRepository.find({ where: answerFilters });
-    const answerIdsByType: Record<string, string[]> = {};
-    for (const ans of answers) {
-      if (ans.isPrimary) {
-        answerIdsByType.primary = answerIdsByType.primary || [];
-        answerIdsByType.primary.push(ans.id);
-      } else if (ans.groupId) {
-        answerIdsByType[ans.groupId] = answerIdsByType[ans.groupId] || [];
-        answerIdsByType[ans.groupId].push(ans.id);
-      }
-    }
-    const allAnswerIds = Object.values(answerIdsByType).flat();
-    const subComponentAnswers = allAnswerIds.length
-      ? await this.subComponentAnswerRepository.find({ where: { answerId: In(allAnswerIds) } })
-      : [];
-
-    // 5. Helper to build progress for a set of answerIds, with pagination
-    const buildProgress = (answerIds: string[]) => {
-      const domainToSubCompSet: Record<string, Set<string>> = {};
-      for (const sca of subComponentAnswers) {
-        if (!answerIds.includes(sca.answerId)) continue;
-        if (!domainToSubCompSet[sca.domainId]) domainToSubCompSet[sca.domainId] = new Set();
-        domainToSubCompSet[sca.domainId].add(sca.subComponentId);
-      }
-      let data = domainMeta.map((meta) => {
-        const answered = domainToSubCompSet[meta.id]?.size || 0;
-        return {
-          ...meta,
-          answeredSubComponents: answered,
-          totalSubComponents: meta.subComponentsCount,
-          percentage: meta.subComponentsCount > 0
-            ? Math.round((answered / meta.subComponentsCount) * 100)
-            : 0,
-        };
-      });
-      const total = data.length;
-      const page = opts.page && opts.page > 0 ? opts.page : 1;
-      const pageSize = opts.pageSize && opts.pageSize > 0 ? opts.pageSize : total;
-      data = data.slice((page - 1) * pageSize, page * pageSize);
-      return { data, total };
+    
+    type AssessmentDomainWithProgress = {
+      id: string;
+      name: string;
+      percentage: number;
     };
 
-    // 6. Build response
-    const res: any = {};
-    res.primary = buildProgress(answerIdsByType.primary || []);
-    if (role === MemberRole.PRIMARY) {
-      res.groups = {};
-      for (const gid of groupIdsAll) {
-        res.groups[gid] = buildProgress(answerIdsByType[gid] || []);
+    type AssessmentGroupDomain = {
+      id: string;
+      name: string;
+      domains: AssessmentDomainWithProgress[];
+    };
+
+    type AnswerCountResult = {
+      domainId: string;
+      domainName: string;
+      groupId: string;
+      groupName: string;
+      count: number;
+    };
+
+    const domains: { domainId: string; count: number }[] =
+      await this.assessmentDomainRepository
+        .createQueryBuilder('domain')
+        .where('domain.assessmentId = :assessmentId', { assessmentId })
+        .leftJoin('domain.components', 'component')
+        .leftJoin('component.subComponents', 'subComponent')
+        .select('domain.id', 'domainId')
+        .addSelect('COUNT(subComponent.id)::int as count')
+        .groupBy('domain.id')
+        .execute();
+
+    const answers: AnswerCountResult[] = await this.assessmentRepository
+      .createQueryBuilder('assessment')
+      .where('assessment.id = :assessmentId', { assessmentId })
+      .leftJoin('assessment.domains', 'domain')
+      .leftJoin('assessment.groups', 'group')
+      .leftJoin('assessment.answers', 'answer')
+      .leftJoin('answer.assessmentSubComponentAnswers', 'subComponentAnswer')
+      .select('domain.id', 'domainId')
+      .addSelect('domain.name', 'domainName')
+      .addSelect('group.id', 'groupId')
+      .addSelect('group.name', 'groupName')
+      .addSelect('COUNT(subComponentAnswer.id)::int as count')
+      .groupBy('domain.id')
+      .addGroupBy('group.id')
+      .execute();
+
+    const groups: Record<
+      string,
+      {
+        id: string;
+        name: string;
+        domains: Record<string, AssessmentDomainWithProgress>;
       }
-    } else if (groupId) {
-      res.group = buildProgress(answerIdsByType[groupId] || []);
-    }
-    return res;
+    > = {};
+
+    answers.forEach((answer) => {
+      if (!groups[answer.groupId]) {
+        groups[answer.groupId] = {
+          id: answer.groupId,
+          name: answer.groupName,
+          domains: {},
+        };
+      }
+
+      domains.forEach(({ domainId, count }) => {
+        groups[answer.groupId].domains[domainId] = {
+          id: domainId,
+          name: answer.domainName,
+          percentage: (answer.count * 100) / count,
+        };
+      });
+    });
+
+    return Object.values(groups).map((group) => ({
+      id: group.id,
+      name: group.name,
+      domains: Object.values(group.domains),
+    }));
   }
 }

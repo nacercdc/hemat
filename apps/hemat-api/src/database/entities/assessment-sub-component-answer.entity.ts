@@ -4,6 +4,7 @@ import { AssessmentSubComponent } from './assessment-sub-component.entity';
 import { AssessmentMeasurementScale } from './assessment-measurement-scale.entity';
 import { Answer } from './answer.entity';
 import { BaseEntityWithSoftDelete } from './entity';
+import { AssessmentDomain } from './assessment-domain.entity';
 
 @Entity('assessment_sub_component_answers')
 export class AssessmentSubComponentAnswer extends BaseEntityWithSoftDelete {
@@ -48,7 +49,7 @@ export class AssessmentSubComponentAnswer extends BaseEntityWithSoftDelete {
   @Column({ type: 'uuid' })
   answerId: string;
 
-  @ManyToOne(() => Answer, (answer) => answer.id)
+  @ManyToOne(() => Answer, (answer) => answer.assessmentSubComponentAnswers)
   @JoinColumn({ name: 'answerId' })
   answer: Answer;
 

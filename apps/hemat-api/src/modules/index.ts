@@ -6,3 +6,4 @@ export * from './invitation';
 export * from './language';
 export * from './measurement-scale';
 export * from './template';
+export * from './support';
