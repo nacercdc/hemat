@@ -17,15 +17,15 @@ export function AssessmentRoadmap({ domains }: Props) {
   const router = useRouter();
   const onDetailViewClickHandler = (id: string) => {
     //TODO: Implement navigation to the domain detail page
-    router.push(`/roadmap/detail/domain/${id}`);
+    router.push(`/assessment/${id}/assessment-roadmap-responses`);
   };
   const onFillClickHandler = (id: string) => {
     //TODO: Implement filling the domain with domain id
-    router.push(`/roadmap/domain/${id}/fill`);
+    router.push(`/assessment/roadmap/${id}/fill`);
   };
 
   return (
-    <div className="flex flex-col sm:flex-row gap-6">
+    <div className="flex flex-col sm:flex-row gap-6 ">
       {domains.map((domain) => (
         <AssessmentDomainCard
           key={domain.id}

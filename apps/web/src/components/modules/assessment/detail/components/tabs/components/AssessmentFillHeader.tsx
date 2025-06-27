@@ -9,24 +9,10 @@ interface Props {
   title: string;
   subTitle: string;
 }
-export interface YearFilterOption {
-  year: number;
-}
-
-const yearFilterOptions: YearFilterOption[] = [
-  { year: 2023 },
-  { year: 2022 },
-  { year: 2021 },
-  { year: 2020 },
-];
 
 export default function AssessmentFillHeader({ title, subTitle }: Props) {
   const onSelectLanguageHandler = (_name?: Language) => {
-    //TODO: Implement filtering the domains based on the selected year for the group
-  };
-
-  const onSelectYearHandler = (_value?: YearFilterOption) => {
-    //TODO: Implement filtering the domains based on the selected year for the group
+    //TODO: Implement filtering the domains based on the selected language  for the group
   };
   const { data: languages, ...languagesState } = useFindAll<
     QueryManyResponse<Language>
@@ -41,15 +27,6 @@ export default function AssessmentFillHeader({ title, subTitle }: Props) {
       </div>
 
       <div className="flex gap-4 items-center justify-center">
-        <Select<YearFilterOption>
-          placeholder="Year"
-          options={yearFilterOptions}
-          valueKey="year"
-          labelKey="year"
-          onSelect={onSelectYearHandler}
-          size="md"
-        />
-
         <Select<Language>
           placeholder="Language"
           options={(languages?.data as unknown as Language[]) ?? []}

@@ -60,7 +60,7 @@ export default function AssessmentOverview() {
             <LabeledValue label="Name :" value={assessment?.name} />
             <LabeledValue
               label="Created By :"
-              value={`${assessment?.user.name} `}
+              value={`${assessment?.user?.name} `}
             />
             <LabeledValue label="Country :" value={assessment?.country.name} />
             <LabeledValue
@@ -75,6 +75,7 @@ export default function AssessmentOverview() {
                   <div className="flex flex-wrap gap-1 ">
                     {assessment?.languages?.map((lang) => (
                       <Badge
+                        key={lang.code}
                         text={`${lang?.name}`}
                         shape={"circular"}
                         variant={"success"}

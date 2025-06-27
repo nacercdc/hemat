@@ -28,18 +28,19 @@ export default function CreateAssessment() {
   };
 
   const onSubmitAssessmentFormHandler = (data: AssessmentFormData) => {
+    const newAssessment: AssessmentCreate = {
+      name: data.name,
+      startDate: formatDateToYYYYMMDD(data.startDate),
+      endDate: formatDateToYYYYMMDD(data.endDate),
+      countryCode: data.country.code,
+      organization: data.organization,
+      description: data.description,
+      languages: data.languages.map((language) => language.code),
+    };
+
     createAssessment(
       {
-        data: {
-          name: data.name,
-          startDate: formatDateToYYYYMMDD(data.startDate),
-          endDate: formatDateToYYYYMMDD(data.endDate),
-          countryCode: data.country.code,
-          organization: data.organization,
-          description: data.description,
-          languages: data.languages.map((language) => language.code),
-        },
-        isProtected: true,
+        data: newAssessment,
       },
       {
         onSuccess: () => {

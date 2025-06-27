@@ -8,7 +8,7 @@ import MemberInvitation from "./components/tabs/members";
 import AssessmentOverview from "./components/tabs/overview";
 import { PageContainer } from "../../components/PageContainer";
 import { useParams, useRouter } from "next/navigation";
-import { Roadmap } from "./components/tabs/roadmap";
+import { RoadmapDomainGroup } from "./components/tabs/roadmap";
 
 export function AssessmentDetail() {
   const assessmentName = "Assessment 1";
@@ -53,7 +53,7 @@ export function AssessmentDetail() {
             {
               value: "roadmap",
               label: "Roadmap",
-              content: <Roadmap />,
+              content: <RoadmapDomainGroup />,
             },
           ]}
           defaultValue="detail"
