@@ -49,7 +49,7 @@ export function RoadmapDomainGroup() {
         title="Current Roadmap"
         subTitle="This fill by the team leader"
       />
-      <div className="flex flex-col w-full  rounded-md gap-3 p-3">
+      <div className="flex flex-col w-full  rounded-md gap-3 p-3 ">
         {dummyGroups.map((group) => (
           <AssessmentRoadmap key={group.title} domains={group.domains} />
         ))}

@@ -19,8 +19,8 @@ interface Props {
 export function GroupedAssessment({ title, subtitle, domains }: Props) {
   const router = useRouter();
   const onDetailViewClickHandler = (id: string) => {
-    //TODO: Implement navigation to the domain detail page
-    router.push(`/assessment/detail/domain/${id}`);
+    //TODO: Implement navigation to the domain all response page
+    router.push(`/assessment/${id}/assessment-responses`);
   };
   const onFillClickHandler = (id: string) => {
     //TODO: Implement filling the domain with domain id
@@ -28,7 +28,7 @@ export function GroupedAssessment({ title, subtitle, domains }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 cursor-pointer">
       <div className="flex items-center justify-between w-full h-16 rounded-lg py-3">
         <div className="flex flex-col items-start gap-1">
           <span className="text-sm font-bold">{title}</span>

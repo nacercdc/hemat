@@ -21,7 +21,7 @@ export default function GroupsList({ groups = [] }: Props) {
     <div className="flex flex-col gap-4">
       {groups.map((group, index) => (
         <GroupCard
-          key={index}
+          key={group.groupName}
           groupName={group.groupName}
           members={group.members}
         />

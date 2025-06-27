@@ -26,7 +26,7 @@ export default function AssessmentDomainCard({
       className="flex flex-col w-60 min-h-56 border border-dark-lighter/20 bg-card rounded-xl p-4 justify-between"
     >
       <div
-        className="flex flex-col gap-3 items-start text-wrap"
+        className="flex flex-col gap-3 items-start text-wrap cursor-pointer"
         onClick={() => onDetailViewClickHandler(domain.id)}
       >
         <h3 className="text-sm font-bold">{domain.name}</h3>

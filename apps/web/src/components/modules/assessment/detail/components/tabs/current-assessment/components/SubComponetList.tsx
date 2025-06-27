@@ -6,9 +6,12 @@ interface Value {
 }
 
 interface Answer {
-  evaluation: string;
-  desc: string;
-  value: Value;
+  assessmentId?: string;
+  subComponentId?: string;
+  measurementScaleId?: string;
+  evidence: string;
+  reference: string;
+  notes: string;
 }
 
 interface SubComponent {
@@ -16,12 +19,6 @@ interface SubComponent {
   name: string;
   answer: Answer;
 }
-
-// interface Component {
-//   component_name: string;
-//   component_code: string;
-//   sub_component_name: SubComponent[];
-// }
 interface Props {
   subComponent: SubComponent[];
 }
@@ -36,27 +33,17 @@ export default function SubComponentList({ subComponent }: Props) {
               {list.code} {list.name}
             </h1>
             <span className="px-3 py-1  bg-primary  font-bold text-sm text-white rounded-sm">
-              {list.answer.value.point}
+              5
             </span>
           </div>
           <div className="flex flex-col gap-2">
             <h1 className="font-semibold text-sm">Evidence </h1>
-            <p className="text-xs">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam
-              a fuga unde, deserunt tempora eum quas autem voluptates obcaecati
-              nam minus molestiae placeat doloribus error, perferendis veniam at
-              amet minima.
-            </p>
+            <p className="text-xs">{list.answer.evidence}</p>
           </div>
 
           <div className="flex flex-col gap-2">
             <h1 className="font-semibold text-sm">Reference </h1>
-            <p className="text-xs">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam
-              a fuga unde, deserunt tempora eum quas autem voluptates obcaecati
-              nam minus molestiae placeat doloribus error, perferendis veniam at
-              amet minima.
-            </p>
+            <p className="text-xs">{list.answer.reference}</p>
           </div>
         </div>
       ))}

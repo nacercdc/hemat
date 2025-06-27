@@ -19,7 +19,7 @@ interface SubComponent {
 interface Component {
   component_name: string;
   component_code: string;
-  sub_component_name: SubComponent[];
+  sub_component: SubComponent[];
 }
 interface Props {
   components: Component[];

@@ -31,12 +31,12 @@ export const groups = (
         depth: 0,
       },
       {
-        id: "roadmap",
-        label: "Roadmap",
+        id: "roadmaps",
+        label: "Roadmaps",
         icon: (
           <Icon icon="hugeicons:floor-plan" className="!w-[18px] !h-[18px]" />
         ),
-        path: "/roadmap",
+        path: "/roadmaps",
         permission: isLoading ? false : true,
         depth: 0,
       },
