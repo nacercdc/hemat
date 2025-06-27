@@ -107,6 +107,7 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
     reset,
     watch,
     setValue,
+    unregister,
     handleSubmit,
     formState: { errors },
   } = useForm<DefaultFieldsFormData>({
@@ -161,6 +162,9 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
   const onRemoveLanguageHandler = (code: string) => {
     const newLangs = (selectedLanguages || []).filter((l) => l.code !== code);
     setValue("selectedLanguages", newLangs);
+    unregister(`translations.${code}.name`);
+    unregister(`translations.${code}.code`);
+    unregister(`translations.${code}.description`);
   };
 
   const syncEnglishFields = () => {
@@ -310,7 +314,7 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
           size="lg"
           onClick={() => reset()}
         >
-          Cancel
+          Reset
         </Button>
         <Button type="submit" size="lg" loading={loading}>
           {subComponent ? "Edit" : "Add"}

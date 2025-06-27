@@ -18,11 +18,9 @@ interface FormLanguage {
 }
 
 interface Props {
-  scalesLoading?: boolean;
-  scalesSuccess?: boolean;
   subComponent?: SubComponent;
-  defaultFieldsLoading?: boolean;
-  defaultFieldsSuccess?: boolean;
+  scalesState: "pending" | "error" | "success" | "idle";
+  defaultFieldsState: "pending" | "error" | "success" | "idle";
   createdSubComponentId?: string | null;
   onScalesSubmit: (data: ScalesFormData) => void;
   onDefaultFieldsSubmit: (data: DefaultFieldsFormData) => void;
@@ -30,11 +28,9 @@ interface Props {
 
 export function SubComponentForm({
   subComponent,
-  scalesLoading,
   onScalesSubmit,
-  scalesSuccess,
-  defaultFieldsSuccess,
-  defaultFieldsLoading,
+  scalesState,
+  defaultFieldsState,
   createdSubComponentId,
   onDefaultFieldsSubmit,
 }: Props) {
@@ -63,33 +59,42 @@ export function SubComponentForm({
     if (!subComponent) {
       setScalesStepInitialLanguages(data.selectedLanguages || []);
     }
-    setCurrentStep(2);
   };
 
   const onScalesSubmitHandler = (data: ScalesFormData) => {
     onScalesSubmit(data);
+    setCurrentStep(1);
   };
 
   useEffect(() => {
-    if (subComponent && !defaultFieldsSuccess) {
+    if (scalesState === "success") {
       setCurrentStep(1);
     }
-  }, [subComponent, defaultFieldsSuccess]);
-
-  useEffect(() => {
-    if (defaultFieldsSuccess) {
+    if (scalesState === "error") {
       setCurrentStep(2);
     }
-  }, [defaultFieldsSuccess]);
+  }, [scalesState]);
 
   useEffect(() => {
-    if (scalesSuccess) {
+    if (defaultFieldsState === "success") {
+      setCurrentStep(2);
+    } else {
       setCurrentStep(1);
     }
-  }, [scalesSuccess]);
+  }, [defaultFieldsState]);
+
+  useEffect(() => {
+    if (subComponent && defaultFieldsState !== "success") {
+      setCurrentStep(1);
+    }
+  }, [subComponent, defaultFieldsState]);
+
+  useEffect(() => {
+    setCurrentStep(1);
+  }, []);
 
   return (
-    <div className="flex flex-col gap-2 w-full max-h-[700px] overflow-y-auto">
+    <div className="flex flex-col gap-2 w-full min-h-[700px] overflow-y-auto">
       {/* Stepper Header */}
       <div className="flex  items-center gap-2 px-4 py-2 border-b">
         <div
@@ -106,47 +111,60 @@ export function SubComponentForm({
           </div>
           <span className="text-sm font-medium">Basic Information</span>
         </div>
-        {shouldShowScalesForm && (
-          <>
-            <div className="flex w-1/12 h-px bg-border" />
+
+        <>
+          <div className="flex w-1/12 h-px bg-border" />
+          <div
+            className={`flex items-center gap-1 ${currentStep >= 2 ? "text-primary" : "text-muted-foreground"}`}
+          >
             <div
-              className={`flex items-center gap-1 ${currentStep >= 2 ? "text-primary" : "text-muted-foreground"}`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                currentStep >= 2
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
             >
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  currentStep >= 2
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                2
-              </div>
-              <span className="text-sm font-medium">Measurement Scales</span>
+              2
             </div>
-          </>
-        )}
+            <span className="text-sm font-medium">
+              Measurement scales description
+            </span>
+          </div>
+        </>
       </div>
 
-      {/* Step 1: Default Fields Form */}
-      {(currentStep !== 2 || defaultFieldsLoading) && (
-        <DefaultFieldsForm
-          loading={defaultFieldsLoading}
-          subComponent={subComponentDetail}
-          onSubmit={onDefaultFieldsSubmitHandler}
-        />
-      )}
+      <div className="relative w-full flex-1 min-h-[600px]">
+        {/* Step 1: Default Fields Form */}
+        <div
+          className={`
+            absolute inset-0 transition-opacity duration-300
+            ${currentStep === 1 ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
+          `}
+        >
+          <DefaultFieldsForm
+            loading={defaultFieldsState === "pending"}
+            subComponent={subComponentDetail}
+            onSubmit={onDefaultFieldsSubmitHandler}
+          />
+        </div>
 
-      {/* Step 2: Scales Form */}
-      {currentStep === 2 && shouldShowScalesForm && (
-        <ScalesForm
-          createdSubComponentId={createdSubComponentId}
-          loading={scalesLoading}
-          item={subComponentDetail}
-          onSubmit={onScalesSubmitHandler}
-          initialSelectedLanguages={scalesStepInitialLanguages}
-          onBack={() => setCurrentStep(1)}
-        />
-      )}
+        {/* Step 2: Scales Form */}
+        <div
+          className={`
+            absolute inset-0 transition-opacity duration-300
+            ${currentStep === 2 && shouldShowScalesForm ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
+          `}
+        >
+          <ScalesForm
+            createdSubComponentId={createdSubComponentId}
+            loading={scalesState === "pending"}
+            subComponent={subComponentDetail}
+            onSubmit={onScalesSubmitHandler}
+            initialSelectedLanguages={scalesStepInitialLanguages}
+            onBack={() => setCurrentStep(1)}
+          />
+        </div>
+      </div>
     </div>
   );
 }
