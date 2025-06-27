@@ -131,6 +131,7 @@ export function ScalesForm({
     },
     resolver: zodResolver(scalesSchema),
     mode: "all",
+    shouldUnregister: true,
   });
 
   const selectedLanguages: Omit<Language, "id">[] =
@@ -336,7 +337,9 @@ export function ScalesForm({
                         lang.code === "en"
                           ? errors.scales?.[index]?.description?.message
                           : errors.scales?.[index]?.translations?.[lang.code]
-                              ?.description?.message
+                              ?.description?.message ||
+                            errors.scales?.[index]?.translations?.[lang.code]
+                              ?.message
                       }
                     />
                   </div>

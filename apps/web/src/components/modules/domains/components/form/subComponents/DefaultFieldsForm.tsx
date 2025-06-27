@@ -107,7 +107,6 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
     reset,
     watch,
     setValue,
-    unregister,
     handleSubmit,
     formState: { errors },
   } = useForm<DefaultFieldsFormData>({
@@ -123,6 +122,7 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
     },
     resolver: zodResolver(defaultFieldsSchema),
     mode: "all",
+    shouldUnregister: true,
   });
 
   const selectedLanguages: Omit<Language, "id">[] =
@@ -162,9 +162,6 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
   const onRemoveLanguageHandler = (code: string) => {
     const newLangs = (selectedLanguages || []).filter((l) => l.code !== code);
     setValue("selectedLanguages", newLangs);
-    unregister(`translations.${code}.name`);
-    unregister(`translations.${code}.code`);
-    unregister(`translations.${code}.description`);
   };
 
   const syncEnglishFields = () => {
