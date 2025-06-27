@@ -240,14 +240,6 @@ export function Content({ activeDomain, assessmentId, refetchDomains }: Props) {
             variant: "success",
           });
         },
-        onError: (error) => {
-          toast({
-            title: "Error updating domain",
-            message:
-              error.message || "An error occurred while updating the domain.",
-            variant: "destructive",
-          });
-        },
       }
     );
   };

@@ -184,13 +184,6 @@ export const SubComponentForm = ({
             variant: "success",
           });
         },
-        onError: () => {
-          toast({
-            title: "Error updating component",
-            message: "An error occurred while updating the component.",
-            variant: "destructive",
-          });
-        },
       }
     );
   };
@@ -246,7 +239,7 @@ export const SubComponentForm = ({
           Cancel
         </Button>
         <Button size="lg" type="submit" form="subComponent-form">
-          Save SubComponent
+          Save sub component
         </Button>
       </div>
     </form>

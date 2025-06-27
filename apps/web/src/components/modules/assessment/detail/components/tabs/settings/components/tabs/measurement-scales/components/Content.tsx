@@ -242,15 +242,6 @@ export function Content({
             variant: "success",
           });
         },
-        onError: (error) => {
-          toast({
-            title: "Error updating measurement scale",
-            message:
-              error.message ||
-              "An error occurred while updating the measurement scale.",
-            variant: "destructive",
-          });
-        },
       }
     );
   };
@@ -278,6 +269,8 @@ export function Content({
         name: activeMeasurementScale?.name ?? "",
         description: activeMeasurementScale?.description ?? "",
         translations: getDefaultTranslations(activeMeasurementScale),
+        rate: activeMeasurementScale?.rate ?? 1,
+        color: activeMeasurementScale?.color ?? "#338E41",
         selectedLanguages:
           measurementScaleLanguages.length > 0
             ? measurementScaleLanguages

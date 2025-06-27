@@ -247,13 +247,6 @@ export function Content({
             variant: "success",
           });
         },
-        onError: () => {
-          toast({
-            title: "Error updating component",
-            message: "An error occurred while updating the component.",
-            variant: "destructive",
-          });
-        },
       }
     );
   };
