@@ -61,6 +61,55 @@ export function SubComponent({ subComponent }: Props) {
   const { mutate: deleteSubComponent, ...deleteSubComponentState } =
     useDeleteMutation(`sub-components/${subComponent.id}`);
 
+  const baseOptions = [
+    {
+      value: "view",
+      label: "View",
+      leftNode: (
+        <Icon icon="solar:eye-outline" className="!text-dark !w-4 !h-4" />
+      ),
+      onClick: () => {
+        setDrawerOpen(true);
+      },
+    },
+
+    {
+      value: "edit",
+      label: "Edit",
+      leftNode: (
+        <Icon icon="iconamoon:edit-light" className="!text-dark !w-4 !h-4" />
+      ),
+      onClick: () => {
+        editSubComponentModalRef.current?.openModal();
+      },
+    },
+
+    {
+      value: "add-measurement-scale",
+      label: "Add Measurement Scale",
+      leftNode: <Icon icon="tabler:plus" className="!text-dark !w-4 !h-4" />,
+      onClick: () => {
+        addMeasurementScaleModalRef.current?.openModal();
+      },
+    },
+    {
+      value: "delete",
+      label: "Delete",
+      leftNode: (
+        <Icon
+          icon="material-symbols-light:delete-outline"
+          className="!text-dark !w-4 !h-4"
+        />
+      ),
+      onClick: () => deleteDialogRef.current?.openDialog(),
+    },
+  ];
+
+  const options =
+    subComponent.measurementScales && subComponent.measurementScales.length > 0
+      ? baseOptions.filter((option) => option.value !== "add-measurement-scale")
+      : baseOptions;
+
   const onEditSubComponentSubmitHandler = (values: DefaultFieldsFormData) => {
     editSubComponent(
       {
@@ -84,6 +133,13 @@ export function SubComponent({ subComponent }: Props) {
             queryKey: ["subComponents"],
           });
         },
+        onError: () => {
+          toast({
+            title: "Error",
+            message: "Something went wrong while updating sub component",
+            variant: "destructive",
+          });
+        },
       }
     );
   };
@@ -103,7 +159,8 @@ export function SubComponent({ subComponent }: Props) {
           onSuccess: () => {
             toast({
               title: "Success",
-              message: "Sub Component measurement scale created successfully",
+              message:
+                "Sub component measurement scale description created successfully",
               variant: "success",
             });
 
@@ -111,6 +168,14 @@ export function SubComponent({ subComponent }: Props) {
               queryKey: ["subComponents"],
             });
             addMeasurementScaleModalRef.current?.closeModal();
+          },
+          onError: () => {
+            toast({
+              title: "Error",
+              message:
+                "Something went wrong while adding sub component measurement scale",
+              variant: "destructive",
+            });
           },
         }
       );
@@ -132,7 +197,8 @@ export function SubComponent({ subComponent }: Props) {
           onSuccess: () => {
             toast({
               title: "Success",
-              message: "Sub Component measurement scale updated successfully",
+              message:
+                "Sub component measurement scale description updated successfully",
               variant: "success",
             });
             queryClient.invalidateQueries({
@@ -176,71 +242,27 @@ export function SubComponent({ subComponent }: Props) {
             onClick={(e) => e.stopPropagation()}
           />
         }
-        options={[
-          {
-            value: "view",
-            label: "View",
-            leftNode: (
-              <Icon icon="solar:eye-outline" className="!text-dark !w-4 !h-4" />
-            ),
-            onClick: () => {
-              setDrawerOpen(true);
-            },
-          },
-
-          {
-            value: "edit",
-            label: "Edit",
-            leftNode: (
-              <Icon
-                icon="iconamoon:edit-light"
-                className="!text-dark !w-4 !h-4"
-              />
-            ),
-            onClick: () => {
-              editSubComponentModalRef.current?.openModal();
-            },
-          },
-
-          {
-            value: "add-measurement-scale",
-            label: "Add Measurement Scale",
-            leftNode: (
-              <Icon icon="tabler:plus" className="!text-dark !w-4 !h-4" />
-            ),
-            onClick: () => {
-              addMeasurementScaleModalRef.current?.openModal();
-            },
-          },
-          {
-            value: "delete",
-            label: "Delete",
-            leftNode: (
-              <Icon
-                icon="material-symbols-light:delete-outline"
-                className="!text-dark !w-4 !h-4"
-              />
-            ),
-            onClick: () => deleteDialogRef.current?.openDialog(),
-          },
-        ]}
+        options={options}
       />
       <div className="flex items-center justify-between w-full gap-5 ">
         <h5 className="text-sm font-medium">{subComponent?.name}</h5>
       </div>
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-        {drawerOpen && <ComponentDetail id={subComponent.id} />}
+        {drawerOpen && <ComponentDetail subComponent={subComponent} />}
       </Drawer>
       <Modal ref={editSubComponentModalRef} title={`Edit sub component`}>
         <SubComponentForm
           subComponent={subComponent}
           onScalesSubmit={onEditScalesSubmitHandler}
-          defaultFieldsLoading={editSubComponentState.isPending}
+          defaultFieldsState={editSubComponentState.status}
           onDefaultFieldsSubmit={onEditSubComponentSubmitHandler}
-          scalesLoading={editSubComponentMeasurementScalesState.isPending}
+          scalesState={editSubComponentMeasurementScalesState.status}
         />
       </Modal>
-      <Modal ref={addMeasurementScaleModalRef} title={`Add Measurement Scale`}>
+      <Modal
+        ref={addMeasurementScaleModalRef}
+        title={`Add measurement scale description`}
+      >
         <ScalesForm
           onSubmit={onAddScalesSubmitHandler}
           createdSubComponentId={subComponent.id}
@@ -256,12 +278,12 @@ export function SubComponent({ subComponent }: Props) {
         autoClosable={false}
         actionLoading={deleteSubComponentState.isPending}
       >
-        <div className="flex flex-col gap-2">
-          <span className="text-sm text-muted-foreground">
+        <span className="flex flex-col gap-2">
+          <p className="text-sm text-muted-foreground">
             Are you sure you want to delete this sub component? This action
             cannot be undone.
-          </span>
-        </div>
+          </p>
+        </span>
       </Dialog>
     </div>
   );

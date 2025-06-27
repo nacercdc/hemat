@@ -7,11 +7,7 @@ import { Button, TextAreaRHF, MultiSelectRHF } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Language } from "~/libs/models/language.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type {
-  Scale,
-  ScaleFilterable,
-  ScaleSortable,
-} from "~/libs/models/scale.model";
+import type { Scale } from "~/libs/models/scale.model";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useEffect } from "react";
 import type { SubComponent } from "~/libs/models/subComponent.model";
@@ -85,7 +81,7 @@ export type ScalesFormData = z.infer<typeof scalesSchema>;
 
 interface Props {
   loading?: boolean;
-  item?: SubComponent;
+  subComponent?: SubComponent;
   createdSubComponentId?: string | null;
   onSubmit: (data: ScalesFormData) => void;
   initialSelectedLanguages?: Omit<Language, "id">[];
@@ -93,22 +89,17 @@ interface Props {
 }
 
 export function ScalesForm({
-  item,
+  subComponent,
   loading,
   onSubmit,
   createdSubComponentId,
   initialSelectedLanguages,
   onBack,
 }: Props) {
-  const { data: scales, ...scalesState } = useFindAll<
-    Scale,
-    unknown,
-    ScaleFilterable,
-    ScaleSortable
-  >({
+  const { data: scales, ...scalesState } = useFindAll<Scale>({
     path: "/measurement-scales",
     tqOptions: {
-      enabled: item?.measurementScales && item?.measurementScales?.length === 0,
+      enabled: true,
     },
   });
 
@@ -146,20 +137,6 @@ export function ScalesForm({
     watch("selectedLanguages") || [];
   const scalesField = watch("scales");
 
-  useEffect(() => {
-    if (scalesField) {
-      scalesField.forEach((scale, idx) => {
-        if (scale.description !== scale.translations?.en?.description) {
-          setValue(
-            `scales.${idx}.translations.en.description`,
-            scale.description,
-            { shouldValidate: false }
-          );
-        }
-      });
-    }
-  }, [scalesField?.map((s) => s.description).join("|")]);
-
   const onRemoveLanguageHandler = (code: string) => {
     setValue(
       "selectedLanguages",
@@ -171,8 +148,11 @@ export function ScalesForm({
     if (initialSelectedLanguages && initialSelectedLanguages.length > 0) {
       return initialSelectedLanguages;
     }
-    if (item?.measurementScales && item.measurementScales.length > 0) {
-      const firstScale = item.measurementScales[0];
+    if (
+      subComponent?.measurementScales &&
+      subComponent.measurementScales.length > 0
+    ) {
+      const firstScale = subComponent.measurementScales[0];
       if (firstScale?.translations) {
         const translationLangCodes = Object.keys(firstScale.translations);
         return languageOptions.filter((lang) =>
@@ -212,38 +192,60 @@ export function ScalesForm({
   };
 
   useEffect(() => {
+    if (scalesField) {
+      scalesField.forEach((scale, idx) => {
+        if (scale.description !== scale.translations?.en?.description) {
+          setValue(
+            `scales.${idx}.translations.en.description`,
+            scale.description,
+            { shouldValidate: false }
+          );
+        }
+      });
+    }
+  }, [scalesField?.map((s) => s.description).join("|")]);
+
+  useEffect(() => {
     if (scales?.data) {
-      const initialScales =
-        item?.measurementScales && item.measurementScales.length > 0
-          ? item.measurementScales.map((scale) => ({
-              measurementScaleId: scale.measurementScaleId,
-              subComponentId: scale.subComponentId,
-              description: scale.description,
-              translations: defaultSelectedLanguages.reduce(
-                (acc, lang) => {
-                  acc[lang.code] = {
-                    description:
-                      scale.translations[lang.code]?.description || "",
-                  };
-                  return acc;
-                },
-                {} as Record<string, { description: string }>
-              ),
-            }))
-          : scales.data.map((scale) => ({
-              measurementScaleId: scale.id,
-              subComponentId: item?.id || createdSubComponentId || "",
-              description: scale.description,
-              translations: defaultSelectedLanguages.reduce(
-                (acc, lang) => {
-                  acc[lang.code] = { description: "" };
-                  return acc;
-                },
-                {} as Record<string, { description: string }>
-              ),
-            }));
+      const mergedScales = scales.data.map((scale) => {
+        const existingScale = subComponent?.measurementScales.find(
+          (s) => s.measurementScaleId === scale.id
+        );
+
+        if (existingScale) {
+          return {
+            measurementScaleId: existingScale.measurementScaleId,
+            subComponentId: existingScale.subComponentId,
+            description: existingScale.description,
+            translations: defaultSelectedLanguages.reduce(
+              (acc, lang) => {
+                acc[lang.code] = {
+                  description:
+                    existingScale.translations[lang.code]?.description || "",
+                };
+                return acc;
+              },
+              {} as Record<string, { description: string }>
+            ),
+          };
+        } else {
+          return {
+            measurementScaleId: scale.id,
+            subComponentId: subComponent?.id || createdSubComponentId || "",
+            description: scale.description,
+            translations: defaultSelectedLanguages.reduce(
+              (acc, lang) => {
+                acc[lang.code] = { description: "" };
+                return acc;
+              },
+              {} as Record<string, { description: string }>
+            ),
+          };
+        }
+      });
+
       reset({
-        scales: initialScales,
+        scales: mergedScales,
         selectedLanguages: defaultSelectedLanguages,
       });
     } else {
@@ -252,7 +254,7 @@ export function ScalesForm({
         selectedLanguages: defaultSelectedLanguages,
       });
     }
-  }, [scales, createdSubComponentId, item, languages]);
+  }, [scales, createdSubComponentId, subComponent, languages]);
 
   return (
     <div className="flex flex-col gap-4 p-2">
@@ -273,7 +275,7 @@ export function ScalesForm({
           loading={languagesState.isLoading}
           error={errors.selectedLanguages?.message}
         />
-        {scalesState.isSuccess && scales?.total === 0 ? (
+        {scalesState.isSuccess && (!scalesField || scalesField.length === 0) ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
             <div className="text-center">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-basic-100 flex items-center justify-center">
@@ -309,30 +311,37 @@ export function ScalesForm({
                 </button>
               )}
 
-              {scales?.data.map((scale, index) => (
-                <div key={scale.id} className="mb-4 mt-2">
-                  <div className="font-semibold mb-1 text-[15px]">
-                    {scale.name}
+              {scalesField?.map((scale, index) => {
+                const fetchedScale = scales?.data?.find(
+                  (s) => s.id === scale.measurementScaleId
+                );
+                const scaleName = fetchedScale?.name || scale.description;
+
+                return (
+                  <div key={scale.measurementScaleId} className="mb-4 mt-2">
+                    <div className="font-semibold mb-1 text-[15px]">
+                      {scaleName}
+                    </div>
+                    <TextAreaRHF<ScalesFormData>
+                      control={control}
+                      name={
+                        lang.code === "en"
+                          ? `scales.${index}.description`
+                          : `scales.${index}.translations.${lang.code}.description`
+                      }
+                      placeholder={`Write ${lang.name} Description for ${scaleName}`}
+                      labelVariant="bold"
+                      rows={4}
+                      error={
+                        lang.code === "en"
+                          ? errors.scales?.[index]?.description?.message
+                          : errors.scales?.[index]?.translations?.[lang.code]
+                              ?.description?.message
+                      }
+                    />
                   </div>
-                  <TextAreaRHF<ScalesFormData>
-                    control={control}
-                    name={
-                      lang.code === "en"
-                        ? `scales.${index}.description`
-                        : `scales.${index}.translations.${lang.code}.description`
-                    }
-                    placeholder={`Write ${lang.name} Description for ${scale.name}`}
-                    labelVariant="bold"
-                    rows={4}
-                    error={
-                      lang.code === "en"
-                        ? errors.scales?.[index]?.description?.message
-                        : errors.scales?.[index]?.translations?.[lang.code]
-                            ?.description?.message
-                    }
-                  />
-                </div>
-              ))}
+                );
+              })}
             </div>
           ))
         )}
@@ -342,17 +351,19 @@ export function ScalesForm({
               Back
             </Button>
           )}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 w-full justify-end">
             <Button
               type="button"
               variant="outline"
               size="lg"
               onClick={() => reset()}
             >
-              Cancel
+              Reset
             </Button>
             <Button type="submit" size="lg" loading={loading}>
-              {item ? "Edit scale" : "Add scale"}
+              {subComponent
+                ? "Update scales description"
+                : "Add scales description"}
             </Button>
           </div>
         </div>
