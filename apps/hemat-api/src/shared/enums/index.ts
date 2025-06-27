@@ -8,3 +8,6 @@ export * from './language.enum';
 export * from './member.enum';
 export * from './profile.enum';
 export * from './user.enum';
+export * from './support-status.enum';
+export * from './support-priority.enum';
+export * from './support-visibility.enum';
