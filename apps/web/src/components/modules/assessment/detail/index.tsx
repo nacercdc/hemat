@@ -7,6 +7,7 @@ import { Tabs } from "@etm/web-ui-components";
 import MemberInvitation from "./components/tabs/members";
 import AssessmentOverview from "./components/tabs/overview";
 import { PageContainer } from "../../components/PageContainer";
+import { Settings } from "./components/tabs/settings";
 import { useParams, useRouter } from "next/navigation";
 import { RoadmapDomainGroup } from "./components/tabs/roadmap";
 
@@ -26,7 +27,7 @@ export function AssessmentDetail() {
       includeBreadcrumb={false}
       onBack={onBackHandler}
     >
-      <div className="px-8">
+      <div className="px-8 h-full">
         <Tabs
           options={[
             {
@@ -34,16 +35,15 @@ export function AssessmentDetail() {
               label: "Detail",
               content: <AssessmentOverview />,
             },
-
-            {
-              value: "setting",
-              label: "Setting",
-              content: <AssessmentOverview />,
-            },
             {
               value: "member",
               label: "Member",
               content: <MemberInvitation />,
+            },
+            {
+              value: "settings",
+              label: "Settings",
+              content: <Settings />,
             },
             {
               value: "current-assessment",

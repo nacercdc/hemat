@@ -97,7 +97,7 @@ export function MultiSelect<T>({
       size={labelSize}
     >
       <Popover open={open} onOpenChange={onOpenChangeHandler}>
-        <PopoverTrigger asChild>
+        <PopoverTrigger asChild className="flex items-center w-full">
           <Button
             ref={buttonRef}
             variant="outline"
