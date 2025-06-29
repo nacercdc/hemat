@@ -82,7 +82,6 @@ export class AssessmentSubComponentService {
 
     return { subComponents: assessmentSubComponents, templateSubComponentId };
   }
-
   async findAll(
     query: FindAllAssessmentSubComponentDto & { assessmentId: string },
   ): Promise<FindAllResponseDto<AssessmentSubComponent>> {
@@ -99,7 +98,6 @@ export class AssessmentSubComponentService {
       .skip(query.skip)
       .getManyAndCount();
   }
-
   async findOne(
     assessmentId: string,
     id: string,

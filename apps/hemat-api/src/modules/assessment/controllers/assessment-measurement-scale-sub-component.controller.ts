@@ -86,10 +86,12 @@ export class AssessmentMeasurementScaleSubComponentController {
   async findAll(
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
     @Query() query: Omit<FindAllAssessmentMeasurementScaleSubComponentDto, 'subComponentId'>,
+    @Query('language') language?: string,
   ): Promise<FindAllResponseDto<AssessmentMeasurementScaleSubComponentDto>> {
-    const queryWithSubComponentId: FindAllAssessmentMeasurementScaleSubComponentDto = {
+    const queryWithSubComponentId: FindAllAssessmentMeasurementScaleSubComponentDto & { language?: string } = {
       ...query,
       subComponentId,
+      language,
     };
     return this.assessmentMeasurementScaleSubComponentService.findAll(queryWithSubComponentId);
   }
@@ -119,10 +121,12 @@ export class AssessmentMeasurementScaleSubComponentController {
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
     @Param('measurementScaleId', new ParseUUIDPipe())
     measurementScaleId: string,
+    @Query('language') language?: string,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
     return this.assessmentMeasurementScaleSubComponentService.findOne(
       subComponentId,
       measurementScaleId,
+      language,
     );
   }
 

@@ -39,6 +39,8 @@ import {
   AssessmentDto,
 } from '../dtos';
 import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
+import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
+import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
 
 @ApiBearerAuth()
 @ApiTags('Assessments')
@@ -68,14 +70,24 @@ export class AssessmentController {
   @ApiOkResponse({ description: 'Ok', type: Assessment })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard, AssessmentRoleGuard)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+    requireAdmin: false, // Allow non-admins with membership
+  })
+  @UseGuards(AssessmentRoleGuard)
   @Get(':id')
   async findOne(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Request() req: { user: AuthDto },
     @Query() query: FindOneAssessmentDto,
   ) {
-    return this.assessmentService.findOneWithMember(id, req.user.id, query);
+    return this.assessmentService.findOne(id, query, user);
   }
 
   @ApiOperation({
@@ -85,10 +97,23 @@ export class AssessmentController {
   @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Assessment> })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard, AssessmentRoleGuard)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+    requireAdmin: false, // Allow non-admins with membership
+  })
+  @UseGuards(AssessmentRoleGuard)
   @Get()
-  async findAll(@Request() req: { user: AuthDto }, @Query() query: FindAllAssessmentDto) {
-    return this.assessmentService.findAll(query, req.user);
+  async findAll(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+    @Query() query: FindAllAssessmentDto,
+  ) {
+    return this.assessmentService.findAll(query, user);
   }
 
   @ApiOperation({ summary: 'Create', description: 'Create a new assessment' })
@@ -112,7 +137,10 @@ export class AssessmentController {
     @Request() req: { user: AuthDto },
     @Body() payload: AssessmentCreateRequestDto,
   ): Promise<AssessmentDto> {
-    const assessment = await this.assessmentService.create(req.user.id, payload);
+    const assessment = await this.assessmentService.create(
+      req.user.id,
+      payload,
+    );
     return new AssessmentDto(assessment);
   }
 
