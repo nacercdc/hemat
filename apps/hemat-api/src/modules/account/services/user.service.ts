@@ -23,13 +23,14 @@ import {
 } from '../../../shared/modules';
 import { ConfigType } from '../../../config/types';
 import { HashHelper, pick } from '../../../shared/helpers';
-import { InvitationStatus, UserStatusEnum } from '../../../shared/enums';
+import { InvitationStatus, UserStatusEnum, MemberRole } from '../../../shared/enums';
 import { SuccessResponseDto } from '../../../shared/dtos';
 import {
   LoginRequestDto,
   AccountResponseDto,
   ChangePasswordRequestDto,
   RegisterRequestDto,
+  AssessmentMembershipDto,
 } from '../dtos';
 
 @Injectable()
@@ -184,7 +185,7 @@ export class UserService {
     };
   }
 
-  public async me(auth: AuthDto): Promise<AccountResponseDto> {
+  public async me(auth: AuthDto, assessmentContext?: { role?: MemberRole; groupId?: string; assessmentId?: string }): Promise<AccountResponseDto> {
     const account = await this.userRepository
       .findOne({
         where: { id: auth.id },
@@ -201,7 +202,48 @@ export class UserService {
       throw new NotFoundException('Account not found.');
     }
 
-    return new AccountResponseDto(account);
+    return new AccountResponseDto(account, assessmentContext);
+  }
+
+  public async meWithAllAssessments(auth: AuthDto): Promise<AccountResponseDto> {
+    const account = await this.userRepository
+      .findOne({
+        where: { id: auth.id },
+        relations: ['profile', 'roles.permissions', 'permissions'],
+      })
+      .catch((err) => {
+        this.loggerService.error('meWithAllAssessments:', err);
+        throw new InternalServerErrorException(
+          'Failed to fetch user information',
+        );
+      });
+
+    if (!account) {
+      throw new NotFoundException('Account not found.');
+    }
+
+    // Fetch all assessment memberships with assessment and group information
+    const assessmentMemberships = await this.dataSource
+      .getRepository(AssessmentMember)
+      .createQueryBuilder('member')
+      .leftJoinAndSelect('member.assessment', 'assessment')
+      .leftJoinAndSelect('member.group', 'group')
+      .where('member.userId = :userId', { userId: auth.id })
+      .getMany()
+      .catch((err) => {
+        this.loggerService.error('meWithAllAssessments - assessment memberships:', err);
+        return [];
+      });
+
+    const membershipDtos = assessmentMemberships.map(member => new AssessmentMembershipDto({
+      assessmentId: member.assessmentId,
+      assessmentName: member.assessment?.name || 'Unknown Assessment',
+      role: member.role,
+      groupId: member.groupId,
+      groupName: member.group?.name || 'Unknown Group',
+    }));
+
+    return new AccountResponseDto(account, undefined, membershipDtos);
   }
 
   public async refreshToken(auth: AuthDto): Promise<LoginResponseDto> {
