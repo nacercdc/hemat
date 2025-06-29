@@ -46,15 +46,27 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const auth = await this.verifyToken(request);
 
-    const { isAdmin, permissions } =
-      this.reflector.get<AbilityParams>(ABILITIES, context.getHandler()) || {};
+    const abilityParams = this.reflector.get<
+      AbilityParams & { requireAdmin?: boolean }
+    >(ABILITIES, context.getHandler());
 
-    if (typeof isAdmin === 'boolean' && isAdmin !== auth?.isAdmin) {
-      throw new ForbiddenException('account.exception.accessDenied');
+    // Enforce isAdmin only if explicitly required
+    if (
+      abilityParams &&
+      typeof abilityParams.isAdmin === 'boolean' &&
+      abilityParams.requireAdmin !== false
+    ) {
+      if (abilityParams.isAdmin !== auth?.isAdmin) {
+        throw new ForbiddenException('account.exception.accessDenied');
+      }
     }
 
-    if (permissions) {
-      await this.checkPermissions(auth, permissions);
+    // Check permissions only for admins or if requireAdmin is true
+    if (
+      abilityParams?.permissions &&
+      (auth?.isAdmin || abilityParams.requireAdmin)
+    ) {
+      await this.checkPermissions(auth, abilityParams.permissions);
     }
 
     request.user = auth;
