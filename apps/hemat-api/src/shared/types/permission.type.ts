@@ -9,4 +9,5 @@ export interface AbilityParams {
   isAdmin?: boolean;
   roles?: [string, ...string[]];
   permissions?: [PermissionRule, ...PermissionRule[]];
+  requireAdmin?: boolean;
 }

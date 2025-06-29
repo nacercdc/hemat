@@ -82,7 +82,6 @@ export class AssessmentSubComponentService {
 
     return { subComponents: assessmentSubComponents, templateSubComponentId };
   }
-
   async findAll(
     query: FindAllAssessmentSubComponentDto & { assessmentId: string },
   ): Promise<FindAllResponseDto<AssessmentSubComponent>> {
@@ -99,7 +98,6 @@ export class AssessmentSubComponentService {
       .skip(query.skip)
       .getManyAndCount();
   }
-
   async findOne(
     assessmentId: string,
     id: string,
@@ -151,7 +149,7 @@ export class AssessmentSubComponentService {
   async findAllBySubComponent(
     subComponentId: string,
     userId: string,
-    query: FindAllAssessmentAnswerDto,
+    query: FindAllAssessmentAnswerDto & { assessmentId?: string },
   ): Promise<FindAllResponseDto<AssessmentSubComponentAnswer>> {
     const subComponent = await this.subComponentRepository.findOne({
       where: { id: subComponentId },
@@ -168,6 +166,10 @@ export class AssessmentSubComponentService {
       );
 
     const isTeamLeader = member.role === MemberRole.TEAM_LEADER;
+    const filters = [
+      { field: 'subComponentId', operator: '=' as const, value: subComponentId },
+      { field: 'assessmentId', operator: '=' as const, value: subComponent.assessmentId },
+    ];
     const queryService = new QueryService<AssessmentSubComponentAnswer>(
       this.subComponentAnswerRepository,
     )
@@ -175,16 +177,14 @@ export class AssessmentSubComponentService {
       .sort({ ascending: query.ascending, descending: query.descending })
       .take(query.take)
       .skip(query.skip)
-      .filter([
-        { field: 'subComponentId', operator: '=', value: subComponentId },
-      ]);
+      .filter(filters);
 
     if (!isTeamLeader) {
       const answers = await this.answerRepository.find({
         where: { assessmentId: subComponent.assessmentId, userId },
       });
       queryService.filter([
-        { field: 'answerId', operator: 'IN', value: answers.map((a) => a.id) },
+        { field: 'answerId', operator: 'IN' as const, value: answers.map((a) => a.id) },
       ]);
     }
 
@@ -226,8 +226,8 @@ export class AssessmentSubComponentService {
       .take(query.take)
       .skip(query.skip)
       .filter([
-        { field: 'subComponentId', operator: '=', value: subComponentId },
-        { field: 'answerId', operator: 'IN', value: primaryAnswers.map((a) => a.id) },
+        { field: 'subComponentId', operator: '=' as const, value: subComponentId },
+        { field: 'answerId', operator: 'IN' as const, value: primaryAnswers.map((a) => a.id) },
       ]);
 
     return queryService.getManyAndCount();

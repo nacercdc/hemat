@@ -13,6 +13,7 @@ import { User } from './user.entity';
 import { AnswerStatus } from '@shared/enums';
 import { BaseEntityWithSoftDelete } from './entity';
 import { AssessmentSubComponentRoadmap } from './assessment-sub-component-roadmap.entity';
+import { AssessmentSubComponentAnswer } from './assessment-sub-component-answer.entity';
 
 @Entity('answers')
 export class Answer extends BaseEntityWithSoftDelete {
@@ -86,6 +87,12 @@ export class Answer extends BaseEntityWithSoftDelete {
   })
   @Column({ type: 'float', default: 0.0 })
   percentage: number;
+
+  @OneToMany(
+    () => AssessmentSubComponentAnswer,
+    (subComponent) => subComponent.answer,
+  )
+  assessmentSubComponentAnswers: AssessmentSubComponentAnswer[];
 
   @OneToMany(() => AssessmentSubComponentRoadmap, (roadmap) => roadmap.answer)
   roadmaps: AssessmentSubComponentRoadmap[];

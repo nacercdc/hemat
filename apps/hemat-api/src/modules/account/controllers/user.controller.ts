@@ -37,9 +37,7 @@ export class UserController {
   @ApiBadRequestResponse()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
-  async register(
-    @Body() payload: RegisterRequestDto,
-  ): Promise<SuccessResponseDto> {
+  async register(@Body() payload: RegisterRequestDto): Promise<SuccessResponseDto> {
     return this.userService.register(payload);
   }
 
@@ -65,14 +63,26 @@ export class UserController {
     return this.userService.logout(req.user);
   }
 
-  @ApiOperation({ summary: 'Get user information' })
+  @ApiOperation({ summary: 'Get user information with assessment memberships' })
   @ApiOkResponse({ type: AccountResponseDto })
   @ApiBearerAuth()
   @ApiUnauthorizedResponse()
   @UseGuards(AuthGuard)
   @Get('me')
-  async me(@Request() req: { user: AuthDto }): Promise<AccountResponseDto> {
-    return this.userService.me(req.user);
+  async me(@Request() req: { user: AuthDto & { assessmentRole?: string; assessmentGroupId?: string; currentAssessmentId?: string } }): Promise<AccountResponseDto> {
+    // Check if user has assessment context from AssessmentRoleGuard
+    const assessmentContext = req.user.assessmentRole || req.user.assessmentGroupId || req.user.currentAssessmentId ? {
+      role: req.user.assessmentRole as any,
+      groupId: req.user.assessmentGroupId,
+      assessmentId: req.user.currentAssessmentId,
+    } : undefined;
+    
+    // If no assessment context, get all assessment memberships
+    if (!assessmentContext) {
+      return this.userService.meWithAllAssessments(req.user);
+    }
+    
+    return this.userService.me(req.user, assessmentContext);
   }
 
   @ApiOperation({ summary: 'Refresh JWT token' })

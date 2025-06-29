@@ -41,6 +41,7 @@ import {
 } from './controllers';
 import { AuthModule } from '@shared/modules';
 import { AssessmentAnswerValidator, AssessmentRoadmapValidator } from './utils';
+import { AssessmentRoleGuard } from './guards/assessment-role.guard';
 
 @Module({
   imports: [
@@ -84,7 +85,8 @@ import { AssessmentAnswerValidator, AssessmentRoadmapValidator } from './utils';
     ...ASSESSMENT_SERVICES,
     AssessmentAnswerValidator,
     AssessmentRoadmapValidator,
+    AssessmentRoleGuard,
   ],
-  exports: [AssessmentService, AssessmentMemberService],
+  exports: [AssessmentService, AssessmentMemberService, AssessmentRoleGuard],
 })
 export class AssessmentModule {}

@@ -27,3 +27,5 @@ export * from './roadmap.entity';
 export * from './role.entity';
 export * from './sub-component.entity';
 export * from './user.entity';
+export * from './support.entity';
+export * from './support-reply.entity';

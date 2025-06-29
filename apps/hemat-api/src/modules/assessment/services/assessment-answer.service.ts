@@ -11,6 +11,7 @@ import {
   AssessmentSubComponentAnswer,
   AssessmentSubComponent,
   AssessmentMeasurementScale,
+  AssessmentComponent,
 } from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
@@ -118,6 +119,16 @@ export class AssessmentAnswerService {
         );
       }
 
+      // Fetch the component to get domainId
+      const component = await manager.findOne(AssessmentComponent, {
+        where: { id: subComponent.componentId },
+      });
+      if (!component) {
+        throw new BadRequestException(
+          `Component ${subComponent.componentId} not found for sub-component ${payload.subComponentId}`,
+        );
+      }
+
       // Validate that the measurement scale belongs to this assessment
       const measurementScale = await manager.findOne(AssessmentMeasurementScale, {
         where: { id: payload.measurementScaleId },
@@ -168,6 +179,8 @@ export class AssessmentAnswerService {
           evidence: payload.evidence,
           reference: payload.reference,
           notes: payload.notes,
+          componentId: subComponent.componentId,
+          domainId: component.domainId,
         });
       } else {
         subComponentAnswer = manager.create(AssessmentSubComponentAnswer, {
@@ -177,6 +190,8 @@ export class AssessmentAnswerService {
           evidence: payload.evidence,
           reference: payload.reference,
           notes: payload.notes,
+          componentId: subComponent.componentId,
+          domainId: component.domainId,
         });
       }
 

@@ -92,7 +92,7 @@ export class Assessment extends BaseEntityWithSoftDelete {
     example: '2025-04-30',
     type: Date,
   })
-  @Column()
+  @Column({ type: 'date' })
   startDate: Date;
 
   @ApiProperty({
@@ -100,7 +100,7 @@ export class Assessment extends BaseEntityWithSoftDelete {
     example: '2025-05-30',
     type: Date,
   })
-  @Column()
+  @Column({ type: 'date' })
   endDate: Date;
 
   @ApiProperty({

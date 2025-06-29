@@ -78,10 +78,12 @@ export class AssessmentMeasurementScaleController {
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query() query: FindAllAssessmentMeasurementScaleDto,
+    @Query('language') language?: string,
   ): Promise<FindAllResponseDto<AssessmentMeasurementScale>> {
     return this.assessmentMeasurementScaleService.findAll({
       ...query,
       assessmentId,
+      language,
     });
   }
 
@@ -106,8 +108,9 @@ export class AssessmentMeasurementScaleController {
   async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
+    @Query('language') language?: string,
   ): Promise<AssessmentMeasurementScale> {
-    return this.assessmentMeasurementScaleService.findOne(assessmentId, id);
+    return this.assessmentMeasurementScaleService.findOne(assessmentId, id, language);
   }
   @ApiOperation({
     summary: 'Update an assessment measurement scale',
