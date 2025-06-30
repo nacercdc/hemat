@@ -147,53 +147,70 @@ export class AssessmentDomainService {
   async findComponents(
     id: string,
     query: FindAllAssessmentComponentDto & { language?: string },
-  ): Promise<FindAllResponseDto<AssessmentComponent>> {
+  ): Promise<FindAllResponseDto<any>> {
     const domain = await this.assessmentDomainRepository.findOne({
       where: { id },
     });
-    if (!domain) {
-      throw new NotFoundException(`Domain ${id} not found.`);
-    }
+    if (!domain) throw new NotFoundException(`Domain ${id} not found.`);
 
     const qb = this.assessmentComponentRepository
       .createQueryBuilder('component')
-      .where('component.domainId = :domainId', { domainId: id });
+      .leftJoin(
+        'component.subComponents',
+        'subComponent',
+        'subComponent.deletedAt IS NULL',
+      )
+      .leftJoin(
+        'assessment_sub_component_answers',
+        'filled',
+        'filled.subComponentId = subComponent.id AND filled.deletedAt IS NULL',
+      )
+      .select([
+        'component',
+        'COUNT(DISTINCT filled.subComponentId) AS "filledSubComponentsCount"',
+        'COUNT(DISTINCT subComponent.id) AS "totalSubComponents"',
+      ])
+      .where('component.domainId = :domainId', { domainId: id })
+      .andWhere('component.deletedAt IS NULL')
+      .groupBy('component.id');
 
     if (query.search) {
       qb.andWhere(
-        'component.code ILIKE :search OR component.name ILIKE :search',
-        { search: `%${query.search}%` },
+        '(component.code ILIKE :search OR component.name ILIKE :search)',
+        {
+          search: `%${query.search}%`,
+        },
       );
     }
 
-    const sortFields = query.ascending?.length
-      ? query.ascending
-      : query.descending?.length
-        ? query.descending
-        : ['createdAt'];
-    const sortOrder = query.ascending?.length ? 'ASC' : 'DESC';
-    sortFields.forEach((field) =>
-      qb.addOrderBy(`component.${field}`, sortOrder),
-    );
-
-    const [components, total] = await Promise.all([
-      qb.skip(query.skip).take(query.take).getMany(),
+    const [rows, total] = await Promise.all([
+      qb.skip(query.skip).take(query.take).getRawAndEntities(),
       qb.getCount(),
     ]);
 
     const language = query.language;
-    const data = language
-      ? components.map((component) => ({
-          ...component,
-          name: getTranslated(component, language, 'name', component.name),
-          description: getTranslated(
-            component,
-            language,
-            'description',
-            component.description,
-          ),
-        }))
-      : components;
+    const data = rows.entities.map((component, idx) => {
+      const raw = rows.raw[idx];
+      const total = +raw.totalSubComponents || 0;
+      const filled = +raw.filledSubComponentsCount || 0;
+      return {
+        ...component,
+        name: language
+          ? getTranslated(component, language, 'name', component.name)
+          : component.name,
+        description: language
+          ? getTranslated(
+              component,
+              language,
+              'description',
+              component.description,
+            )
+          : component.description,
+        totalSubComponents: total,
+        filledSubComponentsCount: filled,
+        filledPercentage: total ? Math.round((filled / total) * 100) : 0,
+      };
+    });
 
     return { data, total };
   }
@@ -438,7 +455,11 @@ export class AssessmentDomainService {
       .execute();
   }
 
-  async getDomainsByGroup(assessmentId: string, groupId: string, language: string = 'en') {
+  async getDomainsByGroup(
+    assessmentId: string,
+    groupId: string,
+    language: string = 'en',
+  ) {
     return this.assessmentDomainRepository
       .createQueryBuilder('domain')
       .leftJoin('domain.components', 'component')
