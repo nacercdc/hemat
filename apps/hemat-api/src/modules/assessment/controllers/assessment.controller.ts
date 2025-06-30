@@ -78,7 +78,7 @@ export class AssessmentController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
-    requireAdmin: false, // Allow non-admins with membership
+    requireAdmin: false,
   })
   @UseGuards(AssessmentRoleGuard)
   @Get(':id')
@@ -105,7 +105,7 @@ export class AssessmentController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
-    requireAdmin: false, // Allow non-admins with membership
+    requireAdmin: false,
   })
   @UseGuards(AssessmentRoleGuard)
   @Get()

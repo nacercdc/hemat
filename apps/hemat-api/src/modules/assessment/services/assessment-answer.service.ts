@@ -12,10 +12,11 @@ import {
   AssessmentSubComponent,
   AssessmentMeasurementScale,
   AssessmentComponent,
+  Assessment,
 } from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
-import { MemberRole, AnswerStatus } from '@shared/enums';
+import { MemberRole, AnswerStatus, AssessmentStatus } from '@shared/enums';
 import { PercentageUtil } from '../utils';
 import { AssessmentAnswerValidator } from '../utils/assessment-answer.validator';
 import {
@@ -161,6 +162,18 @@ export class AssessmentAnswerService {
           status: AnswerStatus.INPROGRESS,
         });
         await manager.save(Answer, answer);
+
+        // Set assessment status to IN_PROGRESS if not already in progress or beyond
+        const assessment = await manager.findOne(Assessment, { where: { id: assessmentId } });
+        if (
+          assessment &&
+          assessment.status !== AssessmentStatus.IN_PROGRESS &&
+          assessment.status !== AssessmentStatus.CLOSED &&
+          assessment.status !== AssessmentStatus.COMPLETED
+        ) {
+          assessment.status = AssessmentStatus.IN_PROGRESS;
+          await manager.save(Assessment, assessment);
+        }
       }
 
       let subComponentAnswer = await manager.findOne(

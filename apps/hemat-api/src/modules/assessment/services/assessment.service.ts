@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In, IsNull } from 'typeorm';
-import { Assessment, Language, AssessmentMember } from '@database/entities';
+import { Assessment, Language, AssessmentMember, Domain, Component, SubComponent, MeasurementScale } from '@database/entities';
 import { Filter, QueryService } from '@shared/services';
 import {
   FindAllAssessmentDto,
@@ -34,6 +34,14 @@ export class AssessmentService {
     private readonly languageRepository: Repository<Language>,
     @InjectRepository(AssessmentMember)
     private readonly assessmentMemberRepository: Repository<AssessmentMember>,
+    @InjectRepository(Domain)
+    private readonly domainRepository: Repository<Domain>,
+    @InjectRepository(Component)
+    private readonly componentRepository: Repository<Component>,
+    @InjectRepository(SubComponent)
+    private readonly subComponentRepository: Repository<SubComponent>,
+    @InjectRepository(MeasurementScale)
+    private readonly measurementScaleRepository: Repository<MeasurementScale>,
     private readonly dataSource: DataSource,
     private readonly assessmentDomainService: AssessmentDomainService,
     private readonly assessmentComponentService: AssessmentComponentService,
@@ -54,7 +62,6 @@ export class AssessmentService {
       .take(query.take)
       .skip(query.skip);
 
-    // For non-admins, filter by AssessmentMember
     if (!user.isAdmin) {
       const memberships = await this.assessmentMemberRepository.find({
         where: { userId: user.id, deletedAt: IsNull() },
@@ -66,12 +73,12 @@ export class AssessmentService {
       const assessmentIds = memberships.map((m) => m.assessmentId);
       if (assessmentIds.length === 0) {
         this.logger.debug(`No memberships found for user ${user.id}`);
-        return { data: [], total: 0 }; // No memberships, return empty
+        return { data: [], total: 0 };
       }
       queryBuilder.filter([
         {
           field: 'id',
-          operator: 'IN', // Fixed: Changed 'in' to 'IN'
+          operator: 'IN',
           value: assessmentIds,
         },
       ]);
@@ -118,6 +125,24 @@ export class AssessmentService {
     try {
       if (payload.endDate < payload.startDate) {
         throw new BadRequestException('End date cannot be before start date');
+      }
+
+      // Check for template existence
+      const domainCount = await this.domainRepository.count({ where: { isActive: true } });
+      if (domainCount === 0) {
+        throw new BadRequestException('No template found for Domain. Please create a template first.');
+      }
+      const componentCount = await this.componentRepository.count({ where: { isActive: true } });
+      if (componentCount === 0) {
+        throw new BadRequestException('No template found for Component. Please create a template first.');
+      }
+      const subComponentCount = await this.subComponentRepository.count({ where: { isActive: true } });
+      if (subComponentCount === 0) {
+        throw new BadRequestException('No template found for SubComponent. Please create a template first.');
+      }
+      const measurementScaleCount = await this.measurementScaleRepository.count();
+      if (measurementScaleCount === 0) {
+        throw new BadRequestException('No template found for MeasurementScale. Please create a template first.');
       }
 
       const languages = await this.languageRepository.find({
@@ -186,6 +211,14 @@ export class AssessmentService {
       payload.endDate < payload.startDate
     ) {
       throw new BadRequestException('End date cannot be before start date');
+    }
+
+    // Prevent update if any answers exist for this assessment
+    const answerCount = await this.assessmentSubComponentService['answerRepository'].count({
+      where: { assessmentId: id },
+    });
+    if (answerCount > 0) {
+      throw new BadRequestException('Assessment cannot be updated after answers have been filled.');
     }
 
     return await this.dataSource.transaction(async (manager) => {
