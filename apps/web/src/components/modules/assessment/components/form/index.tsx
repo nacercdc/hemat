@@ -17,7 +17,6 @@ import type { Assessment } from "~/libs/models/assessment.model";
 import { useEffect } from "react";
 import { AssessmentFormSkeleton } from "./AssessmentFormSkeleton";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
-import { parseYYYYMMDDToDate } from "@etm/utilities";
 
 const languageSchema = z.object({
   code: z
@@ -122,8 +121,8 @@ export function AssessmentForm({
     if (assessment) {
       reset({
         name: assessment?.name,
-        startDate: parseYYYYMMDDToDate(assessment.startDate),
-        endDate: parseYYYYMMDDToDate(assessment.endDate),
+        startDate: new Date(assessment.startDate),
+        endDate: new Date(assessment.endDate),
         country: assessment?.country?.code
           ? { code: assessment.country.code }
           : undefined,

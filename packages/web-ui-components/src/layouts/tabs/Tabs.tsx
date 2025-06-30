@@ -8,12 +8,12 @@ import {
 interface TabOption<T extends string> {
   value: T;
   label: React.ReactNode;
-  content: React.ReactNode;
+  content?: React.ReactNode;
 }
 
 interface Props<T extends string> {
   defaultValue: T;
-  options: TabOption<T>[];
+  options: readonly TabOption<T>[];
   onTabClick?: (value: T) => void;
 }
 
