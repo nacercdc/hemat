@@ -242,7 +242,6 @@ export class AssessmentDomainService {
     language: string = 'en',
     options: ProgressQueryOptions = {},
   ): Promise<AssessmentGroupProgress[]> {
-    // Fetch all domains with their subcomponent counts and names
     const domains: DomainSubComponentCount[] =
       await this.assessmentDomainRepository
         .createQueryBuilder('domain')
@@ -260,12 +259,10 @@ export class AssessmentDomainService {
         .addGroupBy('domain.translations')
         .execute();
 
-    // Create a map for quick domain lookup
     const domainMap = new Map(
       domains.map((domain) => [domain.domainId, domain]),
     );
 
-    // Build the base query for answers
     const answerQuery = this.assessmentRepository
       .createQueryBuilder('assessment')
       .where('assessment.id = :assessmentId', { assessmentId })
@@ -289,7 +286,6 @@ export class AssessmentDomainService {
       .addGroupBy('domain.name')
       .addGroupBy('domain.translations');
 
-    // Apply group filtering if provided
     if (options.filterByGroupIds?.length) {
       let groupIds = [...options.filterByGroupIds];
 
@@ -309,15 +305,13 @@ export class AssessmentDomainService {
       answerQuery.andWhere('group.id IN (:...groupIds)', { groupIds });
     }
 
-    // Only include group answers (not primary answers)
     answerQuery.andWhere('answer.isPrimary = false');
 
     const answers: GroupDomainAnswerCount[] = await answerQuery.execute();
 
-    // Build response with optimized data processing
     const groupMap = new Map<string, AssessmentGroupProgress>();
 
-    // Map to track which domains have answers for each group
+
     const groupDomainAnswered = new Map<string, Set<string>>();
 
     answers.forEach(
@@ -350,7 +344,6 @@ export class AssessmentDomainService {
       },
     );
 
-    // For each group, ensure all domains are present, and set percentage 0 for domains with no answers
     for (const [groupId, group] of groupMap.entries()) {
       const answeredDomains = groupDomainAnswered.get(groupId) || new Set();
       domains.forEach(({ domainId, domainName, subComponentCount }) => {
@@ -362,7 +355,6 @@ export class AssessmentDomainService {
           });
         }
       });
-      // Optionally, sort domains by name or id if needed
       group.domains.sort((a, b) => a.name.localeCompare(b.name));
     }
 
@@ -373,7 +365,6 @@ export class AssessmentDomainService {
     assessmentId: string,
     language: string = 'en',
   ): Promise<AssessmentPrimaryProgress> {
-    // Fetch all domains with their subcomponent counts and names
     const domains: DomainSubComponentCount[] =
       await this.assessmentDomainRepository
         .createQueryBuilder('domain')
@@ -391,7 +382,6 @@ export class AssessmentDomainService {
         .addGroupBy('domain.translations')
         .execute();
 
-    // Fetch primary answers grouped by domain
     const primaryAnswers: DomainAnswerCount[] = await this.assessmentRepository
       .createQueryBuilder('assessment')
       .where('assessment.id = :assessmentId', { assessmentId })
@@ -404,12 +394,10 @@ export class AssessmentDomainService {
       .groupBy('domain.id')
       .execute();
 
-    // Create a map for quick answer lookup
     const answerMap = new Map(
       primaryAnswers.map((answer) => [answer.domainId, answer.answerCount]),
     );
 
-    // Build response with optimized data processing
     const domainProgress: AssessmentDomainProgress[] = domains.map(
       ({ domainId, domainName, subComponentCount }) => {
         const answeredCount = answerMap.get(domainId) || 0;

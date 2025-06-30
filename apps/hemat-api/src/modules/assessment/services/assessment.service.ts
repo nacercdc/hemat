@@ -85,7 +85,6 @@ export class AssessmentService {
     query: FindOneAssessmentDto,
     user: AssessmentAbilityDto,
   ): Promise<Assessment> {
-    // For non-admins, check membership
     if (!user.isAdmin) {
       const membership = await this.assessmentMemberRepository.findOne({
         where: { assessmentId: id, userId: user.id, deletedAt: IsNull() },

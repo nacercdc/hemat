@@ -3,6 +3,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
@@ -23,6 +24,8 @@ import {
   FindOneAssessmentSubComponentDto,
 } from '../dtos';
 import { MemberRole } from '@shared/enums';
+import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
+
 @Injectable()
 export class AssessmentSubComponentService {
   private readonly loggerService = new Logger(
@@ -145,95 +148,57 @@ export class AssessmentSubComponentService {
       );
     }
   }
-
-  async findAllBySubComponent(
+  async findPrimaryAnswer(
     subComponentId: string,
     userId: string,
-    query: FindAllAssessmentAnswerDto & { assessmentId?: string },
-  ): Promise<FindAllResponseDto<AssessmentSubComponentAnswer>> {
-    const subComponent = await this.subComponentRepository.findOne({
-      where: { id: subComponentId },
-    });
-    if (!subComponent)
-      throw new NotFoundException(`Sub-component ${subComponentId} not found`);
+  ): Promise<AssessmentSubComponentAnswer> {
+    const qb = this.subComponentAnswerRepository
+      .createQueryBuilder('sca')
+      .innerJoin('sca.answer', 'answer')
+      .where('sca.subComponentId = :subComponentId', { subComponentId })
+      .andWhere('sca.deletedAt IS NULL')
+      .andWhere('answer.deletedAt IS NULL')
+      .andWhere('answer.userId = :userId', { userId })
+      .andWhere('answer.isPrimary = :isPrimary', { isPrimary: true });
 
-    const member = await this.memberRepository.findOne({
-      where: { assessmentId: subComponent.assessmentId, userId },
-    });
-    if (!member)
-      throw new NotFoundException(
-        `User ${userId} is not a member of assessment ${subComponent.assessmentId}`,
-      );
+    const result = await qb.getOne();
+    if (!result) {
+      throw new NotFoundException('No primary answer found for this sub-component');
+    }
+    return result;
+  }
 
-    const isTeamLeader = member.role === MemberRole.TEAM_LEADER;
-    const filters = [
-      { field: 'subComponentId', operator: '=' as const, value: subComponentId },
-      { field: 'assessmentId', operator: '=' as const, value: subComponent.assessmentId },
-    ];
-    const queryService = new QueryService<AssessmentSubComponentAnswer>(
-      this.subComponentAnswerRepository,
-    )
-      .join(query.include)
-      .sort({ ascending: query.ascending, descending: query.descending })
-      .take(query.take)
-      .skip(query.skip)
-      .filter(filters);
+  async getSubComponentAnswer(
+    assessmentId: string,
+    subComponentId: string,
+    user: AssessmentAbilityDto,
+    query: FindAllAssessmentAnswerDto,
+  ): Promise<AssessmentSubComponentAnswer> {
+    const qb = this.subComponentAnswerRepository
+      .createQueryBuilder('sca')
+      .innerJoin('sca.answer', 'answer')
+      .where('sca.subComponentId = :subComponentId', { subComponentId })
+      .andWhere('answer.assessmentId = :assessmentId', { assessmentId })
+      .andWhere('sca.deletedAt IS NULL')
+      .andWhere('answer.deletedAt IS NULL')
+      .andWhere('answer.userId = :userId', { userId: user.id });
 
-    if (!isTeamLeader) {
-      const answers = await this.answerRepository.find({
-        where: { assessmentId: subComponent.assessmentId, userId },
+    if (user.assessmentRole === MemberRole.TEAM_LEADER) {
+      qb.andWhere('answer.groupId = :groupId', {
+        groupId: user.assessmentGroupId,
       });
-      queryService.filter([
-        { field: 'answerId', operator: 'IN' as const, value: answers.map((a) => a.id) },
-      ]);
     }
 
-    return queryService.getManyAndCount();
+    const result = await qb.getOne();
+    if (!result) {
+      throw new NotFoundException('No answer found for this sub-component');
+    }
+    return result;
   }
 
-  async findPrimaryAnswerBySubComponent(
-    subComponentId: string,
-    userId: string,
-    query: FindAllAssessmentAnswerDto,
-  ): Promise<FindAllResponseDto<AssessmentSubComponentAnswer>> {
-    const subComponent = await this.subComponentRepository.findOne({
-      where: { id: subComponentId },
-    });
-    if (!subComponent)
-      throw new NotFoundException(`Sub-component ${subComponentId} not found`);
-
-    const member = await this.memberRepository.findOne({
-      where: { assessmentId: subComponent.assessmentId, userId },
-    });
-    if (!member)
-      throw new NotFoundException(
-        `User ${userId} is not a member of assessment ${subComponent.assessmentId}`,
-      );
-
-    // Get primary answers only
-    const primaryAnswers = await this.answerRepository.find({
-      where: { 
-        assessmentId: subComponent.assessmentId,
-        isPrimary: true 
-      },
-    });
-
-    const queryService = new QueryService<AssessmentSubComponentAnswer>(
-      this.subComponentAnswerRepository,
-    )
-      .join(query.include)
-      .sort({ ascending: query.ascending, descending: query.descending })
-      .take(query.take)
-      .skip(query.skip)
-      .filter([
-        { field: 'subComponentId', operator: '=' as const, value: subComponentId },
-        { field: 'answerId', operator: 'IN' as const, value: primaryAnswers.map((a) => a.id) },
-      ]);
-
-    return queryService.getManyAndCount();
-  }
-
-  private filters(query: FindAllAssessmentSubComponentDto & { assessmentId?: string }): Filter[] {
+  private filters(
+    query: FindAllAssessmentSubComponentDto & { assessmentId?: string },
+  ): Filter[] {
     const filters: Filter[] = [];
     if (typeof query.isActive === 'boolean') {
       filters.push({

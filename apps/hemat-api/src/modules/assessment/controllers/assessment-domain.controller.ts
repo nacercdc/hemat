@@ -98,7 +98,7 @@ export class AssessmentDomainController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
-    requireAdmin: false, // Allow non-admins to proceed to AssessmentRoleGuard
+    requireAdmin: false,
   })
   @UseGuards(AssessmentRoleGuard)
   @Get('assessments/:assessmentId/assessment-domains')
@@ -109,22 +109,28 @@ export class AssessmentDomainController {
   ): Promise<any> {
     const { isAdmin, assessmentRole, assessmentGroupId } = user;
 
-    // Admins can see all domains
     if (isAdmin) {
       return this.assessmentDomainService.getDomains(language);
     }
 
-    // Primary members can see all domains
     if (assessmentRole === MemberRole.PRIMARY) {
       return this.assessmentDomainService.getDomains(language);
     }
 
-    // Team leaders and members can only see domains related to their group
-    if (assessmentRole === MemberRole.TEAM_LEADER || assessmentRole === MemberRole.MEMBER) {
+    if (
+      assessmentRole === MemberRole.TEAM_LEADER ||
+      assessmentRole === MemberRole.MEMBER
+    ) {
       if (assessmentGroupId) {
-        return this.assessmentDomainService.getDomainsByGroup(assessmentId, assessmentGroupId, language);
+        return this.assessmentDomainService.getDomainsByGroup(
+          assessmentId,
+          assessmentGroupId,
+          language,
+        );
       } else {
-        throw new ForbiddenException('You must be assigned to a group to view domains');
+        throw new ForbiddenException(
+          'You must be assigned to a group to view domains',
+        );
       }
     }
 
@@ -139,14 +145,14 @@ export class AssessmentDomainController {
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
-    isAdmin: true, // Admins need read:assessment permission
+    isAdmin: true,
     permissions: [
       {
         action: PermissionActionEnum.READ,
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
-    requireAdmin: false, // Allow non-admins to proceed to AssessmentRoleGuard
+    requireAdmin: false,
   })
   @UseGuards(AssessmentRoleGuard)
   @Get('assessments/:assessmentId/domains/progress')
@@ -157,7 +163,6 @@ export class AssessmentDomainController {
   ) {
     const { assessmentRole, assessmentGroupId, isAdmin } = user;
 
-    // Admins with read:assessment permission can see all progress
     if (isAdmin) {
       return this.assessmentDomainService.getProgress(
         assessmentId,
@@ -166,21 +171,17 @@ export class AssessmentDomainController {
       );
     }
 
-    // Ensure assessmentGroupId is defined (guaranteed by AssessmentRoleGuard for non-admins)
     if (!assessmentGroupId) {
       throw new ForbiddenException('Assessment group ID is missing');
     }
 
-    // Role-based filtering
     if (assessmentRole === MemberRole.PRIMARY) {
-      // Primary sees all groups
       return this.assessmentDomainService.getProgress(
         assessmentId,
         user.id,
         language,
       );
     } else if (assessmentRole === MemberRole.TEAM_LEADER) {
-      // Team Leader sees their group and Primary's group
       return this.assessmentDomainService.getProgress(
         assessmentId,
         user.id,
@@ -191,7 +192,6 @@ export class AssessmentDomainController {
         },
       );
     } else if (assessmentRole === MemberRole.MEMBER) {
-      // Member sees only their group
       return this.assessmentDomainService.getProgress(
         assessmentId,
         user.id,
@@ -207,20 +207,21 @@ export class AssessmentDomainController {
 
   @ApiOperation({
     summary: 'Get primary assessment domains progress',
-    description: 'Get progress for domains in an assessment based on primary answers (isPrimary = true)',
+    description:
+      'Get progress for domains in an assessment based on primary answers (isPrimary = true)',
   })
   @ApiOkResponse({ description: 'Ok', type: Object })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
-    isAdmin: true, // Admins need read:assessment permission
+    isAdmin: true, 
     permissions: [
       {
         action: PermissionActionEnum.READ,
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
-    requireAdmin: false, // Allow non-admins to proceed to AssessmentRoleGuard
+    requireAdmin: false,
   })
   @UseGuards(AssessmentRoleGuard)
   @Get('assessments/:assessmentId/domains/progress/primary')
@@ -231,7 +232,6 @@ export class AssessmentDomainController {
   ) {
     const { isAdmin } = user;
 
-    // All assessment members (PRIMARY, TEAM_LEADER, MEMBER) and admins can access primary progress
     if (isAdmin || user.assessmentRole) {
       return this.assessmentDomainService.getProgressPrimary(
         assessmentId,
@@ -239,7 +239,9 @@ export class AssessmentDomainController {
       );
     }
 
-    throw new ForbiddenException('You must be a member of this assessment to access primary progress');
+    throw new ForbiddenException(
+      'You must be a member of this assessment to access primary progress',
+    );
   }
 
   @ApiOperation({
