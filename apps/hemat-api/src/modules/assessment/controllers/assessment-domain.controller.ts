@@ -327,4 +327,81 @@ export class AssessmentDomainController {
       language,
     });
   }
+
+  @ApiOperation({
+    summary: 'Get domain with answers',
+    description: 'Fetch a domain with its components, subcomponents, and answers (with measurement scale) for a given assessment',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Object })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @UseGuards(AssessmentRoleGuard)
+  @Get('assessments/:assessmentId/domains/:domainId/answers')
+  async getDomainWithAnswers(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('domainId', new ParseUUIDPipe()) domainId: string,
+  ) {
+    const { isAdmin, assessmentRole, assessmentGroupId } = user;
+
+    if (isAdmin || assessmentRole === MemberRole.PRIMARY) {
+      // Admin and Primary see all
+      return this.assessmentDomainService.getDomainWithAnswers(assessmentId, domainId);
+    }
+
+    if (
+      (assessmentRole === MemberRole.TEAM_LEADER || assessmentRole === MemberRole.MEMBER)
+      && assessmentGroupId
+    ) {
+      // Team Leader and Member see only their group
+      return this.assessmentDomainService.getDomainWithAnswersByGroup(
+        assessmentId,
+        domainId,
+        assessmentGroupId
+      );
+    }
+
+    throw new ForbiddenException('You do not have access to these answers');
+  }
+
+  @ApiOperation({
+    summary: 'Get domain with primary answers',
+    description: 'Fetch a domain with its components, subcomponents, and ONLY primary answers (isPrimary = true) for a given assessment',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Object })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @UseGuards(AssessmentRoleGuard)
+  @Get('assessments/:assessmentId/domains/:domainId/primary-answers')
+  async getDomainWithPrimaryAnswers(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('domainId', new ParseUUIDPipe()) domainId: string,
+  ) {
+    const { isAdmin, assessmentRole } = user;
+    if (isAdmin || assessmentRole) {
+      return this.assessmentDomainService.getDomainWithPrimaryAnswers(assessmentId, domainId);
+    }
+    throw new ForbiddenException('You do not have access to primary answers');
+  }
 }

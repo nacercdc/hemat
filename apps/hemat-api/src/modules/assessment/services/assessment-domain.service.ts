@@ -35,6 +35,7 @@ import {
   GroupDomainAnswerCount,
   ProgressQueryOptions,
 } from '../types/assessment-progress.type';
+import { CompressionUtil } from '@shared/utils/compression.util';
 
 @Injectable()
 export class AssessmentDomainService {
@@ -472,5 +473,228 @@ export class AssessmentDomainService {
       .addSelect('COUNT(DISTINCT subComponent.id)::int as subComponentsCount')
       .groupBy('domain.id')
       .execute();
+  }
+
+  /**
+   * Fetch a domain with its components, subcomponents, and answers (with measurement scale) for a given assessment
+   * Returns compressed evidence and reference fields to reduce response size
+   */
+  async getDomainWithAnswers(assessmentId: string, domainId: string) {
+    // Fetch all in one query using left joins
+    const rows = await this.assessmentDomainRepository
+      .createQueryBuilder('domain')
+      .leftJoinAndSelect('domain.components', 'component')
+      .leftJoinAndSelect('component.subComponents', 'subComponent')
+      .leftJoinAndSelect('subComponent.answers', 'subcomponentanswer', 'subcomponentanswer.domainId = :domainId AND subcomponentanswer.deletedAt IS NULL', { domainId })
+      .leftJoinAndSelect('subcomponentanswer.answer', 'answer')
+      .leftJoinAndSelect('subcomponentanswer.measurementScale', 'measurementscale')
+      .where('domain.id = :domainId', { domainId })
+      .andWhere('domain.assessmentId = :assessmentId', { assessmentId })
+      .andWhere('answer.assessmentId = :assessmentId', { assessmentId })
+      .getMany();
+
+    if (!rows || rows.length === 0) {
+      throw new NotFoundException('Domain or assessment not found');
+    }
+
+    // There should be only one domain
+    const domain = rows[0];
+    return {
+      id: domain.id,
+      name: domain.name,
+      description: domain.description,
+      components: (domain.components || []).map((component) => ({
+        id: component.id,
+        name: component.name,
+        description: component.description,
+        subComponents: (Array.isArray(component.subComponents) ? component.subComponents : component.subComponents ? [component.subComponents] : []).map((subComponent) => {
+          // Only one answer per subcomponent per assessment
+          const answer = (Array.isArray(subComponent.answers) ? subComponent.answers.find((a: any) => a.answer && a.answer.assessmentId === assessmentId) : (subComponent.answers && subComponent.answers.answer && subComponent.answers.answer.assessmentId === assessmentId ? subComponent.answers : null));
+          
+          if (!answer) return {
+            id: subComponent.id,
+            name: subComponent.name,
+            description: subComponent.description,
+            answer: null,
+          };
+
+          // Compress evidence and reference
+          const evidenceCompressed = CompressionUtil.compressText(answer.evidence, { 
+            minSizeToCompress: 1000, // Only compress if larger than 1KB
+            logCompression: true 
+          });
+          const referenceCompressed = CompressionUtil.compressText(answer.reference, { 
+            minSizeToCompress: 1000,
+            logCompression: true 
+          });
+
+          return {
+            id: subComponent.id,
+            name: subComponent.name,
+            description: subComponent.description,
+            answer: {
+              id: answer.id,
+              measurementScale: answer.measurementScale
+                ? {
+                    id: answer.measurementScale.id,
+                    name: answer.measurementScale.name,
+                    rate: answer.measurementScale.rate,
+                  }
+                : null,
+              evidence: evidenceCompressed.data,
+              reference: referenceCompressed.data
+            }
+          };
+        }),
+      })),
+    };
+  }
+
+  /**
+   * Fetch a domain with its components, subcomponents, and answers (with measurement scale) for a given assessment and group
+   * Only includes answers for the specified group
+   */
+  async getDomainWithAnswersByGroup(assessmentId: string, domainId: string, groupId: string) {
+    const rows = await this.assessmentDomainRepository
+      .createQueryBuilder('domain')
+      .leftJoinAndSelect('domain.components', 'component')
+      .leftJoinAndSelect('component.subComponents', 'subComponent')
+      .leftJoinAndSelect('subComponent.answers', 'subcomponentanswer', 'subcomponentanswer.domainId = :domainId AND subcomponentanswer.deletedAt IS NULL', { domainId })
+      .leftJoinAndSelect('subcomponentanswer.answer', 'answer')
+      .leftJoinAndSelect('subcomponentanswer.measurementScale', 'measurementscale')
+      .where('domain.id = :domainId', { domainId })
+      .andWhere('domain.assessmentId = :assessmentId', { assessmentId })
+      .andWhere('answer.assessmentId = :assessmentId', { assessmentId })
+      .andWhere('answer.groupId = :groupId', { groupId })
+      .getMany();
+
+    if (!rows || rows.length === 0) {
+      throw new NotFoundException('Domain or assessment not found');
+    }
+    const domain = rows[0];
+    return {
+      id: domain.id,
+      name: domain.name,
+      description: domain.description,
+      components: (domain.components || []).map((component) => ({
+        id: component.id,
+        name: component.name,
+        description: component.description,
+        subComponents: (Array.isArray(component.subComponents) ? component.subComponents : component.subComponents ? [component.subComponents] : []).map((subComponent) => {
+          // Only one answer per subcomponent per assessment and group
+          const answer = (Array.isArray(subComponent.answers) ? subComponent.answers.find((a: any) => a.answer && a.answer.assessmentId === assessmentId && a.answer.groupId === groupId) : (subComponent.answers && subComponent.answers.answer && subComponent.answers.answer.assessmentId === assessmentId && subComponent.answers.answer.groupId === groupId ? subComponent.answers : null));
+          if (!answer) return {
+            id: subComponent.id,
+            name: subComponent.name,
+            description: subComponent.description,
+            answer: null,
+          };
+          const evidenceCompressed = CompressionUtil.compressText(answer.evidence, { minSizeToCompress: 1000, logCompression: true });
+          const referenceCompressed = CompressionUtil.compressText(answer.reference, { minSizeToCompress: 1000, logCompression: true });
+          return {
+            id: subComponent.id,
+            name: subComponent.name,
+            description: subComponent.description,
+            answer: {
+              id: answer.id,
+              measurementScale: answer.measurementScale
+                ? {
+                    id: answer.measurementScale.id,
+                    name: answer.measurementScale.name,
+                    rate: answer.measurementScale.rate,
+                  }
+                : null,
+              evidence: evidenceCompressed.data,
+              reference: referenceCompressed.data,
+              notes: answer.notes,
+              isCompressed: evidenceCompressed.isCompressed || referenceCompressed.isCompressed
+            }
+          };
+        }),
+      })),
+    };
+  }
+
+  /**
+   * Fetch a domain with its components, subcomponents, and ONLY primary answers (isPrimary = true) for a given assessment
+   * Returns compressed evidence and reference fields to reduce response size
+   */
+  async getDomainWithPrimaryAnswers(assessmentId: string, domainId: string) {
+    // Fetch all in one query using left joins
+    const rows = await this.assessmentDomainRepository
+      .createQueryBuilder('domain')
+      .leftJoinAndSelect('domain.components', 'component')
+      .leftJoinAndSelect('component.subComponents', 'subComponent')
+      .leftJoinAndSelect(
+        'subComponent.answers',
+        'subcomponentanswer',
+        'subcomponentanswer.domainId = :domainId AND subcomponentanswer.deletedAt IS NULL',
+        { domainId }
+      )
+      .leftJoinAndSelect('subcomponentanswer.answer', 'answer')
+      .leftJoinAndSelect('subcomponentanswer.measurementScale', 'measurementscale')
+      .where('domain.id = :domainId', { domainId })
+      .andWhere('domain.assessmentId = :assessmentId', { assessmentId })
+      .andWhere('answer.assessmentId = :assessmentId', { assessmentId })
+      .andWhere('answer.isPrimary = true')
+      .getMany();
+
+    if (!rows || rows.length === 0) {
+      throw new NotFoundException('Domain or assessment not found');
+    }
+
+    // There should be only one domain
+    const domain = rows[0];
+    return {
+      id: domain.id,
+      name: domain.name,
+      description: domain.description,
+      components: (domain.components || []).map((component) => ({
+        id: component.id,
+        name: component.name,
+        description: component.description,
+        subComponents: (Array.isArray(component.subComponents) ? component.subComponents : component.subComponents ? [component.subComponents] : []).map((subComponent) => {
+          // Only one answer per subcomponent per assessment (isPrimary)
+          const answer = (Array.isArray(subComponent.answers)
+            ? subComponent.answers.find((a: any) => a.answer && a.answer.assessmentId === assessmentId && a.answer.isPrimary === true)
+            : (subComponent.answers && subComponent.answers.answer && subComponent.answers.answer.assessmentId === assessmentId && subComponent.answers.answer.isPrimary === true ? subComponent.answers : null));
+
+          if (!answer) return {
+            id: subComponent.id,
+            name: subComponent.name,
+            description: subComponent.description,
+            answer: null,
+          };
+
+          // Compress evidence and reference
+          const evidenceCompressed = CompressionUtil.compressText(answer.evidence, {
+            minSizeToCompress: 1000, // Only compress if larger than 1KB
+            logCompression: true
+          });
+          const referenceCompressed = CompressionUtil.compressText(answer.reference, {
+            minSizeToCompress: 1000,
+            logCompression: true
+          });
+
+          return {
+            id: subComponent.id,
+            name: subComponent.name,
+            description: subComponent.description,
+            answer: {
+              id: answer.id,
+              measurementScale: answer.measurementScale
+                ? {
+                    id: answer.measurementScale.id,
+                    name: answer.measurementScale.name,
+                    rate: answer.measurementScale.rate,
+                  }
+                : null,
+              evidence: evidenceCompressed.data,
+              reference: referenceCompressed.data
+            }
+          };
+        }),
+      })),
+    };
   }
 }
