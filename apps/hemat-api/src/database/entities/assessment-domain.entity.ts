@@ -53,10 +53,6 @@ export class AssessmentDomain extends BaseEntityWithSoftDelete {
   @JoinColumn({ name: 'assessmentId' })
   assessment: Assessment;
 
-  @ManyToOne(() => Assessment, (assessment) => assessment.domains)
-  @JoinColumn({ name: 'assessmentId' })
-  answers: Assessment;
-
   @OneToMany(() => AssessmentComponent, (component) => component.domain)
   components: AssessmentComponent[];
 

@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1751204397999 implements MigrationInterface {
-    name = 'Migration1751204397999'
+export class Migration1751356142791 implements MigrationInterface {
+    name = 'Migration1751356142791'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "comments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" character varying NOT NULL, "comment" text NOT NULL, "responseId" uuid NOT NULL, CONSTRAINT "PK_8bf68bc960f2b69e818bdb90dcb" PRIMARY KEY ("id"))`);
@@ -203,6 +203,8 @@ export class Migration1751204397999 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "assessment-components" DROP CONSTRAINT "FK_7f33ac21a1ccdc1ee212f001f22"`);
         await queryRunner.query(`ALTER TABLE "assessment-components" DROP CONSTRAINT "FK_c05bb2ea27d1d0fd6e64c445962"`);
         await queryRunner.query(`ALTER TABLE "assessment-domains" DROP CONSTRAINT "FK_198045c771f5080df0f1625ee4b"`);
+        await queryRunner.query(`ALTER TABLE "responses" DROP CONSTRAINT "FK_b6e5f0e01fed305a4ccfb880852"`);
+        await queryRunner.query(`ALTER TABLE "comments" DROP CONSTRAINT "FK_d1f4d19e981f6c25a81b1649493"`);
         await queryRunner.query(`DROP INDEX "public"."IDX_ce63f31d45453c1008c2bf1503"`);
         await queryRunner.query(`DROP INDEX "public"."IDX_e90ed0ff6a6f523957647c9dc3"`);
         await queryRunner.query(`DROP TABLE "assessments_languages_languages"`);
