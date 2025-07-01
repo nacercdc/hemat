@@ -64,6 +64,17 @@ export class SupportService {
     return this.toSupportResponseDto(support);
   }
 
+  async getAllSupportsByUser(userId: string): Promise<SupportResponseDto[]> {
+    const supports = await this.supportRepository.find({
+      where: { issuedBy: { id: userId } },
+      order: { createdAt: 'DESC' },
+    });
+    return Promise.all(supports.map(async (s) => {
+      const entity = await this.getSupportEntityWithReplies(s.id);
+      return this.toSupportResponseDto(entity);
+    }));
+  }
+
   // --- Helpers ---
   private async getSupportEntityWithReplies(id: string): Promise<Support> {
     const support = await this.supportRepository.findOne({

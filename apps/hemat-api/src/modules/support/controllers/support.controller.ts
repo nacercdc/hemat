@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
   ParseUUIDPipe,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -32,7 +33,7 @@ import {
 } from '../dtos';
 import { ExceptionResponseDto } from '@shared/dtos';
 import { AuthGuard } from '@nestjs/passport';
-// import { Abilities } from '@shared/modules'; // Uncomment if you use abilities/permissions
+// import { Abilities } from '@shared/modules';
 
 @ApiBearerAuth()
 @ApiTags('Support')
@@ -50,16 +51,24 @@ export class SupportController {
   @ApiOkResponse({ description: 'Ok', type: [SupportResponseDto] })
   @Get()
   async getAll(@Request() req: { user: any }) {
-    // Optionally filter by user or admin
-    return this.supportService.getAllSupports();
+    // Only admin can see all, others see their own
+    if (req.user.isAdmin) {
+      return this.supportService.getAllSupports();
+    }
+    // Otherwise, filter by issuedBy
+    return this.supportService.getAllSupportsByUser(req.user.id);
   }
 
   @ApiOperation({ summary: 'Get a support ticket by ID' })
   @ApiOkResponse({ description: 'Ok', type: SupportResponseDto })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @Get(':id')
-  async getById(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.supportService.getSupportById(id);
+  async getById(@Param('id', new ParseUUIDPipe()) id: string, @Request() req: { user: any }) {
+    const ticket = await this.supportService.getSupportById(id);
+    if (req.user.isAdmin || ticket.issuedBy?.id === req.user.id) {
+      return ticket;
+    }
+    throw new ForbiddenException('You do not have access to this support ticket');
   }
 
   @ApiOperation({ summary: 'Create a new support ticket' })
@@ -82,6 +91,10 @@ export class SupportController {
     @Request() req: { user: any },
     @Body() dto: SupportReplyCreateRequestDto,
   ): Promise<SupportReplyResponseDto> {
-    return this.supportService.replyToSupport(id, dto, req.user);
+    const ticket = await this.supportService.getSupportById(id);
+    if (req.user.isAdmin || ticket.issuedBy?.id === req.user.id) {
+      return this.supportService.replyToSupport(id, dto, req.user);
+    }
+    throw new ForbiddenException('You do not have access to reply to this support ticket');
   }
 } 
