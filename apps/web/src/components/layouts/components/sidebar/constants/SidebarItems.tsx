@@ -42,7 +42,7 @@ export const groups = (
       },
       {
         id: "domains",
-        label: "Domains",
+        label: "Templates",
         icon: (
           <Icon
             icon="material-symbols-light:domain-rounded"

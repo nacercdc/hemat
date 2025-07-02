@@ -39,11 +39,13 @@ const metrics: Pick<Scale, "name" | "rate" | "color">[] = [
 ];
 
 export default function Dashboard() {
+  console.log("test....");
+
   // TODO: Replace with real API call
   const fetchedData: Record<string, Pick<Scale, "name" | "rate" | "color">> = {
     Ethiopia: { name: "Developing", rate: 4, color: "#FFA50080" },
     Kenya: { name: "Defined", rate: 3, color: "#FFFF0080" },
-    Chad: { name: "Initial", rate: 4, color: "#FF000080" },
+    Chad: { name: "Initial", rate: 4, color: "#ff00b780" },
     Sudan: { name: "Managed", rate: 2, color: "#000FF990" },
     "South Africa": { name: "Optimized", rate: 5, color: "#00FF0080" },
   };
@@ -88,7 +90,7 @@ export default function Dashboard() {
                   Centers for Disease Control and Prevention
                 </span>
                 <span className="text-xs font-semibold text-secondary">
-                  Safeguarding Africa's Health
+                  Safeguarding Africa's Healths
                 </span>
               </div>
             </div>

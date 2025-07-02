@@ -6,30 +6,40 @@ export interface SessionPayload {
 
 let cachedSession: SessionPayload | null = null;
 let refreshTokenPromise: Promise<SessionPayload | null> | null = null;
+let sessionPromise: Promise<SessionPayload | null> | null = null;
 
 export const getSession = async (): Promise<SessionPayload | null> => {
   if (cachedSession && Date.now() < +cachedSession.expires) {
     return cachedSession;
   }
 
-  const response = await fetch("/api/session");
+  if (!sessionPromise) {
+    sessionPromise = (async () => {
+      try {
+        const response = await fetch("/api/session");
+        if (!response.ok) throw new Error("No token found");
 
-  if (!response.ok) {
-    throw new Error("No token found");
+        const session = (await response.json()) as SessionPayload;
+
+        if (!session.token || !session.refreshToken || !session.expires) {
+          return null;
+        }
+
+        if (Date.now() >= +session.expires) {
+          return await refreshAccessToken();
+        }
+
+        cachedSession = session;
+        return session;
+      } catch {
+        return null;
+      } finally {
+        sessionPromise = null;
+      }
+    })();
   }
 
-  const session = (await response.json()) as SessionPayload;
-
-  if (!session.token || !session.refreshToken || !session.expires) {
-    return null;
-  }
-
-  if (Date.now() >= +session.expires) {
-    return await refreshAccessToken();
-  }
-
-  cachedSession = session;
-  return session;
+  return sessionPromise;
 };
 
 export const refreshAccessToken = async (): Promise<SessionPayload | null> => {

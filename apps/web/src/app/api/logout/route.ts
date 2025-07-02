@@ -3,7 +3,7 @@ import { serialize } from "cookie";
 
 import { CLEAR_COOKIE_CONFIG } from "../configs";
 
-export function GET() {
+export function POST() {
   const response = NextResponse.json({ success: true });
 
   response.headers.set(
