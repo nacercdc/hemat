@@ -216,4 +216,62 @@ export class AssessmentSubComponentService {
     }
     return filters;
   }
+
+  /**
+   * Optimized: Fetch subcomponent IDs (ordered by code) for a given assessmentId from AssessmentSubComponentAnswer,
+   * and also return the latest answer (by createdAt) with its subComponent and componentId, using efficient queries.
+   */
+  async getFilledStatusByAssessment(assessmentId: string, user: any): Promise<{ ids: string[]; latest: any | null }> {
+    // Use a single query to get all needed data efficiently
+    // 1. Get all unique subComponentIds (with code) for the assessment
+    // 2. Get the latest answer (by createdAt DESC)
+    const qb = this.subComponentAnswerRepository
+      .createQueryBuilder('assessment_sub_component_answers')
+      .innerJoinAndSelect('assessment_sub_component_answers.subComponent', 'assessment_sub_components')
+      .innerJoin('assessment_sub_component_answers.answer', 'answers')
+      .where('answers.assessmentId = :assessmentId', { assessmentId })
+      .andWhere('assessment_sub_component_answers.deletedAt IS NULL')
+      .andWhere('answers.deletedAt IS NULL');
+
+    // Get all subComponentIds and codes
+    const all = await qb.select([
+      'assessment_sub_component_answers.subComponentId',
+      'assessment_sub_components.code',
+    ]).getRawMany();
+
+    // Unique and order by code
+    const uniqueMap = new Map<string, string>();
+    for (const row of all) {
+      if (!uniqueMap.has(row.assessment_sub_component_answers_subComponentId)) {
+        uniqueMap.set(row.assessment_sub_component_answers_subComponentId, row.assessment_sub_components_code);
+      }
+    }
+    const ids = Array.from(uniqueMap.entries())
+      .sort((a, b) => a[1].localeCompare(b[1]))
+      .map(([id]) => id);
+
+    // Get latest answer (with subComponent and componentId)
+    const latest = await this.subComponentAnswerRepository
+      .createQueryBuilder('assessment_sub_component_answers')
+      .innerJoinAndSelect('assessment_sub_component_answers.subComponent', 'assessment_sub_components')
+      .innerJoin('assessment_sub_component_answers.answer', 'answers')
+      .where('answers.assessmentId = :assessmentId', { assessmentId })
+      .andWhere('assessment_sub_component_answers.deletedAt IS NULL')
+      .andWhere('answers.deletedAt IS NULL')
+      .orderBy('assessment_sub_component_answers.createdAt', 'DESC')
+      .addOrderBy('assessment_sub_component_answers.id', 'DESC')
+      .limit(1)
+      .getOne();
+
+    let latestResult: any = null;
+    if (latest) {
+      latestResult = {
+        ...latest,
+        subComponentId: latest.subComponentId,
+        componentId: latest.componentId,
+        subComponent: latest.subComponent,
+      };
+    }
+    return { ids, latest: latestResult };
+  }
 }
