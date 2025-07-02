@@ -3,13 +3,11 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import {
   Answer,
-  AssessmentMember,
   AssessmentSubComponent,
   AssessmentSubComponentAnswer,
   SubComponent,
@@ -37,10 +35,6 @@ export class AssessmentSubComponentService {
     private readonly assessmentSubComponentRepository: Repository<AssessmentSubComponent>,
     @InjectRepository(AssessmentSubComponentAnswer)
     private subComponentAnswerRepository: Repository<AssessmentSubComponentAnswer>,
-    @InjectRepository(AssessmentSubComponent)
-    private subComponentRepository: Repository<AssessmentSubComponent>,
-    @InjectRepository(AssessmentMember)
-    private memberRepository: Repository<AssessmentMember>,
     @InjectRepository(Answer)
     private answerRepository: Repository<Answer>,
   ) {}
@@ -217,14 +211,7 @@ export class AssessmentSubComponentService {
     return filters;
   }
 
-  /**
-   * Optimized: Fetch subcomponent IDs (ordered by code) for a given assessmentId from AssessmentSubComponentAnswer,
-   * and also return the latest answer (by createdAt) with its subComponent and componentId, using efficient queries.
-   */
   async getFilledStatusByAssessment(assessmentId: string, user: any): Promise<{ ids: string[]; latest: any | null }> {
-    // Use a single query to get all needed data efficiently
-    // 1. Get all unique subComponentIds (with code) for the assessment
-    // 2. Get the latest answer (by createdAt DESC)
     const qb = this.subComponentAnswerRepository
       .createQueryBuilder('assessment_sub_component_answers')
       .innerJoinAndSelect('assessment_sub_component_answers.subComponent', 'assessment_sub_components')
@@ -233,13 +220,11 @@ export class AssessmentSubComponentService {
       .andWhere('assessment_sub_component_answers.deletedAt IS NULL')
       .andWhere('answers.deletedAt IS NULL');
 
-    // Get all subComponentIds and codes
     const all = await qb.select([
       'assessment_sub_component_answers.subComponentId',
       'assessment_sub_components.code',
     ]).getRawMany();
 
-    // Unique and order by code
     const uniqueMap = new Map<string, string>();
     for (const row of all) {
       if (!uniqueMap.has(row.assessment_sub_component_answers_subComponentId)) {
@@ -250,7 +235,6 @@ export class AssessmentSubComponentService {
       .sort((a, b) => a[1].localeCompare(b[1]))
       .map(([id]) => id);
 
-    // Get latest answer (with subComponent and componentId)
     const latest = await this.subComponentAnswerRepository
       .createQueryBuilder('assessment_sub_component_answers')
       .innerJoinAndSelect('assessment_sub_component_answers.subComponent', 'assessment_sub_components')

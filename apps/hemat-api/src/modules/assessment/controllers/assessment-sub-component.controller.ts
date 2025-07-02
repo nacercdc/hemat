@@ -77,7 +77,7 @@ export class AssessmentSubComponentController {
   @ApiOperation({
     summary: 'Get filled status for an assessment',
     description:
-      'Check if an assessment has subcomponent answers. Returns subcomponent IDs (ordered by code) and the latest answer.',
+      'Check if an assessment has sub-component answers. Returns sub-component IDs (ordered by code) and the latest answer.',
   })
   @ApiOkResponse({
     description: 'Ok',
@@ -127,7 +127,18 @@ export class AssessmentSubComponentController {
       },
     },
   })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @UseGuards(AssessmentRoleGuard)
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
   @Get('filled-status')
   async getFilledStatus(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
