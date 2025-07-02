@@ -1,13 +1,19 @@
 "use client";
 
+import type { ToolTipColorType } from "@etm/web-ui-components";
 import { Tooltip } from "@etm/web-ui-components";
 
 interface Props {
   text: string;
   maxLength?: number;
+  toolTipVariant?: ToolTipColorType;
 }
 
-export function TruncatedText({ text, maxLength = 20 }: Props) {
+export function TruncatedText({
+  text,
+  maxLength = 20,
+  toolTipVariant = "light",
+}: Props) {
   const needsTruncation = text.length > maxLength;
   const displayedText = needsTruncation
     ? `${text.slice(0, maxLength)}...`
@@ -19,5 +25,11 @@ export function TruncatedText({ text, maxLength = 20 }: Props) {
 
   const ToolTipContent = <p className="max-w-xs break-words">{text}</p>;
 
-  return <Tooltip trigger={ToolTipTrigger} content={ToolTipContent} />;
+  return (
+    <Tooltip
+      color={toolTipVariant}
+      trigger={ToolTipTrigger}
+      content={ToolTipContent}
+    />
+  );
 }
