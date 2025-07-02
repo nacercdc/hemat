@@ -7,7 +7,7 @@ import {
   retrieveResponseText,
 } from "../util";
 import { cleanPath } from "~/utils/string.util";
-import { getSession, refreshAccessToken } from "../utils/session";
+import { getSession } from "../utils/session";
 import type { SessionPayload } from "../utils/session";
 
 const headers = new Headers({
@@ -60,10 +60,6 @@ export const useFetchRequest = ({ baseUrl, requestInit }: UseFetchRequest) => {
     if (options?.isProtected) {
       try {
         session = await getSession();
-
-        if (session && Date.now() >= +session.expires) {
-          session = await refreshAccessToken();
-        }
       } catch (_err) {}
 
       if (!session) throw new Error("Unauthenticated.");
