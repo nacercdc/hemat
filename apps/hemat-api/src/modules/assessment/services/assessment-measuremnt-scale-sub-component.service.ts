@@ -18,6 +18,7 @@ import {
   AssessmentMeasurementScaleSubComponentUpdateDto,
 } from '../dtos';
 import { FindAllAssessmentMeasurementScaleSubComponentDto } from '../dtos';
+import { getTranslated } from '@shared/helpers/translation.helper';
 
 @Injectable()
 export class AssessmentMeasurementScaleSubComponentService {
@@ -80,7 +81,9 @@ export class AssessmentMeasurementScaleSubComponentService {
   }
 
   async findAll(
-    query: FindAllAssessmentMeasurementScaleSubComponentDto,
+    query: FindAllAssessmentMeasurementScaleSubComponentDto & {
+      language?: string;
+    },
   ): Promise<FindAllResponseDto<AssessmentMeasurementScaleSubComponentDto>> {
     const queryBuilder = this.assessmentMeasurementScaleSubComponentRepository.createQueryBuilder('assessmentMeasurementScaleSubComponent');
 
@@ -94,8 +97,21 @@ export class AssessmentMeasurementScaleSubComponentService {
 
     const [data, total] = await queryBuilder.getManyAndCount();
 
+    const language = query.language;
+    const translatedData = language
+      ? data.map((component) => ({
+          ...component,
+          description: getTranslated(
+            component,
+            language,
+            'description',
+            component.description,
+          ),
+        }))
+      : data;
+
     return {
-      data,
+      data: translatedData,
       total
     };
   }
@@ -103,6 +119,7 @@ export class AssessmentMeasurementScaleSubComponentService {
   async findOne(
     subComponentId: string,
     measurementScaleId: string,
+    language?: string,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
     const measurementScale =
       await this.assessmentMeasurementScaleSubComponentRepository.findOne({
@@ -119,6 +136,14 @@ export class AssessmentMeasurementScaleSubComponentService {
       throw new NotFoundException(
         `Measurement scale with ID ${measurementScaleId} not found for sub-component ${subComponentId}`,
       );
+    }
+
+    // Apply translations if language is specified
+    if (language) {
+      return {
+        ...measurementScale,
+        description: getTranslated(measurementScale, language, 'description', measurementScale.description),
+      };
     }
 
     return measurementScale;

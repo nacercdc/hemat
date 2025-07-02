@@ -1,4 +1,3 @@
-// src/assessment-measurement-scale/dtos/find-all-assessment-measurement-scale.dto.ts
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';

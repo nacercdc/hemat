@@ -10,6 +10,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { IsExists, IsUnique } from '@shared/validators';
+import { Assessment } from '@database/entities';
 
 export class AssessmentCreateRequestDto {
   @ApiProperty({
@@ -222,4 +223,28 @@ export class AssessmentUpdateRequestDto {
   )
   @Type(() => Array)
   languages?: string[];
+}
+
+export class AssessmentDto {
+  id: string;
+  name: string;
+  description: string;
+  countryCode: string;
+  organization?: string;
+  startDate: string;
+  endDate: string;
+  languages: string[];
+  status: string;
+
+  constructor(entity: Assessment) {
+    this.id = entity.id;
+    this.name = entity.name;
+    this.description = entity.description;
+    this.countryCode = entity.countryCode;
+    this.organization = entity.organization ?? undefined;
+    this.startDate = entity.startDate instanceof Date ? entity.startDate.toISOString().slice(0, 10) : String(entity.startDate);
+    this.endDate = entity.endDate instanceof Date ? entity.endDate.toISOString().slice(0, 10) : String(entity.endDate);
+    this.languages = entity.languages?.map((l: any) => l.code) || [];
+    this.status = entity.status;
+  }
 }

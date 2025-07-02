@@ -10,6 +10,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Query,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -36,6 +37,10 @@ import {
   FindOneAssessmentGroupDto,
 } from '../dtos';
 import { AssessmentGroup } from '../../../database/entities';
+import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
+import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
+import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
+import { MemberRole } from '../../../shared/enums';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Groups')
@@ -79,14 +84,38 @@ export class AssessmentGroupController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false, // Allow non-admins to proceed to AssessmentRoleGuard
   })
+  @UseGuards(AssessmentRoleGuard)
   @Get(':id')
   async findOne(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query() query: FindOneAssessmentGroupDto,
   ): Promise<AssessmentGroup> {
-    return this.assessmentGroupService.findOne(assessmentId, id, query);
+    const { isAdmin, assessmentRole, assessmentGroupId } = user;
+
+    // Admins can see any group
+    if (isAdmin) {
+      return this.assessmentGroupService.findOne(assessmentId, id, query);
+    }
+
+    // Primary members can see any group
+    if (assessmentRole === MemberRole.PRIMARY) {
+      return this.assessmentGroupService.findOne(assessmentId, id, query);
+    }
+
+    // Team leaders and members can only see their own group
+    if (assessmentRole === MemberRole.TEAM_LEADER || assessmentRole === MemberRole.MEMBER) {
+      if (assessmentGroupId === id) {
+        return this.assessmentGroupService.findOne(assessmentId, id, query);
+      } else {
+        throw new ForbiddenException('You can only access your own group');
+      }
+    }
+
+    throw new ForbiddenException('Invalid role for accessing groups');
   }
 
   @ApiOperation({
@@ -104,13 +133,41 @@ export class AssessmentGroupController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false, // Allow non-admins to proceed to AssessmentRoleGuard
   })
+  @UseGuards(AssessmentRoleGuard)
   @Get()
   async findAll(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query() query: FindAllAssessmentGroupDto,
   ): Promise<FindAllResponseDto<AssessmentGroup>> {
-    return this.assessmentGroupService.findAll(assessmentId, query);
+    const { isAdmin, assessmentRole, assessmentGroupId } = user;
+
+    // Admins can see all groups
+    if (isAdmin) {
+      return this.assessmentGroupService.findAll(assessmentId, query);
+    }
+
+    // Primary members can see all groups
+    if (assessmentRole === MemberRole.PRIMARY) {
+      return this.assessmentGroupService.findAll(assessmentId, query);
+    }
+
+    // Team leaders and members can only see their own group
+    if (assessmentRole === MemberRole.TEAM_LEADER || assessmentRole === MemberRole.MEMBER) {
+      if (assessmentGroupId) {
+        // Filter to only show their group
+        return this.assessmentGroupService.findAll(assessmentId, {
+          ...query,
+          filterByGroupIds: [assessmentGroupId],
+        });
+      } else {
+        throw new ForbiddenException('You must be assigned to a group to view groups');
+      }
+    }
+
+    throw new ForbiddenException('Invalid role for accessing groups');
   }
 
   @ApiOperation({

@@ -17,6 +17,28 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: service-runner
+      args:
+        APP_NAME: hemat-api
+    container_name: api
+    environment:
+      NEXT_PUBLIC_HOST_URL: http://localhost:3000
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+    networks:
+      - africa_cdc_network
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:3000/health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 volumes:
   postgres_data:

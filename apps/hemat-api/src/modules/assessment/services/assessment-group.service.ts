@@ -32,14 +32,22 @@ export class AssessmentGroupService {
     query: FindAllAssessmentGroupDto,
   ): Promise<FindAllResponseDto<AssessmentGroup>> {
     try {
-      return await new QueryService<AssessmentGroup>(this.groupRepository)
+      const queryService = new QueryService<AssessmentGroup>(this.groupRepository)
         .filter([{ field: 'assessmentId', operator: '=', value: assessmentId }])
         .join(query.include)
         .filter([], { fields: ['name'], value: query.search })
         .sort({ ascending: query.ascending, descending: query.descending })
         .take(query.take)
-        .skip(query.skip)
-        .getManyAndCount();
+        .skip(query.skip);
+
+      // Add group ID filtering if provided
+      if (query.filterByGroupIds && query.filterByGroupIds.length > 0) {
+        queryService.filter([
+          { field: 'id', operator: 'IN', value: query.filterByGroupIds }
+        ]);
+      }
+
+      return await queryService.getManyAndCount();
     } catch (err) {
       this.logger.error(
         `Failed to retrieve assessment groups: ${err.message}`,

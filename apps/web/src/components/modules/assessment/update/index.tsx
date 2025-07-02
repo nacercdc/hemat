@@ -12,6 +12,7 @@ import { AssessmentForm } from "../components/form";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
 import { ASSESSMENT_LIST_KEY } from "../components/table";
+import { formatDateToYYYYMMDD } from "@etm/utilities";
 
 export default function UpdateAssessment() {
   const toaster = useToast();
@@ -34,8 +35,8 @@ export default function UpdateAssessment() {
         data: {
           id: assessmentId as string,
           name: data.name,
-          startDate: data.startDate,
-          endDate: data.endDate,
+          startDate: formatDateToYYYYMMDD(data.startDate),
+          endDate: formatDateToYYYYMMDD(data.endDate),
           countryCode: data.country.code ?? "",
           organization: data.organization,
           description: data.description,

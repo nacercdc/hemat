@@ -72,7 +72,7 @@ export function RadioGroup<T>({
   onBadgeHover,
   onBadgeLeave,
 }: Props<T>) {
-  const [radioValue, setRadioValue] = React.useState<T | undefined>();
+  const [radioValue, setRadioValue] = React.useState<T | undefined>(value);
 
   React.useEffect(() => {
     setRadioValue(value);

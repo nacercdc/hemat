@@ -17,7 +17,7 @@ import type { Assessment } from "~/libs/models/assessment.model";
 import { useEffect } from "react";
 import { AssessmentFormSkeleton } from "./AssessmentFormSkeleton";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
-import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "@etm/utilities";
+
 const languageSchema = z.object({
   code: z
     .string()
@@ -41,10 +41,10 @@ const AssessmentFormSchema = z
     country: countrySchema,
     organization: z
       .string()
-      .min(2, { message: "Organization name is required" })
       .max(100, {
         message: "Organization name must be at most 100 characters",
-      }),
+      })
+      .optional(),
     description: z
       .string()
       .max(500, { message: "Description must be at most 500 characters" })
@@ -82,9 +82,11 @@ export function AssessmentForm({
   const { data: languages, ...languagesState } = useFindAll<Language>({
     path: "/languages",
   });
-
   const { data: countries, ...countriesState } = useFindAll<Country>({
     path: "/countries",
+    tqOptions: {
+      enabled: !!assessment,
+    },
   });
 
   const { control, handleSubmit, reset } = useForm<AssessmentFormData>({
@@ -104,8 +106,8 @@ export function AssessmentForm({
   const onSubmitHandler = (values: AssessmentFormData) => {
     onSubmitAssessmentForm({
       ...values,
-      startDate: new Date(formatDateToYYYYMMDD(values.startDate)),
-      endDate: new Date(formatDateToYYYYMMDD(values.endDate)),
+      startDate: values.startDate,
+      endDate: values.endDate,
     });
     reset();
   };
@@ -119,8 +121,8 @@ export function AssessmentForm({
     if (assessment) {
       reset({
         name: assessment?.name,
-        startDate: parseYYYYMMDDToDate(assessment.startDate),
-        endDate: parseYYYYMMDDToDate(assessment.endDate),
+        startDate: new Date(assessment.startDate),
+        endDate: new Date(assessment.endDate),
         country: assessment?.country?.code
           ? { code: assessment.country.code }
           : undefined,

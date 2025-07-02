@@ -122,6 +122,7 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
     },
     resolver: zodResolver(defaultFieldsSchema),
     mode: "all",
+    shouldUnregister: true,
   });
 
   const selectedLanguages: Omit<Language, "id">[] =
@@ -310,7 +311,7 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
           size="lg"
           onClick={() => reset()}
         >
-          Cancel
+          Reset
         </Button>
         <Button type="submit" size="lg" loading={loading}>
           {subComponent ? "Edit" : "Add"}

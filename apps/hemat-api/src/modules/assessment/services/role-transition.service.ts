@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
-import { MemberRole } from '@shared/enums';
+import { MemberRole, AssessmentStatus } from '@shared/enums';
 import { AssessmentMemberValidator } from '../utils/assessment-member.validator';
-import { AssessmentMember } from '../../../database/entities';
+import { AssessmentMember, Assessment } from '../../../database/entities';
 
 export class RoleTransitionService {
   static async updateRole({
@@ -19,6 +19,16 @@ export class RoleTransitionService {
     assessmentId: string;
     groupId: string;
   }): Promise<AssessmentMember> {
+    // Prevent role change if assessment is in progress or beyond and member is PRIMARY or TEAM_LEADER
+    const assessment = await manager.getRepository(Assessment).findOne({ where: { id: assessmentId } });
+    if (
+      assessment &&
+      [AssessmentStatus.IN_PROGRESS, AssessmentStatus.CLOSED, AssessmentStatus.COMPLETED].includes(assessment.status) &&
+      (member.role === MemberRole.PRIMARY || member.role === MemberRole.TEAM_LEADER)
+    ) {
+      throw new BadRequestException('Cannot change role of PRIMARY or TEAM_LEADER after assessment has started filling.');
+    }
+
     const allMembers = await AssessmentMemberValidator.fetchAssessmentMembers(
       manager,
       assessmentId,
@@ -233,6 +243,16 @@ export class RoleTransitionService {
     promoteUserId?: string;
     assessmentId: string;
   }): Promise<void> {
+    // Prevent move if assessment is in progress or beyond and member is PRIMARY or TEAM_LEADER
+    const assessment = await manager.getRepository(Assessment).findOne({ where: { id: assessmentId } });
+    if (
+      assessment &&
+      [AssessmentStatus.IN_PROGRESS, AssessmentStatus.CLOSED, AssessmentStatus.COMPLETED].includes(assessment.status) &&
+      (member.role === MemberRole.PRIMARY || member.role === MemberRole.TEAM_LEADER)
+    ) {
+      throw new BadRequestException('Cannot move PRIMARY or TEAM_LEADER after assessment has started filling.');
+    }
+
     const fromGroupId = member.groupId;
     if (fromGroupId === toGroupId) {
       throw new BadRequestException(

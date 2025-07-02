@@ -5,11 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, Repository, In } from 'typeorm';
 import {
   AssessmentComponent,
   AssessmentSubComponent,
   Component,
+  AssessmentSubComponentAnswer,
 } from '@database/entities';
 import { UUID } from '@shared/helpers';
 import { Filter, QueryService } from '@shared/services';
@@ -22,7 +23,8 @@ import {
 import { getTranslated } from '@shared/helpers/translation.helper';
 
 interface AssessmentComponentWithCounts extends AssessmentComponent {
-  subComponentsCount: number;
+  filledSubComponentsCount: number;
+  filledPercentage: number;
 }
 
 @Injectable()
@@ -34,6 +36,8 @@ export class AssessmentComponentService {
     private readonly assessmentComponentRepository: Repository<AssessmentComponent>,
     @InjectRepository(AssessmentSubComponent)
     private readonly assessmentSubComponentRepository: Repository<AssessmentSubComponent>,
+    @InjectRepository(AssessmentSubComponentAnswer)
+    private readonly assessmentSubComponentAnswerRepository: Repository<AssessmentSubComponentAnswer>,
   ) {}
 
   async create(
@@ -84,36 +88,39 @@ export class AssessmentComponentService {
   async findAll(
     query: FindAllAssessmentComponentDto & { assessmentId: string },
   ): Promise<FindAllResponseDto<AssessmentComponentWithCounts>> {
-    const qb = this.assessmentComponentRepository
-      .createQueryBuilder('component')
+    const qb = this.assessmentComponentRepository.createQueryBuilder('component')
       .leftJoin('component.subComponents', 'subComponent')
+      .leftJoin('assessment_sub_component_answers', 'filled', 'filled.subComponentId = subComponent.id')
       .select([
-        'component.*',
-        'CAST(COUNT(DISTINCT subComponent.id) AS INTEGER) as "subComponentsCount"',
+        'component',
+        'COUNT(DISTINCT filled.subComponentId) AS "filledSubComponentsCount"',
+        'COUNT(DISTINCT subComponent.id) AS "total"'
       ])
-      .where('component.assessmentId = :assessmentId', {
-        assessmentId: query.assessmentId,
-      })
+      .where('component.assessmentId = :assessmentId', { assessmentId: query.assessmentId })
       .groupBy('component.id');
 
-    query.search && qb.andWhere('(component.code ILIKE :search OR component.name ILIKE :search)', {
-      search: `%${query.search}%`,
-    });
-
-    const sortFields = query.ascending?.length ? query.ascending : query.descending?.length ? query.descending : ['createdAt'];
-    const sortOrder = query.ascending?.length ? 'ASC' : 'DESC';
+    if (query.search) {
+      qb.andWhere('(component.code ILIKE :search OR component.name ILIKE :search)', {
+        search: `%${query.search}%`,
+      });
+    }
     
-    sortFields.forEach(field => qb.addOrderBy(`component.${field}`, sortOrder));
-
-    const [components, total] = await Promise.all([
-      qb.skip(query.skip).take(query.take).getRawMany(),
+    const [rows, total] = await Promise.all([
+      qb.skip(query.skip).take(query.take).getRawAndEntities(),
       qb.getCount(),
     ]);
 
-    return {
-      data: components,
-      total,
-    };
+    const data = rows.entities.map((component, idx) => {
+      const raw = rows.raw[idx];
+      const total = +raw.total || 0;
+      const filled = +raw.filledSubComponentsCount || 0;
+      return {
+        ...component,
+        filledSubComponentsCount: filled,
+        filledPercentage: total ? Math.round((filled / total) * 100) : 0,
+      };
+    });
+    return { data, total };
   }
 
   async findOne(

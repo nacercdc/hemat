@@ -1,0 +1,16 @@
+^terragrunt:
+  GITHUB_TOKEN: file://config.json?query=.github_token
+  GITLAB_TOKEN: file://config.json?query=.gitlab_token
+  GOOGLE_PROJECT: file://config.json?query=.google_application_credentials.project_id
+  GOOGLE_REGION: file://config.json?query=.google_region
+  GOOGLE_ZONE: file://config.json?query=.google_zone
+  GOOGLE_CREDENTIALS: file://config.json?query=.google_application_credentials
+  GOOGLE_BACKEND_IMPERSONATE_SERVICE_ACCOUNT: file://config.json?query=.google_backend_impersonate_service_account
+  TF_HTTP_USERNAME: file://config.json?query=.gitlab_username
+  TF_HTTP_PASSWORD: file://config.json?query=.gitlab_token
+  TF_VAR_project_id: file://config.json?query=.google_application_credentials.project_id
+  TF_VAR_region: file://config.json?query=.google_region
+  TF_VAR_env_secrets: file://config.json?query=.env_secrets
+  TF_VAR_gitlab_username: file://config.json?query=.gitlab_username
+  TF_VAR_gitlab_token: file://config.json?query=.etm_gitlab_token
+  TF_VAR_github_secrets: file://config.json?query=.github_secrets

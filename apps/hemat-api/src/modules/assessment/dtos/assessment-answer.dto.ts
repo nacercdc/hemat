@@ -61,9 +61,6 @@ export class AssessmentAnswerCreateRequestDto {
   })
   @IsNotEmpty({ message: 'validation.evidence.isNotEmpty' })
   @IsString({ message: 'validation.evidence.isString' })
-  @Length(1, 1000, {
-    message: 'validation.evidence.length args: min:1 | max:1000',
-  })
   @Type(() => String)
   evidence: string;
 
@@ -74,9 +71,6 @@ export class AssessmentAnswerCreateRequestDto {
   })
   @IsNotEmpty({ message: 'validation.reference.isNotEmpty' })
   @IsString({ message: 'validation.reference.isString' })
-  @Length(1, 1000, {
-    message: 'validation.reference.length args: min:1 | max:1000',
-  })
   @Type(() => String)
   reference: string;
 

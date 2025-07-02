@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsArray, IsUUID } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { FindAllDto } from '@shared/dtos';
 import { IsArrayContains } from '@shared/validators';
@@ -37,6 +37,17 @@ export class FindAllAssessmentGroupDto extends FindAllDto {
   @Type(() => String)
   @Transform(({ value }) => (value ? value.trim().split(',') : []))
   descending: string[] = [];
+
+  @ApiPropertyOptional({
+    description: 'Filter by specific group IDs (comma separated)',
+    type: String,
+    example: 'group1,group2,group3',
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  @Transform(({ value }) => (value ? value.trim().split(',') : undefined))
+  filterByGroupIds?: string[];
 }
 
 export class FindOneAssessmentGroupDto {

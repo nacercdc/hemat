@@ -5,7 +5,7 @@ import type { HeaderRef } from "./PageHeader";
 import { PageHeader } from "./PageHeader";
 
 interface Props {
-  pageTitle: string;
+  pageTitle: string | React.ReactNode;
   includeBreadcrumb?: boolean;
   actionNodes?: React.ReactNode;
   children: React.ReactNode;

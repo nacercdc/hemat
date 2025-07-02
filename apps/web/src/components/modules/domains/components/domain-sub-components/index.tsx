@@ -11,6 +11,7 @@ import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import type {
   SubComponent as ISubComponent,
   SubComponentCreate,
+  SubComponentIncludable,
   SubComponentMeasurementScale,
   SubComponentMeasurementScaleCreate,
 } from "~/libs/models/subComponent.model";
@@ -32,14 +33,21 @@ export function DomainSubComponents({ modalRef }: Props) {
   const { componentId } = useActiveList();
   const { toast } = useToast();
 
-  const { data: subComponents, ...subComponentsState } =
-    useFindAll<ISubComponent>({
-      path: `/components/${componentId}/subComponents`,
-      tqOptions: {
-        enabled: !!componentId,
-        queryKey: ["subComponents", componentId],
-      },
-    });
+  const { data: subComponents, ...subComponentsState } = useFindAll<
+    ISubComponent,
+    SubComponentIncludable,
+    unknown,
+    unknown
+  >({
+    path: `/components/${componentId}/subComponents`,
+    queries: {
+      include: ["measurementScales"],
+    },
+    tqOptions: {
+      enabled: !!componentId,
+      queryKey: ["subComponents", componentId],
+    },
+  });
 
   const { mutate: createSubComponent, ...createSubComponentState } =
     useAddMutation<ISubComponent, SubComponentCreate>("sub-components");
@@ -75,6 +83,13 @@ export function DomainSubComponents({ modalRef }: Props) {
 
             subComponentsState.refetch();
           },
+          onError: () => {
+            toast({
+              title: "Error",
+              message: "Something went wrong while creating sub component",
+              variant: "destructive",
+            });
+          },
         }
       );
     }
@@ -95,13 +110,22 @@ export function DomainSubComponents({ modalRef }: Props) {
           onSuccess: () => {
             toast({
               title: "Success",
-              message: "Sub Component measurement scale created successfully",
+              message:
+                "Sub component measurement scale description created successfully",
               variant: "success",
             });
 
             setCreatedSubComponentId(null);
             modalRef.current?.closeModal();
             subComponentsState.refetch();
+          },
+          onError: () => {
+            toast({
+              title: "Error",
+              message:
+                "Something went wrong while creating sub component measurement scale description",
+              variant: "destructive",
+            });
           },
         }
       );
@@ -147,10 +171,8 @@ export function DomainSubComponents({ modalRef }: Props) {
         <SubComponentForm
           createdSubComponentId={createdSubComponentId}
           onScalesSubmit={onAddScalesSubmitHandler}
-          defaultFieldsLoading={createSubComponentState.isPending}
-          defaultFieldsSuccess={createSubComponentState.isSuccess}
-          scalesLoading={createSubComponentMeasurementScalesState.isPending}
-          scalesSuccess={createSubComponentMeasurementScalesState.isSuccess}
+          defaultFieldsState={createSubComponentState.status}
+          scalesState={createSubComponentMeasurementScalesState.status}
           onDefaultFieldsSubmit={onAddSubComponentSubmitHandler}
         />
       </Modal>

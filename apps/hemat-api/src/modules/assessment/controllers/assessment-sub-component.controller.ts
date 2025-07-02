@@ -8,6 +8,8 @@ import {
   UseGuards,
   Query,
   Request,
+  ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -40,6 +42,10 @@ import {
   FindOneAssessmentSubComponentDto,
   FindAllAssessmentAnswerDto,
 } from '../dtos';
+import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
+import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
+import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
+import { MemberRole } from '@shared/enums';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Sub-Components')
@@ -151,12 +157,13 @@ export class AssessmentSubComponentController {
   }
 
   @ApiOperation({
-    summary: 'Get all answers for a sub-component',
-    description: 'Retrieve all answers for a specific sub-component',
+    summary: 'Get answer for a sub-component',
+    description:
+      'Retrieve answer for a specific sub-component based on user role',
   })
   @ApiOkResponse({
     description: 'Ok',
-    type: FindAllResponseDto<AssessmentSubComponentAnswer>,
+    type: AssessmentSubComponentAnswer,
   })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
@@ -168,28 +175,52 @@ export class AssessmentSubComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT_ANSWER,
       },
     ],
+    requireAdmin: false,
   })
+  @UseGuards(AssessmentRoleGuard)
   @Get(':id/answers')
   async findAnswers(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Request() req: { user: AuthDto },
+    @Param('id', new ParseUUIDPipe()) subComponentId: string,
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Query() query: FindAllAssessmentAnswerDto,
-  ): Promise<FindAllResponseDto<AssessmentSubComponentAnswer>> {
-    return this.assessmentSubComponentService.findAllBySubComponent(
-      id,
-      req.user.id,
-      query,
+  ): Promise<AssessmentSubComponentAnswer> {
+    const { assessmentRole, assessmentGroupId } = user;
+
+    if (assessmentRole === MemberRole.PRIMARY) {
+      return this.assessmentSubComponentService.getSubComponentAnswer(
+        assessmentId,
+        subComponentId,
+        user,
+        query,
+      );
+    } else if (assessmentRole === MemberRole.TEAM_LEADER) {
+      if (!assessmentGroupId) {
+        throw new ForbiddenException(
+          'You must be assigned to a group to view answers',
+        );
+      }
+      return this.assessmentSubComponentService.getSubComponentAnswer(
+        assessmentId,
+        subComponentId,
+        user,
+        query,
+      );
+    }
+
+    throw new ForbiddenException(
+      'Only Primary users and Team Leaders can view answers',
     );
   }
 
   @ApiOperation({
-    summary: 'Get primary answers for a sub-component',
-    description: 'Retrieve only primary answers for a specific sub-component',
+    summary: 'Get primary answer for a sub-component',
+    description:
+      'Retrieve the primary answer for a specific sub-component. Only accessible by Primary role users.',
   })
   @ApiOkResponse({
     description: 'Ok',
-    type: FindAllResponseDto<AssessmentSubComponentAnswer>,
+    type: AssessmentSubComponentAnswer,
   })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
@@ -201,18 +232,23 @@ export class AssessmentSubComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT_ANSWER,
       },
     ],
+    requireAdmin: false,
   })
+  @UseGuards(AssessmentRoleGuard)
   @Get(':id/primary-answers')
   async findPrimaryAnswers(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Request() req: { user: AuthDto },
-    @Query() query: FindAllAssessmentAnswerDto,
-  ): Promise<FindAllResponseDto<AssessmentSubComponentAnswer>> {
-    return this.assessmentSubComponentService.findPrimaryAnswerBySubComponent(
-      id,
-      req.user.id,
-      query,
-    );
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+  ): Promise<AssessmentSubComponentAnswer> {
+    const { assessmentRole } = user;
+
+    if (assessmentRole !== MemberRole.PRIMARY) {
+      throw new ForbiddenException(
+        'Only Primary users can view primary answers',
+      );
+    }
+
+    return this.assessmentSubComponentService.findPrimaryAnswer(id, user.id);
   }
-}
+} 

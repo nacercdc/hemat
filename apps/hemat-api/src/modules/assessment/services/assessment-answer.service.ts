@@ -11,10 +11,12 @@ import {
   AssessmentSubComponentAnswer,
   AssessmentSubComponent,
   AssessmentMeasurementScale,
+  AssessmentComponent,
+  Assessment,
 } from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
-import { MemberRole, AnswerStatus } from '@shared/enums';
+import { MemberRole, AnswerStatus, AssessmentStatus } from '@shared/enums';
 import { PercentageUtil } from '../utils';
 import { AssessmentAnswerValidator } from '../utils/assessment-answer.validator';
 import {
@@ -118,6 +120,16 @@ export class AssessmentAnswerService {
         );
       }
 
+      // Fetch the component to get domainId
+      const component = await manager.findOne(AssessmentComponent, {
+        where: { id: subComponent.componentId },
+      });
+      if (!component) {
+        throw new BadRequestException(
+          `Component ${subComponent.componentId} not found for sub-component ${payload.subComponentId}`,
+        );
+      }
+
       // Validate that the measurement scale belongs to this assessment
       const measurementScale = await manager.findOne(AssessmentMeasurementScale, {
         where: { id: payload.measurementScaleId },
@@ -150,6 +162,18 @@ export class AssessmentAnswerService {
           status: AnswerStatus.INPROGRESS,
         });
         await manager.save(Answer, answer);
+
+        // Set assessment status to IN_PROGRESS if not already in progress or beyond
+        const assessment = await manager.findOne(Assessment, { where: { id: assessmentId } });
+        if (
+          assessment &&
+          assessment.status !== AssessmentStatus.IN_PROGRESS &&
+          assessment.status !== AssessmentStatus.CLOSED &&
+          assessment.status !== AssessmentStatus.COMPLETED
+        ) {
+          assessment.status = AssessmentStatus.IN_PROGRESS;
+          await manager.save(Assessment, assessment);
+        }
       }
 
       let subComponentAnswer = await manager.findOne(
@@ -168,6 +192,8 @@ export class AssessmentAnswerService {
           evidence: payload.evidence,
           reference: payload.reference,
           notes: payload.notes,
+          componentId: subComponent.componentId,
+          domainId: component.domainId,
         });
       } else {
         subComponentAnswer = manager.create(AssessmentSubComponentAnswer, {
@@ -177,6 +203,8 @@ export class AssessmentAnswerService {
           evidence: payload.evidence,
           reference: payload.reference,
           notes: payload.notes,
+          componentId: subComponent.componentId,
+          domainId: component.domainId,
         });
       }
 

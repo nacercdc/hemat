@@ -1,0 +1,76 @@
+name: Terragrunt Apply
+
+on:
+  workflow_call:
+    inputs:
+      deploy_dir:
+        required: true
+        type: string
+      image_tag:
+        required: true
+        type: string
+      environment:
+        required: false
+        type: string
+        default: "staging"
+    secrets:
+      GCP_WORKLOAD_IDENTITY_PROVIDER:
+        required: true
+      GCP_SERVICE_ACCOUNT_EMAIL:
+        required: true
+      GITLAB_USERNAME:
+        required: true
+      GITLAB_TOKEN:
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terragrunt:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
+
+      - name: Setup Terraform and Terragrunt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+          sudo install -m 0755 -d /etc/apt/keyrings
+          curl -fsSL https://get.opentofu.org/opentofu.gpg | sudo tee /etc/apt/keyrings/opentofu.gpg >/dev/null
+          curl -fsSL https://packages.opentofu.org/opentofu/tofu/gpgkey | sudo gpg --no-tty --batch --dearmor -o /etc/apt/keyrings/opentofu-repo.gpg >/dev/null
+          sudo chmod a+r /etc/apt/keyrings/opentofu.gpg /etc/apt/keyrings/opentofu-repo.gpg
+          echo \
+            "deb [signed-by=/etc/apt/keyrings/opentofu.gpg,/etc/apt/keyrings/opentofu-repo.gpg] https://packages.opentofu.org/opentofu/tofu/any/ any main
+          deb-src [signed-by=/etc/apt/keyrings/opentofu.gpg,/etc/apt/keyrings/opentofu-repo.gpg] https://packages.opentofu.org/opentofu/tofu/any/ any main" | \
+            sudo tee /etc/apt/sources.list.d/opentofu.list > /dev/null
+          sudo chmod a+r /etc/apt/sources.list.d/opentofu.list
+          sudo apt-get update
+          sudo apt-get install -y tofu
+
+          wget https://github.com/gruntwork-io/terragrunt/releases/download/v0.81.9/terragrunt_linux_amd64
+          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+          sudo chmod u+x /usr/local/bin/terragrunt
+
+      - name: Configure git credentials for private GitLab modules
+        run: |
+          git config --global url."http://${GITLAB_USERNAME}:${GITLAB_TOKEN}@167.172.181.51/".insteadOf "http://167.172.181.51/"
+        env:
+          GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+
+      - name: Deploy with Terragrunt
+        run: |
+          cd ${{ inputs.deploy_dir }}
+          terragrunt init
+          terragrunt apply -auto-approve -var="image_tag=${{ inputs.image_tag }}"
