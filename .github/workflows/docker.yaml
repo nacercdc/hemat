@@ -35,6 +35,7 @@ permissions:
 jobs:
   generate-matrix:
     runs-on: ubuntu-latest
+    name: Generate Matrix
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -175,6 +176,7 @@ jobs:
     needs: [generate-matrix, docker]
     if: ${{ always() }}
     runs-on: ubuntu-latest
+    name: Aggregate Outputs
     outputs:
       matrix_outputs: ${{ steps.combine.outputs.matrix_outputs }}
     steps:
@@ -198,11 +200,6 @@ jobs:
           pattern: matrix-output-*
           merge-multiple: true
         continue-on-error: true
-
-      - name: Debug Artifact Directory
-        run: |
-          echo "Listing artifacts directory:"
-          find artifacts -type f || echo "No files found in artifacts directory"
 
       - name: Combine Matrix Outputs
         id: combine
