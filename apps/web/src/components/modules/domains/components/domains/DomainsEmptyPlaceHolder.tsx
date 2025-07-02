@@ -13,7 +13,7 @@ export function DomainsEmptyPlaceHolder() {
             className="w-8 h-8 text-basic-400"
           />
         </div>
-        <h3 className="text-lg font-medium text-basic mb-2">No Domains</h3>
+        <h3 className="text-lg font-medium text-basic mb-2">No. Domains</h3>
         <p className="text-basic-500 text-sm">
           There are no domains available.
         </p>
