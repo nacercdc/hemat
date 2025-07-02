@@ -1,10 +1,10 @@
-export const COOKIE_KEYS = ["token", "refreshToken", "expires"] as const;
-
-export const SET_COOKIE_CONFIG = {
+/* eslint-disable no-restricted-properties */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export const SET_COOKIE_CONFIG: any = {
   httpOnly: true,
-  path: "/",
-  sameSite: "lax" as const,
   secure: process.env.NODE_ENV === "production",
+  path: "/",
+  sameSite: "lax",
   maxAge: 60 * 60 * 24 * 7,
 };
 

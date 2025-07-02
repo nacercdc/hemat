@@ -15,9 +15,7 @@ export default function AssessmentFillHeader({ title, subTitle }: Props) {
   const onSelectLanguageHandler = (_name?: Language) => {
     //TODO: Implement filtering the domains based on the selected language  for the group
   };
-  const { data: languages, ...languagesState } = useFindAll<
-    QueryManyResponse<Language>
-  >({
+  const { data: languages } = useFindAll<QueryManyResponse<Language>>({
     path: "/languages",
   });
   return (
