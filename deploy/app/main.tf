@@ -1,5 +1,5 @@
 module "web" {
-  source = "git::http://167.172.181.51/etm/tf_modules.git//gcp/cloud_run/app?ref=main"
+  source = "git::https://github.com/etmsoftware/tf-modules.git//gcp/cloud_run/app?ref=main"
   
   name            = var.name
   service         = "web"
@@ -17,8 +17,8 @@ module "web" {
 }
 
 module "hemat_api" {
-  source = "git::http://167.172.181.51/etm/tf_modules.git//gcp/cloud_run/app?ref=main"
-  
+  source = "git::https://github.com/etmsoftware/tf-modules.git//gcp/cloud_run/app?ref=main"
+
   name            = var.name
   service         = "hemat-api"
   project_id      = var.project_id

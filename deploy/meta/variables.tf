@@ -49,12 +49,12 @@ variable "environment" {
   type        = string
 }
 
-variable "gitlab_token" {
-  description = "GitLab access token for API operations"
+variable "http_token" {
+  description = "HTTP access token for API operations"
   type        = string
 }
 
-variable "gitlab_username" {
-  description = "GitLab username for API operations"
+variable "http_username" {
+  description = "HTTP username for API operations"
   type        = string  
 }
