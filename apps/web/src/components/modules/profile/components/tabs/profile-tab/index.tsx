@@ -170,9 +170,7 @@ export default function ProfileTab() {
 
         phoneNumber: currentUser.profile?.phoneNumber ?? "",
         dateOfBirth: currentUser.profile?.dateOfBirth
-          ? (parseYYYYMMDDToDate(
-              currentUser.profile?.dateOfBirth
-            ).toString() as unknown as Date)
+          ? new Date(parseYYYYMMDDToDate(currentUser.profile?.dateOfBirth))
           : undefined,
       });
     }
