@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { env } from "~/env";
 
 export async function refreshAccessToken(refreshToken: string) {
   try {
-    const url = new URL("auth/refresh-token", env.NEXT_PUBLIC_HOST_URL);
+    const url = new URL(
+      "auth/refresh-token",
+      "https://africa-cdc-app-hemat-api-501628761718.us-west1.run.app/api/"
+    );
 
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${refreshToken}` },
