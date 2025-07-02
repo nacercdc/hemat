@@ -1,14 +1,20 @@
+"use client";
+
 import React, { Suspense } from "react";
 import { NavBar } from "../components/navbar";
 import Loading from "~/app/(protected)/(dashboard)/loading";
 import Sidebar from "../components/sidebar/Sidebar";
 import UserAbilityProvider from "~/providers/ability/UserAbilityProvider";
+import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
 }
 
 export function DashboardLayout({ children }: Props) {
+  const pathname = usePathname();
+
   return (
     <UserAbilityProvider>
       <div className="flex w-full h-full gap-2 bg-basic-200">
@@ -18,7 +24,24 @@ export function DashboardLayout({ children }: Props) {
             <NavBar />
           </Suspense>
           <Suspense fallback={<Loading />}>
-            <main className="w-full h-full rounded-md">{children}</main>
+            <motion.div
+              key={pathname}
+              initial={{
+                opacity: 0,
+                scale: 0.975,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+              }}
+              transition={{
+                duration: 0.6,
+                ease: "easeOut",
+              }}
+              className="min-h-screen"
+            >
+              <main className="w-full h-full rounded-md">{children}</main>
+            </motion.div>
           </Suspense>
         </div>
       </div>
