@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import { cn } from "~/utils/cn.util";
 import type { SubComponent } from "../form";
 import { ComponentsListSkeleton } from "./ComponentsListSkeleton";
+import { TruncatedText } from "~/components/ui/TruncatedText";
 
 export interface Component {
   id: string;
@@ -50,7 +51,11 @@ export function ComponentsList({
           )}
         >
           <span className="text-sm font-medium flex-1 text-nowrap">
-            {component.name}
+            <TruncatedText
+              text={component.name}
+              maxLength={25}
+              toolTipVariant="dark"
+            />
           </span>
           <Icon
             icon="ion:chevron-forward-outline"

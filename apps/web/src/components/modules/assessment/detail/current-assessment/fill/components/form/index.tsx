@@ -93,7 +93,7 @@ export function SubCompAssessmentForm({
   const { data: measurementScales, ...measurementScalesState } = useFindAll<
     QueryManyResponse<MeasurementScaleType>
   >({
-    path: "/assessments/60063a25-b3c0-4273-af1b-4a43dfee2ddf/measurement-scales",
+    path: "/assessments/219318d9-a37b-458b-a1f4-3b65a07563d8/measurement-scales",
     queries: {
       limit: 100,
       page: 1,
@@ -103,12 +103,13 @@ export function SubCompAssessmentForm({
   //TODO: replace assessmentId from params
   const { data: subComponentAnswers, ...subComponentAnswersState } =
     useFindById<QueryManyResponse<Answer>, AnswerIncludable>({
-      path: `/assessments/60063a25-b3c0-4273-af1b-4a43dfee2ddf/sub-components/${subComponent?.id}/answers`,
+      path: `/assessments/219318d9-a37b-458b-a1f4-3b65a07563d8/sub-components/${subComponent?.id}/answers`,
       queries: {
         include: ["measurementScale"],
       },
       tqOptions: {
         enabled: !!subComponent,
+        staleTime: 0,
       },
     });
 
@@ -145,6 +146,7 @@ export function SubCompAssessmentForm({
   //TODO: it will be an object response instead of an array onces the API is fixed
   useEffect(() => {
     const answers = subComponentAnswers?.data as unknown as Answer[];
+
     if (answers?.length) {
       const answer = answers.find(
         (ans) => ans.subComponentId === subComponent?.id
@@ -161,14 +163,21 @@ export function SubCompAssessmentForm({
             name: formattedScale?.name,
           },
         });
+      } else {
+        reset({
+          evidence: "",
+          reference: "",
+          measurementScale: { name: "", id: "" },
+        });
       }
-    } else {
-      reset({
-        evidence: "",
-        reference: "",
-        measurementScale: { id: "", name: "" },
-      });
+      return;
     }
+
+    reset({
+      evidence: "",
+      reference: "",
+      measurementScale: { name: "", id: "" },
+    });
   }, [
     formattedMeasurementScales,
     reset,
