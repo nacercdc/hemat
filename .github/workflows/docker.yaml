@@ -54,7 +54,7 @@ jobs:
               entry=$(jq -n \
                 --arg name "$folder_name" \
                 --arg target "$target" \
-                --arg paths "apps/$folder_name/**,.github/workflows/**,Dockerfile,package.json,yarn.lock" \
+                --arg paths "apps/**,.github/workflows/**,Dockerfile,package.json,yarn.lock" \
                 '{name: $name, target: $target, paths: $paths}')
               
               matrix_json=$(echo "$matrix_json" | jq ".app += [$entry]")
