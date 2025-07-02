@@ -9,12 +9,11 @@ export async function refreshAccessToken(refreshToken: string) {
       headers: { Authorization: `Bearer ${refreshToken}` },
       method: "POST",
     });
+    const newToken = await response.json();
 
     if (!response.ok) {
       throw new Error("RefreshTokenError");
     }
-
-    const newToken = await response.json();
 
     return {
       token: newToken.token,

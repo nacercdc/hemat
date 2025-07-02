@@ -42,6 +42,7 @@ export const refreshAccessToken = async (): Promise<SessionPayload | null> => {
       try {
         const response = await fetch("/api/refresh-token", {
           credentials: "include",
+          method: "POST",
         });
 
         if (!response.ok) {

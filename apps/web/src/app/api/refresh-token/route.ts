@@ -9,10 +9,9 @@ import { CLEAR_COOKIE_CONFIG, SET_COOKIE_CONFIG } from "../configs";
 import { refreshAccessToken } from "../utils/refresh-token.utils";
 import { getTokenExpireMilliseconds } from "@etm/utilities";
 
-export async function GET() {
+export async function POST() {
   const cookieStore = await cookies();
   const refreshToken = (cookieStore as any).get("refreshToken")?.value;
-  console.log("cookieStore:", cookieStore);
   if (!refreshToken) {
     const res = NextResponse.json(
       { error: "No refresh token" },
