@@ -2,8 +2,8 @@
 import { Select } from "@etm/web-ui-components";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import React from "react";
-import { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
-import { Language } from "~/libs/models/language.model";
+import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import type { Language } from "~/libs/models/language.model";
 
 interface Props {
   title: string;
@@ -28,9 +28,7 @@ export default function AssessmentFillHeader({ title, subTitle }: Props) {
   const onSelectYearHandler = (_value?: YearFilterOption) => {
     //TODO: Implement filtering the domains based on the selected year for the group
   };
-  const { data: languages, ...languagesState } = useFindAll<
-    QueryManyResponse<Language>
-  >({
+  const { data: languages } = useFindAll<QueryManyResponse<Language>>({
     path: "/languages",
   });
   return (

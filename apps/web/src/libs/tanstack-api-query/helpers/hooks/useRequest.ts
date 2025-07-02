@@ -1,4 +1,4 @@
-import { getSession } from "~/utils/auth.util";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Method, QueryManyRequest, RequestConfig } from "../types";
 import {
   buildQueryString,
@@ -7,7 +7,8 @@ import {
   retrieveResponseText,
 } from "../util";
 import { cleanPath } from "~/utils/string.util";
-import type { LoginResponse } from "~/app/api/types";
+import { getSession, refreshAccessToken } from "../utils/session";
+import type { SessionPayload } from "../utils/session";
 
 const headers = new Headers({
   "Content-type": "application/json",
@@ -54,13 +55,18 @@ export const useFetchRequest = ({ baseUrl, requestInit }: UseFetchRequest) => {
     }
 
     // setup session
-    let session: LoginResponse | null = null;
+    let session: SessionPayload | null = null;
+
     if (options?.isProtected) {
       try {
         session = await getSession();
-      } catch {
-        throw new Error("Unauthenticated.");
-      }
+
+        if (session && Date.now() >= +session.expires) {
+          session = await refreshAccessToken();
+        }
+      } catch (_err) {}
+
+      if (!session) throw new Error("Unauthenticated.");
     }
 
     const request = new Request(

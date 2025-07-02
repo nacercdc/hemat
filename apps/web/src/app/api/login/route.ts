@@ -1,29 +1,50 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
-import type { LoginRequestBody } from "../types";
-import { authenticateUser, setAuthCookies } from "../utils";
+import { serialize } from "cookie";
 
-export async function POST(req: Request): Promise<NextResponse> {
+import { env } from "~/env";
+import { SET_COOKIE_CONFIG } from "../configs";
+import { getTokenExpireMilliseconds } from "@etm/utilities";
+
+export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as LoginRequestBody;
-    if (!body.email || !body.password) {
-      return NextResponse.json(
-        { error: "Username and password are required" },
-        { status: 400 }
+    const { email, password } = await req.json();
+
+    const res = await fetch(`${env.NEXT_PUBLIC_HOST_URL}auth/login`, {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const parsedResult = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        parsedResult.message || "Invalid email and password combinations."
       );
     }
 
-    const loginResponse = await authenticateUser(body);
-
-    const response = NextResponse.json(
-      { success: true, user: loginResponse },
-      { status: 200 }
+    const response = new NextResponse(
+      JSON.stringify({ success: true, user: parsedResult })
     );
 
-    setAuthCookies(response, loginResponse);
+    response.headers.set(
+      "Set-Cookie",
+      [
+        serialize("token", parsedResult.token, SET_COOKIE_CONFIG),
+        serialize("refreshToken", parsedResult.refreshToken, SET_COOKIE_CONFIG),
+        serialize(
+          "expires",
+          getTokenExpireMilliseconds(parsedResult.expires).toString(),
+          SET_COOKIE_CONFIG
+        ),
+      ].join(", ")
+    );
+
     return response;
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unexpected error occurred";
-    return NextResponse.json({ error: message }, { status: 401 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 401 });
   }
 }
