@@ -20,6 +20,7 @@ jobs:
       GCP_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
 
   deploy:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
     needs: build
     uses: ./.github/workflows/terragrunt.yaml
     with:

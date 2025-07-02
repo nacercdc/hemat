@@ -27,5 +27,3 @@ To run with optimizer on in dev mode (just for testing, it's faster to leave it 
 - `yarn turbo gen package`
 
 ### In the future, the folder structure and DevOps processes will be included and described in greater detail. Stay tuned for updates!
-
-if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
