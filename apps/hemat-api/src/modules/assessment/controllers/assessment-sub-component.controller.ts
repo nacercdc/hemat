@@ -178,7 +178,7 @@ export class AssessmentSubComponentController {
     requireAdmin: false,
   })
   @UseGuards(AssessmentRoleGuard)
-  @Get(':id/answers')
+  @Get(':id/answer')
   async findAnswers(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) subComponentId: string,
@@ -235,7 +235,7 @@ export class AssessmentSubComponentController {
     requireAdmin: false,
   })
   @UseGuards(AssessmentRoleGuard)
-  @Get(':id/primary-answers')
+  @Get(':id/primary-answer')
   async findPrimaryAnswers(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
