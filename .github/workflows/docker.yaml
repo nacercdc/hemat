@@ -24,9 +24,9 @@ on:
       GCP_SERVICE_ACCOUNT_EMAIL:
         required: true
     outputs:
-      tag:
-        description: "Docker image tag"
-        value: ${{ jobs.docker.outputs.tag }}
+      matrix_outputs:
+        description: "JSON object containing all matrix job outputs"
+        value: ${{ jobs.aggregate-outputs.outputs.matrix_outputs }}
 
 permissions:
   contents: read
@@ -35,6 +35,7 @@ permissions:
 jobs:
   generate-matrix:
     runs-on: ubuntu-latest
+    name: Generate Matrix
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -54,7 +55,7 @@ jobs:
               entry=$(jq -n \
                 --arg name "$folder_name" \
                 --arg target "$target" \
-                --arg paths "apps/**,.github/workflows/**,Dockerfile,package.json,yarn.lock" \
+                --arg paths "apps/$folder_name/**,.github/workflows/**,Dockerfile,package.json,yarn.lock" \
                 '{name: $name, target: $target, paths: $paths}')
               
               matrix_json=$(echo "$matrix_json" | jq ".app += [$entry]")
@@ -69,6 +70,7 @@ jobs:
 
   docker:
     needs: generate-matrix
+    if: ${{ fromJson(needs.generate-matrix.outputs.matrix).app != null && fromJson(needs.generate-matrix.outputs.matrix).app != '' }}
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     name: Build ${{ matrix.app.name }}
@@ -155,11 +157,67 @@ jobs:
             --push \
             .
 
-      - name: Output Images
+      - name: Save Matrix Outputs
         if: steps.check-files.outputs.matched == 'true'
         run: |
-          echo "Images pushed:"
-          echo "${{ env.ARTIFACT_REGISTRY_REGION }}-${{ env.ARTIFACT_REGISTRY_HOST }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_PREFIX }}-${{ matrix.app.name }}:${{ steps.vars.outputs.tag }}"
+          echo "{\"image\":\"${{ env.ARTIFACT_REGISTRY_REGION }}-${{ env.ARTIFACT_REGISTRY_HOST }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_PREFIX }}-${{ matrix.app.name }}:${{ steps.vars.outputs.tag }}\",\"tag\":\"${{ steps.vars.outputs.tag }}\"}" > output-${{ matrix.app.name }}.json
+          cat output-${{ matrix.app.name }}.json
 
+      - name: Upload Matrix Outputs
+        if: always() && steps.check-files.outputs.matched == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: matrix-output-${{ matrix.app.name }}
+          path: output-${{ matrix.app.name }}.json
+          retention-days: 1
+          overwrite: true
+
+  aggregate-outputs:
+    needs: [generate-matrix, docker]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Aggregate Outputs
     outputs:
-      tag: ${{ steps.vars.outputs.tag }}
+      matrix_outputs: ${{ steps.combine.outputs.matrix_outputs }}
+    steps:
+      - name: Create Empty Combined Outputs
+        run: |
+          echo "{}" > combined.json
+          echo "Created empty combined.json as fallback"
+
+      - name: Upload Empty Combined Outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-matrix-outputs
+          path: combined.json
+          retention-days: 1
+          overwrite: true
+
+      - name: Download Matrix Outputs
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: matrix-output-*
+          merge-multiple: true
+        continue-on-error: true
+
+      - name: Combine Matrix Outputs
+        id: combine
+        run: |
+          if compgen -G "artifacts/*.json" > /dev/null; then
+            echo "Found matrix output artifacts, combining..."
+            jq -c -s 'reduce .[] as $item ({}; .[$item.image | split("/")[-1] | split(":")[0] | split("${{ inputs.image_prefix }}-")[1]] = $item)' artifacts/*.json > combined.json
+          else
+            echo "No matrix output artifacts found, using empty JSON object"
+            echo "{}" > combined.json
+          fi
+          echo "matrix_outputs=$(cat combined.json)" >> $GITHUB_OUTPUT
+          cat combined.json
+
+      - name: Upload Combined Outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-matrix-outputs
+          path: combined.json
+          retention-days: 1
+          overwrite: true

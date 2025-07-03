@@ -6,7 +6,7 @@ on:
       deploy_dir:
         required: true
         type: string
-      image_tag:
+      tf_args:
         required: true
         type: string
       environment:
@@ -18,9 +18,9 @@ on:
         required: true
       GCP_SERVICE_ACCOUNT_EMAIL:
         required: true
-      GITLAB_USERNAME:
+      USERNAME:
         required: true
-      GITLAB_TOKEN:
+      TOKEN:
         required: true
 
 permissions:
@@ -62,15 +62,48 @@ jobs:
           sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
           sudo chmod u+x /usr/local/bin/terragrunt
 
-      - name: Configure git credentials for private GitLab modules
+      - name: Configure git credentials for private GitHub modules
         run: |
-          git config --global url."http://${GITLAB_USERNAME}:${GITLAB_TOKEN}@167.172.181.51/".insteadOf "http://167.172.181.51/"
+          git config --global url."https://${USERNAME}:${TOKEN}@github.com/".insteadOf "https://github.com/"
         env:
-          GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
-          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          TOKEN: ${{ secrets.TOKEN }}
+          USERNAME: ${{ secrets.USERNAME }}
 
       - name: Deploy with Terragrunt
         run: |
           cd ${{ inputs.deploy_dir }}
+
+          # Parse the matrix_outputs JSON
+          MATRIX_OUTPUTS='${{ inputs.tf_args }}'
+          
+          # Initialize variables
+          TARGET_FLAGS=""
+          IMAGE_TAG=""
+
+          # Get all root keys from the JSON
+          APP_KEYS=$(echo "$MATRIX_OUTPUTS" | jq -r 'keys[]')
+
+          # Iterate over each app key
+          for APP in $APP_KEYS; do
+            # Get the tag for the current app, default to empty string if not found
+            TAG=$(echo "$MATRIX_OUTPUTS" | jq -r ".\"$APP\".tag // \"\"")
+            if [ -n "$TAG" ]; then
+              # Convert app name from hyphen to underscore (e.g., hemat-api to hemat_api)
+              CONVERTED_APP=$(echo "$APP" | tr '-' '_')
+              TARGET_FLAGS="$TARGET_FLAGS -target module.$CONVERTED_APP"
+              # Use the first valid tag as IMAGE_TAG if not already set
+              IMAGE_TAG="${IMAGE_TAG:-$TAG}"
+            fi
+          done
+
+          # Check if any targets were found
+          if [ -z "$TARGET_FLAGS" ]; then
+            echo "No valid targets found in matrix_outputs. Skipping terragrunt apply."
+            exit 0
+          fi
+
+          # Run terragrunt commands
+          echo "Running terragrunt apply with targets: $TARGET_FLAGS and image_tag: $IMAGE_TAG"
+          echo "Terragrunt command: terragrunt apply -auto-approve $TARGET_FLAGS -var=\"image_tag=$IMAGE_TAG\""
           terragrunt init
-          terragrunt apply -auto-approve -var="image_tag=${{ inputs.image_tag }}"
+          terragrunt apply -auto-approve $TARGET_FLAGS -var="image_tag=$IMAGE_TAG"

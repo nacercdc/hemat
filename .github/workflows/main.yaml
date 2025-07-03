@@ -25,9 +25,9 @@ jobs:
     uses: ./.github/workflows/terragrunt.yaml
     with:
       deploy_dir: deploy/app/stg
-      image_tag: "${{ needs.build.outputs.tag }}"
+      tf_args: "${{ needs.build.outputs.matrix_outputs }}"
     secrets:
       GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
       GCP_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
-      GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
-      GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+      USERNAME: ${{ secrets.HTTP_USERNAME }}
+      TOKEN: ${{ secrets.HTTP_TOKEN }}
