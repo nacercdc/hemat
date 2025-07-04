@@ -17,6 +17,7 @@ export class AbilityService {
    * @returns Returns access and refresh tokens with expiry
    */
   public async createForUser(auth: AuthDto) {
+    console.log('AbilityService called for user:', auth.id);
     const user = await this.dataSource
       .getRepository(User)
       .findOne({
@@ -26,6 +27,10 @@ export class AbilityService {
       .catch((err) => {
         this.logger.error('createForUser:', err);
       });
+
+    // Log roles and permissions at info level for visibility
+    this.logger.log('User roles: ' + JSON.stringify(user?.roles));
+    this.logger.log('User permissions: ' + JSON.stringify(user?.roles?.flatMap(r => r.permissions)));
 
     const { can, build } = new AbilityBuilder(createMongoAbility);
     (user?.roles || []).forEach((role) => {
