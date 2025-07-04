@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Not, Repository } from 'typeorm';
-import { AssessmentGroup, Assessment } from '@database/entities';
+import {
+  AssessmentGroup,
+  Assessment,
+  AssessmentDomain,
+} from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
 import {
@@ -14,6 +18,8 @@ import {
   FindAllAssessmentGroupDto,
   FindOneAssessmentGroupDto,
 } from '../dtos';
+import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
+import { MemberRole } from '@shared/enums';
 
 @Injectable()
 export class AssessmentGroupService {
@@ -24,6 +30,8 @@ export class AssessmentGroupService {
     private readonly groupRepository: Repository<AssessmentGroup>,
     @InjectRepository(Assessment)
     private readonly assessmentRepository: Repository<Assessment>,
+    @InjectRepository(AssessmentDomain)
+    private readonly domainRepository: Repository<AssessmentDomain>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -32,7 +40,9 @@ export class AssessmentGroupService {
     query: FindAllAssessmentGroupDto,
   ): Promise<FindAllResponseDto<AssessmentGroup>> {
     try {
-      const queryService = new QueryService<AssessmentGroup>(this.groupRepository)
+      const queryService = new QueryService<AssessmentGroup>(
+        this.groupRepository,
+      )
         .filter([{ field: 'assessmentId', operator: '=', value: assessmentId }])
         .join(query.include)
         .filter([], { fields: ['name'], value: query.search })
@@ -43,7 +53,7 @@ export class AssessmentGroupService {
       // Add group ID filtering if provided
       if (query.filterByGroupIds && query.filterByGroupIds.length > 0) {
         queryService.filter([
-          { field: 'id', operator: 'IN', value: query.filterByGroupIds }
+          { field: 'id', operator: 'IN', value: query.filterByGroupIds },
         ]);
       }
 
@@ -119,6 +129,13 @@ export class AssessmentGroupService {
         }
 
         group.name = payload.name;
+        // Update domains association
+        if (payload.domainIds && Array.isArray(payload.domainIds)) {
+          const domains = await manager
+            .getRepository(AssessmentDomain)
+            .findByIds(payload.domainIds);
+          group.domains = domains as AssessmentDomain[];
+        }
         return await manager.getRepository(AssessmentGroup).save(group);
       } catch (err) {
         this.logger.error(
@@ -183,6 +200,59 @@ export class AssessmentGroupService {
         );
         throw new BadRequestException('Failed to restore assessment group');
       }
+    });
+  }
+
+  async attachDomains(
+    assessmentId: string,
+    groupId: string,
+    domainIds: string[],
+    user: AssessmentAbilityDto,
+  ): Promise<AssessmentGroup> {
+    if (!user) {
+      throw new BadRequestException('User context is missing');
+    }
+    this.logger.log(`attachDomains: userId=${user.id}, assessmentRole=${user.assessmentRole}, isAdmin=${user.isAdmin}`);
+    if (!user.isAdmin) {
+      // Enforce: Only admins or PRIMARYs can assign domains
+      // Accept both enum and string value for robustness
+      const role = String(user.assessmentRole);
+      if (role !== MemberRole.PRIMARY && role !== 'primary') {
+        throw new BadRequestException(
+          'Only admins or PRIMARYs can assign domains to a group',
+        );
+      }
+    }
+    return this.dataSource.transaction(async (manager) => {
+      // Professional: Only PRIMARYs and admins should be able to assign domains to groups. This should be enforced at the controller/guard level.
+      // Validate group exists and belongs to assessment
+      const group = await manager.getRepository(AssessmentGroup).findOne({
+        where: { id: groupId, assessmentId },
+        relations: ['domains'],
+      });
+      if (!group) {
+        throw new NotFoundException('Group not found');
+      }
+      // Validate all domains exist and belong to the assessment
+      const domains = await manager
+        .getRepository(AssessmentDomain)
+        .findByIds(domainIds);
+      if (domains.length !== domainIds.length) {
+        throw new BadRequestException('One or more domains not found');
+      }
+      for (const domain of domains) {
+        if (domain.assessmentId !== assessmentId) {
+          throw new BadRequestException(
+            'Domain does not belong to this assessment',
+          );
+        }
+      }
+      // Professional: Log the domain assignment for traceability
+      this.logger.log(
+        `Assigning domains [${domainIds.join(', ')}] to group ${groupId} in assessment ${assessmentId}`,
+      );
+      group.domains = domains;
+      return await manager.getRepository(AssessmentGroup).save(group);
     });
   }
 }

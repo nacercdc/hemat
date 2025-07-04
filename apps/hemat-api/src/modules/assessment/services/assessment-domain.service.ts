@@ -3,6 +3,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository, IsNull, In } from 'typeorm';
@@ -231,33 +232,29 @@ export class AssessmentDomainService {
     return filters;
   }
 
-  async getProgress(
+  // Helper: Fetch all domains for the assessment with subcomponent counts
+  private async getAssessmentDomainsWithCounts(assessmentId: string, language: string): Promise<DomainSubComponentCount[]> {
+    return this.assessmentDomainRepository
+      .createQueryBuilder('domain')
+      .where('domain.assessmentId = :assessmentId', { assessmentId })
+      .leftJoin('domain.components', 'component')
+      .leftJoin('component.subComponents', 'subComponent')
+      .select('domain.id', 'domainId')
+      .addSelect(`COALESCE(domain.translations->'${language}'->>'name', domain.name)`, 'domainName')
+      .addSelect('COUNT(subComponent.id)::int', 'subComponentCount')
+      .groupBy('domain.id')
+      .addGroupBy('domain.name')
+      .addGroupBy('domain.translations')
+      .execute() as Promise<DomainSubComponentCount[]>;
+  }
+
+  // Helper: Fetch all group/domain/answer counts for the assessment
+  private async getGroupDomainAnswerCounts(
     assessmentId: string,
-    userId: string,
-    language: string = 'en',
-    options: ProgressQueryOptions = {},
-  ): Promise<AssessmentGroupProgress[]> {
-    const domains: DomainSubComponentCount[] =
-      await this.assessmentDomainRepository
-        .createQueryBuilder('domain')
-        .where('domain.assessmentId = :assessmentId', { assessmentId })
-        .leftJoin('domain.components', 'component')
-        .leftJoin('component.subComponents', 'subComponent')
-        .select('domain.id', 'domainId')
-        .addSelect(
-          `COALESCE(domain.translations->'${language}'->>'name', domain.name)`,
-          'domainName',
-        )
-        .addSelect('COUNT(subComponent.id)::int', 'subComponentCount')
-        .groupBy('domain.id')
-        .addGroupBy('domain.name')
-        .addGroupBy('domain.translations')
-        .execute();
-
-    const domainMap = new Map(
-      domains.map((domain) => [domain.domainId, domain]),
-    );
-
+    language: string,
+    groupIds?: string[],
+    includePrimary?: boolean
+  ): Promise<GroupDomainAnswerCount[]> {
     const answerQuery = this.assessmentRepository
       .createQueryBuilder('assessment')
       .where('assessment.id = :assessmentId', { assessmentId })
@@ -266,93 +263,131 @@ export class AssessmentDomainService {
       .leftJoin('assessment.answers', 'answer')
       .leftJoin('answer.assessmentSubComponentAnswers', 'subComponentAnswer')
       .select('domain.id', 'domainId')
-      .addSelect(
-        `COALESCE(domain.translations->'${language}'->>'name', domain.name)`,
-        'domainName',
-      )
+      .addSelect(`COALESCE(domain.translations->'${language}'->>'name', domain.name)`, 'domainName')
       .addSelect('group.id', 'groupId')
       .addSelect('group.name', 'groupName')
-      .addSelect(
-        'COUNT(CASE WHEN subComponentAnswer.domainId = domain.id THEN 1 END)::int',
-        'answerCount',
-      )
+      .addSelect('COUNT(CASE WHEN subComponentAnswer.domainId = domain.id THEN 1 END)::int', 'answerCount')
       .groupBy('domain.id')
       .addGroupBy('group.id')
       .addGroupBy('domain.name')
       .addGroupBy('domain.translations');
 
-    if (options.filterByGroupIds?.length) {
-      let groupIds = [...options.filterByGroupIds];
-
-      if (options.includePrimary) {
+    if (groupIds?.length) {
+      let ids = [...groupIds];
+      if (includePrimary) {
         const primaryGroupId = await this.assessmentMemberRepository
-          .findOne({
-            where: { assessmentId, role: MemberRole.PRIMARY },
-            select: ['groupId'],
-          })
+          .findOne({ where: { assessmentId, role: MemberRole.PRIMARY }, select: ['groupId'] })
           .then((member) => member?.groupId);
-
-        if (primaryGroupId) {
-          groupIds.push(primaryGroupId);
-        }
+        if (primaryGroupId) ids.push(primaryGroupId);
       }
-
-      answerQuery.andWhere('group.id IN (:...groupIds)', { groupIds });
+      answerQuery.andWhere('group.id IN (:...ids)', { ids });
     }
-
     answerQuery.andWhere('answer.isPrimary = false');
+    return answerQuery.execute() as Promise<GroupDomainAnswerCount[]>;
+  }
 
-    const answers: GroupDomainAnswerCount[] = await answerQuery.execute();
+  // Helper: Ensure all groups with attached domains are present in the result
+  private async ensureAllGroupsPresent(
+    assessmentId: string,
+    groupMap: Map<string, AssessmentGroupProgress>,
+  ): Promise<void> {
+    const allGroups = await this.assessmentRepository.manager.getRepository('AssessmentGroup').find({
+      where: { assessmentId },
+      relations: ['domains'],
+    });
+    for (const group of allGroups) {
+      if (!groupMap.has(group.id) && group.domains && group.domains.length > 0) {
+        groupMap.set(group.id, {
+          id: group.id,
+          name: group.name,
+          domains: group.domains.map((domain: AssessmentDomain) => ({
+            id: domain.id,
+            name: domain.name,
+            percentage: 0,
+          })),
+        });
+      }
+    }
+  }
 
-    const groupMap = new Map<string, AssessmentGroupProgress>();
+  async getProgress(
+    assessmentId: string,
+    userId: string,
+    language: string = 'en',
+    options: ProgressQueryOptions = {},
+  ): Promise<AssessmentGroupProgress[]> {
+    // 1. Fetch all domains for the assessment
+    const domains: DomainSubComponentCount[] = await this.getAssessmentDomainsWithCounts(assessmentId, language);
+    const domainMap = new Map<string, DomainSubComponentCount>(domains.map((d: DomainSubComponentCount) => [d.domainId, d]));
 
-
-    const groupDomainAnswered = new Map<string, Set<string>>();
-
-    answers.forEach(
-      ({ domainId, domainName, groupId, groupName, answerCount }) => {
-        if (!groupMap.has(groupId)) {
-          groupMap.set(groupId, {
-            id: groupId,
-            name: groupName,
-            domains: [],
-          });
-        }
-        if (!groupDomainAnswered.has(groupId)) {
-          groupDomainAnswered.set(groupId, new Set());
-        }
-        groupDomainAnswered.get(groupId)!.add(domainId);
-
-        const group = groupMap.get(groupId)!;
-        const domain = domainMap.get(domainId);
-
-        if (domain) {
-          group.domains.push({
-            id: domainId,
-            name: domainName,
-            percentage:
-              domain.subComponentCount > 0
-                ? (answerCount * 100) / domain.subComponentCount
-                : 0,
-          });
-        }
-      },
+    // 2. Fetch all group/domain/answer counts
+    const answers: GroupDomainAnswerCount[] = await this.getGroupDomainAnswerCounts(
+      assessmentId,
+      language,
+      options.filterByGroupIds,
+      options.includePrimary,
     );
 
+    // 3. Build group progress from answers
+    const groupMap = new Map<string, AssessmentGroupProgress>();
+    const groupDomainAnswered = new Map<string, Set<string>>();
+    answers.forEach(({ domainId, domainName, groupId, groupName, answerCount }: GroupDomainAnswerCount) => {
+      if (!groupMap.has(groupId)) {
+        groupMap.set(groupId, { id: groupId, name: groupName, domains: [] });
+      }
+      if (!groupDomainAnswered.has(groupId)) {
+        groupDomainAnswered.set(groupId, new Set());
+      }
+      groupDomainAnswered.get(groupId)!.add(domainId);
+      const group = groupMap.get(groupId)!;
+      const domain = domainMap.get(domainId);
+      if (domain) {
+        group.domains.push({
+          id: domainId,
+          name: domainName,
+          percentage: domain.subComponentCount > 0 ? (answerCount * 100) / domain.subComponentCount : 0,
+        });
+      }
+    });
+
+    // 4. If filtering by a single group, restrict to only attached domains
+    if (options.filterByGroupIds?.length === 1) {
+      const groupId = options.filterByGroupIds[0];
+      const group = await this.assessmentRepository.manager.getRepository('AssessmentGroup').findOne({
+        where: { id: groupId, assessmentId },
+        relations: ['domains'],
+      });
+      if (!group) throw new NotFoundException('Group not found');
+      const allowedDomainIds = (group.domains || []).map((d: AssessmentDomain) => d.id);
+      for (const [domainId] of domainMap) {
+        if (!allowedDomainIds.includes(domainId)) {
+          domainMap.delete(domainId);
+        }
+      }
+      for (const [gId, answeredSet] of groupDomainAnswered.entries()) {
+        for (const domainId of Array.from(answeredSet)) {
+          if (!allowedDomainIds.includes(domainId)) {
+            answeredSet.delete(domainId);
+          }
+        }
+      }
+    }
+
+    // 5. Add missing domains (with 0%) for each group, only for attached domains
     for (const [groupId, group] of groupMap.entries()) {
-      const answeredDomains = groupDomainAnswered.get(groupId) || new Set();
-      domains.forEach(({ domainId, domainName, subComponentCount }) => {
+      const answeredDomains = groupDomainAnswered.get(groupId) || new Set<string>();
+      Array.from(domainMap.values()).forEach(({ domainId, domainName }: DomainSubComponentCount) => {
         if (!answeredDomains.has(domainId)) {
-          group.domains.push({
-            id: domainId,
-            name: domainName,
-            percentage: 0,
-          });
+          group.domains.push({ id: domainId, name: domainName, percentage: 0 });
         }
       });
       group.domains.sort((a, b) => a.name.localeCompare(b.name));
     }
 
+    // 6. Ensure all groups with attached domains are present
+    await this.ensureAllGroupsPresent(assessmentId, groupMap);
+
+    // 7. Return all groups and their attached domains
     return Array.from(groupMap.values());
   }
 
@@ -415,6 +450,7 @@ export class AssessmentDomainService {
   }
 
   async getDomains(language: string = 'en') {
+    // This returns all domains for the assessment. Only admins and PRIMARYs should use this.
     return this.assessmentDomainRepository
       .createQueryBuilder('domain')
       .leftJoin('domain.components', 'component')
@@ -443,30 +479,19 @@ export class AssessmentDomainService {
     groupId: string,
     language: string = 'en',
   ) {
-    return this.assessmentDomainRepository
-      .createQueryBuilder('domain')
-      .leftJoin('domain.components', 'component')
-      .leftJoin('component.subComponents', 'subComponent')
-      .leftJoin('subComponent.answers', 'answer')
-      .where('domain.assessmentId = :assessmentId', { assessmentId })
-      .andWhere('answer.groupId = :groupId', { groupId })
-      .select('domain.id', 'id')
-      .addSelect(
-        `COALESCE(domain.translations->'${language}'->>'code', domain.code)`,
-        'code',
-      )
-      .addSelect(
-        `COALESCE(domain.translations->'${language}'->>'name', domain.name)`,
-        'name',
-      )
-      .addSelect(
-        `COALESCE(domain.translations->'${language}'->>'description', domain.description)`,
-        'description',
-      )
-      .addSelect('COUNT(DISTINCT component.id)::int as componentsCount')
-      .addSelect('COUNT(DISTINCT subComponent.id)::int as subComponentsCount')
-      .groupBy('domain.id')
-      .execute();
+    // Only return domains assigned to the group. Used for TEAM_LEADER and MEMBER roles.
+    const group = await this.assessmentRepository.manager.getRepository('AssessmentGroup').findOne({
+      where: { id: groupId, assessmentId },
+      relations: ['domains'],
+    });
+    if (!group) throw new NotFoundException('Group not found');
+    this.logger.log(`Returning assigned domains for group ${groupId} in assessment ${assessmentId}`);
+    return (group.domains || []).map((domain: AssessmentDomain) => ({
+      id: domain.id,
+      code: domain.code,
+      name: domain.translations?.[language]?.name || domain.name,
+      description: domain.translations?.[language]?.description || domain.description,
+    }));
   }
 
   // Helper to check domain existence
@@ -588,5 +613,19 @@ export class AssessmentDomainService {
 
   async getDomainWithPrimaryAnswers(assessmentId: string, domainId: string) {
     return this.getDomainWithAnswersBase(assessmentId, domainId, { isPrimary: true });
+  }
+
+  /**
+   * Utility: Check if a group has at least one domain attached
+   */
+  async ensureGroupHasDomains(groupId: string, assessmentId: string) {
+    const group = await this.assessmentRepository.manager.getRepository('AssessmentGroup').findOne({
+      where: { id: groupId, assessmentId },
+      relations: ['domains'],
+    });
+    if (!group || !group.domains || group.domains.length === 0) {
+      throw new ForbiddenException('This group does not have any domains assigned. Please contact your administrator.');
+    }
+    return group;
   }
 }

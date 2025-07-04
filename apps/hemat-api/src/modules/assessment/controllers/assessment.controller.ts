@@ -221,4 +221,28 @@ export class AssessmentController {
   async restore(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.assessmentService.restore(id);
   }
+
+  @ApiOperation({
+    summary: 'Set Active Status',
+    description: 'Set the active status of an assessment by ID',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Assessment })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.UPDATE,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+  })
+  @Post(':id/state')
+  async setActive(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body('isActive') isActive: boolean,
+  ) {
+    return this.assessmentService.setActiveStatus(id, isActive);
+  }
 }

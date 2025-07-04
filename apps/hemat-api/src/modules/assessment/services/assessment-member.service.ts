@@ -86,6 +86,13 @@ export class AssessmentMemberService {
     payload: AssessmentMemberCreateRequestDto,
   ): Promise<AssessmentMember> {
     return this.dataSource.transaction(async (manager) => {
+      const assessment = await manager.getRepository(Assessment).findOne({ where: { id: assessmentId } });
+      if (!assessment) {
+        throw new NotFoundException(`Assessment ${assessmentId} not found`);
+      }
+      if (!assessment.isActive) {
+        throw new BadRequestException('Cannot add member to an inactive assessment');
+      }
       await AssessmentMemberValidator.checkAssessmentExists(
         manager,
         assessmentId,
@@ -257,5 +264,23 @@ export class AssessmentMemberService {
 
   async findByUser(userId: string): Promise<AssessmentMember[]> {
     return this.memberRepository.find({ where: { userId } });
+  }
+
+  async hasPrimaryMember(assessmentId: string): Promise<boolean> {
+    return !!(await this.memberRepository.findOne({
+      where: { assessmentId, role: MemberRole.PRIMARY },
+    }));
+  }
+
+  async hasPrimaryInGroup(groupId: string): Promise<boolean> {
+    return !!(await this.memberRepository.findOne({
+      where: { groupId, role: MemberRole.PRIMARY },
+    }));
+  }
+
+  async hasTeamLeaderInGroup(groupId: string): Promise<boolean> {
+    return !!(await this.memberRepository.findOne({
+      where: { groupId, role: MemberRole.TEAM_LEADER },
+    }));
   }
 }

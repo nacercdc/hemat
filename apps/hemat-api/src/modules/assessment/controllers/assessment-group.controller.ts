@@ -107,7 +107,10 @@ export class AssessmentGroupController {
     }
 
     // Team leaders and members can only see their own group
-    if (assessmentRole === MemberRole.TEAM_LEADER || assessmentRole === MemberRole.MEMBER) {
+    if (
+      assessmentRole === MemberRole.TEAM_LEADER ||
+      assessmentRole === MemberRole.MEMBER
+    ) {
       if (assessmentGroupId === id) {
         return this.assessmentGroupService.findOne(assessmentId, id, query);
       } else {
@@ -155,7 +158,10 @@ export class AssessmentGroupController {
     }
 
     // Team leaders and members can only see their own group
-    if (assessmentRole === MemberRole.TEAM_LEADER || assessmentRole === MemberRole.MEMBER) {
+    if (
+      assessmentRole === MemberRole.TEAM_LEADER ||
+      assessmentRole === MemberRole.MEMBER
+    ) {
       if (assessmentGroupId) {
         // Filter to only show their group
         return this.assessmentGroupService.findAll(assessmentId, {
@@ -163,7 +169,9 @@ export class AssessmentGroupController {
           filterByGroupIds: [assessmentGroupId],
         });
       } else {
-        throw new ForbiddenException('You must be assigned to a group to view groups');
+        throw new ForbiddenException(
+          'You must be assigned to a group to view groups',
+        );
       }
     }
 
@@ -217,5 +225,39 @@ export class AssessmentGroupController {
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<AssessmentGroup> {
     return this.assessmentGroupService.delete(assessmentId, id);
+  }
+
+  @ApiOperation({
+    summary: 'Attach domains to a group',
+    description:
+      'Assign or update domains for a group. Replaces all domains for the group with the provided list.',
+  })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentGroup })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.UPDATE,
+        subject: PermissionSubjectEnum.ASSESSMENT_GROUP,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @UseGuards(AuthGuard, AssessmentRoleGuard)
+  @Post(':groupId/domains')
+  async attachDomains(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('groupId', new ParseUUIDPipe()) groupId: string,
+    @Body('domainIds') domainIds: string[],
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+  ): Promise<AssessmentGroup> {
+    return this.assessmentGroupService.attachDomains(
+      assessmentId,
+      groupId,
+      domainIds,
+      user,
+    );
   }
 }

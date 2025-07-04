@@ -115,6 +115,8 @@ export class AssessmentService {
       throw new NotFoundException(`Assessment ${id} not found.`);
     }
 
+    this.updateIsActiveStatus(assessment);
+    await this.assessmentRepository.save(assessment);
     return assessment;
   }
 
@@ -213,12 +215,21 @@ export class AssessmentService {
       throw new BadRequestException('End date cannot be before start date');
     }
 
-    // Prevent update if any answers exist for this assessment
+    // Check if any answers exist for this assessment
     const answerCount = await this.assessmentSubComponentService['answerRepository'].count({
       where: { assessmentId: id },
     });
+
+    // If answers exist, only allow endDate to be updated
     if (answerCount > 0) {
-      throw new BadRequestException('Assessment cannot be updated after answers have been filled.');
+      // Only allow endDate to be updated
+      const allowedKeys = ['endDate'];
+      const payloadObj = payload as Record<string, any>;
+      const payloadKeys = Object.keys(payloadObj).filter(k => payloadObj[k] !== undefined);
+      const notAllowed = payloadKeys.filter(k => !allowedKeys.includes(k));
+      if (notAllowed.length > 0) {
+        throw new BadRequestException('Only endDate can be updated after answers have been filled.');
+      }
     }
 
     return await this.dataSource.transaction(async (manager) => {
@@ -255,6 +266,8 @@ export class AssessmentService {
         ...updatedPayload,
       });
 
+      this.updateIsActiveStatus(updatedAssessment);
+      await manager.getRepository(Assessment).save(updatedAssessment);
       this.logger.log(`Updated assessment ${id}`);
       return updatedAssessment;
     });
@@ -285,6 +298,16 @@ export class AssessmentService {
     return await this.assessmentRepository.recover(assessment);
   }
 
+  async setActiveStatus(id: string, isActive: boolean): Promise<Assessment> {
+    const assessment = await this.assessmentRepository.findOne({ where: { id, deletedAt: IsNull() } });
+    if (!assessment) {
+      throw new NotFoundException(`Assessment ${id} not found.`);
+    }
+    assessment.isActive = isActive;
+    await this.assessmentRepository.save(assessment);
+    return assessment;
+  }
+
   private filters(query: FindAllAssessmentDto): Filter[] {
     const filters: Filter[] = [];
     if (query.status) {
@@ -296,5 +319,16 @@ export class AssessmentService {
     }
 
     return filters;
+  }
+
+  private updateIsActiveStatus(assessment: Assessment): Assessment {
+    const today = new Date();
+    const start = new Date(assessment.startDate);
+    const end = new Date(assessment.endDate);
+    const shouldBeActive = today >= start && today <= end;
+    if (assessment.isActive !== shouldBeActive) {
+      assessment.isActive = shouldBeActive;
+    }
+    return assessment;
   }
 }

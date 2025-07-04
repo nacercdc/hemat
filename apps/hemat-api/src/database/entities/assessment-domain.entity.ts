@@ -6,12 +6,14 @@ import {
   JoinColumn,
   ManyToOne,
   Unique,
+  ManyToMany,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Assessment } from './assessment.entity';
 import { AssessmentComponent } from './assessment-component.entity';
 import { DomainTranslationDto } from '../../shared/dtos';
+import { AssessmentGroup } from './assessment-group.entity';
 
 @Entity('assessment-domains')
 @Unique(['code', 'assessmentId'])
@@ -62,4 +64,7 @@ export class AssessmentDomain extends BaseEntityWithSoftDelete {
   })
   @Column('jsonb')
   translations: Record<string, DomainTranslationDto> = {};
+
+  @ManyToMany(() => AssessmentGroup, (group) => group.domains)
+  groups: AssessmentGroup[];
 }
