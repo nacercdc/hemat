@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -31,6 +32,7 @@ import { GroupService } from './group.service';
 import { AssessmentRoleService } from './assessment-role.service';
 import { generateRandomToken } from '@shared/helpers/token.helper';
 import { MemberRole } from '@shared/enums';
+import { AssessmentAbilityDto } from '../../assessment/guards/assessment-ability.dto';
 
 @Injectable()
 export class InvitationService {
@@ -53,7 +55,20 @@ export class InvitationService {
   async createBulk(
     assessmentId: string,
     payload: InvitationCreateBulkRequestDto,
+    user: AssessmentAbilityDto,
   ): Promise<Invitation[]> {
+    if (!user) {
+      throw new BadRequestException('User context is missing');
+    }
+    if (!user.isAdmin) {
+      // Check if user is PRIMARY for this assessment
+      if (user.assessmentRole !== MemberRole.PRIMARY) {
+        throw new ForbiddenException(
+          'Only system admins or assessment PRIMARY can send invitations',
+        );
+      }
+    }
+
     return this.dataSource.transaction(async (manager) => {
       try {
         const assessment = await manager.findOne(Assessment, {
@@ -62,6 +77,32 @@ export class InvitationService {
         if (!assessment) {
           throw new NotFoundException('Assessment not found');
         }
+
+        // --- ENFORCE ROLE/INVITATION RULES (short & clean) ---
+        const hasPrimaryInvite = payload.some((g) =>
+          g.invitations.some((i) => i.role === MemberRole.PRIMARY),
+        );
+        if (hasPrimaryInvite) {
+          if (
+            (await this.memberService.hasPrimaryMember(assessmentId)) ||
+            (await this.invitationRepository.findOne({
+              where: {
+                assessmentId,
+                role: MemberRole.PRIMARY,
+                status: Not(InvitationStatus.EXPIRED),
+              },
+            }))
+          ) {
+            throw new BadRequestException(
+              'A PRIMARY already exists for this assessment. Cannot send another PRIMARY invitation.',
+            );
+          }
+          if (!user.isAdmin)
+            throw new BadRequestException(
+              'Only admin can send the first PRIMARY invitation for an assessment.',
+            );
+        }
+        // --- END ENFORCE ROLE/INVITATION RULES ---
 
         const existingGroups = await manager.find(AssessmentGroup, {
           where: { assessmentId },
@@ -91,7 +132,9 @@ export class InvitationService {
           const seen = new Set<string>();
           for (const invite of group.invitations) {
             if (seen.has(invite.email)) {
-              throw new BadRequestException(`Duplicate invitation email '${invite.email}' in the same group is not allowed.`);
+              throw new BadRequestException(
+                `Duplicate invitation email '${invite.email}' in the same group is not allowed.`,
+              );
             }
             seen.add(invite.email);
           }
@@ -113,89 +156,148 @@ export class InvitationService {
               );
               processedGroupIds.add(groupId);
 
-              // Reject if both primary and team-leader are present in the same group
-              const hasPrimary = groupInvitations.some(i => i.role === MemberRole.PRIMARY);
-              const hasTeamLeader = groupInvitations.some(i => i.role === MemberRole.TEAM_LEADER);
-              if (hasPrimary && hasTeamLeader) {
-                throw new BadRequestException('A group cannot have both a primary and a team-leader at the same time.');
-              }
+              if (!groupId)
+                throw new BadRequestException(
+                  'Invalid group identifier in invitation payload.',
+                );
+
+              // --- GROUP-LEVEL ROLE CHECKS (after groupId is resolved) ---
+              const hasPrimary =
+                (await this.memberService.hasPrimaryInGroup(groupId)) ||
+                (await this.invitationRepository.findOne({
+                  where: {
+                    groupId,
+                    role: MemberRole.PRIMARY,
+                    status: Not(InvitationStatus.EXPIRED),
+                  },
+                }));
+              const hasTeamLeader =
+                (await this.memberService.hasTeamLeaderInGroup(groupId)) ||
+                (await this.invitationRepository.findOne({
+                  where: {
+                    groupId,
+                    role: MemberRole.TEAM_LEADER,
+                    status: Not(InvitationStatus.EXPIRED),
+                  },
+                }));
+              if (
+                groupInvitations.some(
+                  (i) => i.role === MemberRole.TEAM_LEADER,
+                ) &&
+                hasPrimary
+              )
+                throw new BadRequestException(
+                  'Cannot add TEAM_LEADER to a group that already has a PRIMARY.',
+                );
+              if (
+                groupInvitations.some((i) => i.role === MemberRole.PRIMARY) &&
+                hasTeamLeader
+              )
+                throw new BadRequestException(
+                  'Cannot add PRIMARY to a group that already has a TEAM_LEADER.',
+                );
+              // --- END GROUP-LEVEL ROLE CHECKS ---
 
               // DYNAMIC ROLE SWAP LOGIC
               for (const invite of groupInvitations) {
                 if (invite.role === MemberRole.TEAM_LEADER) {
                   if (invite.promoteToPrimaryEmail) {
                     // Validate that the specified email matches an existing team leader
-                    const existingTeamLeaderMember = await manager.findOne(AssessmentMember, {
-                      where: { assessmentId, role: MemberRole.TEAM_LEADER },
-                      relations: ['user'],
-                    });
+                    const existingTeamLeaderMember = await manager.findOne(
+                      AssessmentMember,
+                      {
+                        where: { assessmentId, role: MemberRole.TEAM_LEADER },
+                        relations: ['user'],
+                      },
+                    );
 
-                    const existingTeamLeaderInvitation = await manager.findOne(Invitation, {
-                      where: { 
-                        assessmentId,
-                        role: MemberRole.TEAM_LEADER,
-                        email: invite.promoteToPrimaryEmail,
-                        status: Not(InvitationStatus.EXPIRED)
-                      }
-                    });
+                    const existingTeamLeaderInvitation = await manager.findOne(
+                      Invitation,
+                      {
+                        where: {
+                          assessmentId,
+                          role: MemberRole.TEAM_LEADER,
+                          email: invite.promoteToPrimaryEmail,
+                          status: Not(InvitationStatus.EXPIRED),
+                        },
+                      },
+                    );
 
                     // Check if the promoteToPrimaryEmail matches the team leader's email
-                    const isValidTeamLeader = 
-                      (existingTeamLeaderMember?.user?.email === invite.promoteToPrimaryEmail) ||
-                      (existingTeamLeaderInvitation?.email === invite.promoteToPrimaryEmail);
+                    const isValidTeamLeader =
+                      existingTeamLeaderMember?.user?.email ===
+                        invite.promoteToPrimaryEmail ||
+                      existingTeamLeaderInvitation?.email ===
+                        invite.promoteToPrimaryEmail;
 
                     if (!isValidTeamLeader) {
                       throw new BadRequestException(
-                        'The specified email does not match any existing team leader in the assessment.'
+                        'The specified email does not match any existing team leader in the assessment.',
                       );
                     }
 
                     // Check if trying to add team leader to a group that already has one
-                    const groupTeamLeader = await manager.findOne(AssessmentMember, {
-                      where: { assessmentId, groupId, role: MemberRole.TEAM_LEADER }
-                    });
+                    const groupTeamLeader = await manager.findOne(
+                      AssessmentMember,
+                      {
+                        where: {
+                          assessmentId,
+                          groupId,
+                          role: MemberRole.TEAM_LEADER,
+                        },
+                      },
+                    );
 
-                    const groupTeamLeaderInvitation = await manager.findOne(Invitation, {
-                      where: { 
-                        assessmentId,
-                        groupId,
-                        role: MemberRole.TEAM_LEADER,
-                        status: Not(InvitationStatus.EXPIRED)
-                      }
-                    });
+                    const groupTeamLeaderInvitation = await manager.findOne(
+                      Invitation,
+                      {
+                        where: {
+                          assessmentId,
+                          groupId,
+                          role: MemberRole.TEAM_LEADER,
+                          status: Not(InvitationStatus.EXPIRED),
+                        },
+                      },
+                    );
 
                     if (groupTeamLeader || groupTeamLeaderInvitation) {
                       throw new BadRequestException(
-                        'Cannot add team leader: Group already has a team leader role assigned.'
+                        'Cannot add team leader: Group already has a team leader role assigned.',
                       );
                     }
 
                     // If all validations pass, handle the role changes
                     // 1. Find and demote any existing primary in the assessment
-                    const currentPrimaryMember = await manager.findOne(AssessmentMember, {
-                      where: { assessmentId, role: MemberRole.PRIMARY },
-                    });
+                    const currentPrimaryMember = await manager.findOne(
+                      AssessmentMember,
+                      {
+                        where: { assessmentId, role: MemberRole.PRIMARY },
+                      },
+                    );
                     if (currentPrimaryMember) {
                       await manager.update(
                         AssessmentMember,
                         { id: currentPrimaryMember.id },
-                        { role: MemberRole.MEMBER }
+                        { role: MemberRole.MEMBER },
                       );
                     }
 
                     // Also check for any primary in pending invitations
-                    const currentPrimaryInvitation = await manager.findOne(Invitation, {
-                      where: { 
-                        assessmentId,
-                        role: MemberRole.PRIMARY,
-                        status: Not(InvitationStatus.EXPIRED)
-                      }
-                    });
+                    const currentPrimaryInvitation = await manager.findOne(
+                      Invitation,
+                      {
+                        where: {
+                          assessmentId,
+                          role: MemberRole.PRIMARY,
+                          status: Not(InvitationStatus.EXPIRED),
+                        },
+                      },
+                    );
                     if (currentPrimaryInvitation) {
                       await manager.update(
                         Invitation,
                         { id: currentPrimaryInvitation.id },
-                        { role: MemberRole.MEMBER }
+                        { role: MemberRole.MEMBER },
                       );
                     }
 
@@ -204,60 +306,76 @@ export class InvitationService {
                       await manager.update(
                         AssessmentMember,
                         { id: existingTeamLeaderMember.id },
-                        { role: MemberRole.PRIMARY }
+                        { role: MemberRole.PRIMARY },
                       );
                     } else if (existingTeamLeaderInvitation) {
                       await manager.update(
                         Invitation,
                         { id: existingTeamLeaderInvitation.id },
-                        { role: MemberRole.PRIMARY }
+                        { role: MemberRole.PRIMARY },
                       );
                     }
                   } else {
                     // Regular team-leader invitation - first check if group has a primary
-                    const groupPrimary = await manager.findOne(AssessmentMember, {
-                      where: { assessmentId, groupId, role: MemberRole.PRIMARY }
-                    });
+                    const groupPrimary = await manager.findOne(
+                      AssessmentMember,
+                      {
+                        where: {
+                          assessmentId,
+                          groupId,
+                          role: MemberRole.PRIMARY,
+                        },
+                      },
+                    );
 
-                    const groupPrimaryInvitation = await manager.findOne(Invitation, {
-                      where: { 
-                        assessmentId,
-                        groupId,
-                        role: MemberRole.PRIMARY,
-                        status: Not(InvitationStatus.EXPIRED)
-                      }
-                    });
+                    const groupPrimaryInvitation = await manager.findOne(
+                      Invitation,
+                      {
+                        where: {
+                          assessmentId,
+                          groupId,
+                          role: MemberRole.PRIMARY,
+                          status: Not(InvitationStatus.EXPIRED),
+                        },
+                      },
+                    );
 
                     if (groupPrimary || groupPrimaryInvitation) {
                       throw new BadRequestException(
-                        'Adding a team leader to a group with a primary requires promoteToPrimaryEmail parameter. Please specify which team leader should be promoted to primary.'
+                        'Adding a team leader to a group with a primary requires promoteToPrimaryEmail parameter. Please specify which team leader should be promoted to primary.',
                       );
                     }
 
                     // Check for and downgrade any existing team-leader in this group
-                    const existingTeamLeaderInvitation = await manager.findOne(Invitation, {
-                      where: { 
-                        assessmentId,
-                        groupId,
-                        role: MemberRole.TEAM_LEADER,
-                        status: Not(InvitationStatus.EXPIRED)
-                      }
-                    });
+                    const existingTeamLeaderInvitation = await manager.findOne(
+                      Invitation,
+                      {
+                        where: {
+                          assessmentId,
+                          groupId,
+                          role: MemberRole.TEAM_LEADER,
+                          status: Not(InvitationStatus.EXPIRED),
+                        },
+                      },
+                    );
 
-                    const existingTeamLeaderMember = await manager.findOne(AssessmentMember, {
-                      where: { 
-                        assessmentId,
-                        groupId,
-                        role: MemberRole.TEAM_LEADER
-                      }
-                    });
+                    const existingTeamLeaderMember = await manager.findOne(
+                      AssessmentMember,
+                      {
+                        where: {
+                          assessmentId,
+                          groupId,
+                          role: MemberRole.TEAM_LEADER,
+                        },
+                      },
+                    );
 
                     // Downgrade existing team leader to member
                     if (existingTeamLeaderInvitation) {
                       await manager.update(
                         Invitation,
                         { id: existingTeamLeaderInvitation.id },
-                        { role: MemberRole.MEMBER }
+                        { role: MemberRole.MEMBER },
                       );
                     }
 
@@ -265,79 +383,93 @@ export class InvitationService {
                       await manager.update(
                         AssessmentMember,
                         { id: existingTeamLeaderMember.id },
-                        { role: MemberRole.MEMBER }
+                        { role: MemberRole.MEMBER },
                       );
                     }
                   }
                 } else if (invite.role === MemberRole.PRIMARY) {
                   // First, check for and demote any team leader in the same group to member
-                  const teamLeaderInSameGroup = await manager.findOne(AssessmentMember, {
-                    where: { 
-                      assessmentId,
-                      groupId,
-                      role: MemberRole.TEAM_LEADER 
-                    }
-                  });
+                  const teamLeaderInSameGroup = await manager.findOne(
+                    AssessmentMember,
+                    {
+                      where: {
+                        assessmentId,
+                        groupId,
+                        role: MemberRole.TEAM_LEADER,
+                      },
+                    },
+                  );
                   if (teamLeaderInSameGroup) {
                     await manager.update(
                       AssessmentMember,
                       { id: teamLeaderInSameGroup.id },
-                      { role: MemberRole.MEMBER }
+                      { role: MemberRole.MEMBER },
                     );
                   }
 
                   // Also check for any team leader in pending invitations for the same group
-                  const teamLeaderInvitationInSameGroup = await manager.findOne(Invitation, {
-                    where: { 
-                      assessmentId,
-                      groupId,
-                      role: MemberRole.TEAM_LEADER,
-                      status: Not(InvitationStatus.EXPIRED)
-                    }
-                  });
+                  const teamLeaderInvitationInSameGroup = await manager.findOne(
+                    Invitation,
+                    {
+                      where: {
+                        assessmentId,
+                        groupId,
+                        role: MemberRole.TEAM_LEADER,
+                        status: Not(InvitationStatus.EXPIRED),
+                      },
+                    },
+                  );
                   if (teamLeaderInvitationInSameGroup) {
                     await manager.update(
                       Invitation,
                       { id: teamLeaderInvitationInSameGroup.id },
-                      { role: MemberRole.MEMBER }
+                      { role: MemberRole.MEMBER },
                     );
                   }
 
                   // Handle existing primary in assessment (change to team leader if in different group)
-                  const oldPrimaryMember = await manager.findOne(AssessmentMember, {
-                    where: { assessmentId, role: MemberRole.PRIMARY },
-                  });
+                  const oldPrimaryMember = await manager.findOne(
+                    AssessmentMember,
+                    {
+                      where: { assessmentId, role: MemberRole.PRIMARY },
+                    },
+                  );
                   if (oldPrimaryMember) {
                     // If old primary is in a different group, make them team leader
                     await manager.update(
                       AssessmentMember,
                       { id: oldPrimaryMember.id },
-                      { 
-                        role: oldPrimaryMember.groupId !== groupId 
-                          ? MemberRole.TEAM_LEADER  // Different group - become team leader
-                          : MemberRole.MEMBER       // Same group - become member
-                      }
+                      {
+                        role:
+                          oldPrimaryMember.groupId !== groupId
+                            ? MemberRole.TEAM_LEADER // Different group - become team leader
+                            : MemberRole.MEMBER, // Same group - become member
+                      },
                     );
                   }
 
                   // Also check for any primary in pending invitations
-                  const oldPrimaryInvitation = await manager.findOne(Invitation, {
-                    where: { 
-                      assessmentId,
-                      role: MemberRole.PRIMARY,
-                      status: Not(InvitationStatus.EXPIRED)
-                    }
-                  });
+                  const oldPrimaryInvitation = await manager.findOne(
+                    Invitation,
+                    {
+                      where: {
+                        assessmentId,
+                        role: MemberRole.PRIMARY,
+                        status: Not(InvitationStatus.EXPIRED),
+                      },
+                    },
+                  );
                   if (oldPrimaryInvitation) {
                     // If old primary invitation is in a different group, make them team leader
                     await manager.update(
                       Invitation,
                       { id: oldPrimaryInvitation.id },
-                      { 
-                        role: oldPrimaryInvitation.groupId !== groupId 
-                          ? MemberRole.TEAM_LEADER  // Different group - become team leader
-                          : MemberRole.MEMBER       // Same group - become member
-                      }
+                      {
+                        role:
+                          oldPrimaryInvitation.groupId !== groupId
+                            ? MemberRole.TEAM_LEADER // Different group - become team leader
+                            : MemberRole.MEMBER, // Same group - become member
+                      },
                     );
                   }
                 }
@@ -494,6 +626,11 @@ export class InvitationService {
             throw new BadRequestException('User already in assessment group');
           }
 
+          // Professional: Log the role and group assignment for traceability
+          this.logger.log(
+            `Accepting invitation for user ${user.id} as role ${invitation.role} in group ${invitation.groupId}`,
+          );
+
           await manager.save(
             manager.create(AssessmentMember, {
               userId: user.id,
@@ -508,6 +645,13 @@ export class InvitationService {
             { status: InvitationStatus.ACCEPTED },
           );
         });
+
+        // Professional: If the user is PRIMARY, they now have full permissions to manage invitations and group members (enforced by AssessmentRoleGuard)
+        if (invitation.role === MemberRole.PRIMARY) {
+          this.logger.log(
+            `User ${user.id} is now PRIMARY for assessment ${invitation.assessmentId} and can manage invitations and group members.`,
+          );
+        }
 
         return { success: true, message: 'Invitation accepted' };
       }

@@ -52,8 +52,6 @@ export class GroupInvitationDto {
     nullable: true,
   })
   @IsOptional()
-  @IsString({ message: 'validation.group.isString' })
-  @Type(() => String)
   group: string | null;
 
   @ApiProperty({
