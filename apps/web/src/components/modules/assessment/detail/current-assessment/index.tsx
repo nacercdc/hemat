@@ -3,6 +3,12 @@
 import React from "react";
 import { GroupedAssessment } from "./components/GroupedAssessment";
 import AssessmentFillHeader from "../components/AssessmentFillHeader";
+import {
+  Assessment,
+  AssessmentFilterable,
+} from "~/libs/models/assessment.model";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import { useParams, useRouter } from "next/navigation";
 
 export interface Domain {
   id: string;
@@ -72,6 +78,21 @@ const dummyGroups = [
 ];
 
 export function CurrentAssessment() {
+  const router = useRouter();
+  const params = useParams();
+  const assessmentId = params.id;
+  const { data: assessments, ...assessmentsState } = useFindAll<
+    Assessment,
+    unknown,
+    AssessmentFilterable
+  >({
+    path: `assessments/${assessmentId as string}/assessment-domains`,
+    queries: {},
+    tqOptions: {
+      queryKey: ["ASSESSMENT_LIST_KEY"],
+    },
+  });
+  console.log("ASSESMSNT LIST ", assessments);
   return (
     <div className="flex flex-col  bg-layout-bg/15 rounded-md">
       <AssessmentFillHeader

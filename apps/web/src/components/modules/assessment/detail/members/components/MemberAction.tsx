@@ -4,7 +4,7 @@ import { DropdownMenu } from "@etm/web-ui-components";
 
 interface Props {
   id: string;
-  refetch?: () => void;
+  refetch?: (email?: string) => void;
 }
 export default function MemberAction({ id: _ }: Props) {
   const onGotoRemoveMemberHandler = () => {
