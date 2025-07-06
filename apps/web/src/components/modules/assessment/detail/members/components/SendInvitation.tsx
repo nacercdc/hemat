@@ -1,15 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { z } from "zod";
+import type { ModalRef } from "@etm/web-ui-components";
 import { Button, Input } from "@etm/web-ui-components";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useParams } from "next/navigation";
 import MemberRoleCard from "../../components/MemberRoleCard";
 import MemberInfo from "./MemberInfo";
 import MemberAction from "./MemberAction";
+import { useParams } from "next/navigation";
+import { Modal } from "@etm/web-ui-components";
 
 const addAssessmentInvitationSchema = z.object({
   email: z
@@ -23,12 +25,15 @@ export type AddAssessmentInvitationFormData = z.infer<
 >;
 
 export function SendInvitation() {
+  const sendInvitationModalRef = useRef<ModalRef>(null);
+  const openInvitationModal = () => sendInvitationModalRef.current?.openModal();
+  // const onCancelScaleFormHandler = () =>
+  //   sendInvitationModalRef.current?.closeModal();
   const [emails, setEmails] = useState<string[]>([]);
   const params = useParams();
-  const { id } = params;
+  const assessmentId = params.id;
   const {
     control,
-    handleSubmit,
     getValues,
     setValue,
     trigger,
@@ -55,13 +60,12 @@ export function SendInvitation() {
     setEmails((prev) => prev.filter((e) => e !== email));
   };
 
-  const onSubmitHandler = (_data: AddAssessmentInvitationFormData) => {
-    if (!id) return;
-    // TODO: Add user data
-  };
-
-  const onRefetchHandler = () => {
-    // TODO: Will be replaced with assessment refetch func
+  const onSubmitHandler = () => {
+    if (emails.length === 0) return;
+    //TODO: send Invitation with assessment Id
+    console.log(emails);
+    console.log("ASSESSMENT ID", assessmentId);
+    setEmails([]);
   };
 
   return (
@@ -97,16 +101,12 @@ export function SendInvitation() {
               {emails.map((email) => (
                 <div key={email} className="flex justify-between">
                   <MemberInfo email={email} />
-                  <MemberAction id={email} refetch={removeEmail(email)} />
+                  <MemberAction id={email} refetch={() => removeEmail(email)} />
                 </div>
               ))}
             </div>
             <div className="flex justify-end">
-              <Button
-                type="submit"
-                size="lg"
-                // onClick={handleSubmit(onSubmitHandler)}
-              >
+              <Button type="submit" size="lg" onClick={openInvitationModal}>
                 Send Invitation
               </Button>
             </div>
@@ -129,6 +129,20 @@ export function SendInvitation() {
           placeholderText="Team leader here"
         />
       </div>
+      <Modal ref={sendInvitationModalRef}>
+        <div className="flex flex-col gap-4 items-center p-10">
+          <div>Invitation successfully have been sent to every member</div>
+          <div>
+            {" "}
+            <Icon icon={"material-symbols:add"} className="!w-5 !h-5" />
+          </div>
+          <div>
+            <Button type="submit" size="lg" onClick={onSubmitHandler}>
+              Ok
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

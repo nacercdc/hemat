@@ -6,13 +6,16 @@ interface Props {
   id: string;
   refetch?: (email?: string) => void;
 }
-export default function MemberAction({ id: _ }: Props) {
+export default function MemberAction({ id, refetch }: Props) {
   const onGotoRemoveMemberHandler = () => {
-    //TODO this is remove the user form the list
+    if (refetch) {
+      refetch(id); // Call removeEmail with this email
+    }
   };
 
   const onGotoTeamLeaderHandler = () => {
     //TODO this a function make the user a Time leader
+    console.log(`Make ${id} a Team Leader`);
   };
 
   return (
