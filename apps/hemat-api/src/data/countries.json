@@ -11,7 +11,8 @@
     "latitude": "28.00000000",
     "longitude": "3.00000000",
     "emoji": "🇩🇿",
-    "emojiU": "U+1F1E9 U+1F1FF"
+    "emojiU": "U+1F1E9 U+1F1FF",
+    "subregion": "Northern Africa"
   },
   {
     "name": "Angola",
@@ -25,7 +26,8 @@
     "latitude": "-12.50000000",
     "longitude": "18.50000000",
     "emoji": "🇦🇴",
-    "emojiU": "U+1F1E6 U+1F1F4"
+    "emojiU": "U+1F1E6 U+1F1F4",
+    "subregion": "Middle Africa"
   },
   {
     "name": "Benin",
@@ -39,7 +41,8 @@
     "latitude": "9.50000000",
     "longitude": "2.25000000",
     "emoji": "🇧🇯",
-    "emojiU": "U+1F1E7 U+1F1EF"
+    "emojiU": "U+1F1E7 U+1F1EF",
+    "subregion": "Western Africa"
   },
   {
     "name": "Botswana",
@@ -53,7 +56,8 @@
     "latitude": "-22.00000000",
     "longitude": "24.00000000",
     "emoji": "🇧🇼",
-    "emojiU": "U+1F1E7 U+1F1FC"
+    "emojiU": "U+1F1E7 U+1F1FC",
+    "subregion": "Southern Africa"
   },
   {
     "name": "Burkina Faso",
@@ -67,7 +71,8 @@
     "latitude": "13.00000000",
     "longitude": "-2.00000000",
     "emoji": "🇧🇫",
-    "emojiU": "U+1F1E7 U+1F1EB"
+    "emojiU": "U+1F1E7 U+1F1EB",
+    "subregion": "Western Africa"
   },
   {
     "name": "Burundi",
@@ -81,7 +86,8 @@
     "latitude": "-3.50000000",
     "longitude": "30.00000000",
     "emoji": "🇧🇮",
-    "emojiU": "U+1F1E7 U+1F1EE"
+    "emojiU": "U+1F1E7 U+1F1EE",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Cameroon",
@@ -95,7 +101,8 @@
     "latitude": "6.00000000",
     "longitude": "12.00000000",
     "emoji": "🇨🇲",
-    "emojiU": "U+1F1E8 U+1F1F2"
+    "emojiU": "U+1F1E8 U+1F1F2",
+    "subregion": "Middle Africa"
   },
   {
     "name": "Cape Verde",
@@ -109,7 +116,8 @@
     "latitude": "16.00000000",
     "longitude": "-24.00000000",
     "emoji": "🇨🇻",
-    "emojiU": "U+1F1E8 U+1F1FB"
+    "emojiU": "U+1F1E8 U+1F1FB",
+    "subregion": "Western Africa"
   },
   {
     "name": "Central African Republic",
@@ -123,7 +131,8 @@
     "latitude": "7.00000000",
     "longitude": "21.00000000",
     "emoji": "🇨🇫",
-    "emojiU": "U+1F1E8 U+1F1EB"
+    "emojiU": "U+1F1E8 U+1F1EB",
+    "subregion": "Middle Africa"
   },
   {
     "name": "Chad",
@@ -137,7 +146,8 @@
     "latitude": "15.00000000",
     "longitude": "19.00000000",
     "emoji": "🇹🇩",
-    "emojiU": "U+1F1F9 U+1F1E9"
+    "emojiU": "U+1F1F9 U+1F1E9",
+    "subregion": "Middle Africa"
   },
   {
     "name": "Comoros",
@@ -145,13 +155,14 @@
     "numeric_code": "174",
     "phonecode": "269",
     "native": "Komori",
-    "translations cron": {
+    "translations": {
       "fr": "Comores"
     },
     "latitude": "-12.16666666",
     "longitude": "44.25000000",
     "emoji": "🇰🇲",
-    "emojiU": "U+1F1F0 U+1F1F2"
+    "emojiU": "U+1F1F0 U+1F1F2",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Congo (Brazzaville)",
@@ -165,7 +176,8 @@
     "latitude": "-1.00000000",
     "longitude": "15.00000000",
     "emoji": "🇨🇬",
-    "emojiU": "U+1F1E8 U+1F1EC"
+    "emojiU": "U+1F1E8 U+1F1EC",
+    "subregion": "Middle Africa"
   },
   {
     "name": "Congo (Kinshasa)",
@@ -179,7 +191,8 @@
     "latitude": "0.00000000",
     "longitude": "25.00000000",
     "emoji": "🇨🇩",
-    "emojiU": "U+1F1E8 U+1F1E9"
+    "emojiU": "U+1F1E8 U+1F1E9",
+    "subregion": "Middle Africa"
   },
   {
     "name": "Cote d'Ivoire",
@@ -193,7 +206,8 @@
     "latitude": "8.00000000",
     "longitude": "-5.00000000",
     "emoji": "🇨🇮",
-    "emojiU": "U+1F1E8 U+1F1EE"
+    "emojiU": "U+1F1E8 U+1F1EE",
+    "subregion": "Western Africa"
   },
   {
     "name": "Djibouti",
@@ -207,7 +221,8 @@
     "latitude": "11.50000000",
     "longitude": "43.00000000",
     "emoji": "🇩🇯",
-    "emojiU": "U+1F1E9 U+1F1EF"
+    "emojiU": "U+1F1E9 U+1F1EF",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Egypt",
@@ -221,7 +236,8 @@
     "latitude": "27.00000000",
     "longitude": "30.00000000",
     "emoji": "🇪🇬",
-    "emojiU": "U+1F1E6 U+1F1EC"
+    "emojiU": "U+1F1E6 U+1F1EC",
+    "subregion": "Northern Africa"
   },
   {
     "name": "Equatorial Guinea",
@@ -235,7 +251,8 @@
     "latitude": "2.00000000",
     "longitude": "10.00000000",
     "emoji": "🇬🇶",
-    "emojiU": "U+1F1EC U+1F1F6"
+    "emojiU": "U+1F1EC U+1F1F6",
+    "subregion": "Middle Africa"
   },
   {
     "name": "Eritrea",
@@ -249,7 +266,8 @@
     "latitude": "15.00000000",
     "longitude": "39.00000000",
     "emoji": "🇪🇷",
-    "emojiU": "U+1F1EA U+1F1F7"
+    "emojiU": "U+1F1EA U+1F1F7",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Ethiopia",
@@ -263,7 +281,8 @@
     "latitude": "8.00000000",
     "longitude": "38.00000000",
     "emoji": "🇪🇹",
-    "emojiU": "U+1F1EA U+1F1F9"
+    "emojiU": "U+1F1EA U+1F1F9",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Gabon",
@@ -277,7 +296,8 @@
     "latitude": "-1.00000000",
     "longitude": "11.75000000",
     "emoji": "🇬🇦",
-    "emojiU": "U+1F1EC U+1F1E6"
+    "emojiU": "U+1F1EC U+1F1E6",
+    "subregion": "Middle Africa"
   },
   {
     "name": "Gambia The",
@@ -291,7 +311,8 @@
     "latitude": "13.46666666",
     "longitude": "-16.56666666",
     "emoji": "🇬🇲",
-    "emojiU": "U+1F1EC U+1F1F2"
+    "emojiU": "U+1F1EC U+1F1F2",
+    "subregion": "Western Africa"
   },
   {
     "name": "Ghana",
@@ -305,7 +326,8 @@
     "latitude": "8.00000000",
     "longitude": "-2.00000000",
     "emoji": "🇬🇭",
-    "emojiU": "U+1F1EC U+1F1ED"
+    "emojiU": "U+1F1EC U+1F1ED",
+    "subregion": "Western Africa"
   },
   {
     "name": "Guinea",
@@ -319,7 +341,8 @@
     "latitude": "11.00000000",
     "longitude": "-10.00000000",
     "emoji": "🇬🇳",
-    "emojiU": "U+1F1EC U+1F1F3"
+    "emojiU": "U+1F1EC U+1F1F3",
+    "subregion": "Western Africa"
   },
   {
     "name": "Guinea-Bissau",
@@ -333,7 +356,8 @@
     "latitude": "12.00000000",
     "longitude": "-15.00000000",
     "emoji": "🇬🇼",
-    "emojiU": "U+1F1EC U+1F1FC"
+    "emojiU": "U+1F1EC U+1F1FC",
+    "subregion": "Western Africa"
   },
   {
     "name": "Kenya",
@@ -347,7 +371,8 @@
     "latitude": "1.00000000",
     "longitude": "38.00000000",
     "emoji": "🇰🇪",
-    "emojiU": "U+1F1F0 U+1F1EA"
+    "emojiU": "U+1F1F0 U+1F1EA",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Lesotho",
@@ -361,7 +386,8 @@
     "latitude": "-29.50000000",
     "longitude": "28.50000000",
     "emoji": "🇱🇸",
-    "emojiU": "U+1F1F1 U+1F1F8"
+    "emojiU": "U+1F1F1 U+1F1F8",
+    "subregion": "Southern Africa"
   },
   {
     "name": "Liberia",
@@ -375,7 +401,8 @@
     "latitude": "6.50000000",
     "longitude": "-9.50000000",
     "emoji": "🇱🇷",
-    "emojiU": "U+1F1F1 U+1F1F7"
+    "emojiU": "U+1F1F1 U+1F1F7",
+    "subregion": "Western Africa"
   },
   {
     "name": "Libya",
@@ -389,7 +416,8 @@
     "latitude": "25.00000000",
     "longitude": "17.00000000",
     "emoji": "🇱🇾",
-    "emojiU": "U+1F1F1 U+1F1FE"
+    "emojiU": "U+1F1F1 U+1F1FE",
+    "subregion": "Northern Africa"
   },
   {
     "name": "Madagascar",
@@ -403,7 +431,8 @@
     "latitude": "-20.00000000",
     "longitude": "47.00000000",
     "emoji": "🇲🇬",
-    "emojiU": "U+1F1F2 U+1F1EC"
+    "emojiU": "U+1F1F2 U+1F1EC",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Malawi",
@@ -417,7 +446,8 @@
     "latitude": "-13.50000000",
     "longitude": "34.00000000",
     "emoji": "🇲🇼",
-    "emojiU": "U+1F1F2 U+1F1FC"
+    "emojiU": "U+1F1F2 U+1F1FC",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Mali",
@@ -431,7 +461,8 @@
     "latitude": "17.00000000",
     "longitude": "-4.00000000",
     "emoji": "🇲🇱",
-    "emojiU": "U+1F1F2 U+1F1F1"
+    "emojiU": "U+1F1F2 U+1F1F1",
+    "subregion": "Western Africa"
   },
   {
     "name": "Mauritania",
@@ -445,7 +476,8 @@
     "latitude": "20.00000000",
     "longitude": "-12.00000000",
     "emoji": "🇲🇷",
-    "emojiU": "U+1F1F2 U+1F1F7"
+    "emojiU": "U+1F1F2 U+1F1F7",
+    "subregion": "Western Africa"
   },
   {
     "name": "Mauritius",
@@ -459,7 +491,8 @@
     "latitude": "-20.28333333",
     "longitude": "57.55000000",
     "emoji": "🇲🇺",
-    "emojiU": "U+1F1F2 U+1F1FA"
+    "emojiU": "U+1F1F2 U+1F1FA",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Morocco",
@@ -473,7 +506,8 @@
     "latitude": "32.00000000",
     "longitude": "-5.00000000",
     "emoji": "🇲🇦",
-    "emojiU": "U+1F1F2 U+1F1E6"
+    "emojiU": "U+1F1F2 U+1F1E6",
+    "subregion": "Northern Africa"
   },
   {
     "name": "Mozambique",
@@ -487,7 +521,8 @@
     "latitude": "-18.25000000",
     "longitude": "35.00000000",
     "emoji": "🇲🇿",
-    "emojiU": "U+1F1F2 U+1F1FF"
+    "emojiU": "U+1F1F2 U+1F1FF",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Namibia",
@@ -501,7 +536,8 @@
     "latitude": "-22.00000000",
     "longitude": "17.00000000",
     "emoji": "🇳🇦",
-    "emojiU": "U+1F1F3 U+1F1E6"
+    "emojiU": "U+1F1F3 U+1F1E6",
+    "subregion": "Southern Africa"
   },
   {
     "name": "Niger",
@@ -515,7 +551,8 @@
     "latitude": "16.00000000",
     "longitude": "8.00000000",
     "emoji": "🇳🇪",
-    "emojiU": "U+1F1F3 U+1F1EA"
+    "emojiU": "U+1F1F3 U+1F1EA",
+    "subregion": "Western Africa"
   },
   {
     "name": "Nigeria",
@@ -529,7 +566,8 @@
     "latitude": "10.00000000",
     "longitude": "8.00000000",
     "emoji": "🇳🇬",
-    "emojiU": "U+1F1F3 U+1F1EC"
+    "emojiU": "U+1F1F3 U+1F1EC",
+    "subregion": "Western Africa"
   },
   {
     "name": "Reunion",
@@ -543,7 +581,8 @@
     "latitude": "-21.15000000",
     "longitude": "55.50000000",
     "emoji": "🇷🇪",
-    "emojiU": "U+1F1F7 U+1F1EA"
+    "emojiU": "U+1F1F7 U+1F1EA",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Rwanda",
@@ -557,7 +596,8 @@
     "latitude": "-2.00000000",
     "longitude": "30.00000000",
     "emoji": "🇷🇼",
-    "emojiU": "U+1F1F7 U+1F1FC"
+    "emojiU": "U+1F1F7 U+1F1FC",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Saint Helena",
@@ -571,7 +611,8 @@
     "latitude": "-15.95000000",
     "longitude": "-5.70000000",
     "emoji": "🇸🇭",
-    "emojiU": "U+1F1F8 U+1F1ED"
+    "emojiU": "U+1F1F8 U+1F1ED",
+    "subregion": "Western Africa"
   },
   {
     "name": "Sao Tome and Principe",
@@ -585,7 +626,8 @@
     "latitude": "1.00000000",
     "longitude": "7.00000000",
     "emoji": "🇸🇹",
-    "emojiU": "U+1F1F8 U+1F1F9"
+    "emojiU": "U+1F1F8 U+1F1F9",
+    "subregion": "Middle Africa"
   },
   {
     "name": "Senegal",
@@ -599,7 +641,8 @@
     "latitude": "14.00000000",
     "longitude": "-14.00000000",
     "emoji": "🇸🇳",
-    "emojiU": "U+1F1F8 U+1F1F3"
+    "emojiU": "U+1F1F8 U+1F1F3",
+    "subregion": "Western Africa"
   },
   {
     "name": "Seychelles",
@@ -613,7 +656,8 @@
     "latitude": "-4.58333333",
     "longitude": "55.66666666",
     "emoji": "🇸🇨",
-    "emojiU": "U+1F1F8 U+1F1E8"
+    "emojiU": "U+1F1F8 U+1F1E8",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Sierra Leone",
@@ -627,7 +671,8 @@
     "latitude": "8.50000000",
     "longitude": "-11.50000000",
     "emoji": "🇸🇱",
-    "emojiU": "U+1F1F8 U+1F1F1"
+    "emojiU": "U+1F1F8 U+1F1F1",
+    "subregion": "Western Africa"
   },
   {
     "name": "Somalia",
@@ -641,7 +686,8 @@
     "latitude": "10.00000000",
     "longitude": "49.00000000",
     "emoji": "🇸🇴",
-    "emojiU": "U+1F1F8 U+1F1F4"
+    "emojiU": "U+1F1F8 U+1F1F4",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "South Africa",
@@ -655,7 +701,8 @@
     "latitude": "-29.00000000",
     "longitude": "24.00000000",
     "emoji": "🇿🇦",
-    "emojiU": "U+1F1FF U+1F1E6"
+    "emojiU": "U+1F1FF U+1F1E6",
+    "subregion": "Southern Africa"
   },
   {
     "name": "South Sudan",
@@ -669,7 +716,8 @@
     "latitude": "7.00000000",
     "longitude": "30.00000000",
     "emoji": "🇸🇸",
-    "emojiU": "U+1F1F8 U+1F1F8"
+    "emojiU": "U+1F1F8 U+1F1F8",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Sudan",
@@ -683,7 +731,8 @@
     "latitude": "15.00000000",
     "longitude": "30.00000000",
     "emoji": "🇸🇩",
-    "emojiU": "U+1F1F8 U+1F1E9"
+    "emojiU": "U+1F1F8 U+1F1E9",
+    "subregion": "Northern Africa"
   },
   {
     "name": "Swaziland",
@@ -697,7 +746,8 @@
     "latitude": "-26.50000000",
     "longitude": "31.50000000",
     "emoji": "🇸🇿",
-    "emojiU": "U+1F1F8 U+1F1FF"
+    "emojiU": "U+1F1F8 U+1F1FF",
+    "subregion": "Southern Africa"
   },
   {
     "name": "Togo",
@@ -711,7 +761,8 @@
     "latitude": "8.00000000",
     "longitude": "1.16666666",
     "emoji": "🇹🇬",
-    "emojiU": "U+1F1F9 U+1F1EC"
+    "emojiU": "U+1F1F9 U+1F1EC",
+    "subregion": "Western Africa"
   },
   {
     "name": "Tunisia",
@@ -725,7 +776,8 @@
     "latitude": "34.00000000",
     "longitude": "9.00000000",
     "emoji": "🇹🇳",
-    "emojiU": "U+1F1F9 U+1F1F3"
+    "emojiU": "U+1F1F9 U+1F1F3",
+    "subregion": "Northern Africa"
   },
   {
     "name": "Uganda",
@@ -739,7 +791,8 @@
     "latitude": "1.00000000",
     "longitude": "32.00000000",
     "emoji": "🇺🇬",
-    "emojiU": "U+1F1FA U+1F1EC"
+    "emojiU": "U+1F1FA U+1F1EC",
+    "subregion": "Eastern Africa"
   },
   {
     "name": "Western Sahara",
@@ -753,7 +806,8 @@
     "latitude": "24.50000000",
     "longitude": "-13.00000000",
     "emoji": "🇪🇭",
-    "emojiU": "U+1F1EA U+1F1ED"
+    "emojiU": "U+1F1EA U+1F1ED",
+    "subregion": "Northern Africa"
   },
   {
     "name": "Zambia",
@@ -767,7 +821,8 @@
     "latitude": "-15.00000000",
     "longitude": "30.00000000",
     "emoji": "🇿🇲",
-    "emojiU": "U+1F1FF U+1F1F2"
+    "emojiU": "U+1F1FF U+1F1F2",
+    "subregion": "Southern Africa"
   },
   {
     "name": "Zimbabwe",
@@ -781,6 +836,7 @@
     "latitude": "-20.00000000",
     "longitude": "30.00000000",
     "emoji": "🇿🇼",
-    "emojiU": "U+1F1FF U+1F1FC"
+    "emojiU": "U+1F1FF U+1F1FC",
+    "subregion": "Eastern Africa"
   }
 ]
