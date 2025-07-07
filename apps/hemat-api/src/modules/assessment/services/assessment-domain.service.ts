@@ -373,6 +373,19 @@ export class AssessmentDomainService {
       }
     }
 
+    // Fetch all group-domain relations in one query for efficiency
+    let groupDomainMap: Map<string, Set<string>> = new Map();
+    const allGroups = await this.assessmentRepository.manager.getRepository('AssessmentGroup').find({
+      where: { assessmentId },
+      relations: ['domains'],
+    });
+    for (const group of allGroups) {
+      groupDomainMap.set(
+        group.id,
+        new Set((group.domains || []).map((d: AssessmentDomain) => d.id))
+      );
+    }
+
     // 5. Add missing domains (with 0%) for each group, only for attached domains
     for (const [groupId, group] of groupMap.entries()) {
       const answeredDomains = groupDomainAnswered.get(groupId) || new Set<string>();
@@ -384,10 +397,16 @@ export class AssessmentDomainService {
       group.domains.sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    // 6. Ensure all groups with attached domains are present
-    await this.ensureAllGroupsPresent(assessmentId, groupMap);
+    // Filter domains for each group to only those attached to the group
+    for (const group of groupMap.values()) {
+      const allowedDomainIds = groupDomainMap.get(group.id) || new Set();
+      group.domains = group.domains.filter(domain => allowedDomainIds.has(domain.id));
+    }
 
-    // 7. Return all groups and their attached domains
+    // 6. Only return filtered group(s) for team-leader/member, else all
+    if (options.filterByGroupIds?.length) {
+      return Array.from(groupMap.values()).filter(g => options.filterByGroupIds!.includes(g.id));
+    }
     return Array.from(groupMap.values());
   }
 
@@ -449,10 +468,11 @@ export class AssessmentDomainService {
     };
   }
 
-  async getDomains(language: string = 'en') {
-    // This returns all domains for the assessment. Only admins and PRIMARYs should use this.
+  async getDomains(assessmentId: string, language: string = 'en') {
+    // This returns all domains for the specified assessment.
     return this.assessmentDomainRepository
       .createQueryBuilder('domain')
+      .where('domain.assessmentId = :assessmentId', { assessmentId })
       .leftJoin('domain.components', 'component')
       .leftJoin('component.subComponents', 'subComponent')
       .select('domain.id', 'id')

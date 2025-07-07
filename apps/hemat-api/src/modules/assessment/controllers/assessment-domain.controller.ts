@@ -110,11 +110,11 @@ export class AssessmentDomainController {
     const { isAdmin, assessmentRole, assessmentGroupId } = user;
 
     if (isAdmin) {
-      return this.assessmentDomainService.getDomains(language);
+      return this.assessmentDomainService.getDomains(assessmentId, language);
     }
 
     if (assessmentRole === MemberRole.PRIMARY) {
-      return this.assessmentDomainService.getDomains(language);
+      return this.assessmentDomainService.getDomains(assessmentId, language);
     }
 
     if (
