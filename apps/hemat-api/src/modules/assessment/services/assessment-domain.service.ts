@@ -494,26 +494,6 @@ export class AssessmentDomainService {
       .execute();
   }
 
-  async getDomainsByGroup(
-    assessmentId: string,
-    groupId: string,
-    language: string = 'en',
-  ) {
-    // Only return domains assigned to the group. Used for TEAM_LEADER and MEMBER roles.
-    const group = await this.assessmentRepository.manager.getRepository('AssessmentGroup').findOne({
-      where: { id: groupId, assessmentId },
-      relations: ['domains'],
-    });
-    if (!group) throw new NotFoundException('Group not found');
-    this.logger.log(`Returning assigned domains for group ${groupId} in assessment ${assessmentId}`);
-    return (group.domains || []).map((domain: AssessmentDomain) => ({
-      id: domain.id,
-      code: domain.code,
-      name: domain.translations?.[language]?.name || domain.name,
-      description: domain.translations?.[language]?.description || domain.description,
-    }));
-  }
-
   // Helper to check domain existence
   private async findDomainOrThrow(assessmentId: string, domainId: string) {
     const domain = await this.assessmentDomainRepository.findOne({
@@ -644,7 +624,9 @@ export class AssessmentDomainService {
       relations: ['domains'],
     });
     if (!group || !group.domains || group.domains.length === 0) {
-      throw new ForbiddenException('This group does not have any domains assigned. Please contact your administrator.');
+      throw new ForbiddenException(
+        'This group does not have any domains assigned.',
+      );
     }
     return group;
   }
