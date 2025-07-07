@@ -39,8 +39,6 @@ const metrics: Pick<Scale, "name" | "rate" | "color">[] = [
 ];
 
 export default function Dashboard() {
-  console.log("test....");
-
   // TODO: Replace with real API call
   const fetchedData: Record<string, Pick<Scale, "name" | "rate" | "color">> = {
     Ethiopia: { name: "Developing", rate: 4, color: "#FFA50080" },

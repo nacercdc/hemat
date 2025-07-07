@@ -1,6 +1,10 @@
+"use client";
+
 import { Progress } from "@etm/web-ui-components";
 import React from "react";
 import { cn } from "~/utils/cn.util";
+import { useSelectedDomain } from "../../context/selected-domain/useSelectedDomain";
+import { Domains } from "../../constants";
 
 type Scales = "Initial" | "Developing" | "Defined" | "Managed" | "Optimized";
 
@@ -15,15 +19,26 @@ const ScalesMap: Record<number, { label: Scales; color: string }> = {
 interface Props {
   domainType: "summary" | "single";
   icon: React.ReactNode;
-  title: React.ReactNode;
+  name: string;
   result: number;
 }
 
-export function DomainCard({ domainType, icon, title, result }: Props) {
+export function DomainCard({ domainType, icon, name, result }: Props) {
+  const selectedDomainCtx = useSelectedDomain();
+
   return (
     <div
+      onClick={() => {
+        if (selectedDomainCtx?.selectedDomain?.name === name) {
+          selectedDomainCtx?.setSelectedDomain(undefined);
+          return;
+        }
+        selectedDomainCtx?.setSelectedDomain(
+          Domains.find((domain) => domain.name === name)
+        );
+      }}
       className={cn(
-        "flex gap-2 rounded-md bg-white w-72 h-28 p-4 cursor-pointer",
+        "flex gap-2 rounded-md bg-white min-w-72 h-28 p-4 cursor-pointer",
         domainType === "summary" && "border-t-2",
         domainType === "single" && "border-l-2"
       )}
@@ -37,7 +52,7 @@ export function DomainCard({ domainType, icon, title, result }: Props) {
             domainType === "summary" && "font-bold text-2xl"
           )}
         >
-          {title}
+          {name}
         </span>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex items-center gap-2">

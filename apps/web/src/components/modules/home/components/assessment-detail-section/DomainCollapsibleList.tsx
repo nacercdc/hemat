@@ -1,150 +1,55 @@
 "use client";
 
-import React, { useState } from "react";
-import { Icon } from "@iconify/react";
+import React, { useEffect, useState } from "react";
 import { DomainCollapsible } from "./DomainCollapsible";
+import { cn } from "~/utils/cn.util";
+import { useSelectedDomain } from "../../context/selected-domain/useSelectedDomain";
+import { Domain } from "~/libs/models/domain.model";
+import { collapsibleItems } from "../../constants";
 
-interface CollapsibleItem {
+export interface CollapsibleItem {
   icon: React.ReactNode;
+  color: string;
   title: string;
+  domain: Domain;
   content: { title: string; content: string; score: number }[];
 }
 
-//Dummy data for domain score detail
-const items: CollapsibleItem[] = [
-  {
-    icon: (
-      <IconWrapper backColor="#00B0F024">
-        <Icon icon="fluent-mdl2:party-leader" />
-      </IconWrapper>
-    ),
-    title: "Section 1",
-    content: [
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-    ],
-  },
-  {
-    icon: (
-      <IconWrapper backColor="#FFC00024">
-        <Icon icon="maki:communications-tower" />
-      </IconWrapper>
-    ),
-    title: "Section 2",
-    content: [
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-    ],
-  },
-  {
-    icon: (
-      <IconWrapper backColor="#348F4124">
-        <Icon icon="carbon:ibm-knowledge-catalog-standard" />
-      </IconWrapper>
-    ),
-    title: "Section 3",
-    content: [
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-    ],
-  },
-  {
-    icon: (
-      <IconWrapper backColor="#FFFD0224">
-        <Icon icon="fluent-mdl2:workforce-management" />
-      </IconWrapper>
-    ),
-    title: "Section 4",
-    content: [
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-      {
-        title: "lorem",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla, libero non iaculis luctus, dui orci suscipit sem, id auctor ex lectus ut neque. Mauris tincidunt tortor in dui imperdiet, sed tempor libero laoreet. Quisque id nulla eu ipsum hendrerit vestibulum. Aliquam quis volutpat elit.",
-        score: 4,
-      },
-    ],
-  },
-];
-
 export function DomainCollapsibleList() {
+  const selectedDomainCtx = useSelectedDomain();
+
   const [openIndex, setOpenIndex] = useState<number>(-1);
 
   const handleToggle = (index: number) => {
     setOpenIndex(openIndex === index ? -1 : index);
   };
 
+  useEffect(() => {
+    setOpenIndex(
+      collapsibleItems.findIndex(
+        (item) => item.domain.name === selectedDomainCtx?.selectedDomain?.name
+      )
+    );
+  }, [selectedDomainCtx?.selectedDomain]);
+
   return (
-    <div className="px-52 pr-64 w-full bg-[#FAFAFA]">
-      {items.map((item, index) => (
-        <DomainCollapsible
-          key={index}
-          icon={item.icon}
-          title={item.title}
-          isOpen={openIndex === index}
-          onToggle={() => handleToggle(index)}
-          content={item.content}
-        />
-      ))}
+    <div
+      className={cn(
+        "px-40 2xl:px-52 pr-52 2xl:pr-64 w-full bg-[#FAFAFA]",
+        !selectedDomainCtx?.selectedDomain && "hidden"
+      )}
+    >
+      {selectedDomainCtx?.selectedDomain &&
+        collapsibleItems?.map((item, index) => (
+          <DomainCollapsible
+            key={index}
+            icon={<IconWrapper backColor={item.color}>{item.icon}</IconWrapper>}
+            title={item.title}
+            isOpen={openIndex === index}
+            onToggle={() => handleToggle(index)}
+            content={item.content}
+          />
+        ))}
     </div>
   );
 }
@@ -154,7 +59,7 @@ interface IconWrapperProps {
   backColor: string;
 }
 
-function IconWrapper({ children, backColor }: IconWrapperProps) {
+export function IconWrapper({ children, backColor }: IconWrapperProps) {
   return (
     <div
       className="flex items-center justify-center rounded-full w-8 h-8"

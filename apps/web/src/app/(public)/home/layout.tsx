@@ -5,5 +5,9 @@ interface Props {
 }
 
 export default function HomeLayout({ children }: Props) {
-  return <div className="max-h-screen overflow-y-auto">{children}</div>;
+  return (
+    <div className="max-h-screen overflow-y-auto overflow-x-hidden">
+      {children}
+    </div>
+  );
 }

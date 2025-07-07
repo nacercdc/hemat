@@ -1,6 +1,5 @@
 import React from "react";
 import { Icon } from "@iconify/react";
-import { Colors } from "../../constants";
 import { Button } from "@etm/web-ui-components";
 
 export function OverallSummary() {
@@ -13,10 +12,7 @@ export function OverallSummary() {
             Centers for Diseases Control and
           </h2>
           <h2 className="font-light text-3xl">Prevention</h2>
-          <h3
-            className="text-xl font-bold"
-            style={{ color: `${Colors.HERO_H2}` }}
-          >
+          <h3 className="text-xl font-bold" style={{ color: "#E8D8A6" }}>
             Safeguarding Africa's Health
           </h3>
         </div>

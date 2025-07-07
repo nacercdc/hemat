@@ -5,7 +5,7 @@ import { AssessmentDetailSection } from "./components/assessment-detail-section"
 
 export default function Home() {
   return (
-    <div className="flex flex-col w-[100vw] h-full">
+    <div className="flex flex-col w-full h-full">
       <div className="w-full flex flex-col">
         <NavBar />
         <HeroSection />

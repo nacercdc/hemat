@@ -25,14 +25,16 @@ export function Partners() {
             key={index}
             className="md:basis-1/2 lg:basis-1/4 xl:basis-1/5"
           >
-            <div className="flex items-center justify-center w-32 h-40 rounded-lg">
-              <Image
-                key={index}
-                src={img.src}
-                width={img.width}
-                height={img.height}
-                alt={img.alt}
-              />
+            <div className="flex items-center justify-center h-32 w-full">
+              <div className="w-24 h-24 rounded-lg relative">
+                <Image
+                  key={index}
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  className="object-contain"
+                />
+              </div>
             </div>
           </ETMCarousel.CarouselItem>
         ))}
