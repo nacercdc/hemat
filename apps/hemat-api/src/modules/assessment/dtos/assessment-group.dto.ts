@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, Length } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsOptional, IsArray, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class AssessmentGroupUpdateRequestDto {
@@ -13,4 +13,17 @@ export class AssessmentGroupUpdateRequestDto {
   @IsNotEmpty()
   @Type(() => String)
   name: string;
+
+  @ApiPropertyOptional({
+    description: 'Array of domain IDs to associate with the group',
+    example: [
+      '123e4567-e89b-12d3-a456-426614174000',
+      '223e4567-e89b-12d3-a456-426614174001',
+    ],
+    type: [String],
+  })
+  @IsArray()
+  @IsUUID('4', { each: true, message: 'validation.domainIds.isUUID' })
+  @Type(() => String)
+  domainIds: string[];
 }

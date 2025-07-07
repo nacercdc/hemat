@@ -171,4 +171,12 @@ export class Assessment extends BaseEntityWithSoftDelete {
 
   @OneToMany(() => Report, (reports) => reports.assessment)
   reports: Report[] | null;
+
+  @ApiProperty({
+    description: 'Whether the assessment is active',
+    example: true,
+    type: Boolean,
+  })
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
 }

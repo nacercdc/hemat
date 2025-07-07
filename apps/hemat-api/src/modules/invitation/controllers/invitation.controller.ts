@@ -8,6 +8,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Query,
+  Request,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -32,6 +33,9 @@ import {
 } from '../dtos';
 import { Invitation } from '@database/entities';
 import { Abilities, AuthGuard } from '@shared/modules';
+import { AssessmentRoleGuard } from '../../assessment/guards/assessment-role.guard';
+import { AssessmentAbilityUser } from '../../assessment/guards/assessment-ability-user.decorator';
+import { AssessmentAbilityDto } from '../../assessment/guards/assessment-ability.dto';
 
 @ApiBearerAuth()
 @ApiTags('Invitations')
@@ -52,7 +56,7 @@ import { Abilities, AuthGuard } from '@shared/modules';
   description: 'Too Many Requests',
   type: ExceptionResponseDto,
 })
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, AssessmentRoleGuard)
 @Controller('assessments/:assessmentId/invitations')
 export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
@@ -73,16 +77,18 @@ export class InvitationController {
     permissions: [
       {
         action: PermissionActionEnum.CREATE,
-        subject: PermissionSubjectEnum.ASSESSMENT,
+        subject: PermissionSubjectEnum.INVITATION,
       },
     ],
+    requireAdmin: false,
   })
   @Post()
   async create(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Body() payload: InvitationCreateBulkRequestDto,
+    @AssessmentAbilityUser() user: AssessmentAbilityDto
   ): Promise<Invitation[]> {
-    return this.invitationService.createBulk(assessmentId, payload);
+    return this.invitationService.createBulk(assessmentId, payload, user);
   }
 
   @ApiOperation({
@@ -156,6 +162,15 @@ export class InvitationController {
     type: ExceptionResponseDto,
   })
   @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.CREATE,
+        subject: PermissionSubjectEnum.INVITATION,
+      },
+    ],
+  })
   @Post('accept')
   async accept(@Body() payload: InvitationUpdateRequestDto): Promise<{
     success: boolean;

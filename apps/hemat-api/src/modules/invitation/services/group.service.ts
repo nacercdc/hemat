@@ -41,11 +41,11 @@ export class GroupService {
     try {
       if (groupInput === null) {
         if (existingGroups.length) {
-          throw new BadRequestException('Select a group or provide a name');
+          throw new BadRequestException('You must select an existing group or provide a new group name. Cannot use null for group after the first group is created.');
         }
-        const newGroupName = `${assessmentName} Group${existingGroups.length + groupOffset + 1}`;
+        const newGroupName = `${assessmentName} Group 1`;
         if (existingGroups.some((g) => g.name === newGroupName)) {
-          throw new BadRequestException(`Group ${newGroupName} exists`);
+          throw new BadRequestException(`Group ${newGroupName} already exists`);
         }
         const group = await manager.save(
           manager.create(AssessmentGroup, { name: newGroupName, assessmentId }),

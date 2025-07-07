@@ -107,34 +107,11 @@ export class AssessmentDomainController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query('language') language: string = 'en',
   ): Promise<any> {
-    const { isAdmin, assessmentRole, assessmentGroupId } = user;
-
-    if (isAdmin) {
-      return this.assessmentDomainService.getDomains(language);
+    const { isAdmin, assessmentRole } = user;
+    if (isAdmin || assessmentRole) {
+      return this.assessmentDomainService.getDomains(assessmentId, language);
     }
-
-    if (assessmentRole === MemberRole.PRIMARY) {
-      return this.assessmentDomainService.getDomains(language);
-    }
-
-    if (
-      assessmentRole === MemberRole.TEAM_LEADER ||
-      assessmentRole === MemberRole.MEMBER
-    ) {
-      if (assessmentGroupId) {
-        return this.assessmentDomainService.getDomainsByGroup(
-          assessmentId,
-          assessmentGroupId,
-          language,
-        );
-      } else {
-        throw new ForbiddenException(
-          'You must be assigned to a group to view domains',
-        );
-      }
-    }
-
-    throw new ForbiddenException('Invalid role for accessing domains');
+    throw new ForbiddenException('You are not authorized to view domains for this assessment.');
   }
 
   @ApiOperation({

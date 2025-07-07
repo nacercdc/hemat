@@ -13,6 +13,8 @@ import {
   AssessmentMeasurementScale,
   AssessmentComponent,
   Assessment,
+  AssessmentGroup,
+  AssessmentDomain,
 } from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
@@ -88,6 +90,13 @@ export class AssessmentAnswerService {
     payload: AssessmentAnswerCreateRequestDto,
   ): Promise<Answer> {
     return this.dataSource.transaction(async (manager) => {
+      const assessment = await manager.findOne(Assessment, { where: { id: assessmentId } });
+      if (!assessment) {
+        throw new NotFoundException(`Assessment ${assessmentId} not found`);
+      }
+      if (!assessment.isActive) {
+        throw new BadRequestException('Cannot answer an inactive assessment');
+      }
       const member = await this.validator.validateMembership(
         assessmentId,
         userId,
@@ -140,6 +149,27 @@ export class AssessmentAnswerService {
         );
       }
 
+      let allowedDomainIds: string[] = [];
+      if (!isPrimary) {
+        // Load the group and its domains
+        const group = await manager.findOne(AssessmentGroup, {
+          where: { id: member.groupId },
+          relations: ['domains'],
+        });
+        if (!group) {
+          throw new ForbiddenException('Your group does not exist');
+        }
+        if (!group.domains || group.domains.length === 0) {
+          throw new ForbiddenException(
+            'Your group does not have any domains assigned',
+          );
+        }
+        allowedDomainIds = group.domains.map((d: AssessmentDomain) => d.id);
+        if (!allowedDomainIds.includes(component.domainId)) {
+          throw new ForbiddenException('You do not have access to this domain');
+        }
+      }
+
       await this.validator.validateCreate(
         assessmentId,
         userId,
@@ -164,7 +194,6 @@ export class AssessmentAnswerService {
         await manager.save(Answer, answer);
 
         // Set assessment status to IN_PROGRESS if not already in progress or beyond
-        const assessment = await manager.findOne(Assessment, { where: { id: assessmentId } });
         if (
           assessment &&
           assessment.status !== AssessmentStatus.IN_PROGRESS &&
@@ -215,6 +244,7 @@ export class AssessmentAnswerService {
         answer.id,
         manager,
         'Answer',
+        allowedDomainIds,
       );
       answer.status =
         answer.percentage === 100
@@ -317,6 +347,13 @@ export class AssessmentAnswerService {
         answer.id,
         manager,
         'Answer',
+        answer.isPrimary ? undefined : (await (async () => {
+          const group = await manager.findOne(AssessmentGroup, {
+            where: { id: member.groupId },
+            relations: ['domains'],
+          });
+          return (group?.domains || []).map((d: AssessmentDomain) => d.id);
+        })()),
       );
       answer.status =
         answer.percentage === 100
