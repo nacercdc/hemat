@@ -74,20 +74,38 @@ export class DomainService {
   }
 
   async create(payload: DomainCreateRequestDto): Promise<Domain> {
-    const domain = this.domainRepository.create(payload);
+    // Count existing domains for incremental code
+    const count = await this.domainRepository.count();
+    const code = (count + 1).toString();
+    // Set code in translations for each language if translations exist
+    let translations = payload.translations;
+    if (translations && typeof translations === 'object') {
+      translations = { ...translations };
+      for (const lang of Object.keys(translations)) {
+        translations[lang] = { ...translations[lang], code };
+      }
+    }
+    const domain = this.domainRepository.create({ ...payload, code, translations });
     return await this.domainRepository.save(domain);
   }
 
   async update(id: string, payload: DomainUpdateRequestDto): Promise<Domain> {
-    const domain = await this.domainRepository.findOne({
-      where: { id },
-    });
-
+    const domain = await this.domainRepository.findOne({ where: { id } });
     if (!domain) {
       throw new NotFoundException(`Domain ${id} not found.`);
     }
 
-    Object.assign(domain, payload);
+    // Remove code from payload if present
+    const { code, ...rest } = payload as any;
+    Object.assign(domain, rest);
+
+    // Ensure code in translations matches the main code
+    if (domain.translations && typeof domain.translations === 'object') {
+      for (const lang of Object.keys(domain.translations)) {
+        domain.translations[lang] = { ...domain.translations[lang], code: domain.code };
+      }
+    }
+
     return await this.domainRepository.save(domain);
   }
 

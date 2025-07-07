@@ -78,8 +78,25 @@ export class ComponentService {
         throw new NotFoundException(`Domain ${payload.domainId} not found.`);
       }
 
+      // Get the parent domain's code
+      const domainCode = domain.code;
+      // Count existing components for this domain
+      const count = await manager.getRepository(Component).count({ where: { domain: { id: domain.id } } });
+      const code = `${domainCode}.${count + 1}`;
+
+      // Set code in translations for each language if translations exist
+      let translations = payload.translations;
+      if (translations && typeof translations === 'object') {
+        translations = { ...translations };
+        for (const lang of Object.keys(translations)) {
+          translations[lang] = { ...translations[lang], code };
+        }
+      }
+
       const component = manager.getRepository(Component).create({
         ...payload,
+        code,
+        translations,
         domain,
       });
 
@@ -112,19 +129,16 @@ export class ComponentService {
         }
         domain = newDomain;
       }
-      if (payload.code && payload.code !== component.code) {
-        const existingComponent = await manager
-          .getRepository(Component)
-          .findOne({
-            where: { code: payload.code },
-          });
-        if (existingComponent && existingComponent.id !== id) {
-          throw new BadRequestException(
-            `Component with code ${payload.code} already exists.`,
-          );
+      // Remove code from payload if present
+      const { code, ...rest } = payload as any;
+      Object.assign(component, { ...rest, domain });
+
+      // Ensure code in translations matches the main code
+      if (component.translations && typeof component.translations === 'object') {
+        for (const lang of Object.keys(component.translations)) {
+          component.translations[lang] = { ...component.translations[lang], code: component.code };
         }
       }
-      Object.assign(component, { ...payload, domain });
       return await manager.getRepository(Component).save(component);
     });
   }
