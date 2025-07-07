@@ -57,10 +57,6 @@ export class AssessmentMeasurementScaleService {
       },
     );
 
-    this.loggerService.debug(
-      'templateMeasurementScaleId',
-      templateMeasurementScaleId,
-    );
     await manager.insert(
       AssessmentMeasurementScale,
       assessmentMeasurementScales,

@@ -80,7 +80,6 @@ export class AssessmentDomainService {
 
     try {
       await manager.insert(AssessmentDomain, assessmentDomains);
-      this.logger.debug('templateDomainId', templateDomainId);
       return { domains: assessmentDomains, templateDomainId };
     } catch (err) {
       this.logger.error('create:', err);

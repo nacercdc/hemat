@@ -73,8 +73,7 @@ export class AssessmentSubComponentService {
         }
       },
     );
-
-    this.loggerService.debug('templateSubComponentId', templateSubComponentId);
+    
     await manager.insert(AssessmentSubComponent, assessmentSubComponents);
 
     return { subComponents: assessmentSubComponents, templateSubComponentId };
