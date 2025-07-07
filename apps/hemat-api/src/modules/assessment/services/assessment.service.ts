@@ -22,6 +22,8 @@ import { AssessmentMeasurementScaleService } from './assessment-measuremnt-scale
 import { AssessmentMeasurementScaleSubComponentService } from './assessment-measuremnt-scale-sub-component.service';
 import { AssessmentMemberService } from './assessment-member.service';
 import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
+import { AssessmentGroupService } from './assessment-group.service';
+import { AccessDto } from '../dtos/access.dto';
 
 @Injectable()
 export class AssessmentService {
@@ -49,6 +51,7 @@ export class AssessmentService {
     private readonly assessmentMeasurementScaleService: AssessmentMeasurementScaleService,
     private readonly assessmentMeasurementScaleSubComponentService: AssessmentMeasurementScaleSubComponentService,
     private readonly assessmentMemberService: AssessmentMemberService,
+    private readonly assessmentGroupService: AssessmentGroupService,
   ) {}
 
   async findAll(
@@ -91,9 +94,11 @@ export class AssessmentService {
     id: string,
     query: FindOneAssessmentDto,
     user: AssessmentAbilityDto,
-  ): Promise<Assessment> {
+  ): Promise<any> {
+    let access: AccessDto | null = null;
+    let membership = null;
     if (!user.isAdmin) {
-      const membership = await this.assessmentMemberRepository.findOne({
+      membership = await this.assessmentMemberRepository.findOne({
         where: { assessmentId: id, userId: user.id, deletedAt: IsNull() },
       });
       this.logger.debug(
@@ -115,9 +120,26 @@ export class AssessmentService {
       throw new NotFoundException(`Assessment ${id} not found.`);
     }
 
+    if (membership) {
+      let groupName = '', domains = null, groupId = '';
+      if (membership.groupId) {
+        const group = await this.assessmentGroupService.findOne(id, membership.groupId, { include: ['domains'] }) || {};
+        groupName = typeof group.name === 'string' ? group.name : '';
+        groupId = typeof membership.groupId === 'string' ? membership.groupId : '';
+        domains = Array.isArray(group.domains) && group.domains.length ? group.domains.map(({ id, name }) => ({ id, name })) : null;
+      }
+      access = {
+        role: membership.role,
+        groupId: groupId,
+        groupName: groupName,
+        domains,
+      };
+    }
+
     this.updateIsActiveStatus(assessment);
     await this.assessmentRepository.save(assessment);
-    return assessment;
+    const plain = { ...assessment, access };
+    return plain;
   }
 
   async create(
