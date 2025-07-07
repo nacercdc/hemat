@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { DomainCollapsible } from "./DomainCollapsible";
 import { cn } from "~/utils/cn.util";
 import { useSelectedDomain } from "../../context/selected-domain/useSelectedDomain";
-import { Domain } from "~/libs/models/domain.model";
+import type { Domain } from "~/libs/models/domain.model";
 import { collapsibleItems } from "../../constants";
 
 export interface CollapsibleItem {
@@ -20,13 +20,15 @@ export function DomainCollapsibleList() {
 
   const [openIndex, setOpenIndex] = useState<number>(-1);
 
+  const [filteredItems, setFilteredItems] = useState<CollapsibleItem[]>();
+
   const handleToggle = (index: number) => {
     setOpenIndex(openIndex === index ? -1 : index);
   };
 
   useEffect(() => {
-    setOpenIndex(
-      collapsibleItems.findIndex(
+    setFilteredItems(
+      collapsibleItems.filter(
         (item) => item.domain.name === selectedDomainCtx?.selectedDomain?.name
       )
     );
@@ -40,7 +42,7 @@ export function DomainCollapsibleList() {
       )}
     >
       {selectedDomainCtx?.selectedDomain &&
-        collapsibleItems?.map((item, index) => (
+        filteredItems?.map((item, index) => (
           <DomainCollapsible
             key={index}
             icon={<IconWrapper backColor={item.color}>{item.icon}</IconWrapper>}

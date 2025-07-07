@@ -17,16 +17,22 @@ export function Partners() {
       opts={{
         align: "start",
       }}
-      className="w-full max-w-fit"
+      className="w-full"
     >
-      <ETMCarousel.CarouselContent className="">
+      <ETMCarousel.CarouselContent className="w-screen">
         {PartnersImages.map((img, index) => (
           <ETMCarousel.CarouselItem
             key={index}
-            className="md:basis-1/2 lg:basis-1/4 xl:basis-1/5"
+            className="md:basis-1/2 lg:basis-1/4 xl:basis-1/6"
           >
             <div className="flex items-center justify-center h-32 w-full">
-              <div className="w-24 h-24 rounded-lg relative">
+              <div
+                className="rounded-lg relative"
+                style={{
+                  width: img.width,
+                  height: img.height,
+                }}
+              >
                 <Image
                   key={index}
                   src={img.src}

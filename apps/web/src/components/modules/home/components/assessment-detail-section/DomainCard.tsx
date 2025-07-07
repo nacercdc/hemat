@@ -38,11 +38,14 @@ export function DomainCard({ domainType, icon, name, result }: Props) {
         );
       }}
       className={cn(
-        "flex gap-2 rounded-md bg-white min-w-72 h-28 p-4 cursor-pointer",
+        "flex gap-2 rounded-md bg-white min-w-80 max-w-min h-28 p-4 cursor-pointer",
         domainType === "summary" && "border-t-2",
         domainType === "single" && "border-l-2"
       )}
-      style={{ borderColor: `${ScalesMap[result]?.color}` }}
+      style={{
+        borderColor: `${ScalesMap[result]?.color}`,
+        backgroundColor: `${selectedDomainCtx?.selectedDomain?.name === name ? `${ScalesMap[result]?.color}30` : "#fff"}`,
+      }}
     >
       {domainType !== "summary" && icon}
       <div className="flex flex-col justify-between gap-2 w-full">

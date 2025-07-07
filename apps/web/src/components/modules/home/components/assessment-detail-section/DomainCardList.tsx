@@ -13,7 +13,7 @@ export interface DomainScore {
 
 export function DomainCardList() {
   return (
-    <div className="flex overflow-x-auto gap-4">
+    <div className="flex justify-between overflow-x-auto gap-4">
       {domainScores.map(({ name, result, type, icon }) => (
         <DomainCard
           key={name}

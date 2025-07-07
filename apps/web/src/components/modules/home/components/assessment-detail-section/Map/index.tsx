@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -10,32 +11,61 @@ import {
 } from "react-simple-maps";
 import { geoCentroid } from "d3-geo";
 import africa from "./africa.geo.json";
-import { Button, Select, Tooltip } from "@etm/web-ui-components";
-import { SelectGroup } from "@etm/web-ui-components/shadcn-ui/select";
+import { Select, Tooltip } from "@etm/web-ui-components";
 import { cn } from "~/utils/cn.util";
-import { AssessmentStatus } from "~/libs/models/assessment-component.model";
+import type { AssessmentStatus } from "~/libs/models/assessment-component.model";
 
 interface Country {
   name: string;
   center: [number, number];
 }
 
-const colorMap: Record<string, string> = {
-  Ethiopia: "#ff00ff",
+const colorMap: Record<AssessmentStatus, string> = {
+  Completed: "#49B773",
+  "In Progress": "#4E8EC9",
+  Planned: "#EEDD6A",
+  "Not Yet Assessed": "#FF0101",
 };
 
-// TODO: Replace with real API call
+const regionOptions: {
+  id: "Northern" | "Eastern" | "Western" | "Southern" | "Middle";
+  name: string;
+}[] = [
+  { id: "Northern", name: "North" },
+  { id: "Eastern", name: "East" },
+  { id: "Western", name: "West" },
+  { id: "Southern", name: "South" },
+  { id: "Middle", name: "Central" },
+];
+
+const progressStatusOptions: {
+  id: AssessmentStatus;
+  name: AssessmentStatus;
+}[] = [
+  { id: "Completed", name: "Completed" },
+  { id: "In Progress", name: "In Progress" },
+  { id: "Not Yet Assessed", name: "Not Yet Assessed" },
+  { id: "Planned", name: "Planned" },
+];
+
+// TODO: To be replaced with real data from API call
 const fetchedAssessmentData: Record<
   string,
   { progress: AssessmentStatus; color: string }
 > = {
-  Ethiopia: { progress: "Completed", color: "#49B773" },
-  Egypt: { progress: "Completed", color: "#49B773" },
-  Kenya: { progress: "In Progress", color: "#4E8EC9" },
-  Chad: { progress: "Planned", color: "#EEDD6A" },
-  Sudan: { progress: "Planned", color: "#EEDD6A" },
-  "South Africa": { progress: "Not Yet Assessed", color: "#FF0101" },
+  Ethiopia: { progress: "Completed", color: colorMap.Completed },
+  Egypt: { progress: "Completed", color: colorMap.Completed },
+  Kenya: { progress: "In Progress", color: colorMap["In Progress"] },
+  Chad: { progress: "Planned", color: colorMap.Planned },
+  Sudan: { progress: "Planned", color: colorMap.Planned },
+  "South Africa": {
+    progress: "Not Yet Assessed",
+    color: colorMap["Not Yet Assessed"],
+  },
 };
+
+type ProgressStatus = (typeof progressStatusOptions)[number];
+type Region = (typeof regionOptions)[number];
 
 export const Map = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -47,16 +77,34 @@ export const Map = () => {
     zoom: number;
   }>({
     coordinates: [0, 0],
-    zoom: 2,
+    zoom: 3,
   });
 
   const [countries, setCountries] = useState<Country[]>([]);
 
   const [selectedCountry, setSelectedCountry] = useState<Country>();
 
-  const getColor = (name: string) => {
-    if (fetchedAssessmentData[name]) {
+  const [selectedRegion, setSelectedRegion] = useState<Region>();
+
+  const [selectedStatus, setSelectedStatus] = useState<ProgressStatus>();
+
+  const getColor = (name: string, region: string) => {
+    if (fetchedAssessmentData[name] && selectedRegion) {
+      const formattedRegion = `${selectedRegion.id} Africa`;
+
+      if (region !== formattedRegion) {
+        return "#DDD";
+      }
+    }
+
+    if (fetchedAssessmentData[name] && !selectedStatus) {
       return fetchedAssessmentData[name]?.color;
+    }
+
+    if (fetchedAssessmentData[name] && selectedStatus) {
+      return selectedStatus.name === fetchedAssessmentData[name].progress
+        ? fetchedAssessmentData[name]?.color
+        : "#DDD";
     }
     return "#DDD";
   };
@@ -79,19 +127,36 @@ export const Map = () => {
     }
   };
 
-  const handleZoomIn = () => {
+  const onStatusSelectHandler = (v: ProgressStatus | undefined) => {
+    setSelectedStatus(v);
+  };
+
+  const onRegionSelectHandler = (v: Region | undefined) => {
+    setSelectedRegion(v);
+  };
+
+  const onZoomInHandler = () => {
     if (position.zoom >= 10) return;
     setPosition((pos) => ({ ...pos, zoom: pos.zoom * 1.5 }));
   };
 
-  const handleZoomOut = () => {
+  const onZoomOutHandler = () => {
     if (position.zoom <= 2) return;
     setPosition((pos) => ({ ...pos, zoom: pos.zoom / 1.5 }));
   };
 
-  const handleMoveEnd = (pos) => {
+  const onMoveEndHandler = (
+    pos: React.SetStateAction<{ coordinates: [number, number]; zoom: number }>
+  ) => {
     setPosition(pos);
     setIsDragging(false);
+  };
+
+  const onResetZoomHandler = () => {
+    setPosition({
+      coordinates: [0, 0],
+      zoom: 3,
+    });
   };
 
   useEffect(() => {
@@ -111,7 +176,12 @@ export const Map = () => {
   }
 
   return (
-    <div className="relative h-[600px]">
+    <div
+      className="relative h-[600px] overflow-x-auto"
+      style={{
+        backgroundImage: "radial-gradient(circle, #fff, #FAF5D450)",
+      }}
+    >
       <ComposableMap
         projection="geoMercator"
         onDragStart={() => setIsDragging(true)}
@@ -125,8 +195,8 @@ export const Map = () => {
           zoom={position.zoom}
           center={position.coordinates}
           onMoveStart={() => setIsDragging(true)}
-          onMoveEnd={handleMoveEnd}
-          minZoom={2}
+          onMoveEnd={onMoveEndHandler}
+          minZoom={3}
           maxZoom={10}
         >
           <Geographies geography={africa}>
@@ -141,14 +211,18 @@ export const Map = () => {
                     .filter(
                       (geo) => geo.properties.name !== selectedCountry?.name
                     )
-                    .map((geo) => (
+                    .map((geo, index) => (
                       <Tooltip
+                        key={index}
                         color="dark"
                         trigger={
                           <Geography
                             key={geo.rsmKey}
                             geography={geo}
-                            fill={getColor(geo.properties.name)}
+                            fill={getColor(
+                              geo.properties.name,
+                              geo.properties.subregion
+                            )}
                             stroke="#FFF"
                           />
                         }
@@ -160,7 +234,10 @@ export const Map = () => {
                     <Geography
                       key={selectedGeo.rsmKey}
                       geography={selectedGeo}
-                      fill={getColor(selectedGeo.properties.name)}
+                      fill={getColor(
+                        selectedGeo.properties.name,
+                        selectedGeo.properties.subregion
+                      )}
                       stroke="#ffff00"
                       strokeWidth={1}
                       style={{
@@ -177,7 +254,8 @@ export const Map = () => {
           </Geographies>
         </ZoomableGroup>
       </ComposableMap>
-      <div className="w-64 mb-4 absolute top-10 left-10 z-20">
+      {/* Filter Section */}
+      <div className="w-64 mb-4 absolute top-10 left-10 2xl:left-48 z-20">
         <Select<Country>
           options={countries}
           onSelect={(c) => handleSelect(c?.name)}
@@ -187,13 +265,75 @@ export const Map = () => {
           placeholder="Select by Country"
         />
       </div>
-      <div className="flex flex-col absolute top-1/2 left-10 -translate-y-1/2 w-fit gap-2 z-20">
-        <Button onClick={handleZoomIn} variant={"outline"}>
+      <div className="w-64 mb-4 absolute top-24 lg:top-10 right-80 left-10 lg:left-auto z-20 flex gap-4">
+        <Select<Region>
+          options={regionOptions}
+          onSelect={(r) => onRegionSelectHandler(r)}
+          labelKey="name"
+          valueKey="name"
+          value={selectedRegion}
+          placeholder="Filter by Regional Centers"
+        />
+        <Select<ProgressStatus>
+          options={progressStatusOptions}
+          onSelect={(s) => onStatusSelectHandler(s)}
+          labelKey="id"
+          valueKey="name"
+          value={selectedStatus}
+          placeholder="Filter by Status"
+        />
+      </div>
+      {/* Controls Section */}
+      <div className="flex flex-col absolute top-1/2 left-10 lg:left-auto lg:right-48 -translate-y-1/2 w-fit gap-2 z-20">
+        <button
+          onClick={onZoomInHandler}
+          className="w-8 h-8 bg-white border-basic-300 border-[1px] flex justify-center items-center rounded-md"
+        >
           <Icon icon="lucide:plus" />
-        </Button>
-        <Button onClick={handleZoomOut} variant={"outline"}>
+        </button>
+        <button
+          onClick={onZoomOutHandler}
+          className="w-8 h-8 bg-white border-basic-300 border-[1px] flex justify-center items-center rounded-md"
+        >
           <Icon icon="lucide:minus" />
-        </Button>
+        </button>
+        <button
+          onClick={onResetZoomHandler}
+          className="w-8 h-8 bg-white border-basic-300 border-[1px] flex justify-center items-center rounded-md"
+        >
+          <Icon icon="ion:refresh-outline" />
+        </button>
+      </div>
+      {/* Legend Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 absolute left-10 2xl:left-48 bottom-20">
+        <div className="flex items-center gap-2">
+          <div
+            className="w-6 h-6 rounded-md"
+            style={{ backgroundColor: `${colorMap.Completed}` }}
+          ></div>
+          <span className="text-sm font-bold">Completed</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div
+            className="w-6 h-6 rounded-md"
+            style={{ backgroundColor: `${colorMap.Planned}` }}
+          ></div>
+          <span className="text-sm font-bold">Planned</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div
+            className="w-6 h-6 rounded-md"
+            style={{ backgroundColor: `${colorMap["In Progress"]}` }}
+          ></div>
+          <span className="text-sm font-bold">In Progress</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div
+            className="w-6 h-6 rounded-md"
+            style={{ backgroundColor: `${colorMap["Not Yet Assessed"]}` }}
+          ></div>
+          <span className="text-sm font-bold">Not Yet Assessed</span>
+        </div>
       </div>
     </div>
   );
