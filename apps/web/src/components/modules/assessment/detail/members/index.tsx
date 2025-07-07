@@ -1,16 +1,15 @@
 import { SecondaryTabs } from "@etm/web-ui-components";
-import SubComponents from "../settings/components/tabs/subComponents";
-import MeasurementScales from "../settings/components/tabs/measurement-scales";
 import { SendInvitation } from "./components/SendInvitation";
+import AssessmentGroups from "./components/AssessmentGroups";
 
 export function MemberInvitation() {
   return (
     <SecondaryTabs
       options={[
         {
-          value: "subComponents",
+          value: "participants",
           label: "Participants ",
-          content: <SendInvitation />,
+          content: <AssessmentGroups />,
         },
         {
           value: "send-invitation",
@@ -18,7 +17,7 @@ export function MemberInvitation() {
           content: <SendInvitation />,
         },
       ]}
-      defaultValue="domain"
+      defaultValue="participants"
     />
   );
 }

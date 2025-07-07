@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { z } from "zod";
 import type { ModalRef } from "@etm/web-ui-components";
-import { Button, Input } from "@etm/web-ui-components";
+import { Button, Input, useToast } from "@etm/web-ui-components";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MemberRoleCard from "../../components/MemberRoleCard";
@@ -12,6 +12,8 @@ import MemberInfo from "./MemberInfo";
 import MemberAction from "./MemberAction";
 import { useParams } from "next/navigation";
 import { Modal } from "@etm/web-ui-components";
+import { MemberInvitation } from "~/libs/models/assessment-member.model";
+import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 
 const addAssessmentInvitationSchema = z.object({
   email: z
@@ -25,13 +27,13 @@ export type AddAssessmentInvitationFormData = z.infer<
 >;
 
 export function SendInvitation() {
-  const sendInvitationModalRef = useRef<ModalRef>(null);
-  const openInvitationModal = () => sendInvitationModalRef.current?.openModal();
-  // const onCancelScaleFormHandler = () =>
-  //   sendInvitationModalRef.current?.closeModal();
   const [emails, setEmails] = useState<string[]>([]);
   const params = useParams();
+  const { toast } = useToast();
   const assessmentId = params.id;
+  const sendInvitationModalRef = useRef<ModalRef>(null);
+  const openInvitationModal = () => sendInvitationModalRef.current?.openModal();
+
   const {
     control,
     getValues,
@@ -60,12 +62,30 @@ export function SendInvitation() {
     setEmails((prev) => prev.filter((e) => e !== email));
   };
 
-  const onSubmitHandler = () => {
+  const { mutate: sendInvitation, ...sendInvitationState } =
+    useAddMutation<MemberInvitation>(`assessments/${assessmentId}/invitations`);
+
+  const onInvitationSubmitHandler = () => {
     if (emails.length === 0) return;
-    //TODO: send Invitation with assessment Id
-    console.log(emails);
-    console.log("ASSESSMENT ID", assessmentId);
     setEmails([]);
+    sendInvitation(
+      {
+        data: {
+          email: emails,
+          assessment_id: assessmentId as string,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            message: "Invitation have been sent successfully",
+            variant: "success",
+          });
+          sendInvitationModalRef.current?.closeModal();
+        },
+      }
+    );
   };
 
   return (
@@ -130,15 +150,18 @@ export function SendInvitation() {
         />
       </div>
       <Modal ref={sendInvitationModalRef}>
-        <div className="flex flex-col gap-4 items-center p-10">
-          <div>Invitation successfully have been sent to every member</div>
-          <div>
-            {" "}
-            <Icon icon={"material-symbols:add"} className="!w-5 !h-5" />
+        <div className="flex flex-col gap-4 items-center p-4">
+          <div className="w-fit bg-primary-50 flex items-center p-4 rounded-full">
+            <Icon
+              icon={"material-symbols:forward-to-inbox-outline-rounded"}
+              className="!w-8 !h-8 text-primary-300"
+            />
           </div>
+          <div>Invitation successfully have been sent to every member</div>
+
           <div>
-            <Button type="submit" size="lg" onClick={onSubmitHandler}>
-              Ok
+            <Button type="submit" size="lg" onClick={onInvitationSubmitHandler}>
+              Send Invitation
             </Button>
           </div>
         </div>

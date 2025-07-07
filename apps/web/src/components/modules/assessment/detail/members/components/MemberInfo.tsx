@@ -20,7 +20,7 @@ export default function MemberInfo({ name, email, avatarUrl }: Props) {
         />
         <div className="flex flex-col text-xs  items-center">
           {name && <span className="font-bold">{name}</span>}
-          {email && <span className="flex items-center">{email}</span>}
+          {email && <span className="flex ">{email}</span>}
         </div>
       </div>
     </div>
