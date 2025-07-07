@@ -160,7 +160,9 @@ export class AssessmentAnswerService {
           throw new ForbiddenException('Your group does not exist');
         }
         if (!group.domains || group.domains.length === 0) {
-          throw new ForbiddenException('Your group does not have any domains assigned. Please contact your administrator.');
+          throw new ForbiddenException(
+            'Your group does not have any domains assigned',
+          );
         }
         allowedDomainIds = group.domains.map((d: AssessmentDomain) => d.id);
         if (!allowedDomainIds.includes(component.domainId)) {
