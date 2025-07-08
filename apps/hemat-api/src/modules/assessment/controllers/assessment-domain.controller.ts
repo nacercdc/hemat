@@ -328,12 +328,13 @@ export class AssessmentDomainController {
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('domainId', new ParseUUIDPipe()) domainId: string,
+    @Query('language') language?: string,
   ) {
     const { isAdmin, assessmentRole, assessmentGroupId } = user;
 
     if (isAdmin || assessmentRole === MemberRole.PRIMARY) {
       // Admin and Primary see all
-      return this.assessmentDomainService.getDomainWithAnswers(assessmentId, domainId);
+      return this.assessmentDomainService.getDomainWithAnswers(assessmentId, domainId, language);
     }
 
     if (
@@ -344,7 +345,8 @@ export class AssessmentDomainController {
       return this.assessmentDomainService.getDomainWithAnswersByGroup(
         assessmentId,
         domainId,
-        assessmentGroupId
+        assessmentGroupId,
+        language
       );
     }
 
@@ -374,10 +376,11 @@ export class AssessmentDomainController {
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('domainId', new ParseUUIDPipe()) domainId: string,
+    @Query('language') language?: string,
   ) {
     const { isAdmin, assessmentRole } = user;
     if (isAdmin || assessmentRole) {
-      return this.assessmentDomainService.getDomainWithPrimaryAnswers(assessmentId, domainId);
+      return this.assessmentDomainService.getDomainWithPrimaryAnswers(assessmentId, domainId, language);
     }
     throw new ForbiddenException('You do not have access to primary answers');
   }
