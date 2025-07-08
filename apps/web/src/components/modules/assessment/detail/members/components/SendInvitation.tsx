@@ -29,8 +29,8 @@ export type AddAssessmentInvitationFormData = z.infer<
 export function SendInvitation() {
   const [emails, setEmails] = useState<string[]>([]);
   const params = useParams();
-  const { toast } = useToast();
   const assessmentId = params.id;
+  const { toast } = useToast();
   const sendInvitationModalRef = useRef<ModalRef>(null);
   const openInvitationModal = () => sendInvitationModalRef.current?.openModal();
 
@@ -50,7 +50,6 @@ export function SendInvitation() {
   const addEmail = async (): Promise<void> => {
     const isValid = await trigger("email");
     if (!isValid) return;
-
     const newEmail = getValues("email").trim().toLowerCase();
     if (newEmail && !emails.includes(newEmail)) {
       setEmails([...emails, newEmail]);
@@ -121,7 +120,11 @@ export function SendInvitation() {
               {emails.map((email) => (
                 <div key={email} className="flex justify-between">
                   <MemberInfo email={email} />
-                  <MemberAction id={email} refetch={() => removeEmail(email)} />
+                  <MemberAction
+                    id={email}
+                    refetch={() => removeEmail(email)}
+                    optionsList={["Remove", "Make Primary"]}
+                  />
                 </div>
               ))}
             </div>

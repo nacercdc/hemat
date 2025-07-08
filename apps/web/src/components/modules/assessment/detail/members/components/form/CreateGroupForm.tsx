@@ -37,7 +37,7 @@ const DummyMembers: Member[] = [
   },
 ];
 const fetchAssessmentMembers = (): Promise<Member[]> => {
-  // TODO: This function fetch invited user
+  //TODO: This function fetch invited user
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(DummyMembers);
