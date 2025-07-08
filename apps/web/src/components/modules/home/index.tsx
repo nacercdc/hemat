@@ -2,6 +2,7 @@ import React from "react";
 import { NavBar } from "./components/NavBar";
 import HeroSection from "./components/hero-section";
 import { AssessmentDetailSection } from "./components/assessment-detail-section";
+import AssessmentToolsSection from "./components/assessment-tools-section";
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
         <HeroSection />
       </div>
       <AssessmentDetailSection />
+      <AssessmentToolsSection />
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { Domains } from "../../constants";
 
 type Scales = "Initial" | "Developing" | "Defined" | "Managed" | "Optimized";
 
-const ScalesMap: Record<number, { label: Scales; color: string }> = {
+export const ScalesMap: Record<number, { label: Scales; color: string }> = {
   1: { label: "Initial", color: "#FF0101" },
   2: { label: "Developing", color: "#FFC000" },
   3: { label: "Defined", color: "#FFFD02" },
