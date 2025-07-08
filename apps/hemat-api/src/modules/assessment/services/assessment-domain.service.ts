@@ -6,15 +6,12 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository, IsNull, In } from 'typeorm';
+import { EntityManager, Repository} from 'typeorm';
 import {
   AssessmentComponent,
   AssessmentDomain,
   Domain,
   AssessmentMember,
-  Answer,
-  AssessmentSubComponent,
-  AssessmentSubComponentAnswer,
   Assessment,
 } from '@database/entities';
 import { UUID } from '@shared/helpers';
@@ -285,30 +282,6 @@ export class AssessmentDomainService {
     return answerQuery.execute() as Promise<GroupDomainAnswerCount[]>;
   }
 
-  // Helper: Ensure all groups with attached domains are present in the result
-  private async ensureAllGroupsPresent(
-    assessmentId: string,
-    groupMap: Map<string, AssessmentGroupProgress>,
-  ): Promise<void> {
-    const allGroups = await this.assessmentRepository.manager.getRepository('AssessmentGroup').find({
-      where: { assessmentId },
-      relations: ['domains'],
-    });
-    for (const group of allGroups) {
-      if (!groupMap.has(group.id) && group.domains && group.domains.length > 0) {
-        groupMap.set(group.id, {
-          id: group.id,
-          name: group.name,
-          domains: group.domains.map((domain: AssessmentDomain) => ({
-            id: domain.id,
-            name: domain.name,
-            percentage: 0,
-          })),
-        });
-      }
-    }
-  }
-
   async getProgress(
     assessmentId: string,
     userId: string,
@@ -507,7 +480,8 @@ export class AssessmentDomainService {
   private async getDomainWithAnswersBase(
     assessmentId: string,
     domainId: string,
-    opts?: { groupId?: string; isPrimary?: boolean }
+    opts?: { groupId?: string; isPrimary?: boolean },
+    language: string = 'en',
   ) {
     const domainEntity = await this.findDomainOrThrow(assessmentId, domainId);
 
@@ -537,14 +511,22 @@ export class AssessmentDomainService {
     const rows = await query.getMany();
     const domain = rows.length > 0 ? rows[0] : domainEntity;
 
+    // Use translations if available
+    const getTranslated = (obj: any, key: string, fallback: string) => {
+      if (obj.translations && obj.translations[language] && obj.translations[language][key]) {
+        return obj.translations[language][key];
+      }
+      return fallback;
+    };
+
     return {
       id: domain.id,
-      name: domain.name,
-      description: domain.description,
+      name: getTranslated(domain, 'name', domain.name),
+      description: getTranslated(domain, 'description', domain.description),
       components: (domain.components || []).map((component) => ({
         id: component.id,
-        name: component.name,
-        description: component.description,
+        name: getTranslated(component, 'name', component.name),
+        description: getTranslated(component, 'description', component.description),
         subComponents: (Array.isArray(component.subComponents) ? component.subComponents : component.subComponents ? [component.subComponents] : []).map((subComponent) => {
           const answer = Array.isArray(subComponent.answers)
             ? subComponent.answers.find((a: any) =>
@@ -564,8 +546,8 @@ export class AssessmentDomainService {
           if (!answer)
             return {
               id: subComponent.id,
-              name: subComponent.name,
-              description: subComponent.description,
+              name: getTranslated(subComponent, 'name', subComponent.name),
+              description: getTranslated(subComponent, 'description', subComponent.description),
               answer: null,
             };
 
@@ -580,14 +562,16 @@ export class AssessmentDomainService {
 
           return {
             id: subComponent.id,
-            name: subComponent.name,
-            description: subComponent.description,
+            name: getTranslated(subComponent, 'name', subComponent.name),
+            description: getTranslated(subComponent, 'description', subComponent.description),
             answer: {
               id: answer.id,
               measurementScale: answer.measurementScale
                 ? {
                     id: answer.measurementScale.id,
-                    name: answer.measurementScale.name,
+                    name: answer.measurementScale.translations && answer.measurementScale.translations[language] && answer.measurementScale.translations[language].name
+                      ? answer.measurementScale.translations[language].name
+                      : answer.measurementScale.name,
                     rate: answer.measurementScale.rate,
                   }
                 : null,
@@ -602,16 +586,16 @@ export class AssessmentDomainService {
     };
   }
 
-  async getDomainWithAnswers(assessmentId: string, domainId: string) {
-    return this.getDomainWithAnswersBase(assessmentId, domainId);
+  async getDomainWithAnswers(assessmentId: string, domainId: string, language: string = 'en') {
+    return this.getDomainWithAnswersBase(assessmentId, domainId, undefined, language);
   }
 
-  async getDomainWithAnswersByGroup(assessmentId: string, domainId: string, groupId: string) {
-    return this.getDomainWithAnswersBase(assessmentId, domainId, { groupId });
+  async getDomainWithAnswersByGroup(assessmentId: string, domainId: string, groupId: string, language: string = 'en') {
+    return this.getDomainWithAnswersBase(assessmentId, domainId, { groupId }, language);
   }
 
-  async getDomainWithPrimaryAnswers(assessmentId: string, domainId: string) {
-    return this.getDomainWithAnswersBase(assessmentId, domainId, { isPrimary: true });
+  async getDomainWithPrimaryAnswers(assessmentId: string, domainId: string, language: string = 'en') {
+    return this.getDomainWithAnswersBase(assessmentId, domainId, { isPrimary: true }, language);
   }
 
   /**

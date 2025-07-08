@@ -39,3 +39,9 @@ export interface ProgressQueryOptions {
   includePrimary?: boolean;
   language?: string;
 }
+
+export interface RoadmapDomainProgress {
+  id: string;
+  name: string;
+  percentage: number;
+}
