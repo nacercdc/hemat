@@ -13,6 +13,8 @@ import {
   Answer,
   AssessmentMeasurementScale,
   Assessment,
+  AssessmentDomain,
+  AssessmentComponent,
 } from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
@@ -25,6 +27,7 @@ import {
   FindAllRoadmapDto,
   FindOneRoadmapDto,
 } from '../dtos';
+import { RoadmapDomainProgress } from '../types/assessment-progress.type';
 
 @Injectable()
 export class AssessmentRoadmapService {
@@ -349,5 +352,67 @@ export class AssessmentRoadmapService {
     ) {
       throw new NotFoundException('Assessment not found');
     }
+  }
+
+  /**
+   * Get roadmap progress per domain for the primary roadmap of an assessment
+   */
+  async getProgress(
+    assessmentId: string,
+    userId: string,
+    language: string = 'en',
+  ): Promise<RoadmapDomainProgress[]> {
+    const roadmap = await this.roadmapRepository.findOne({
+      where: { assessmentId, userId, isPrimary: true },
+    });
+
+    // Get all domains for the assessment
+    const domains: { id: string; name: string; subComponentCount: number }[] = await this.dataSource
+      .getRepository(AssessmentDomain)
+      .createQueryBuilder('domain')
+      .where('domain.assessmentId = :assessmentId', { assessmentId })
+      .leftJoin('domain.components', 'component')
+      .leftJoin('component.subComponents', 'subComponent')
+      .select('domain.id', 'id')
+      .addSelect(
+        `COALESCE(domain.translations->'${language}'->>'name', domain.name)`,
+        'name',
+      )
+      .addSelect('COUNT(subComponent.id)::int', 'subComponentCount')
+      .groupBy('domain.id')
+      .addGroupBy('domain.name')
+      .addGroupBy('domain.translations')
+      .getRawMany();
+
+    let filledMap = new Map<string, number>();
+    if (roadmap) {
+      // Get all subcomponent roadmap entries for this roadmap
+      const subComponentRoadmaps = await this.dataSource
+        .getRepository(AssessmentSubComponentRoadmap)
+        .createQueryBuilder('scr')
+        .leftJoin('scr.subComponent', 'subComponent')
+        .leftJoin('subComponent.component', 'component')
+        .where('scr.roadmapId = :roadmapId', { roadmapId: roadmap.id })
+        .select('component.domainId', 'domainId')
+        .addSelect('COUNT(scr.id)::int', 'filledCount')
+        .groupBy('component.domainId')
+        .getRawMany();
+
+      filledMap = new Map<string, number>();
+      for (const row of subComponentRoadmaps) {
+        filledMap.set(row.domainId, Number(row.filledCount));
+      }
+    }
+
+    // Build progress per domain
+    return domains.map((domain) => {
+      const filled = filledMap.get(domain.id) || 0;
+      const percentage = domain.subComponentCount > 0 ? (filled * 100) / domain.subComponentCount : 0;
+      return {
+        id: domain.id,
+        name: domain.name,
+        percentage,
+      };
+    });
   }
 }
