@@ -182,6 +182,35 @@ export class AssessmentSubComponentController {
   }
 
   @ApiOperation({
+    summary: 'Get all primary answers for all sub-components in an assessment',
+    description:
+      'Retrieve all primary answers (isPrimary = true) for all sub-components in the assessment. Accessible by any assessment member.',
+  })
+  @ApiOkResponse({ description: 'Ok', type: [AssessmentSubComponentAnswer] })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT_ANSWER,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @UseGuards(AssessmentRoleGuard)
+  @Get('primary-answers')
+  async findAllPrimaryAnswers(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+  ): Promise<AssessmentSubComponentAnswer[]> {
+    return this.assessmentSubComponentService.findAllPrimaryAnswers(
+      assessmentId,
+    );
+  }
+
+  @ApiOperation({
     summary: 'Get a single assessment sub-component',
     description:
       'Retrieve a single sub-component by ID for a specific assessment',

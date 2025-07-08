@@ -257,4 +257,17 @@ export class AssessmentSubComponentService {
     }
     return { ids, latest: latestResult };
   }
+
+  async findAllPrimaryAnswers(
+    assessmentId: string,
+  ): Promise<AssessmentSubComponentAnswer[]> {
+    return this.subComponentAnswerRepository
+      .createQueryBuilder('sca')
+      .innerJoin('sca.answer', 'answer')
+      .where('answer.assessmentId = :assessmentId', { assessmentId })
+      .andWhere('answer.isPrimary = :isPrimary', { isPrimary: true })
+      .andWhere('sca.deletedAt IS NULL')
+      .andWhere('answer.deletedAt IS NULL')
+      .getMany();
+  }
 }
