@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Support, SupportReply } from '@database/entities';
+import { Support, SupportReply, User } from '@database/entities';
 import { SupportService } from './services/support.service';
 import { SupportController } from './controllers/support.controller';
+import { AuthModule } from '@shared/modules';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Support, SupportReply])],
-  providers: [SupportService],
+  imports: [
+    TypeOrmModule.forFeature([User, Support, SupportReply]),
+    AuthModule,
+  ],
   controllers: [SupportController],
-  exports: [SupportService],
+  providers: [SupportService],
 })
 export class SupportModule {} 

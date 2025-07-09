@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1751955654296 implements MigrationInterface {
-    name = 'Migration1751955654296'
+export class Migration1752064552923 implements MigrationInterface {
+    name = 'Migration1752064552923'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "comments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" character varying NOT NULL, "comment" text NOT NULL, "responseId" uuid NOT NULL, CONSTRAINT "PK_8bf68bc960f2b69e818bdb90dcb" PRIMARY KEY ("id"))`);
@@ -80,9 +80,9 @@ export class Migration1751955654296 implements MigrationInterface {
         await queryRunner.query(`CREATE TYPE "public"."support_replies_visibility_enum" AS ENUM('public', 'internal')`);
         await queryRunner.query(`CREATE TYPE "public"."support_replies_priority_enum" AS ENUM('low', 'normal', 'high')`);
         await queryRunner.query(`CREATE TYPE "public"."support_replies_status_enum" AS ENUM('open', 'processing', 'close')`);
-        await queryRunner.query(`CREATE TABLE "support_replies" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "description" text NOT NULL, "visibility" "public"."support_replies_visibility_enum" NOT NULL DEFAULT 'public', "priority" "public"."support_replies_priority_enum" NOT NULL DEFAULT 'normal', "status" "public"."support_replies_status_enum" NOT NULL DEFAULT 'open', "supportId" uuid NOT NULL, "repliedById" uuid NOT NULL, CONSTRAINT "PK_203c1208336ab63897e4eba3f5e" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "support_replies" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "description" text NOT NULL, "visibility" "public"."support_replies_visibility_enum" NOT NULL DEFAULT 'public', "priority" "public"."support_replies_priority_enum" NOT NULL DEFAULT 'normal', "status" "public"."support_replies_status_enum" NOT NULL DEFAULT 'open', "supportId" uuid NOT NULL, "repliedById" uuid NOT NULL, CONSTRAINT "PK_203c1208336ab63897e4eba3f5e" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TYPE "public"."supports_status_enum" AS ENUM('open', 'processing', 'close')`);
-        await queryRunner.query(`CREATE TABLE "supports" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "title" character varying(255) NOT NULL, "description" text NOT NULL, "status" "public"."supports_status_enum" NOT NULL DEFAULT 'open', "issuedById" uuid NOT NULL, CONSTRAINT "PK_d8c2a7cbebc6494f00dda770105" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "supports" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "title" character varying(255) NOT NULL, "description" text NOT NULL, "status" "public"."supports_status_enum" NOT NULL DEFAULT 'open', "issuedById" uuid NOT NULL, CONSTRAINT "PK_d8c2a7cbebc6494f00dda770105" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "permissions_users_users" ("permissionsId" uuid NOT NULL, "usersId" uuid NOT NULL, CONSTRAINT "PK_9afd76fbb1b7b9e72bcfb72e957" PRIMARY KEY ("permissionsId", "usersId"))`);
         await queryRunner.query(`CREATE INDEX "IDX_28ed803df963293de68d58e191" ON "permissions_users_users" ("permissionsId") `);
         await queryRunner.query(`CREATE INDEX "IDX_79318fb026bf8e2a19a5f64d41" ON "permissions_users_users" ("usersId") `);

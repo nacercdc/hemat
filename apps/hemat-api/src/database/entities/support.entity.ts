@@ -1,12 +1,12 @@
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { BaseEntityWithTimestamp } from './entity';
+import { BaseEntityWithSoftDelete } from './entity';
 import { User } from './user.entity';
 import { SupportStatusEnum } from '@shared/enums';
 import { SupportReply } from './support-reply.entity';
 
 @Entity('supports')
-export class Support extends BaseEntityWithTimestamp {
+export class Support extends BaseEntityWithSoftDelete {
   @ApiProperty({ description: 'Support ticket title', example: 'Cannot login' })
   @Column({ type: String, length: 255 })
   title: string;

@@ -231,7 +231,7 @@ export class UserService {
 
     await this.userRepository
       .update(account.id, {
-        // refreshToken: result.refreshToken,
+        refreshToken: result.refreshToken,
         lastLoggedInAt: new Date(),
       })
       .catch((err) => {

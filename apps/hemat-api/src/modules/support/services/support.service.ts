@@ -1,113 +1,198 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Support, SupportReply, User } from '@database/entities';
 import {
-  SupportCreateRequestDto,
-  SupportReplyCreateRequestDto,
-  SupportResponseDto,
-  SupportReplyResponseDto,
-} from '../dtos';
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { Support, SupportReply, User } from '@database/entities';
+import { QueryService } from '@shared/services';
+import { SupportCreateRequestDto, SupportReplyCreateRequestDto } from '../dtos';
+import { SupportQueryDto } from '../dtos/query-support.dto';
 import { SupportStatusEnum } from '@shared/enums';
+import { FindAllResponseDto } from '@shared/dtos';
+import { SupportVisibilityEnum } from '@shared/enums';
 
 @Injectable()
 export class SupportService {
+  private readonly logger = new Logger(SupportService.name);
+
   constructor(
     @InjectRepository(Support)
     private readonly supportRepository: Repository<Support>,
     @InjectRepository(SupportReply)
     private readonly supportReplyRepository: Repository<SupportReply>,
+    private readonly dataSource: DataSource,
   ) {}
 
-  async createSupport(dto: SupportCreateRequestDto, issuedBy: User): Promise<SupportResponseDto> {
-    const support = this.supportRepository.create({
-      title: dto.title,
-      description: dto.description,
-      issuedBy,
-      status: SupportStatusEnum.OPEN,
+  async findAll(query: SupportQueryDto): Promise<FindAllResponseDto<Support>> {
+    return new QueryService<Support>(this.supportRepository)
+      .join(query.include)
+      .filter([], { fields: ['title'], value: query.search })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
+  }
+
+  async findAllByUser(
+    userId: string,
+    query: SupportQueryDto,
+  ): Promise<FindAllResponseDto<Support>> {
+    return new QueryService<Support>(this.supportRepository)
+      .join(query.include)
+      .filter([{ field: 'issuedBy.id', operator: '=', value: userId }], {
+        fields: ['title', 'description'],
+        value: query.search,
+      })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
+  }
+
+  async findOne(id: string): Promise<Support> {
+    const support = await this.supportRepository.findOne({ where: { id } });
+    if (!support) throw new NotFoundException(`Support ${id} not found.`);
+    return support;
+  }
+
+  async create(dto: SupportCreateRequestDto, userId: string): Promise<Support> {
+    return this.dataSource.transaction(async (manager) => {
+      const userEntity = await manager
+        .getRepository(User)
+        .findOne({ where: { id: userId } });
+      if (!userEntity) throw new NotFoundException('User not found');
+      const support = manager.getRepository(Support).create({
+        title: dto.title,
+        description: dto.description,
+        issuedBy: userEntity,
+        status: SupportStatusEnum.OPEN,
+      });
+      try {
+        return await manager.getRepository(Support).save(support);
+      } catch (err) {
+        this.logger.error('create:', err);
+        throw new BadRequestException('Failed to create support ticket.');
+      }
     });
-    const saved = await this.supportRepository.save(support);
-    const entity = await this.getSupportEntityWithReplies(saved.id);
-    return this.toSupportResponseDto(entity);
+  }
+
+  async update(id: string, dto: SupportCreateRequestDto): Promise<Support> {
+    return this.dataSource.transaction(async (manager) => {
+      const support = await manager
+        .getRepository(Support)
+        .findOne({ where: { id } });
+      if (!support) throw new NotFoundException(`Support ${id} not found.`);
+      support.title = dto.title;
+      support.description = dto.description;
+      try {
+        return await manager.getRepository(Support).save(support);
+      } catch (err) {
+        this.logger.error('update:', err);
+        throw new BadRequestException('Failed to update support ticket.');
+      }
+    });
+  }
+
+  async delete(id: string): Promise<Support> {
+    return this.dataSource.transaction(async (manager) => {
+      const support = await manager
+        .getRepository(Support)
+        .findOne({ where: { id } });
+      if (!support) throw new NotFoundException(`Support ${id} not found.`);
+      try {
+        // Soft delete all replies for this support ticket
+        await manager.getRepository(SupportReply).softDelete({ support: { id } });
+        // Soft delete the support ticket
+        return await manager.getRepository(Support).softRemove(support);
+      } catch (err) {
+        this.logger.error('delete:', err);
+        throw new BadRequestException('Failed to delete support ticket.');
+      }
+    });
+  }
+
+  async restore(id: string): Promise<Support> {
+    return this.dataSource.transaction(async (manager) => {
+      const support = await manager
+        .getRepository(Support)
+        .findOne({ where: { id }, withDeleted: true });
+      if (!support) throw new NotFoundException(`Support ${id} not found.`);
+      try {
+        return await manager.getRepository(Support).recover(support);
+      } catch (err) {
+        this.logger.error('restore:', err);
+        throw new BadRequestException('Failed to restore support ticket.');
+      }
+    });
   }
 
   async replyToSupport(
     supportId: string,
     dto: SupportReplyCreateRequestDto,
-    repliedBy: User,
-  ): Promise<SupportReplyResponseDto> {
-    const support = await this.supportRepository.findOne({ where: { id: supportId } });
-    if (!support) throw new NotFoundException('Support ticket not found');
-    const reply = this.supportReplyRepository.create({
-      support,
-      repliedBy,
-      description: dto.description,
-      visibility: dto.visibility,
-      priority: dto.priority,
-      status: dto.status,
+    repliedById: string,
+  ): Promise<SupportReply> {
+    return this.dataSource.transaction(async (manager) => {
+      const support = await manager
+        .getRepository(Support)
+        .findOne({ where: { id: supportId } });
+      if (!support) throw new NotFoundException('Support ticket not found');
+      const userEntity = await manager
+        .getRepository(User)
+        .findOne({ where: { id: repliedById } });
+      if (!userEntity) throw new NotFoundException('User not found');
+      const reply = manager.getRepository(SupportReply).create({
+        support,
+        repliedBy: userEntity,
+        description: dto.description,
+        visibility: dto.visibility,
+        priority: dto.priority,
+        status: dto.status,
+      });
+      try {
+        return await manager.getRepository(SupportReply).save(reply);
+      } catch (err) {
+        this.logger.error('reply:', err);
+        throw new BadRequestException('Failed to create support reply.');
+      }
     });
-    const saved = await this.supportReplyRepository.save(reply);
-    return this.toSupportReplyResponseDto(saved);
   }
 
-  async getAllSupports(): Promise<SupportResponseDto[]> {
-    const supports = await this.supportRepository.find({ order: { createdAt: 'DESC' } });
-    return Promise.all(supports.map(async (s) => {
-      const entity = await this.getSupportEntityWithReplies(s.id);
-      return this.toSupportResponseDto(entity);
-    }));
+  async findAllReplies(query: SupportQueryDto): Promise<FindAllResponseDto<SupportReply>> {
+    // Admins see all replies (no filter on visibility)
+    return new QueryService<SupportReply>(this.supportReplyRepository)
+      .join(query.include)
+      .filter([], { fields: ['description'], value: query.search })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
-  async getSupportById(id: string): Promise<SupportResponseDto> {
-    const support = await this.getSupportEntityWithReplies(id);
-    if (!support) throw new NotFoundException('Support ticket not found');
-    return this.toSupportResponseDto(support);
+  async findAllRepliesByUser(userId: string, query: SupportQueryDto): Promise<FindAllResponseDto<SupportReply>> {
+    const qb = this.supportReplyRepository.createQueryBuilder('reply')
+      .leftJoinAndSelect('reply.support', 'support')
+      .where('support.issuedById = :userId', { userId })
+      .andWhere('reply.visibility = :visibility', { visibility: SupportVisibilityEnum.PUBLIC });
+
+    if (query.search) {
+      qb.andWhere('reply.description ILIKE :search', { search: `%${query.search}%` });
+    }
+    if (query.take) qb.take(query.take);
+    if (query.skip) qb.skip(query.skip);
+
+    const [data, count] = await qb.getManyAndCount();
+    return { data, total: count };
   }
 
-  async getAllSupportsByUser(userId: string): Promise<SupportResponseDto[]> {
-    const supports = await this.supportRepository.find({
-      where: { issuedBy: { id: userId } },
-      order: { createdAt: 'DESC' },
-    });
-    return Promise.all(supports.map(async (s) => {
-      const entity = await this.getSupportEntityWithReplies(s.id);
-      return this.toSupportResponseDto(entity);
-    }));
-  }
-
-  // --- Helpers ---
-  private async getSupportEntityWithReplies(id: string): Promise<Support> {
-    const support = await this.supportRepository.findOne({
+  async findOneReply(id: string): Promise<SupportReply> {
+    const reply = await this.supportReplyRepository.findOne({
       where: { id },
-      relations: ['issuedBy', 'replies', 'replies.repliedBy'],
-      order: { replies: { createdAt: 'ASC' } },
+      relations: ['support', 'support.issuedBy', 'repliedBy'],
     });
-    if (!support) throw new NotFoundException('Support ticket not found');
-    return support;
+    if (!reply) throw new NotFoundException(`Support reply ${id} not found.`);
+    return reply;
   }
-
-  private toSupportResponseDto(s: Support): SupportResponseDto {
-    return {
-      id: s.id,
-      title: s.title,
-      description: s.description,
-      issuedBy: s.issuedBy,
-      createdAt: s.createdAt,
-      status: s.status,
-      replies: (s.replies || []).map((r) => this.toSupportReplyResponseDto(r)),
-    };
-  }
-
-  private toSupportReplyResponseDto(reply: SupportReply): SupportReplyResponseDto {
-    return {
-      id: reply.id,
-      supportId: reply.support?.id,
-      repliedBy: reply.repliedBy,
-      description: reply.description,
-      createdAt: reply.createdAt,
-      visibility: reply.visibility,
-      priority: reply.priority,
-      status: reply.status,
-    };
-  }
-} 
+}
