@@ -41,7 +41,7 @@ export function OverallStats() {
   };
 
   return (
-    <div className="w-full flex justify-center">
+    <div className="w-full flex justify-center -mt-10">
       <div className="flex flex-col justify-between items-center gap-4 relative">
         <div
           className="relative flex items-center justify-center w-[600px] h-[600px]"
@@ -88,7 +88,7 @@ export function OverallStats() {
                 result: 3,
                 resultBg: "#FFFD02",
                 trigger: (
-                  <div className="absolute rounded-md w-[40px] h-[30px] bg-[#FFFD02] border-white/85 -top-[15px] left-0 right-0 mx-auto text-lg font-bold flex items-center justify-center text-dark z-20">
+                  <div className="absolute rounded-md w-8 h-6 bg-[#FFFD02] border-white/85 -top-[15px] left-0 right-0 mx-auto text-lg font-bold flex items-center justify-center text-dark z-20">
                     3
                   </div>
                 ),
@@ -98,7 +98,7 @@ export function OverallStats() {
                 result: 4,
                 resultBg: "#00B0F0",
                 trigger: (
-                  <div className="absolute rounded-md w-[40px] h-[30px] bg-[#00B0F0] border-white/85 -bottom-[15px] left-0 right-0 mx-auto text-lg font-bold flex items-center justify-center text-white z-20">
+                  <div className="absolute rounded-md w-8 h-6 bg-[#00B0F0] border-white/85 -bottom-[10px] left-0 right-0 mx-auto text-lg font-bold flex items-center justify-center text-white z-20">
                     4
                   </div>
                 ),
@@ -143,7 +143,7 @@ export function OverallStats() {
                 result: 5,
                 resultBg: "#11B050",
                 trigger: (
-                  <div className="absolute rounded-md w-[40px] h-[30px] bg-[#11B050] border-white/85 top-[30%] -left-[8px] text-lg font-bold flex items-center justify-center text-dark z-20">
+                  <div className="absolute rounded-md w-8 h-6 bg-[#11B050] border-white/85 top-[30%] -left-[8px] text-lg font-bold flex items-center justify-center text-dark z-20">
                     5
                   </div>
                 ),
@@ -188,7 +188,7 @@ export function OverallStats() {
                 result: 2,
                 resultBg: "#FFC000",
                 trigger: (
-                  <div className="absolute rounded-md w-[40px] h-[30px] bg-[#FFC000] border-white/85 top-[50%] -right-[10px] text-lg font-bold flex items-center justify-center text-white z-20">
+                  <div className="absolute rounded-md w-8 h-6 bg-[#FFC000] border-white/85 top-[50%] -right-[10px] text-lg font-bold flex items-center justify-center text-white z-20">
                     2
                   </div>
                 ),

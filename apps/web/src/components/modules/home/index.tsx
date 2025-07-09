@@ -1,8 +1,11 @@
+"use client";
+
 import React from "react";
-import { NavBar } from "./components/NavBar";
-import HeroSection from "./components/hero-section";
-import { AssessmentDetailSection } from "./components/assessment-detail-section";
 import AssessmentToolsSection from "./components/assessment-tools-section";
+import HeroSection from "./components/hero-section";
+import { NavBar } from "./components/NavBar";
+import { AssessmentDetailSection } from "./components/assessment-detail-section";
+import { FooterSection } from "./components/footer-section";
 
 export default function Home() {
   return (
@@ -13,6 +16,7 @@ export default function Home() {
       </div>
       <AssessmentDetailSection />
       <AssessmentToolsSection />
+      <FooterSection />
     </div>
   );
 }

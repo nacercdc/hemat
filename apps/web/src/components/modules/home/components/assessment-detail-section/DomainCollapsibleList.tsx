@@ -37,7 +37,7 @@ export function DomainCollapsibleList() {
   return (
     <div
       className={cn(
-        "px-40 2xl:px-52 pr-52 2xl:pr-64 w-full bg-[#FAFAFA]",
+        "px-16 2xl:px-52 pr-24 2xl:pr-64 w-full bg-[#FAFAFA]",
         !selectedDomainCtx?.selectedDomain && "hidden"
       )}
     >

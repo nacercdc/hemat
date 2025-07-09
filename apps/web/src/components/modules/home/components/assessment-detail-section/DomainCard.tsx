@@ -38,7 +38,7 @@ export function DomainCard({ domainType, icon, name, result }: Props) {
         );
       }}
       className={cn(
-        "flex gap-2 rounded-md bg-white min-w-80 max-w-min h-28 p-4 cursor-pointer",
+        "flex gap-2 rounded-md bg-white min-w-72 max-w-min h-28 p-4 cursor-pointer",
         domainType === "summary" && "border-t-2",
         domainType === "single" && "border-l-2"
       )}
