@@ -18,12 +18,13 @@ export function Partners() {
         align: "start",
       }}
       className="w-full"
+      id="partners"
     >
       <ETMCarousel.CarouselContent className="w-screen">
         {PartnersImages.map((img, index) => (
           <ETMCarousel.CarouselItem
             key={index}
-            className="md:basis-1/2 lg:basis-1/4 xl:basis-1/6"
+            className="md:basis-1/2 lg:basis-1/6 xl:basis-[18rem]"
           >
             <div className="flex items-center justify-center h-32 w-full">
               <div

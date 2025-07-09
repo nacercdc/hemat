@@ -177,6 +177,7 @@ export const Map = () => {
 
   return (
     <div
+      id="map"
       className="relative h-[600px] overflow-x-auto"
       style={{
         backgroundImage: "radial-gradient(circle, #fff, #FAF5D450)",
