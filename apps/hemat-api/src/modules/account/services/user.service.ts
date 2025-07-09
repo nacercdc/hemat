@@ -31,6 +31,7 @@ import {
   ChangePasswordRequestDto,
   RegisterRequestDto,
 } from '../dtos';
+import { Request } from 'express';
 
 @Injectable()
 export class UserService {
@@ -204,14 +205,29 @@ export class UserService {
     return new AccountResponseDto(account);
   }
 
-  public async refreshToken(auth: AuthDto): Promise<LoginResponseDto> {
-    const account = await this.findUserById(auth.id);
+  public async refreshToken(
+    req: Request & { user: AuthDto },
+  ): Promise<LoginResponseDto> {
+    const account = await this.findUserById(req.user.id);
 
     if (!account) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    return this.createToken(account);
+    req.headers.authorization = req.headers.authorization || '';
+    const refreshToken = req.headers.authorization.replace('Bearer', '').trim();
+    const result = await this.authService
+      .generateAccess(pick(account, 'id', 'isAdmin', 'name', 'email', 'status'))
+      .catch((err) => {
+        this.loggerService.error('createToken:', err);
+        throw new BadRequestException('Failed to login');
+      });
+
+    return {
+      token: result,
+      expires: this.configService.getOrThrow('auth.expires', { infer: true }),
+      refreshToken,
+    };
   }
   public async changePassword(
     auth: AuthDto,
