@@ -77,7 +77,6 @@ export class AssessmentComponentService {
 
     try {
       await manager.insert(AssessmentComponent, assessmentComponents);
-      this.logger.debug('templateComponentId', templateComponentId);
       return { components: assessmentComponents, templateComponentId };
     } catch (err) {
       this.logger.error('create:', err);

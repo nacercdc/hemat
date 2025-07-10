@@ -5,3 +5,5 @@ export * from "./password-strength-indicator";
 export * from "./table";
 export * from "./spinner";
 export * from "./progress";
+export * from "./carousel";
+export * from "./collapsible";

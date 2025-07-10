@@ -6,10 +6,11 @@ import { IsArrayContains } from '@shared/validators';
 
 export class FindAllAssessmentGroupDto extends FindAllDto {
   @ApiPropertyOptional({
-    description: 'Comma separated relations',
+    description:
+      'Comma separated relations example: members,members.user,invitations,assessment',
     type: String,
   })
-  @IsArrayContains(['members', 'invitations', 'assessment'])
+  @IsArrayContains(['members', 'members.user', 'invitations', 'assessment'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -52,10 +53,11 @@ export class FindAllAssessmentGroupDto extends FindAllDto {
 
 export class FindOneAssessmentGroupDto {
   @ApiPropertyOptional({
-    description: 'Comma separated relations',
+    description:
+      'Comma separated relations example: members,members.user,invitations,assessment',
     type: String,
   })
-  @IsArrayContains(['members', 'invitations', 'assessment'])
+  @IsArrayContains(['members', 'invitations', 'assessment', 'members.user'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)

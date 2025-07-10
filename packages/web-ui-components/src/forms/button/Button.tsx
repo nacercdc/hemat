@@ -24,6 +24,7 @@ export const colorVariants = {
   success:
     "bg-success-500 hover:bg-success-600 text-background border-success-500",
   dark: "bg-basic hover:bg-basic-800 text-background border-basic-800",
+  light: "bg-primary/15 hover:bg-white text-white border-primary/20",
   info: "bg-info-500 hover:bg-info-600 text-background border-info-500",
   warning:
     "bg-warning-500 hover:bg-warning-600 text-background border-warning-500",
@@ -44,6 +45,12 @@ export const compoundVariants = [
     color: "default",
     className:
       "bg-transparent text-basic hover:bg-transparent border-basic-300 hover:border-basic-400 hover:text-dark-500",
+  },
+  {
+    variant: "outline",
+    color: "light",
+    className:
+      "bg-transparent text-white hover:bg-transparent hover:text-white/80 border-primary border-[1px] hover:border-primary/80",
   },
   {
     variant: "outline",
@@ -79,6 +86,12 @@ export const compoundVariants = [
     color: "default",
     className:
       "bg-transparent text-primary-500 hover:bg-primary-50 border-none",
+  },
+  {
+    variant: "ghost",
+    color: "light",
+    className:
+      "bg-transparent text-white hover:bg-transparent hover:text-white/80",
   },
   {
     variant: "ghost",
@@ -162,7 +175,7 @@ export const buttonVariants = cva(
     },
     compoundVariants: compoundVariants as any,
     defaultVariants: defaultVariants as any,
-  }
+  },
 );
 
 export type ButtonVariants = VariantProps<typeof buttonVariants>;
@@ -197,7 +210,7 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
       full = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <ShadcnButton
@@ -205,7 +218,8 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
         className={cn(
           buttonVariants({ variant, size, color }),
           variant === "link" && "h-auto px-0",
-          full && "w-full"
+          "w-fit",
+          full && "w-full",
         )}
         variant={variant}
         disabled={loading || disabled}
@@ -223,5 +237,5 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
         {rightNode}
       </ShadcnButton>
     );
-  }
+  },
 );

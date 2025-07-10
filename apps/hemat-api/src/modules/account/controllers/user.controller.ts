@@ -4,7 +4,7 @@ import {
   Get,
   Ip,
   Post,
-  Request,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -26,6 +26,7 @@ import { AuthGuard, AuthRefreshGuard } from '@shared/modules';
 import { AuthDto, LoginResponseDto } from '../../../shared/modules';
 import { SuccessResponseDto } from '../../../shared/dtos';
 import { AccountResponseDto } from '../dtos/account-response.dto';
+import { Request } from 'express';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -61,7 +62,7 @@ export class UserController {
   @ApiUnauthorizedResponse()
   @UseGuards(AuthGuard)
   @Post('logout')
-  async logout(@Request() req: { user: AuthDto }): Promise<SuccessResponseDto> {
+  async logout(@Req() req: { user: AuthDto }): Promise<SuccessResponseDto> {
     return this.userService.logout(req.user);
   }
 
@@ -71,7 +72,7 @@ export class UserController {
   @ApiUnauthorizedResponse()
   @UseGuards(AuthGuard)
   @Get('me')
-  async me(@Request() req: { user: AuthDto }): Promise<AccountResponseDto> {
+  async me(@Req() req: { user: AuthDto }): Promise<AccountResponseDto> {
     return this.userService.me(req.user);
   }
 
@@ -82,9 +83,9 @@ export class UserController {
   @UseGuards(AuthRefreshGuard)
   @Post('refresh-token')
   async refreshToken(
-    @Request() req: { user: AuthDto },
+    @Req() req: Request & { user: AuthDto },
   ): Promise<LoginResponseDto> {
-    return this.userService.refreshToken(req.user);
+    return this.userService.refreshToken(req);
   }
 
   @ApiOperation({ summary: 'Change user password' })
@@ -94,7 +95,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Post('change-password')
   async changePassword(
-    @Request() req: { user: AuthDto },
+    @Req() req: { user: AuthDto },
     @Body() payload: ChangePasswordRequestDto,
   ): Promise<SuccessResponseDto> {
     return this.userService.changePassword(req.user, payload);
@@ -108,7 +109,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Get('users')
   async findAllUsers(
-    @Request() req: { user: AuthDto },
+    @Req() req: { user: AuthDto },
   ): Promise<AccountResponseDto[]> {
     return this.userService.findAllUsers();
   }

@@ -14,6 +14,7 @@ interface CountryJson {
   longitude: string;
   emoji: string;
   emojiU: string;
+  subregion?: string;
 }
 
 export default class CountrySeeder implements Seeder {
@@ -55,6 +56,7 @@ export default class CountrySeeder implements Seeder {
           emoji: country.emoji,
           emojiU: country.emojiU,
           description: null,
+          subregion: country.subregion || null,
         };
       })
       .filter((country) => country !== null);

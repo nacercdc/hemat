@@ -37,6 +37,7 @@ import {
   AssessmentCreateRequestDto,
   AssessmentUpdateRequestDto,
   AssessmentDto,
+  AssessmentResponseDto,
 } from '../dtos';
 import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
 import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
@@ -67,7 +68,7 @@ export class AssessmentController {
   constructor(private readonly assessmentService: AssessmentService) {}
 
   @ApiOperation({ summary: 'Find one', description: 'Get an assessment by ID' })
-  @ApiOkResponse({ description: 'Ok', type: Assessment })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentResponseDto })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
   @Abilities({

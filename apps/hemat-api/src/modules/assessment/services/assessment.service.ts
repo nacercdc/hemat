@@ -70,12 +70,8 @@ export class AssessmentService {
         where: { userId: user.id, deletedAt: IsNull() },
         select: ['assessmentId'],
       });
-      this.logger.debug(
-        `Memberships for user ${user.id}: ${JSON.stringify(memberships)}`,
-      );
       const assessmentIds = memberships.map((m) => m.assessmentId);
       if (assessmentIds.length === 0) {
-        this.logger.debug(`No memberships found for user ${user.id}`);
         return { data: [], total: 0 };
       }
       queryBuilder.filter([
@@ -101,9 +97,6 @@ export class AssessmentService {
       membership = await this.assessmentMemberRepository.findOne({
         where: { assessmentId: id, userId: user.id, deletedAt: IsNull() },
       });
-      this.logger.debug(
-        `Membership for user ${user.id}, assessment ${id}: ${JSON.stringify(membership)}`,
-      );
       if (!membership) {
         throw new NotFoundException(
           `Assessment ${id} not found or you are not a member.`,

@@ -40,17 +40,24 @@ export class AssessmentGroupService {
     query: FindAllAssessmentGroupDto,
   ): Promise<FindAllResponseDto<AssessmentGroup>> {
     try {
-      const queryService = new QueryService<AssessmentGroup>(
-        this.groupRepository,
-      )
+      const allowedIncludes = [
+        'members',
+        'members.user',
+        'invitations',
+        'assessment'
+      ];
+      let requestedIncludes = query.include.filter((inc) => allowedIncludes.includes(inc));
+      if (requestedIncludes.includes('members.user')) {
+        requestedIncludes = requestedIncludes.filter((inc) => inc !== 'members');
+      }
+      const queryService = new QueryService<AssessmentGroup>(this.groupRepository)
+        .join(requestedIncludes)
         .filter([{ field: 'assessmentId', operator: '=', value: assessmentId }])
-        .join(query.include)
         .filter([], { fields: ['name'], value: query.search })
         .sort({ ascending: query.ascending, descending: query.descending })
         .take(query.take)
         .skip(query.skip);
 
-      // Add group ID filtering if provided
       if (query.filterByGroupIds && query.filterByGroupIds.length > 0) {
         queryService.filter([
           { field: 'id', operator: 'IN', value: query.filterByGroupIds },
@@ -73,14 +80,22 @@ export class AssessmentGroupService {
     query: FindOneAssessmentGroupDto,
   ): Promise<AssessmentGroup> {
     try {
-      const group = await new QueryService<AssessmentGroup>(
-        this.groupRepository,
-      )
+      const allowedIncludes = [
+        'members',
+        'members.user',
+        'invitations',
+        'assessment'
+      ];
+      let requestedIncludes = query.include.filter((inc) => allowedIncludes.includes(inc));
+      if (requestedIncludes.includes('members.user')) {
+        requestedIncludes = requestedIncludes.filter((inc) => inc !== 'members');
+      }
+      const group = await new QueryService<AssessmentGroup>(this.groupRepository)
+        .join(requestedIncludes)
         .filter([
           { field: 'id', operator: '=', value: id },
           { field: 'assessmentId', operator: '=', value: assessmentId },
         ])
-        .join(query.include)
         .getOne();
 
       if (!group) {

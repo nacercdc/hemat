@@ -43,6 +43,8 @@ export const PERMISSION_SUBJECTS: Record<string, PermissionSubjectEnum> = {
   ROLE: PermissionSubjectEnum.ROLE,
   SUB_COMPONENT: PermissionSubjectEnum.SUB_COMPONENT,
   USER: PermissionSubjectEnum.USER,
+  SUPPORT: PermissionSubjectEnum.SUPPORT,
+  SUPPORT_REPLY: PermissionSubjectEnum.SUPPORT_REPLY,
 };
 
 export const APPROVE_PERMISSION_ACTIONS: Record<string, PermissionActionEnum> =

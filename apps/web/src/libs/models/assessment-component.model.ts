@@ -31,6 +31,13 @@ export interface AssessmentComponentUpdate {
     }
   >;
 }
+
+export type AssessmentStatus =
+  | "Completed"
+  | "In Progress"
+  | "Planned"
+  | "Not Yet Assessed";
+
 export type AssessmentComponentFilterable = "name" | "code";
 export type AssessmentComponentSortable = "created_at";
 

@@ -3,8 +3,9 @@ import type { NextRequest } from "next/server";
 
 const DASHBOARD = "/";
 const LOGIN = "/login";
+const HOME = "/home";
 
-const PUBLIC_ROUTES = new Set([LOGIN]);
+const PUBLIC_ROUTES = new Set([LOGIN, HOME]);
 
 export function middleware(request: NextRequest) {
   const { nextUrl, cookies } = request;
@@ -32,5 +33,5 @@ function redirectTo(path: string, baseUrl: URL): NextResponse {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api|images).*)"],
 };

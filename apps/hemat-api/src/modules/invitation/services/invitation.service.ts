@@ -33,6 +33,10 @@ import { AssessmentRoleService } from './assessment-role.service';
 import { generateRandomToken } from '@shared/helpers/token.helper';
 import { MemberRole } from '@shared/enums';
 import { AssessmentAbilityDto } from '../../assessment/guards/assessment-ability.dto';
+import { EmailService } from '../../../shared/services/email.service';
+import { InvitationCreatedEvent } from '../events/invitation.events';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { INVITATION_EVENTS } from '../events/invitation.constants';
 
 @Injectable()
 export class InvitationService {
@@ -50,6 +54,8 @@ export class InvitationService {
     private readonly roleService: AssessmentRoleService,
     private readonly dataSource: DataSource,
     private readonly configService: ConfigService<AppConfig>,
+    private readonly emailService: EmailService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async createBulk(
@@ -496,6 +502,20 @@ export class InvitationService {
         );
         invitations.push(...savedInvitations);
 
+        for (const invite of savedInvitations) {
+          const { email, token, id } = invite;
+          this.eventEmitter.emit(
+            INVITATION_EVENTS.CREATED,
+            new InvitationCreatedEvent(
+              email,
+              token,
+              id,
+              assessment?.name,
+              undefined,
+            ),
+          );
+        }
+
         return invitations;
       } catch (err) {
         this.logger.error('createBulk:', err);
@@ -595,7 +615,7 @@ export class InvitationService {
             success: true,
             message: 'Invitation already accepted. Please log in.',
             nextStep: 'login',
-            registerUrl: `https://africa-cdc-murex.vercel.app/login`,
+            registerUrl: `https://africa-cdc-app-web-501628761718.us-west1.run.app/login`,
           };
         }
         throw new BadRequestException('Invitation accepted, user not found');
@@ -658,7 +678,7 @@ export class InvitationService {
 
       const frontendDomain =
         this.configService.get('frontendDomain', { infer: true }) ||
-        'https://africa-cdc-murex.vercel.app';
+        'https://africa-cdc-app-web-501628761718.us-west1.run.app';
       return {
         success: true,
         message: 'User not found. Please register.',
@@ -675,6 +695,17 @@ export class InvitationService {
       }
       throw new BadRequestException('Failed to accept invitation.');
     }
+  }
+
+  async sendInvitation(invitationDto: any): Promise<any> {
+    // ... existing invitation creation logic ...
+    // After creating the invitation, send the email
+    await this.emailService.sendMail({
+      to: invitationDto.email,
+      subject: 'You are invited!',
+      html: `<p>Hello,</p><p>You have been invited to join. Please follow the instructions in the invitation.</p>`,
+    });
+    // ... rest of the logic ...
   }
 
   private async sendInvitationEmail(): Promise<void> {

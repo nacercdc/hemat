@@ -867,7 +867,7 @@ __metadata:
     "@radix-ui/react-scroll-area": "npm:^1.2.2"
     "@radix-ui/react-select": "npm:^2.1.6"
     "@radix-ui/react-separator": "npm:^1.1.2"
-    "@radix-ui/react-slot": "npm:^1.2.0"
+    "@radix-ui/react-slot": "npm:^1.2.3"
     "@radix-ui/react-switch": "npm:^1.1.3"
     "@radix-ui/react-tabs": "npm:^1.1.3"
     "@radix-ui/react-toast": "npm:^1.2.6"
@@ -879,6 +879,7 @@ __metadata:
     class-variance-authority: "npm:^0.7.1"
     cmdk: "npm:1.0.0"
     date-fns: "npm:^4.1.0"
+    embla-carousel-react: "npm:^8.6.0"
     eslint: "npm:^9.12.0"
     lexical: "npm:^0.31.2"
     lodash.get: "npm:^4.4.2"
@@ -1965,6 +1966,18 @@ __metadata:
     "@nestjs/websockets":
       optional: true
   checksum: 10/045107a7dfe990f9380220a2163281ba19d2e00a2b9f6f004f98fb71f4e2031489f88b38da0e29b65d09b847b42782a66d4dbe3d35d0e8d25b860a0c767b3f91
+  languageName: node
+  linkType: hard
+
+"@nestjs/event-emitter@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@nestjs/event-emitter@npm:3.0.1"
+  dependencies:
+    eventemitter2: "npm:6.4.9"
+  peerDependencies:
+    "@nestjs/common": ^10.0.0 || ^11.0.0
+    "@nestjs/core": ^10.0.0 || ^11.0.0
+  checksum: 10/6050c615aefada991da136f854dd3a2344aa69286886a53093897d4c2e2158142ad9e1b7b1a55b0a0cbc6a7b43a4916cb1988ff01d766c97bfc7e1dca862c93a
   languageName: node
   linkType: hard
 
@@ -3599,7 +3612,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-slot@npm:1.2.3, @radix-ui/react-slot@npm:^1.2.0":
+"@radix-ui/react-slot@npm:1.2.3, @radix-ui/react-slot@npm:^1.2.3":
   version: 1.2.3
   resolution: "@radix-ui/react-slot@npm:1.2.3"
   dependencies:
@@ -4803,6 +4816,15 @@ __metadata:
   dependencies:
     undici-types: "npm:~6.19.2"
   checksum: 10/047337c60f8d4e869de38be70d2b5738410aa10c2d69f3ee814065e8df2054b2f516e0978fb93fc741185ca650935198e604d8135e298c7e0c2d09941d379d50
+  languageName: node
+  linkType: hard
+
+"@types/nodemailer@npm:^6.4.17":
+  version: 6.4.17
+  resolution: "@types/nodemailer@npm:6.4.17"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10/bd090c9a81f15ee5e1e2123de1004593bacc24d385460dd56c51ec657d61dc1cfd4f44fc71baac060a1abcb487aef5027509e0afd646e7118d7a8a13a95bad9d
   languageName: node
   linkType: hard
 
@@ -7698,6 +7720,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"embla-carousel-autoplay@npm:^8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel-autoplay@npm:8.6.0"
+  peerDependencies:
+    embla-carousel: 8.6.0
+  checksum: 10/5dee505b891e93da6ac8072c2b1a6bda63533ceaef0eec77fa15425974c08242cf6b6a745159eab33f6fad886b5d05148bf06f01ce3fca87811a79e764b5aad2
+  languageName: node
+  linkType: hard
+
+"embla-carousel-react@npm:^8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel-react@npm:8.6.0"
+  dependencies:
+    embla-carousel: "npm:8.6.0"
+    embla-carousel-reactive-utils: "npm:8.6.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.1 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+  checksum: 10/8a6338f28844f07e29df03fb09bf7e157e0aecb423b0ca7d9b9a65e4537acce4a140c94f177957518e44d5483993c1c40273b913cde7e543d0b68955efda8ffc
+  languageName: node
+  linkType: hard
+
+"embla-carousel-reactive-utils@npm:8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel-reactive-utils@npm:8.6.0"
+  peerDependencies:
+    embla-carousel: 8.6.0
+  checksum: 10/48b31931572b32b49705e6125d4f10c240fca0ee8a078867fc91f7c889f6adee95f7fd0b0fdf5dfef6d83d497115759f3f3ca2e8320e331efa0de1c9e6fb4638
+  languageName: node
+  linkType: hard
+
+"embla-carousel@npm:8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel@npm:8.6.0"
+  checksum: 10/6c1c4268160ce2a150c80f0c84edd4c42b47567f8ef25f56fb21819a4094cfa885614cb0837d180e8da8159ff79a077e0a2e1e679ed2c500ff52697d3ec94b78
+  languageName: node
+  linkType: hard
+
 "emoji-regex@npm:^8.0.0":
   version: 8.0.0
   resolution: "emoji-regex@npm:8.0.0"
@@ -8727,6 +8786,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eventemitter2@npm:6.4.9":
+  version: 6.4.9
+  resolution: "eventemitter2@npm:6.4.9"
+  checksum: 10/b829b1c6b11e15926b635092b5ad62b4463d1c928859831dcae606e988cf41893059e3541f5a8209d21d2f15314422ddd4d84d20830b4bf44978608d15b06b08
+  languageName: node
+  linkType: hard
+
 "eventemitter3@npm:^2.0.3":
   version: 2.0.3
   resolution: "eventemitter3@npm:2.0.3"
@@ -9617,6 +9683,8 @@ __metadata:
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/config": "npm:^4.0.2"
     "@nestjs/core": "npm:^11.0.1"
+    "@nestjs/cqrs": "npm:^11.0.3"
+    "@nestjs/event-emitter": "npm:^3.0.1"
     "@nestjs/jwt": "npm:^11.0.0"
     "@nestjs/passport": "npm:^11.0.5"
     "@nestjs/platform-express": "npm:^11.0.1"
@@ -9633,6 +9701,7 @@ __metadata:
     "@types/helmet": "npm:^4.0.0"
     "@types/luxon": "npm:^3"
     "@types/node": "npm:^22.10.7"
+    "@types/nodemailer": "npm:^6.4.17"
     "@types/passport": "npm:^0"
     "@types/passport-jwt": "npm:^4"
     class-transformer: "npm:^0.5.1"
@@ -9641,6 +9710,7 @@ __metadata:
     eslint: "npm:^9.12.0"
     helmet: "npm:^8.1.0"
     luxon: "npm:^3.6.1"
+    nodemailer: "npm:^7.0.5"
     passport: "npm:^0.7.0"
     passport-jwt: "npm:^4.0.1"
     pg: "npm:^8.11.0"
@@ -11723,6 +11793,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nodemailer@npm:^7.0.5":
+  version: 7.0.5
+  resolution: "nodemailer@npm:7.0.5"
+  checksum: 10/743410eb62d14b7f55bbbd9cba6a97a22de39159be673148d72f1260d30eb2c297b5fca0a28368ff22b08f252ebb19d78d9b23145a6bc2ca6e74f8e9a238f0c3
+  languageName: node
+  linkType: hard
+
 "nopt@npm:^8.0.0":
   version: 8.1.0
   resolution: "nopt@npm:8.1.0"
@@ -12957,6 +13034,19 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17 || ^18 || ^19
   checksum: 10/f3f5029dff03613e8070405f3c6fcec64c9d81c0264db066fdd88e888fc3dd186824e38c2168e6d9e56d5067445e4f699155bbf02f6efbeaba8383c6179173e0
+  languageName: node
+  linkType: hard
+
+"react-intersection-observer@npm:^9.16.0":
+  version: 9.16.0
+  resolution: "react-intersection-observer@npm:9.16.0"
+  peerDependencies:
+    react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+  checksum: 10/ded14524d9311cfb9dd9e65eb04748d07a1868f8c40dd628bec8a8474d43ee2373604fdc1e6a7d468a8e2e680638e41b91048ab9669555d50217c5c0c51247e0
   languageName: node
   linkType: hard
 
@@ -15817,6 +15907,7 @@ __metadata:
     "@types/react-simple-maps": "npm:^3"
     class-variance-authority: "npm:^0.7.1"
     cookie: "npm:^1.0.2"
+    embla-carousel-autoplay: "npm:^8.6.0"
     eslint: "npm:^9.12.0"
     eslint-config-next: "npm:^14.2.3"
     framer-motion: "npm:^12.18.1"
@@ -15831,6 +15922,7 @@ __metadata:
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
     react-hook-form: "npm:^7.53.2"
+    react-intersection-observer: "npm:^9.16.0"
     react-simple-maps: "npm:^3.0.0"
     recharts: "npm:^2.15.3"
     superjson: "npm:2.2.1"

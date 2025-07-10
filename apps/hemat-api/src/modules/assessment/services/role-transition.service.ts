@@ -259,16 +259,21 @@ export class RoleTransitionService {
         `User ${member.userId} is already in group ${toGroupId}`,
       );
     }
-    // Check source group won't be empty
+    // Check source group won't be empty of leaders
     const sourceGroupMembers =
       await AssessmentMemberValidator.fetchGroupMembers(
         manager,
         fromGroupId,
         assessmentId,
       );
-    if (sourceGroupMembers.length <= 2 && !promoteUserId) {
+    // Count how many TEAM_LEADER or PRIMARY remain after this move
+    const remainingLeaders = sourceGroupMembers.filter(
+      (m) => m.id !== member.id && (m.role === MemberRole.TEAM_LEADER || m.role === MemberRole.PRIMARY)
+    );
+    // Only require promoteUserId if moving the last leader out
+    if ((member.role === MemberRole.TEAM_LEADER || member.role === MemberRole.PRIMARY) && remainingLeaders.length === 0 && !promoteUserId) {
       throw new BadRequestException(
-        'Source group cannot be empty after move, promoteUserId is required',
+        'Source group would be left without a TEAM_LEADER or PRIMARY after move, promoteUserId is required',
       );
     }
     // Handle moves based on current role

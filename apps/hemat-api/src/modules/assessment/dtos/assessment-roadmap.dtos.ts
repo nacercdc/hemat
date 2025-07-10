@@ -56,18 +56,15 @@ export class RoadmapCreateRequestDto {
   @Type(() => String)
   measurementScaleId: string;
 
-  @ApiProperty({
-    description: 'Target of the roadmap',
-    example: 'Increase vaccination coverage',
+  @ApiPropertyOptional({
+    description: 'Do NOT provide this field. The backend will always set target to the measurement scale rate for the selected measurementScaleId.',
+    example: undefined,
     type: String,
+    deprecated: true,
   })
-  @IsNotEmpty({ message: 'validation.target.isNotEmpty' })
-  @IsString({ message: 'validation.target.isString' })
-  @Length(1, 1000, {
-    message: 'validation.target.length args: min:1 | max:1000',
-  })
+  @IsOptional()
   @Type(() => String)
-  target: string;
+  target?: string;
 
   @ApiProperty({
     description: 'Activities planned in the roadmap',

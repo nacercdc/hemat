@@ -26,6 +26,7 @@ import {
 import {
   AssessmentSubComponent,
   AssessmentSubComponentAnswer,
+  AssessmentSubComponentRoadmap,
 } from '@database/entities';
 import { AuthGuard, Abilities } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
@@ -41,6 +42,7 @@ import {
   FindAllAssessmentSubComponentDto,
   FindOneAssessmentSubComponentDto,
   FindAllAssessmentAnswerDto,
+  FindOnePrimaryAssessmentAnswerDto,
 } from '../dtos';
 import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
 import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
@@ -179,6 +181,35 @@ export class AssessmentSubComponentController {
       ...query,
       assessmentId,
     });
+  }
+
+  @ApiOperation({
+    summary: 'Get all primary answers for all sub-components in an assessment',
+    description:
+      'Retrieve all primary answers (isPrimary = true) for all sub-components in the assessment. Accessible by any assessment member.',
+  })
+  @ApiOkResponse({ description: 'Ok', type: [AssessmentSubComponentAnswer] })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT_ANSWER,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @UseGuards(AssessmentRoleGuard)
+  @Get('primary-answers')
+  async findAllPrimaryAnswers(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+  ): Promise<AssessmentSubComponentAnswer[]> {
+    return this.assessmentSubComponentService.findAllPrimaryAnswers(
+      assessmentId,
+    );
   }
 
   @ApiOperation({
@@ -325,19 +356,62 @@ export class AssessmentSubComponentController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
+    @Query() query: FindOnePrimaryAssessmentAnswerDto,
   ): Promise<AssessmentSubComponentAnswer> {
     const { assessmentRole, isAdmin, id: userId } = user;
 
+    let answer: AssessmentSubComponentAnswer;
     if (isAdmin) {
-      return this.assessmentSubComponentService.findPrimaryAnswer(id, userId);
-    }
-
-    if (assessmentRole !== MemberRole.PRIMARY) {
-      throw new ForbiddenException(
-        'Only Primary users and Admins can view primary answers',
+      answer = await this.assessmentSubComponentService.findPrimaryAnswer(
+        id,
+        userId,
+        query,
+      );
+    } else {
+      if (assessmentRole !== MemberRole.PRIMARY) {
+        throw new ForbiddenException(
+          'Only Primary users and Admins can view primary answers',
+        );
+      }
+      answer = await this.assessmentSubComponentService.findPrimaryAnswer(
+        id,
+        userId,
+        query,
       );
     }
+    // Revert: return the answer object as-is
+    return answer;
+  }
 
-    return this.assessmentSubComponentService.findPrimaryAnswer(id, userId);
+  @ApiOperation({
+    summary: 'Get roadmap answer for a sub-component',
+    description:
+      'Retrieve roadmap answer for a specific sub-component for the current user',
+  })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentSubComponentRoadmap })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ROADMAP,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @UseGuards(AssessmentRoleGuard)
+  @Get(':id/roadmap-answer')
+  async getRoadmapAnswer(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) subComponentId: string,
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+  ): Promise<AssessmentSubComponentRoadmap> {
+    return this.assessmentSubComponentService.getSubComponentRoadmapAnswer(
+      assessmentId,
+      subComponentId,
+      user,
+    );
   }
 } 
