@@ -12,7 +12,7 @@ import MemberInfo from "./MemberInfo";
 import MemberAction from "./MemberAction";
 import { useParams } from "next/navigation";
 import { Modal } from "@etm/web-ui-components";
-import { MemberInvitation } from "~/libs/models/assessment-member.model";
+import type { MemberInvitation } from "~/libs/models/assessment-member.model";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 
 const addAssessmentInvitationSchema = z.object({
@@ -61,8 +61,10 @@ export function SendInvitation() {
     setEmails((prev) => prev.filter((e) => e !== email));
   };
 
-  const { mutate: sendInvitation, ...sendInvitationState } =
-    useAddMutation<MemberInvitation>(`assessments/${assessmentId}/invitations`);
+  const { mutate: sendInvitation, ..._sendInvitationState } =
+    useAddMutation<MemberInvitation>(
+      `assessments/${assessmentId as string}/invitations`
+    );
 
   const onInvitationSubmitHandler = () => {
     if (emails.length === 0) return;

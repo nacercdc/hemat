@@ -1,14 +1,8 @@
 import React, { useRef } from "react";
 import { Icon } from "@iconify/react";
-import {
-  Button,
-  DropdownMenu,
-  Modal,
-  ModalRef,
-  SelectRHF,
-  useToast,
-} from "@etm/web-ui-components";
-import {
+import type { ModalRef } from "@etm/web-ui-components";
+import { Button, DropdownMenu, Modal, useToast } from "@etm/web-ui-components";
+import type {
   AssessmentGroup,
   MemberMoveTo,
 } from "~/libs/models/assessment-member.model";
@@ -25,11 +19,11 @@ interface Props {
   optionsList?: OptionType[];
 }
 
-const memberMoveToSchema = z.object({
+export const memberMoveToSchema = z.object({
   code: z
     .string()
-    .min(2, { message: "Language name is too short" })
-    .max(50, { message: "Language name is too long" }),
+    .min(2, { message: "Group  name is too short" })
+    .max(50, { message: "Group name is too long" }),
 });
 export type memberMoveToFormData = z.infer<typeof memberMoveToSchema>;
 
@@ -56,10 +50,10 @@ export default function MemberAction({
   //     },
   //   });
 
-  const { mutate: memberMoveto, ...memberMovetoState } = useAddMutation<
+  const { mutate: memberMoveto, ..._memberMovetoState } = useAddMutation<
     AssessmentGroup,
     MemberMoveTo
-  >(`assessments/${assessmentId}/members/move`);
+  >(`assessments/${assessmentId as string}/members/move`);
 
   const onGotoRemoveMemberHandler = () => {
     if (refetch) {
@@ -77,7 +71,7 @@ export default function MemberAction({
     console.log(`Make ${id} a Team Leader`);
   };
 
-  const onMoveToHandler = () => {
+  const _onMoveToHandler = () => {
     memberMoveto(
       {
         data: {
