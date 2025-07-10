@@ -5,6 +5,7 @@ import { getInitials } from "~/utils/string.util";
 interface Props {
   name?: string;
   email?: string;
+  userId?: string;
   isLeader?: boolean;
   avatarUrl?: string;
 }
@@ -23,8 +24,8 @@ export default function MemberInfo({
           fallback={getInitials(name ? name : email)}
           size="md"
         />
-        <div className="flex flex-col text-xs">
-          {name && <span className="font-bold">{name}</span>}
+        <div className="flex flex-col text-xs w-full">
+          {name && <span className="font-bold w-fit">{name}</span>}
           {email && <span className="flex ">{email}</span>}
           {isLeader && <span className="font-bold">Team Leader</span>}
         </div>

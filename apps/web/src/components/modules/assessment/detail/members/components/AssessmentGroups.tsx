@@ -4,73 +4,20 @@ import MemberRoleCard from "../../components/MemberRoleCard";
 import MemberInfo from "./MemberInfo";
 import MemberAction from "./MemberAction";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import { AssessmentGroup as IAssessmentGroup } from "~/libs/models/assessment-member.model";
+import {
+  AssessmentGroupIncludeAble,
+  AssessmentGroup as IAssessmentGroup,
+} from "~/libs/models/assessment-member.model";
 import { useParams } from "next/navigation";
 import { Button, Modal, ModalRef } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { CreateGroupForm } from "./form/CreateGroupForm";
-import CreateTeam from "./CreateTeam";
-
-const defaultGroups: IAssessmentGroup[] = [
-  {
-    name: "Health Surveillance Team",
-    members: [
-      {
-        name: "Dr. Amina Yusuf",
-        email: "amina.yusuf@cdc.africa",
-        isLeader: true,
-        role: "Team Lead - Epidemiologist",
-      },
-      {
-        name: "James Moyo",
-        email: "j.moyo@cdc.africa",
-        role: "Data Analyst",
-      },
-      {
-        name: "Linda Okeke",
-        email: "linda.okeke@cdc.africa",
-        role: "Field Officer",
-      },
-    ],
-  },
-  {
-    name: "Outbreak Response Unit",
-    members: [
-      {
-        name: "Samuel Tadesse",
-        email: "samuel.tadesse@cdc.africa",
-        isLeader: true,
-        role: "Unit Head - Emergency Response",
-      },
-      {
-        name: "Grace Wambui",
-        email: "grace.wambui@cdc.africa",
-        role: "Public Health Nurse",
-      },
-    ],
-  },
-  {
-    name: "Data Integration Taskforce",
-    members: [
-      {
-        name: "Kevin Mulenga",
-        email: "kevin.mulenga@cdc.africa",
-        role: "ETL Developer",
-      },
-      {
-        name: "Sophia Zulu",
-        email: "sophia.zulu@cdc.africa",
-        isLeader: true,
-        role: "Lead Data Engineer",
-      },
-    ],
-  },
-];
+export const ASSESSMENT_GROUP_LIST_KEY = "assessments-groups-list";
 
 export default function AssessmentGroups() {
   const params = useParams();
   const assessmentId = params.id;
-  const [groups, setGroups] = useState<IAssessmentGroup[]>(defaultGroups);
+  const [groups, setGroups] = useState<IAssessmentGroup[]>([]);
   const addTeamGroupModalRef = useRef<ModalRef>(null);
 
   const openCreateTeamsModal = () => addTeamGroupModalRef.current?.openModal();
@@ -88,13 +35,20 @@ export default function AssessmentGroups() {
     }));
     setGroups(updatedGroups);
   };
-  const { data: assessmentGroup, ...assessmentGroupsState } =
-    useFindAll<IAssessmentGroup>({
-      path: `/assessments/${assessmentId}/groups`,
-      tqOptions: {
-        queryKey: ["assessments-groups"],
-      },
-    });
+
+  const { data: assessmentGroup, ...assessmentGroupsState } = useFindAll<
+    IAssessmentGroup,
+    AssessmentGroupIncludeAble
+  >({
+    path: `/assessments/${assessmentId}/groups`,
+    queries: {
+      include: ["members", "members.user"],
+    },
+    tqOptions: {
+      queryKey: ["ooooooooooooooooooo"],
+    },
+  });
+
   return (
     <div className="flex items-start flex-wrap justify-between gap-4  ">
       <div className="lg:w-3/5 w-full flex flex-col  p-2 bg-dark-lighter/5 rounded-sm">
@@ -111,7 +65,7 @@ export default function AssessmentGroups() {
               Create Team
             </Button>
           </div>
-          {groups.map((group) => (
+          {assessmentGroup?.data.map((group) => (
             <div
               className="relative  border-2 rounded-lg p-4  bg-primary-50/20 border-primary-50"
               key={group.name}
@@ -120,22 +74,33 @@ export default function AssessmentGroups() {
                 {group.name}
               </div>
 
-              {group.members.map((member, index) => (
-                <div key={index} className="flex items-center justify-between ">
-                  <div className="flex items-center gap-3">
-                    <MemberInfo
-                      email={member.email}
-                      isLeader={member.isLeader}
+              {group?.members &&
+                group?.members.map((member, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between "
+                  >
+                    <div className="flex items-center gap-3">
+                      <MemberInfo
+                        name={member.user?.name}
+                        email={member.user?.email}
+                        userId={member.userId}
+                        isLeader={member.isLeader}
+                      />
+                    </div>
+
+                    <MemberAction
+                      id={member.userId as string}
+                      refetch={() => removeMember(member.email)}
+                      optionsList={[
+                        "Remove",
+                        "Make Primary",
+                        "Team leader",
+                        "Move to",
+                      ]}
                     />
                   </div>
-
-                  <MemberAction
-                    id={member.email}
-                    refetch={() => removeMember(member.email)}
-                    optionsList={["Remove", "Make Primary", "Team leader"]}
-                  />
-                </div>
-              ))}
+                ))}
             </div>
           ))}
         </div>
@@ -159,8 +124,8 @@ export default function AssessmentGroups() {
             onCancelTeamGroupForm={onCancelTeamsCreateFormHandler}
             onSubmitTeamGroupForm={onSubmitTeamGroupFormHandler}
           />
-          <CreateTeam />
         </div>
+        {/* {assessmentGroupsState.refetch()} */}
       </Modal>
     </div>
   );
