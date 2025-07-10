@@ -35,13 +35,13 @@ export default function Sidebar() {
       <ETMSidebar
         header={{
           expand: (
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center -mb-1 pt-10 w-full">
               <Image
-                src="/images/acdc-logo.png"
+                src="/images/acdc-logo.svg"
                 alt="logo"
-                width={159}
+                width={160}
                 height={84}
-                className="w-auto h-auto -ml-2"
+                className="w-[160px] h-auto"
               />
               <Icon
                 icon="carbon:row-collapse"

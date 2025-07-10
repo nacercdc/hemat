@@ -54,16 +54,19 @@ export function FooterSection() {
             <a
               href="https://communications@africacdc.org"
               target="_blank"
-              className="text-sm font-bold"
+              className="text-sm font-bold underline"
             >
-              https://www.communications@africacdc.org
+              communications@africacdc.org
             </a>
             <span className="text-sm font-bold">
               Visit Africa CDC on the{" "}
-              <a href="https://africacdc.org/" target="_blank">
+              <a
+                href="https://au.int/africacdc"
+                target="_blank"
+                className="underline"
+              >
                 African Union Website
               </a>
-              .
             </span>
           </div>
         </div>
