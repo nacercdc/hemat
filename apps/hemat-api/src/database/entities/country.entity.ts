@@ -99,6 +99,14 @@ export class Country {
   description: string | null;
 
   @ApiProperty({
+    description: 'Subregion of the country (e.g., Northern Africa, Middle Africa, etc.)',
+    example: 'Northern Africa',
+    type: String,
+  })
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  subregion: string | null;
+
+  @ApiProperty({
     description: 'Timestamp when the country was created',
     example: '2024-01-10T07:56:08.000Z',
     type: Date,

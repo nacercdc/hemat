@@ -37,4 +37,6 @@ export enum PermissionSubjectEnum {
   ROLE = 'role',
   SUB_COMPONENT = 'sub-component',
   USER = 'user',
+  SUPPORT = 'support',
+  SUPPORT_REPLY = 'support-reply',
 }

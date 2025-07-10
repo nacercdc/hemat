@@ -36,19 +36,27 @@ export class AuthGuard implements CanActivate {
    * @returns {Promise<boolean>}
    */
   public async canActivate(context: ExecutionContext): Promise<boolean> {
+    console.log('AuthGuard canActivate called');
+    this.logger.log('AuthGuard canActivate called');
     const isPublic = this.reflector.getAllAndOverride<boolean>('public', [
       context.getHandler(),
       context.getClass(),
     ]);
 
-    if (isPublic) return true;
-
-    const request = context.switchToHttp().getRequest<Request>();
-    const auth = await this.verifyToken(request);
-
     const abilityParams = this.reflector.get<
       AbilityParams & { requireAdmin?: boolean }
     >(ABILITIES, context.getHandler());
+    console.log('AbilityParams:', JSON.stringify(abilityParams));
+    this.logger.log('AbilityParams: ' + JSON.stringify(abilityParams));
+
+    if (isPublic) {
+      console.log('Returning early: isPublic');
+      this.logger.log('Returning early: isPublic');
+      return true;
+    }
+
+    const request = context.switchToHttp().getRequest<Request>();
+    const auth = await this.verifyToken(request);
 
     // Enforce isAdmin only if explicitly required
     if (
@@ -57,19 +65,47 @@ export class AuthGuard implements CanActivate {
       abilityParams.requireAdmin !== false
     ) {
       if (abilityParams.isAdmin !== auth?.isAdmin) {
+        console.log('Returning early: isAdmin mismatch');
+        this.logger.log('Returning early: isAdmin mismatch');
         throw new ForbiddenException('account.exception.accessDenied');
       }
     }
+    // Add log to confirm flow continues
+    console.log('Passed admin check, moving to permission/role checks');
+    this.logger.log('Passed admin check, moving to permission/role checks');
 
     // Check permissions only for admins or if requireAdmin is true
     if (
       abilityParams?.permissions &&
       (auth?.isAdmin || abilityParams.requireAdmin)
     ) {
+      console.log('Checking permissions for admin...');
+      this.logger.log('Checking permissions for admin...');
       await this.checkPermissions(auth, abilityParams.permissions);
+      request.user = auth;
+      console.log('Returning: allowed by admin permission');
+      this.logger.log('Returning: allowed by admin permission');
+      return true;
+    }
+
+    // Check for allowed roles (for non-admins)
+    if (abilityParams?.roles && Array.isArray(abilityParams.roles) && abilityParams.roles.length > 0) {
+      const userRole = (auth as any).assessmentRole || (auth as any).role;
+      if (!userRole || !abilityParams.roles.includes(userRole)) {
+        console.log('Returning early: role not allowed');
+        this.logger.log('Returning early: role not allowed');
+        throw new ForbiddenException('account.exception.accessDenied');
+      }
+      // If role matches, allow access
+      console.log('Returning: allowed by role');
+      this.logger.log('Returning: allowed by role');
+      request.user = auth;
+      return true;
     }
 
     request.user = auth;
+    console.log('Returning: default allow');
+    this.logger.log('Returning: default allow');
     return true;
   }
 

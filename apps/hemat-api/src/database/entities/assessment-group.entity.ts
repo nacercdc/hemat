@@ -6,6 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
   Unique,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntityWithSoftDelete } from './entity';
@@ -14,6 +16,7 @@ import { AssessmentMember } from './assessment-member.entity';
 import { Invitation } from './invitation.entity';
 import { Assessment } from './assessment.entity';
 import { Answer } from './answer.entity';
+import { AssessmentDomain } from './assessment-domain.entity';
 
 @Entity('assessment_groups')
 @Unique(['name', 'assessmentId'])
@@ -54,4 +57,12 @@ export class AssessmentGroup extends BaseEntityWithSoftDelete {
   })
   @OneToMany(() => Answer, (answer) => answer.group)
   answers: Answer[] | null;
+
+  @ManyToMany(() => AssessmentDomain)
+  @JoinTable({
+    name: 'assessment_group_domains',
+    joinColumn: { name: 'groupId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'domainId', referencedColumnName: 'id' },
+  })
+  domains: AssessmentDomain[];
 }

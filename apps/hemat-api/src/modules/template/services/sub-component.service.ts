@@ -75,8 +75,25 @@ export class SubComponentService {
         );
       }
 
+      // Get the parent component's code
+      const componentCode = component.code;
+      // Count existing subcomponents for this component
+      const count = await manager.getRepository(SubComponent).count({ where: { component: { id: component.id } } });
+      const code = `${componentCode}.${count + 1}`;
+
+      // Set code in translations for each language if translations exist
+      let translations = payload.translations;
+      if (translations && typeof translations === 'object') {
+        translations = { ...translations };
+        for (const lang of Object.keys(translations)) {
+          translations[lang] = { ...translations[lang], code };
+        }
+      }
+
       const subComponent = manager.getRepository(SubComponent).create({
         ...payload,
+        code,
+        translations,
         component,
       });
 
@@ -113,22 +130,16 @@ export class SubComponentService {
         }
         component = newComponent;
       }
+      // Remove code from payload if present
+      const { code, ...rest } = payload as any;
+      Object.assign(subComponent, { ...rest, component });
 
-      // Check if code is being updated and if it's unique
-      if (payload.code && payload.code !== subComponent.code) {
-        const existingSubComponent = await manager
-          .getRepository(SubComponent)
-          .findOne({
-            where: { code: payload.code },
-          });
-        if (existingSubComponent && existingSubComponent.id !== id) {
-          throw new BadRequestException(
-            `Sub-component with code ${payload.code} already exists.`,
-          );
+      // Ensure code in translations matches the main code
+      if (subComponent.translations && typeof subComponent.translations === 'object') {
+        for (const lang of Object.keys(subComponent.translations)) {
+          subComponent.translations[lang] = { ...subComponent.translations[lang], code: subComponent.code };
         }
       }
-
-      Object.assign(subComponent, { ...payload, component });
       return await manager.getRepository(SubComponent).save(subComponent);
     });
   }

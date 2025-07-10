@@ -30,8 +30,8 @@ import {
   AccountResponseDto,
   ChangePasswordRequestDto,
   RegisterRequestDto,
-  AssessmentMembershipDto,
 } from '../dtos';
+import { Request } from 'express';
 
 @Injectable()
 export class UserService {
@@ -185,7 +185,7 @@ export class UserService {
     };
   }
 
-  public async me(auth: AuthDto, assessmentContext?: { role?: MemberRole; groupId?: string; assessmentId?: string }): Promise<AccountResponseDto> {
+  public async me(auth: AuthDto): Promise<AccountResponseDto> {
     const account = await this.userRepository
       .findOne({
         where: { id: auth.id },
@@ -202,60 +202,33 @@ export class UserService {
       throw new NotFoundException('Account not found.');
     }
 
-    return new AccountResponseDto(account, assessmentContext);
+    return new AccountResponseDto(account);
   }
 
-  public async meWithAllAssessments(auth: AuthDto): Promise<AccountResponseDto> {
-    const account = await this.userRepository
-      .findOne({
-        where: { id: auth.id },
-        relations: ['profile', 'roles.permissions', 'permissions'],
-      })
-      .catch((err) => {
-        this.loggerService.error('meWithAllAssessments:', err);
-        throw new InternalServerErrorException(
-          'Failed to fetch user information',
-        );
-      });
-
-    if (!account) {
-      throw new NotFoundException('Account not found.');
-    }
-
-    // Fetch all assessment memberships with assessment and group information
-    const assessmentMemberships = await this.dataSource
-      .getRepository(AssessmentMember)
-      .createQueryBuilder('member')
-      .leftJoinAndSelect('member.assessment', 'assessment')
-      .leftJoinAndSelect('member.group', 'group')
-      .where('member.userId = :userId', { userId: auth.id })
-      .getMany()
-      .catch((err) => {
-        this.loggerService.error('meWithAllAssessments - assessment memberships:', err);
-        return [];
-      });
-
-    const membershipDtos = assessmentMemberships.map(member => new AssessmentMembershipDto({
-      assessmentId: member.assessmentId,
-      assessmentName: member.assessment?.name || 'Unknown Assessment',
-      role: member.role,
-      groupId: member.groupId,
-      groupName: member.group?.name || 'Unknown Group',
-    }));
-
-    return new AccountResponseDto(account, undefined, membershipDtos);
-  }
-
-  public async refreshToken(auth: AuthDto): Promise<LoginResponseDto> {
-    const account = await this.findUserById(auth.id);
+  public async refreshToken(
+    req: Request & { user: AuthDto },
+  ): Promise<LoginResponseDto> {
+    const account = await this.findUserById(req.user.id);
 
     if (!account) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    return this.createToken(account);
-  }
+    req.headers.authorization = req.headers.authorization || '';
+    const refreshToken = req.headers.authorization.replace('Bearer', '').trim();
+    const result = await this.authService
+      .generateAccess(pick(account, 'id', 'isAdmin', 'name', 'email', 'status'))
+      .catch((err) => {
+        this.loggerService.error('createToken:', err);
+        throw new BadRequestException('Failed to login');
+      });
 
+    return {
+      token: result,
+      expires: this.configService.getOrThrow('auth.expires', { infer: true }),
+      refreshToken,
+    };
+  }
   public async changePassword(
     auth: AuthDto,
     payload: ChangePasswordRequestDto,

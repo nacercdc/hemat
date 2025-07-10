@@ -4,7 +4,7 @@ import {
   Get,
   Ip,
   Post,
-  Request,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -21,11 +21,12 @@ import {
   LoginRequestDto,
   RegisterRequestDto,
   ChangePasswordRequestDto,
-  AccountResponseDto,
 } from '../dtos';
 import { AuthGuard, AuthRefreshGuard } from '@shared/modules';
 import { AuthDto, LoginResponseDto } from '../../../shared/modules';
 import { SuccessResponseDto } from '../../../shared/dtos';
+import { AccountResponseDto } from '../dtos/account-response.dto';
+import { Request } from 'express';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -37,7 +38,9 @@ export class UserController {
   @ApiBadRequestResponse()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
-  async register(@Body() payload: RegisterRequestDto): Promise<SuccessResponseDto> {
+  async register(
+    @Body() payload: RegisterRequestDto,
+  ): Promise<SuccessResponseDto> {
     return this.userService.register(payload);
   }
 
@@ -59,30 +62,18 @@ export class UserController {
   @ApiUnauthorizedResponse()
   @UseGuards(AuthGuard)
   @Post('logout')
-  async logout(@Request() req: { user: AuthDto }): Promise<SuccessResponseDto> {
+  async logout(@Req() req: { user: AuthDto }): Promise<SuccessResponseDto> {
     return this.userService.logout(req.user);
   }
 
-  @ApiOperation({ summary: 'Get user information with assessment memberships' })
+  @ApiOperation({ summary: 'Get user information' })
   @ApiOkResponse({ type: AccountResponseDto })
   @ApiBearerAuth()
   @ApiUnauthorizedResponse()
   @UseGuards(AuthGuard)
   @Get('me')
-  async me(@Request() req: { user: AuthDto & { assessmentRole?: string; assessmentGroupId?: string; currentAssessmentId?: string } }): Promise<AccountResponseDto> {
-    // Check if user has assessment context from AssessmentRoleGuard
-    const assessmentContext = req.user.assessmentRole || req.user.assessmentGroupId || req.user.currentAssessmentId ? {
-      role: req.user.assessmentRole as any,
-      groupId: req.user.assessmentGroupId,
-      assessmentId: req.user.currentAssessmentId,
-    } : undefined;
-    
-    // If no assessment context, get all assessment memberships
-    if (!assessmentContext) {
-      return this.userService.meWithAllAssessments(req.user);
-    }
-    
-    return this.userService.me(req.user, assessmentContext);
+  async me(@Req() req: { user: AuthDto }): Promise<AccountResponseDto> {
+    return this.userService.me(req.user);
   }
 
   @ApiOperation({ summary: 'Refresh JWT token' })
@@ -92,9 +83,9 @@ export class UserController {
   @UseGuards(AuthRefreshGuard)
   @Post('refresh-token')
   async refreshToken(
-    @Request() req: { user: AuthDto },
+    @Req() req: Request & { user: AuthDto },
   ): Promise<LoginResponseDto> {
-    return this.userService.refreshToken(req.user);
+    return this.userService.refreshToken(req);
   }
 
   @ApiOperation({ summary: 'Change user password' })
@@ -104,7 +95,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Post('change-password')
   async changePassword(
-    @Request() req: { user: AuthDto },
+    @Req() req: { user: AuthDto },
     @Body() payload: ChangePasswordRequestDto,
   ): Promise<SuccessResponseDto> {
     return this.userService.changePassword(req.user, payload);
@@ -118,7 +109,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @Get('users')
   async findAllUsers(
-    @Request() req: { user: AuthDto },
+    @Req() req: { user: AuthDto },
   ): Promise<AccountResponseDto[]> {
     return this.userService.findAllUsers();
   }

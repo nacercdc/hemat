@@ -36,6 +36,7 @@ import {
   RoadmapCreateRequestDto,
   RoadmapUpdateRequestDto,
 } from '../dtos';
+import { RoadmapDomainProgress } from '../types/assessment-progress.type';
 
 @ApiTags('Roadmaps')
 @ApiBearerAuth()
@@ -60,6 +61,25 @@ import {
 @Controller('assessments/:assessmentId/roadmaps')
 export class AssessmentRoadmapController {
   constructor(private readonly roadmapService: AssessmentRoadmapService) {}
+
+  @ApiOperation({
+    summary: 'Get roadmap progress per domain',
+    description:
+      'Get roadmap progress per domain for the primary roadmap of an assessment (team leader)',
+  })
+  @ApiOkResponse({ description: 'Ok' })
+  @Get('progress')
+  async getProgress(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Request() req: { user: AuthDto },
+    @Query('language') language?: string,
+  ): Promise<RoadmapDomainProgress[]> {
+    return this.roadmapService.getProgress(
+      assessmentId,
+      req.user.id,
+      language || 'en',
+    );
+  }
 
   @ApiOperation({
     summary: 'Find all roadmaps',

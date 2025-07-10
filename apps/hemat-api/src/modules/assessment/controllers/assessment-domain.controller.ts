@@ -107,34 +107,11 @@ export class AssessmentDomainController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query('language') language: string = 'en',
   ): Promise<any> {
-    const { isAdmin, assessmentRole, assessmentGroupId } = user;
-
-    if (isAdmin) {
-      return this.assessmentDomainService.getDomains(language);
+    const { isAdmin, assessmentRole } = user;
+    if (isAdmin || assessmentRole) {
+      return this.assessmentDomainService.getDomains(assessmentId, language);
     }
-
-    if (assessmentRole === MemberRole.PRIMARY) {
-      return this.assessmentDomainService.getDomains(language);
-    }
-
-    if (
-      assessmentRole === MemberRole.TEAM_LEADER ||
-      assessmentRole === MemberRole.MEMBER
-    ) {
-      if (assessmentGroupId) {
-        return this.assessmentDomainService.getDomainsByGroup(
-          assessmentId,
-          assessmentGroupId,
-          language,
-        );
-      } else {
-        throw new ForbiddenException(
-          'You must be assigned to a group to view domains',
-        );
-      }
-    }
-
-    throw new ForbiddenException('Invalid role for accessing domains');
+    throw new ForbiddenException('You are not authorized to view domains for this assessment.');
   }
 
   @ApiOperation({
@@ -351,12 +328,13 @@ export class AssessmentDomainController {
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('domainId', new ParseUUIDPipe()) domainId: string,
+    @Query('language') language?: string,
   ) {
     const { isAdmin, assessmentRole, assessmentGroupId } = user;
 
     if (isAdmin || assessmentRole === MemberRole.PRIMARY) {
       // Admin and Primary see all
-      return this.assessmentDomainService.getDomainWithAnswers(assessmentId, domainId);
+      return this.assessmentDomainService.getDomainWithAnswers(assessmentId, domainId, language);
     }
 
     if (
@@ -367,7 +345,8 @@ export class AssessmentDomainController {
       return this.assessmentDomainService.getDomainWithAnswersByGroup(
         assessmentId,
         domainId,
-        assessmentGroupId
+        assessmentGroupId,
+        language
       );
     }
 
@@ -397,10 +376,11 @@ export class AssessmentDomainController {
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('domainId', new ParseUUIDPipe()) domainId: string,
+    @Query('language') language?: string,
   ) {
     const { isAdmin, assessmentRole } = user;
     if (isAdmin || assessmentRole) {
-      return this.assessmentDomainService.getDomainWithPrimaryAnswers(assessmentId, domainId);
+      return this.assessmentDomainService.getDomainWithPrimaryAnswers(assessmentId, domainId, language);
     }
     throw new ForbiddenException('You do not have access to primary answers');
   }
