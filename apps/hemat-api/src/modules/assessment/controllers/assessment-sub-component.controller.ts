@@ -26,6 +26,7 @@ import {
 import {
   AssessmentSubComponent,
   AssessmentSubComponentAnswer,
+  AssessmentSubComponentRoadmap,
 } from '@database/entities';
 import { AuthGuard, Abilities } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
@@ -354,19 +355,53 @@ export class AssessmentSubComponentController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
-  ): Promise<AssessmentSubComponentAnswer> {
+  ): Promise<any> {
     const { assessmentRole, isAdmin, id: userId } = user;
 
+    let answer: AssessmentSubComponentAnswer;
     if (isAdmin) {
-      return this.assessmentSubComponentService.findPrimaryAnswer(id, userId);
+      answer = await this.assessmentSubComponentService.findPrimaryAnswer(id, userId);
+    } else {
+      if (assessmentRole !== MemberRole.PRIMARY) {
+        throw new ForbiddenException(
+          'Only Primary users and Admins can view primary answers',
+        );
+      }
+      answer = await this.assessmentSubComponentService.findPrimaryAnswer(id, userId);
     }
+    // Override id with answerId in the response, and remove answerId field
+    const { answerId, ...rest } = answer;
+    return { ...rest, id: answerId };
+  }
 
-    if (assessmentRole !== MemberRole.PRIMARY) {
-      throw new ForbiddenException(
-        'Only Primary users and Admins can view primary answers',
-      );
-    }
-
-    return this.assessmentSubComponentService.findPrimaryAnswer(id, userId);
+  @ApiOperation({
+    summary: 'Get roadmap answer for a sub-component',
+    description: 'Retrieve roadmap answer for a specific sub-component for the current user',
+  })
+  @ApiOkResponse({ description: 'Ok', type: AssessmentSubComponentRoadmap })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ROADMAP,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @UseGuards(AssessmentRoleGuard)
+  @Get(':id/roadmap-answer')
+  async getRoadmapAnswer(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) subComponentId: string,
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+  ): Promise<AssessmentSubComponentRoadmap> {
+    return this.assessmentSubComponentService.getSubComponentRoadmapAnswer(
+      assessmentId,
+      subComponentId,
+      user,
+    );
   }
 } 

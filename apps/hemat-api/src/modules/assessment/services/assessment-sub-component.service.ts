@@ -11,6 +11,8 @@ import {
   AssessmentSubComponent,
   AssessmentSubComponentAnswer,
   SubComponent,
+  AssessmentSubComponentRoadmap,
+  Roadmap,
 } from '@database/entities';
 import { UUID } from '@shared/helpers';
 import { Filter, QueryService } from '@shared/services';
@@ -37,6 +39,10 @@ export class AssessmentSubComponentService {
     private subComponentAnswerRepository: Repository<AssessmentSubComponentAnswer>,
     @InjectRepository(Answer)
     private answerRepository: Repository<Answer>,
+    @InjectRepository(AssessmentSubComponentRoadmap)
+    private subComponentRoadmapRepository: Repository<AssessmentSubComponentRoadmap>,
+    @InjectRepository(Roadmap)
+    private readonly roadmapRepository: Repository<Roadmap>,
   ) {}
 
   async create(
@@ -269,5 +275,24 @@ export class AssessmentSubComponentService {
       .andWhere('sca.deletedAt IS NULL')
       .andWhere('answer.deletedAt IS NULL')
       .getMany();
+  }
+
+  async getSubComponentRoadmapAnswer(
+    assessmentId: string,
+    subComponentId: string,
+    user: AssessmentAbilityDto,
+  ): Promise<AssessmentSubComponentRoadmap> {
+    // Find the user's primary roadmap for this assessment
+    const roadmap = await this.roadmapRepository.findOne({
+      where: { assessmentId, userId: user.id, isPrimary: true },
+    });
+    if (!roadmap) throw new NotFoundException('No roadmap found for user');
+
+    // Find the roadmap answer for this sub-component
+    const roadmapAnswer = await this.subComponentRoadmapRepository.findOne({
+      where: { roadmapId: roadmap.id, subComponentId },
+    });
+    if (!roadmapAnswer) throw new NotFoundException('No roadmap answer for this sub-component');
+    return roadmapAnswer;
   }
 }
