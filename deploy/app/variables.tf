@@ -1,5 +1,4 @@
-variable "name" {
-  description = "Name of the project"
+variable "project_name" {
   type = string
 }
 
@@ -14,15 +13,9 @@ variable "environment" {
 
 variable "image_tag" {
   type = string
-  default = "latest"
+  default = "pr-96-6adbb64"
 }
 
 variable "project_id" {
-  description = "Google Cloud project ID"
-  type = string
-}
-
-variable "registry_host" {
-  description = "Artifact Registry host"
   type = string
 }

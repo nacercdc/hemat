@@ -12,7 +12,7 @@ terraform {
 remote_state {
   backend = "gcs"
   config = {
-    bucket = "${local.config.common.name}-terraform-tfstate"
+    bucket = "${local.config.common.project_name}-terraform-tfstate"
     prefix = "terraform.tfstate"
     project = local.config[local.env].project_id
   }
