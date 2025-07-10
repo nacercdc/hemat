@@ -355,7 +355,7 @@ export class AssessmentSubComponentController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
-  ): Promise<any> {
+  ): Promise<AssessmentSubComponentAnswer> {
     const { assessmentRole, isAdmin, id: userId } = user;
 
     let answer: AssessmentSubComponentAnswer;
@@ -369,9 +369,8 @@ export class AssessmentSubComponentController {
       }
       answer = await this.assessmentSubComponentService.findPrimaryAnswer(id, userId);
     }
-    // Override id with answerId in the response, and remove answerId field
-    const { answerId, ...rest } = answer;
-    return { ...rest, id: answerId };
+    // Revert: return the answer object as-is
+    return answer;
   }
 
   @ApiOperation({
