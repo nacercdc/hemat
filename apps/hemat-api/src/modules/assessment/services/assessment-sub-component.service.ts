@@ -150,11 +150,15 @@ export class AssessmentSubComponentService {
   async findPrimaryAnswer(
     subComponentId: string,
     userId: string,
+    withMeasurementScale = false,
   ): Promise<AssessmentSubComponentAnswer> {
     const qb = this.subComponentAnswerRepository
       .createQueryBuilder('sca')
-      .innerJoin('sca.answer', 'answer')
-      .where('sca.subComponentId = :subComponentId', { subComponentId })
+      .innerJoin('sca.answer', 'answer');
+    if (withMeasurementScale) {
+      qb.leftJoinAndSelect('sca.measurementScale', 'measurementScale');
+    }
+    qb.where('sca.subComponentId = :subComponentId', { subComponentId })
       .andWhere('sca.deletedAt IS NULL')
       .andWhere('answer.deletedAt IS NULL')
       .andWhere('answer.userId = :userId', { userId })

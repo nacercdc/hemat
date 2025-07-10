@@ -67,3 +67,23 @@ export class FindOneAssessmentAnswerDto {
   @Transform(({ value }) => (value ? value.trim().split(',') : []))
   include: string[] = [];
 }
+
+export class FindOnePrimaryAssessmentAnswerDto {
+  @ApiPropertyOptional({
+    description:
+      'Comma-separated relations (e.g., assessment,user,subComponent,measurementScale,roadmaps)',
+    type: String,
+  })
+  @IsArrayContains([
+    'assessment',
+    'user',
+    'subComponent',
+    'measurementScale',
+    'roadmaps',
+  ])
+  @IsString({ each: true })
+  @IsOptional()
+  @Type(() => String)
+  @Transform(({ value }) => (value ? value.trim().split(',') : []))
+  include: string[] = [];
+}

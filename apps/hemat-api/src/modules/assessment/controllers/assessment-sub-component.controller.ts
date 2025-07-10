@@ -42,6 +42,7 @@ import {
   FindAllAssessmentSubComponentDto,
   FindOneAssessmentSubComponentDto,
   FindAllAssessmentAnswerDto,
+  FindOnePrimaryAssessmentAnswerDto,
 } from '../dtos';
 import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
 import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
@@ -355,21 +356,24 @@ export class AssessmentSubComponentController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
+    @Query() query: FindOnePrimaryAssessmentAnswerDto,
   ): Promise<AssessmentSubComponentAnswer> {
     const { assessmentRole, isAdmin, id: userId } = user;
 
     let answer: AssessmentSubComponentAnswer;
+    const includeArr = query.include || [];
+    const withMeasurementScale = includeArr.includes('measurementScale');
+
     if (isAdmin) {
-      answer = await this.assessmentSubComponentService.findPrimaryAnswer(id, userId);
+      answer = await this.assessmentSubComponentService.findPrimaryAnswer(id, userId, withMeasurementScale);
     } else {
       if (assessmentRole !== MemberRole.PRIMARY) {
         throw new ForbiddenException(
           'Only Primary users and Admins can view primary answers',
         );
       }
-      answer = await this.assessmentSubComponentService.findPrimaryAnswer(id, userId);
+      answer = await this.assessmentSubComponentService.findPrimaryAnswer(id, userId, withMeasurementScale);
     }
-    // Revert: return the answer object as-is
     return answer;
   }
 
