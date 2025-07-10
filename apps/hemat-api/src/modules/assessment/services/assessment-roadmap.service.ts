@@ -15,6 +15,7 @@ import {
   Assessment,
   AssessmentDomain,
   AssessmentComponent,
+  AssessmentSubComponentAnswer,
 } from '@database/entities';
 import { QueryService } from '@shared/services';
 import { FindAllResponseDto } from '@shared/dtos';
@@ -144,6 +145,26 @@ export class AssessmentRoadmapService {
         );
       }
 
+      // If target is not provided, use measurementScale.rate as target
+      const targetValue = payload.target ?? measurementScale.rate.toString();
+
+      // For currentState, use the measurementScale rate of the answer's measurementScaleId from AssessmentSubComponentAnswer
+      let currentState = measurementScale.rate;
+      const subComponentAnswer = await manager.findOne(AssessmentSubComponentAnswer, {
+        where: {
+          answerId: payload.answerId,
+          subComponentId: payload.subComponentId,
+        },
+      });
+      if (subComponentAnswer && subComponentAnswer.measurementScaleId) {
+        const answerMeasurementScale = await manager.findOne(AssessmentMeasurementScale, {
+          where: { id: subComponentAnswer.measurementScaleId },
+        });
+        if (answerMeasurementScale) {
+          currentState = answerMeasurementScale.rate;
+        }
+      }
+
       let roadmap = await manager.findOne(Roadmap, {
         where: { assessmentId, userId, isPrimary: true },
       });
@@ -172,8 +193,8 @@ export class AssessmentRoadmapService {
         Object.assign(subComponentRoadmap, {
           answerId: payload.answerId,
           measurementScaleId: payload.measurementScaleId,
-          target: payload.target,
-          currentState: measurementScale.rate,
+          target: targetValue,
+          currentState,
           activities: payload.activities,
           responsible: payload.responsible,
           resources: payload.resources,
@@ -187,8 +208,8 @@ export class AssessmentRoadmapService {
           subComponentId: payload.subComponentId,
           answerId: payload.answerId,
           measurementScaleId: payload.measurementScaleId,
-          target: payload.target,
-          currentState: measurementScale.rate,
+          target: targetValue,
+          currentState,
           activities: payload.activities,
           responsible: payload.responsible,
           resources: payload.resources,
