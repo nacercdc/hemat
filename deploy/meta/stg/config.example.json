@@ -1,0 +1,23 @@
+{
+    "credentials": {
+        "type": "service_account",
+        "project_id": "<Google Project Id>",
+        "private_key_id": "<Private Key Id>",
+        "private_key": "-----BEGIN PRIVATE KEY-----\n<PRIVATE KEY>\n-----END PRIVATE KEY-----\n",
+        "client_email": "terraform@<Google Project Id>.iam.gserviceaccount.com",
+        "client_id": "<Client Id>",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/terraform%40<Google Project Id>.iam.gserviceaccount.com",
+        "universe_domain": "googleapis.com"
+    },
+    "secrets": {
+        "<Secret Name 1>": "<Secret Value 1>",
+        "<Secret Name 2>": "<Secret Value 2>"
+    },
+    "github_secrets": {
+        "<GitHub Secret Name 1>": "<GitHub Secret Value 1>",
+        "<GitHub Secret Name 2>": "<GitHub Secret Value 2>"
+    }
+}
