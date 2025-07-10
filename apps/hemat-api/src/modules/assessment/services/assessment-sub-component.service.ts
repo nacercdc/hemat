@@ -22,6 +22,7 @@ import {
   FindAllAssessmentAnswerDto,
   FindAllAssessmentSubComponentDto,
   FindOneAssessmentSubComponentDto,
+  FindOnePrimaryAssessmentAnswerDto,
 } from '../dtos';
 import { MemberRole } from '@shared/enums';
 import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
@@ -150,13 +151,20 @@ export class AssessmentSubComponentService {
   async findPrimaryAnswer(
     subComponentId: string,
     userId: string,
-    withMeasurementScale = false,
+    query: FindOnePrimaryAssessmentAnswerDto,
   ): Promise<AssessmentSubComponentAnswer> {
     const qb = this.subComponentAnswerRepository
-      .createQueryBuilder('sca')
-      .innerJoin('sca.answer', 'answer');
-    if (withMeasurementScale) {
+      .createQueryBuilder('sca');
+    if (query.include?.includes('answer')) {
+      qb.leftJoinAndSelect('sca.answer', 'answer');
+    } else {
+      qb.innerJoin('sca.answer', 'answer');
+    }
+    if (query.include?.includes('measurementScale')) {
       qb.leftJoinAndSelect('sca.measurementScale', 'measurementScale');
+    }
+    if (query.include?.includes('subComponent')) {
+      qb.leftJoinAndSelect('sca.subComponent', 'subComponent');
     }
     qb.where('sca.subComponentId = :subComponentId', { subComponentId })
       .andWhere('sca.deletedAt IS NULL')
@@ -190,6 +198,16 @@ export class AssessmentSubComponentService {
       qb.andWhere('answer.groupId = :groupId', {
         groupId: user.assessmentGroupId,
       });
+    }
+
+    if (query.include?.includes('assessment')) {
+      qb.leftJoinAndSelect('answer.assessment', 'assessment');
+    }
+    if (query.include?.includes('user')) {
+      qb.leftJoinAndSelect('answer.user', 'user');
+    }
+    if (query.include?.includes('roadmaps')) {
+      qb.leftJoinAndSelect('answer.roadmaps', 'roadmaps');
     }
 
     const result = await qb.getOne();

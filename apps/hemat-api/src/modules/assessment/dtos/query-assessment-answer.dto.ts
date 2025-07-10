@@ -7,7 +7,7 @@ import { IsOptional, IsString } from 'class-validator';
 export class FindAllAssessmentAnswerDto extends FindAllDto {
   @ApiPropertyOptional({
     description:
-      'Comma-separated relations (e.g., assessment,user,subComponent,measurementScale,roadmaps)',
+      'Comma-separated relations (e.g., assessment,user,subComponent,measurementScale,roadmaps,answer)',
     type: String,
   })
   @IsArrayContains([
@@ -16,6 +16,7 @@ export class FindAllAssessmentAnswerDto extends FindAllDto {
     'subComponent',
     'measurementScale',
     'roadmaps',
+    'answer'
   ])
   @IsString({ each: true })
   @IsOptional()
@@ -51,7 +52,7 @@ export class FindAllAssessmentAnswerDto extends FindAllDto {
 export class FindOneAssessmentAnswerDto {
   @ApiPropertyOptional({
     description:
-      'Comma-separated relations (e.g., assessment,user,subComponent,measurementScale,roadmaps)',
+      'Comma-separated relations (e.g., assessment,user,subComponent,measurementScale,roadmaps,answer)',
     type: String,
   })
   @IsArrayContains([
@@ -60,6 +61,7 @@ export class FindOneAssessmentAnswerDto {
     'subComponent',
     'measurementScale',
     'roadmaps',
+    'answer'
   ])
   @IsString({ each: true })
   @IsOptional()
@@ -71,7 +73,7 @@ export class FindOneAssessmentAnswerDto {
 export class FindOnePrimaryAssessmentAnswerDto {
   @ApiPropertyOptional({
     description:
-      'Comma-separated relations (e.g., assessment,user,subComponent,measurementScale,roadmaps)',
+      'Comma-separated relations (e.g., assessment,user,subComponent,measurementScale,roadmaps,answer)',
     type: String,
   })
   @IsArrayContains([
@@ -80,6 +82,7 @@ export class FindOnePrimaryAssessmentAnswerDto {
     'subComponent',
     'measurementScale',
     'roadmaps',
+    'answer'
   ])
   @IsString({ each: true })
   @IsOptional()

@@ -361,25 +361,32 @@ export class AssessmentSubComponentController {
     const { assessmentRole, isAdmin, id: userId } = user;
 
     let answer: AssessmentSubComponentAnswer;
-    const includeArr = query.include || [];
-    const withMeasurementScale = includeArr.includes('measurementScale');
-
     if (isAdmin) {
-      answer = await this.assessmentSubComponentService.findPrimaryAnswer(id, userId, withMeasurementScale);
+      answer = await this.assessmentSubComponentService.findPrimaryAnswer(
+        id,
+        userId,
+        query,
+      );
     } else {
       if (assessmentRole !== MemberRole.PRIMARY) {
         throw new ForbiddenException(
           'Only Primary users and Admins can view primary answers',
         );
       }
-      answer = await this.assessmentSubComponentService.findPrimaryAnswer(id, userId, withMeasurementScale);
+      answer = await this.assessmentSubComponentService.findPrimaryAnswer(
+        id,
+        userId,
+        query,
+      );
     }
+    // Revert: return the answer object as-is
     return answer;
   }
 
   @ApiOperation({
     summary: 'Get roadmap answer for a sub-component',
-    description: 'Retrieve roadmap answer for a specific sub-component for the current user',
+    description:
+      'Retrieve roadmap answer for a specific sub-component for the current user',
   })
   @ApiOkResponse({ description: 'Ok', type: AssessmentSubComponentRoadmap })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
