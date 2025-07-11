@@ -7,10 +7,14 @@ module "web" {
   project_id   = var.project_id
   image_tag    = var.image_tag
 
+  template = {
+    max_instance_request_concurrency = 100
+  }
+
   container = {
     resources = {
       limits = {
-        cpu    = "300m"
+        cpu    = "1000m"
         memory = "2Gi"
       }
     }
