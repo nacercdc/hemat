@@ -4,20 +4,17 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageContainer } from "~/components/modules/components/PageContainer";
 import { ComponentsList } from "./components/components-list";
-import {
-  SubCompAssessmentForm,
-  SubCompAssessmentFormID,
-} from "./components/form";
+import { SubCompRoadmapForm, SubCompRoadmapFormID } from "./components/form";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { Button, useToast } from "@etm/web-ui-components";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import { Stepper } from "./components/Stepper";
 import type { Component } from "./components/components-list";
-import type { AssessmentFormData } from "./components/form";
+import type { RoadmapFormData } from "./components/form";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { SubComponent } from "~/libs/models/subComponent.model";
 
-export function CurrentAssessmentFill() {
+export function RoadmapFill() {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -27,15 +24,19 @@ export function CurrentAssessmentFill() {
     useState<number>(0);
 
   //TODO: this will be replaced with our real assessment-segment from our path param
-  const { mutate: answerAssessment, ...answerAssessmentState } = useAddMutation<
+  //TODO: create and replace me with create roadmap answer model from models ASAP
+  const { mutate: answerRoadmap, ...answerRoadmapState } = useAddMutation<
     { id: string; name: string },
-    AssessmentFormData & {
+    Omit<RoadmapFormData, "startTime" | "endTime"> & {
       assessmentId: string;
       measurementScaleId: string;
       subComponentId: string;
-      isPrimary: boolean;
+      answerId: string;
+      startTime: string;
+      endTime: string;
+      documentation: string; //delete me ASAP
     }
-  >("assessments/e9989a40-722d-4541-b368-8c7ebab86013/answers");
+  >("assessments/e9989a40-722d-4541-b368-8c7ebab86013/roadmaps");
 
   //TODO: this will be replaced with our real domain-segment from our path param
   const { data: components, ...componentsState } = useFindAll<
@@ -98,7 +99,7 @@ export function CurrentAssessmentFill() {
 
   const onFormSubmitTriggerHandler = () => {
     const form = document.getElementById(
-      `${SubCompAssessmentFormID}`
+      `${SubCompRoadmapFormID}`
     ) as HTMLFormElement;
 
     if (!form) return;
@@ -108,8 +109,11 @@ export function CurrentAssessmentFill() {
     );
   };
 
-  const onAssessmentSubmitHandler = (values: AssessmentFormData) => {
-    answerAssessment(
+  const onRoadmapSubmitHandler = (
+    values: RoadmapFormData & { answerId: string }
+  ) => {
+    //TODO replace assessment assessmentId ASAP
+    answerRoadmap(
       {
         data: {
           ...values,
@@ -120,14 +124,17 @@ export function CurrentAssessmentFill() {
               activeSubComponentIndex
             ] as unknown as SubComponent
           ).id,
-          isPrimary: true,
+          answerId: values.answerId,
+          startTime: new Date(values.startTime).toISOString(),
+          endTime: new Date(values.endTime).toISOString(),
+          documentation: "documentation", //delete me ASAP
         },
       },
       {
         onSuccess: () => {
           toast({
             title: "Success",
-            message: "Assessment has been answered successfully!",
+            message: "Roadmap has been filled successfully!",
             variant: "success",
           });
 
@@ -150,7 +157,7 @@ export function CurrentAssessmentFill() {
   return (
     <PageContainer
       //TODO: will be dynamic ass soon as the tab routing is fixed
-      pageTitle={`${"Assessment 1"} / Fill`}
+      pageTitle={`${"Assessment 1"} / Roadmap Fill`}
       includeBreadcrumb={false}
       onBack={onGoBackClickHandler}
     >
@@ -168,8 +175,8 @@ export function CurrentAssessmentFill() {
           <div className="lg:col-span-4 col-span-full">
             <div className="flex flex-col gap-1 relative">
               <div className="mt-2">
-                <SubCompAssessmentForm
-                  onSubmitHandler={onAssessmentSubmitHandler}
+                <SubCompRoadmapForm
+                  onSubmitHandler={onRoadmapSubmitHandler}
                   subComponent={
                     subComponents?.data[
                       activeSubComponentIndex
@@ -191,7 +198,7 @@ export function CurrentAssessmentFill() {
                   type="submit"
                   size="lg"
                   disabled={isSubComponentDataLoading}
-                  loading={answerAssessmentState.isPending}
+                  loading={answerRoadmapState.isPending}
                   onClick={onFormSubmitTriggerHandler}
                 >
                   {isLastSubComponent ? "Save" : "Next"}
@@ -205,7 +212,7 @@ export function CurrentAssessmentFill() {
                   activeStep={activeSubComponentIndex}
                   onStepClick={onNavigateSubCompHandler}
                   isDisabled={
-                    isSubComponentDataLoading || answerAssessmentState.isPending
+                    isSubComponentDataLoading || answerRoadmapState.isPending
                   }
                 />
               </div>
