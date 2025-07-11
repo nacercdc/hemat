@@ -12,7 +12,7 @@ import { useParams } from "next/navigation";
 import { Button, Modal, ModalRef } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { CreateGroupForm } from "./form/CreateGroupForm";
-export const ASSESSMENT_GROUP_LIST_KEY = "assessments-groups-list";
+export const ASSESSMENT_GROUPS_KEY = "assessments-groups-list";
 
 export default function AssessmentGroups() {
   const params = useParams();
@@ -45,7 +45,7 @@ export default function AssessmentGroups() {
       include: ["members", "members.user"],
     },
     tqOptions: {
-      queryKey: ["ooooooooooooooooooo"],
+      queryKey: [ASSESSMENT_GROUPS_KEY],
     },
   });
 

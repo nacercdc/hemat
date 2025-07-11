@@ -18,6 +18,11 @@ export interface Member {
 }
 
 export interface AssessmentGroup {
+  assessmentId: string | null;
+  createdAt: string | null;
+  deletedAt: string | null;
+  updatedAt: string | null;
+  id?: string;
   name: string;
   members: Member[];
 }

@@ -1,16 +1,26 @@
+"use client";
 import React, { useRef } from "react";
 import { Icon } from "@iconify/react";
 import type { ModalRef } from "@etm/web-ui-components";
-import { Button, DropdownMenu, Modal, useToast } from "@etm/web-ui-components";
+import {
+  Button,
+  DropdownMenu,
+  Modal,
+  SelectRHF,
+  useToast,
+} from "@etm/web-ui-components";
 import type {
   AssessmentGroup,
   MemberMoveTo,
 } from "~/libs/models/assessment-member.model";
 import { useParams } from "next/navigation";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
-import { ASSESSMENT_GROUP_LIST_KEY } from "./AssessmentGroups";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import { z } from "zod";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+export const ASSESSMENT_GROUP_LIST_KEY = "assessments-groups";
 
 type OptionType = "Team leader" | "Make Primary" | "Remove" | "Move to";
 interface Props {
@@ -19,13 +29,19 @@ interface Props {
   optionsList?: OptionType[];
 }
 
-export const memberMoveToSchema = z.object({
-  code: z
+export const groupSchema = z.object({
+  id: z
     .string()
-    .min(2, { message: "Group  name is too short" })
+    .min(1, { message: "Select the group that you want move" })
     .max(50, { message: "Group name is too long" }),
 });
-export type memberMoveToFormData = z.infer<typeof memberMoveToSchema>;
+export const memberMoveToSchema = z.object({
+  group: z.object({
+    id: z.string().min(1, { message: "Select the group that you want move" }),
+  }),
+});
+
+export type MemberMoveToFormData = z.infer<typeof memberMoveToSchema>;
 
 export default function MemberAction({
   id,
@@ -36,25 +52,6 @@ export default function MemberAction({
   const params = useParams();
   const assessmentId = params.id;
   const openMemberActionRef = useRef<ModalRef>(null);
-
-  const openMemberActionModal = () => openMemberActionRef.current?.openModal();
-  const onCancelMemberActionHandler = () =>
-    openMemberActionRef.current?.closeModal();
-
-  // const { data: assessmentGroup, ...assessmentGroupsState } =
-  //   useFindAll<AssessmentGroup>({
-  //     path: `/assessments/${assessmentId}/groups`,
-
-  //     tqOptions: {
-  //       queryKey: [ASSESSMENT_GROUP_LIST_KEY],
-  //     },
-  //   });
-
-  const { mutate: memberMoveto, ..._memberMovetoState } = useAddMutation<
-    AssessmentGroup,
-    MemberMoveTo
-  >(`assessments/${assessmentId as string}/members/move`);
-
   const onGotoRemoveMemberHandler = () => {
     if (refetch) {
       refetch(id);
@@ -63,37 +60,28 @@ export default function MemberAction({
 
   const onGotoPrimaryLeaderHandler = () => {
     //TODO: this a function make the user a Time leader
-    console.log(`Make ${id} a Primary`);
   };
 
   const onGotoTeamLeaderHandler = () => {
     //TODO: this a function make the user a Time leader
-    console.log(`Make ${id} a Team Leader`);
   };
-
-  const _onMoveToHandler = () => {
-    memberMoveto(
-      {
-        data: {
-          userId: id,
-          toGroupId: "b9f93891-6f30-48a1-b987-6c38196241bb",
-        },
-        isProtected: true,
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<MemberMoveToFormData>({
+    defaultValues: {
+      group: {
+        id: "",
       },
-      {
-        onSuccess: () => {
-          toaster.toast({
-            title: "Success",
-            message: "Member has been moved successfully",
-            variant: "success",
-          });
-          queryClient.invalidateQueries({
-            queryKey: [ASSESSMENT_GROUP_LIST_KEY],
-          });
-        },
-      }
-    );
-  };
+    },
+    resolver: zodResolver(memberMoveToSchema),
+    mode: "all",
+  });
+  const openMemberActionModal = () => openMemberActionRef.current?.openModal();
+  const onCancelMemberActionHandler = () =>
+    openMemberActionRef.current?.closeModal();
   const allOptions = {
     "Team leader": {
       value: "Team leader",
@@ -119,6 +107,46 @@ export default function MemberAction({
     },
   };
 
+  const { data: assessmentGroups, ...assessmentGroupsState } =
+    useFindAll<AssessmentGroup>({
+      path: `/assessments/${assessmentId}/groups`,
+      tqOptions: {
+        queryKey: [ASSESSMENT_GROUP_LIST_KEY],
+      },
+    });
+
+  console.log(assessmentGroups, "Groups");
+
+  const { mutate: memberMoveto, ...memberMovetoState } =
+    useAddMutation<MemberMoveTo>(
+      `assessments/${assessmentId as string}/members/move`
+    );
+
+  const onMoveToHandler = (data: MemberMoveToFormData) => {
+    memberMoveto(
+      {
+        data: {
+          userId: id,
+          toGroupId: data.group.id,
+        },
+        isProtected: true,
+      },
+      {
+        onSuccess: () => {
+          toaster.toast({
+            title: "Success",
+            message: "Member has been moved successfully",
+            variant: "success",
+          });
+          onCancelMemberActionHandler();
+          queryClient.invalidateQueries({
+            queryKey: [ASSESSMENT_GROUP_LIST_KEY],
+          });
+        },
+      }
+    );
+  };
+
   return (
     <div>
       <DropdownMenu
@@ -132,34 +160,42 @@ export default function MemberAction({
         }
         options={optionsList.map((key) => allOptions[key])}
       />
-      <Modal ref={openMemberActionRef} title="Select The Group ">
-        ddddddddddd
-        {/* <SelectRHF<AssessmentGroup, memberMoveToFormData>
-          control={control}
-          name="code"
-          labelKey="name"
-          valueKey="members"
-          displayLabel="Country"
-          labelVariant="bold"
-          size="xl"
-          onOpenChange={() => assessmentGroupsState.refetch()}
-          options={
-            (assessmentGroup?.data as unknown as AssessmentGroup[]) ?? []
-          }
-        /> */}
-        <div className="flex justify-between items-center w-full bg-layout-bg p-4 rounded-b-lg px-8 mt-auto">
-          <Button
-            variant="outline"
-            type="button"
-            color="card"
-            onClick={onCancelMemberActionHandler}
-          >
-            Cancel
-          </Button>
-          <Button size="lg" type="submit">
-            Move
-          </Button>
-        </div>
+
+      <Modal ref={openMemberActionRef} title="Select The Group">
+        <form onSubmit={handleSubmit(onMoveToHandler)} className="space-y-4">
+          <div className="flex flex-col px-8">
+            <SelectRHF<AssessmentGroup, MemberMoveToFormData>
+              control={control}
+              displayLabel="Name"
+              name="group"
+              labelKey="name"
+              valueKey="id"
+              labelVariant="bold"
+              size="lg"
+              onOpenChange={() => assessmentGroupsState.refetch()}
+              options={assessmentGroups?.data ?? []}
+              error={errors.group?.message}
+            />
+          </div>
+
+          <div className="flex justify-between items-center w-full bg-layout-bg p-4 rounded-b-lg px-8 mt-auto">
+            <Button
+              variant="outline"
+              type="button"
+              color="card"
+              onClick={onCancelMemberActionHandler}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="lg"
+              type="submit"
+              loading={memberMovetoState.isPending}
+            >
+              Move
+            </Button>
+          </div>
+        </form>
       </Modal>
     </div>
   );
