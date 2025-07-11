@@ -62,6 +62,15 @@ export class AssessmentComponent extends BaseEntityWithSoftDelete {
   translations: Record<string, ComponentTranslationDto> = {};
 
   @ApiProperty({
+    description: 'ID of the original template component',
+    example: 'template-component-uuid',
+    type: String,
+    required: false,
+  })
+  @Column({ type: 'uuid', nullable: true })
+  templateComponentId?: string;
+
+  @ApiProperty({
     description: 'ID of the associated domain',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,

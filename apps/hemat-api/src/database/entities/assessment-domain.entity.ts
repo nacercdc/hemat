@@ -67,4 +67,13 @@ export class AssessmentDomain extends BaseEntityWithSoftDelete {
 
   @ManyToMany(() => AssessmentGroup, (group) => group.domains)
   groups: AssessmentGroup[];
+
+  @ApiProperty({
+    description: 'ID of the original template domain',
+    example: 'template-domain-uuid',
+    type: String,
+    required: false,
+  })
+  @Column({ type: 'uuid', nullable: true })
+  templateDomainId?: string;
 }

@@ -70,6 +70,7 @@ export class AssessmentDomainService {
         name,
         description,
         translations,
+        templateDomainId: id,
       });
       templateDomainId[id] = domain.id;
       assessmentDomains.push(domain);

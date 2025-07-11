@@ -54,4 +54,6 @@ export class AssessmentMeasurementScaleDto {
   @IsNotEmpty()
   @Type(() => MeasurementScaleTranslationDto)
   translations: Record<string, MeasurementScaleTranslationDto> = {};
+
+  templateMeasurementScaleId?: string;
 }

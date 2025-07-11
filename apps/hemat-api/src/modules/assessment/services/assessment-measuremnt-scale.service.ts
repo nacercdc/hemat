@@ -51,6 +51,7 @@ export class AssessmentMeasurementScaleService {
           rate,
           assessmentId,
           translations,
+          templateMeasurementScaleId: id,
         });
         templateMeasurementScaleId[id] = measurementScale.id;
         assessmentMeasurementScales.push(measurementScale);

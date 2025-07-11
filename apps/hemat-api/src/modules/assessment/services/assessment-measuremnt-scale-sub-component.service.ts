@@ -48,7 +48,7 @@ export class AssessmentMeasurementScaleSubComponentService {
         AssessmentMeasurementScaleSubComponent,
       );
       measurementScaleSubComponents.forEach(
-        ({ description, translations, subComponentId, measurementScaleId }) => {
+        ({ id, description, translations, subComponentId, measurementScaleId }) => {
           const subCompId = templateSubComponentId[subComponentId] ?? null;
           const scaleId =
             templateMeasurementScaleId[measurementScaleId] ?? null;
@@ -60,6 +60,7 @@ export class AssessmentMeasurementScaleSubComponentService {
                 measurementScaleId: scaleId,
                 description,
                 translations,
+                templateMeasurementScaleSubComponentId: id,
               }),
             );
           }

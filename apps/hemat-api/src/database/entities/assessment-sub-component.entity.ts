@@ -70,6 +70,15 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
   @JoinColumn({ name: 'componentId' })
   component: AssessmentComponent;
 
+  @ApiProperty({
+    description: 'ID of the original template sub-component',
+    example: 'template-sub-component-uuid',
+    type: String,
+    required: false,
+  })
+  @Column({ type: 'uuid', nullable: true })
+  templateSubComponentId?: string;
+
   @OneToMany(
     () => AssessmentSubComponentAnswer,
     (answer) => answer.subComponent,
