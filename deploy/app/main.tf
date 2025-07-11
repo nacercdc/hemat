@@ -34,7 +34,7 @@ module "hemat_api" {
     resources = {
       limits = {
         cpu    = "300m"
-        memory = "256Mi"
+        memory = "512Mi"
       }
     }
   }
