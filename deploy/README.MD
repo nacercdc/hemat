@@ -21,6 +21,8 @@ gcloud init
 Replace the values below as needed for your environment.
 
 ```sh
+export PROJECT_NAME=africa-cdc
+export REGION=us-west1
 export PROJECT_ID=ethiochicken-test-459516
 export SERVICE_ACCOUNT_NAME="terraform"
 export DISPLAY_NAME="Terraform Service Account"
@@ -73,6 +75,15 @@ done
 ```
 
 ---
+
+## 6. Create a bucket for terraform backend
+
+```sh
+gcloud storage buckets create gs://${PROJECT_NAME}-terraform-tfstate \
+  --location=${REGION} \
+  --uniform-bucket-level-access \
+  --public-access-prevention
+```
 
 **Notes:**
 - Replace all variable values as appropriate for your GCP project and GitHub repository.

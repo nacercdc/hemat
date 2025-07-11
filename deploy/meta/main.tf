@@ -1,14 +1,12 @@
 module "meta" {
-  source  = "git::https://github.com/etmsoftware/tf-modules.git//gcp/cloud_run/meta?ref=main"
-
-  name            = var.name
-  project_id      = var.project_id
-  region          = var.region
-  environment     = var.environment
-  repository      = var.repository
-  organization    = var.organization
-  http_username   = var.http_username
-  http_token      = var.http_token
-  github_secrets  = var.github_secrets
-  env_secrets     = var.env_secrets
+  source              = "./modules"
+  
+  project_name        = var.project_name
+  project_id          = var.project_id
+  region              = var.region
+  github_repository   = var.github_repository
+  github_organization = var.github_organization
+  secrets             = var.secrets
+  environment         = var.environment
+  github_secrets      = var.github_secrets
 }
