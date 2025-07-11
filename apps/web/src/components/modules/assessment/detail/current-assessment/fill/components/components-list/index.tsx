@@ -3,13 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { cn } from "~/utils/cn.util";
-import type { SubComponent } from "../form";
 import { ComponentsListSkeleton } from "./ComponentsListSkeleton";
 import { TruncatedText } from "~/components/ui/TruncatedText";
+import type { SubComponent } from "~/libs/models/subComponent.model";
+import type { Component as ComponentModel } from "~/libs/models/component.model";
 
-export interface Component {
-  id: string;
-  name: string;
+export interface Component extends ComponentModel {
   subComponents: SubComponent[];
 }
 
