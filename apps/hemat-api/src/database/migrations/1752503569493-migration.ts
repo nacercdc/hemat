@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1752490864059 implements MigrationInterface {
-    name = 'Migration1752490864059'
+export class Migration1752503569493 implements MigrationInterface {
+    name = 'Migration1752503569493'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "comments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" character varying NOT NULL, "comment" text NOT NULL, "responseId" uuid NOT NULL, CONSTRAINT "PK_8bf68bc960f2b69e818bdb90dcb" PRIMARY KEY ("id"))`);
@@ -133,9 +133,11 @@ export class Migration1752490864059 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "assessment-domains" ADD CONSTRAINT "FK_198045c771f5080df0f1625ee4b" FOREIGN KEY ("assessmentId") REFERENCES "assessments"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "assessment-domains" ADD CONSTRAINT "FK_9fe916724719627e243c3617cc5" FOREIGN KEY ("templateDomainId") REFERENCES "domains"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "assessment-components" ADD CONSTRAINT "FK_c05bb2ea27d1d0fd6e64c445962" FOREIGN KEY ("assessmentId") REFERENCES "assessments"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "assessment-components" ADD CONSTRAINT "FK_d8ee8bb0201856547bd7c2b9df1" FOREIGN KEY ("templateComponentId") REFERENCES "components"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "assessment-components" ADD CONSTRAINT "FK_7f33ac21a1ccdc1ee212f001f22" FOREIGN KEY ("domainId") REFERENCES "assessment-domains"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "assessment_sub_components" ADD CONSTRAINT "FK_b8872c355bac08350b10674213e" FOREIGN KEY ("assessmentId") REFERENCES "assessments"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "assessment_sub_components" ADD CONSTRAINT "FK_89a098a92c81b110a269e92a547" FOREIGN KEY ("componentId") REFERENCES "assessment-components"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "assessment_sub_components" ADD CONSTRAINT "FK_f50e2b89362514fa71405650930" FOREIGN KEY ("templateSubComponentId") REFERENCES "sub_components"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "assessments" ADD CONSTRAINT "FK_a6aab0d30090866bb9cc0c61c72" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "assessments" ADD CONSTRAINT "FK_9ab7298e30eb3ca865d6d96ff8b" FOREIGN KEY ("countryCode") REFERENCES "countries"("code") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "answers" ADD CONSTRAINT "FK_863462f942e7c32f90bc411617f" FOREIGN KEY ("assessmentId") REFERENCES "assessments"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
@@ -179,9 +181,11 @@ export class Migration1752490864059 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "answers" DROP CONSTRAINT "FK_863462f942e7c32f90bc411617f"`);
         await queryRunner.query(`ALTER TABLE "assessments" DROP CONSTRAINT "FK_9ab7298e30eb3ca865d6d96ff8b"`);
         await queryRunner.query(`ALTER TABLE "assessments" DROP CONSTRAINT "FK_a6aab0d30090866bb9cc0c61c72"`);
+        await queryRunner.query(`ALTER TABLE "assessment_sub_components" DROP CONSTRAINT "FK_f50e2b89362514fa71405650930"`);
         await queryRunner.query(`ALTER TABLE "assessment_sub_components" DROP CONSTRAINT "FK_89a098a92c81b110a269e92a547"`);
         await queryRunner.query(`ALTER TABLE "assessment_sub_components" DROP CONSTRAINT "FK_b8872c355bac08350b10674213e"`);
         await queryRunner.query(`ALTER TABLE "assessment-components" DROP CONSTRAINT "FK_7f33ac21a1ccdc1ee212f001f22"`);
+        await queryRunner.query(`ALTER TABLE "assessment-components" DROP CONSTRAINT "FK_d8ee8bb0201856547bd7c2b9df1"`);
         await queryRunner.query(`ALTER TABLE "assessment-components" DROP CONSTRAINT "FK_c05bb2ea27d1d0fd6e64c445962"`);
         await queryRunner.query(`ALTER TABLE "assessment-domains" DROP CONSTRAINT "FK_9fe916724719627e243c3617cc5"`);
         await queryRunner.query(`ALTER TABLE "assessment-domains" DROP CONSTRAINT "FK_198045c771f5080df0f1625ee4b"`);
