@@ -15,8 +15,12 @@ export class SupportReply extends BaseEntityWithSoftDelete {
   support: Support;
 
   @ApiProperty({ description: 'User who replied', type: () => User })
-  @ManyToOne(() => User, { nullable: false, eager: true })
+  @ManyToOne(() => User, { nullable: false })
   repliedBy: User;
+
+  @ApiProperty({ description: 'ID of the user who replied', example: '123e4567-e89b-12d3-a456-426614174000' })
+  @Column()
+  repliedById: string;
 
   @ApiProperty({
     description: 'Reply description',
