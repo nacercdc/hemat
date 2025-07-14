@@ -6,7 +6,6 @@ import { Providers } from "~/providers";
 import { cn } from "~/utils/cn.util";
 import { Toaster } from "@etm/web-ui-components";
 import { constructMetadata } from "~/utils/metadata.util";
-import HelpSupportButton from "~/components/modules/support/components/button";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,7 +34,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       >
         <Providers>{props.children}</Providers>
         <Toaster />
-        <HelpSupportButton />
       </body>
     </html>
   );
