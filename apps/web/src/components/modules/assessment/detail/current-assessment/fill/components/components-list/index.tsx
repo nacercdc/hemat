@@ -67,18 +67,20 @@ export function ComponentsList({
             icon="ion:chevron-forward-outline"
             className="w-4 h-4 hidden lg:block"
           />
-          <div className="absolute -top-3 -right-0 rounded-full text-white">
-            {!statusLoading && (
-              <Badge
-                text={
-                  <span className="text-[9px]">{`${numberOfFilledSubs} / ${numberOfSubs}`}</span>
-                }
-                shape="circular"
-                variant="light"
-              />
-            )}
-            {statusLoading && <Skeleton className="w-10 h-6 rounded-full" />}
-          </div>
+          {activeComponent?.id === component.id && (
+            <div className="absolute -top-3 -right-0 rounded-full text-white">
+              {!statusLoading && (
+                <Badge
+                  text={
+                    <span className="text-[9px]">{`${numberOfFilledSubs} / ${numberOfSubs}`}</span>
+                  }
+                  shape="circular"
+                  variant="light"
+                />
+              )}
+              {statusLoading && <Skeleton className="w-10 h-6 rounded-full" />}
+            </div>
+          )}
         </div>
       ))}
     </div>
