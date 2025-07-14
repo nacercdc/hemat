@@ -14,6 +14,7 @@ import { Assessment } from './assessment.entity';
 import { AssessmentComponent } from './assessment-component.entity';
 import { DomainTranslationDto } from '../../shared/dtos';
 import { AssessmentGroup } from './assessment-group.entity';
+import { Domain } from './domain.entity';
 
 @Entity('assessment-domains')
 @Unique(['code', 'assessmentId'])
@@ -76,4 +77,8 @@ export class AssessmentDomain extends BaseEntityWithSoftDelete {
   })
   @Column({ type: 'uuid', nullable: true })
   templateDomainId?: string;
+
+  @ManyToOne(() => Domain, (domain) => domain.assessmentDomains)
+  @JoinColumn({ name: 'templateDomainId' })
+  templateDomain?: Domain;
 }
