@@ -1,12 +1,26 @@
 import { User } from "./user.model";
 
-export interface MemberInvitation {
-  id?: string;
-  email: string[];
-  role?: string;
-  assessment_id: string;
-  group?: string;
+// export interface MemberInvitation {
+//   group: string | null;
+//   invitations: {
+//     email: string;
+//     role: string;
+//   }[];
+// }
+export interface MemberInvitationGroup {
+  group: string | null;
+  invitations: {
+    email: string;
+    role: string;
+  }[];
 }
+// type InvitationPayload = {
+//   group: string | null;
+//   invitations: {
+//     email: string;
+//     role: string;
+//   }[];
+// }[];
 
 export interface Member {
   email: string;

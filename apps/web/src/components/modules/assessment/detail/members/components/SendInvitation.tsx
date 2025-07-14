@@ -12,7 +12,7 @@ import MemberInfo from "./MemberInfo";
 import MemberAction from "./MemberAction";
 import { useParams } from "next/navigation";
 import { Modal } from "@etm/web-ui-components";
-import type { MemberInvitation } from "~/libs/models/assessment-member.model";
+import type { MemberInvitationGroup } from "~/libs/models/assessment-member.model";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 
 const addAssessmentInvitationSchema = z.object({
@@ -61,26 +61,32 @@ export function SendInvitation() {
     setEmails((prev) => prev.filter((e) => e !== email));
   };
 
-  const { mutate: sendInvitation, ..._sendInvitationState } =
-    useAddMutation<MemberInvitation>(
-      `assessments/${assessmentId as string}/invitations`
-    );
+  const { mutate: sendInvitation, ...sendInvitationState } = useAddMutation<
+    MemberInvitationGroup[]
+  >(`assessments/${assessmentId as string}/invitations`);
 
   const onInvitationSubmitHandler = () => {
     if (emails.length === 0) return;
-    setEmails([]);
+
+    const formatted: MemberInvitationGroup[] = [
+      {
+        group: null,
+        invitations: emails.map((email) => ({
+          email,
+          role: "member",
+        })),
+      },
+    ];
+
     sendInvitation(
       {
-        data: {
-          email: emails,
-          assessment_id: assessmentId as string,
-        },
+        data: formatted,
       },
       {
         onSuccess: () => {
           toast({
             title: "Success",
-            message: "Invitation have been sent successfully",
+            message: "Invitations have been sent successfully.",
             variant: "success",
           });
           sendInvitationModalRef.current?.closeModal();
@@ -88,7 +94,6 @@ export function SendInvitation() {
       }
     );
   };
-
   return (
     <div className="flex items-start flex-wrap justify-between gap-4 bg-dark-lighter/5 ">
       <div className="lg:w-3/5 w-full flex flex-col gap-3 p-2">
@@ -162,11 +167,18 @@ export function SendInvitation() {
               className="!w-8 !h-8 text-primary-300"
             />
           </div>
-          <div>Invitation successfully have been sent to every member</div>
+          <div>
+            Are you sure you want to send invitations to this list of users?
+          </div>
 
           <div>
-            <Button type="submit" size="lg" onClick={onInvitationSubmitHandler}>
-              Send Invitation
+            <Button
+              type="submit"
+              size="lg"
+              onClick={onInvitationSubmitHandler}
+              loading={sendInvitationState.isSuccess}
+            >
+              Yes send invitation
             </Button>
           </div>
         </div>
