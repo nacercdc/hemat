@@ -7,11 +7,15 @@ import {
   InputRHF,
   isHtmlStringEmpty,
   useOutsideClick,
+  useToast,
 } from "@etm/web-ui-components";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef } from "react";
+import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import type { CreateSupport, Support } from "~/libs/models/support.model";
+import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
 
 const supportSchema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -25,13 +29,17 @@ const supportSchema = z.object({
   }),
 });
 
-type SupportFormData = z.infer<typeof supportSchema>;
+export type SupportFormData = z.infer<typeof supportSchema>;
 interface Props {
   onClose: () => void;
 }
 export default function HelpSupportWidget({ onClose }: Props) {
+  const { toast } = useToast();
+
   const widgetRef = useRef<HTMLDivElement>(null);
+
   useOutsideClick(onClose, widgetRef);
+
   const { control, handleSubmit } = useForm<SupportFormData>({
     defaultValues: {
       title: "",
@@ -41,8 +49,27 @@ export default function HelpSupportWidget({ onClose }: Props) {
     mode: "all",
   });
 
-  const onSubmitHandler = (_values: SupportFormData) => {
-    // Send data to API here...
+  const { mutate: createSupport, ...createSupportState } = useAddMutation<
+    Support,
+    CreateSupport
+  >("support");
+
+  const onSubmitHandler = ({ title, description }: SupportFormData) => {
+    createSupport(
+      {
+        data: { title, description },
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            message: "Support has been created successfully!",
+            variant: "success",
+          });
+          queryClient.invalidateQueries({ queryKey: ["/support"] });
+        },
+      }
+    );
   };
 
   return (
@@ -73,7 +100,9 @@ export default function HelpSupportWidget({ onClose }: Props) {
             />
           </div>
           <div className="flex justify-end mt-4">
-            <Button type="submit">Submit</Button>
+            <Button type="submit" loading={createSupportState.isPending}>
+              Submit
+            </Button>
           </div>
         </form>
       </motion.div>
