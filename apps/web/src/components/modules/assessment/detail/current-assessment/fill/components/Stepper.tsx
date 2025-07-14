@@ -1,20 +1,21 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import type { SubComponent } from "./form";
+import { Icon } from "@iconify/react";
+import type { FilledSubComponent } from "..";
 
 interface Props {
-  steps: SubComponent[];
+  steps: FilledSubComponent[];
   activeStep: number;
-  onStepClick: (index: number) => void;
   isDisabled: boolean;
+  onStepClick: (index: number) => void;
 }
 
 export const Stepper = ({
   steps,
   activeStep,
-  onStepClick,
   isDisabled,
+  onStepClick,
 }: Props) => {
   const stepperRef = useRef<HTMLOListElement>(null);
 
@@ -47,10 +48,12 @@ export const Stepper = ({
         {steps.map((step, index) => (
           <li key={step.id} className="flex items-center">
             <button
-              className={`flex justify-center items-center w-6 h-6 rounded-full text-xs font-medium transition-colors ${
+              className={`relative flex justify-center items-center w-6 h-6 rounded-full text-xs font-medium transition-colors mx-2 ${
                 index === activeStep
-                  ? "bg-primary text-white"
-                  : "bg-basic-200 text-dark hover:bg-basic-300"
+                  ? "bg-card text-primary border-[1px] border-primary"
+                  : step.filled
+                    ? "bg-primary text-card"
+                    : "bg-basic-200 text-dark hover:bg-basic-300"
               } ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
               onClick={() => !isDisabled && onStepClick(index)}
               disabled={isDisabled}
@@ -62,7 +65,7 @@ export const Stepper = ({
             </button>
             {index < steps.length - 1 && (
               <span
-                className="w-8 h-1 bg-basic-200 mx-2 self-center"
+                className="w-8 h-1 bg-basic-200 mx-1 ml-3 self-center"
                 aria-hidden="true"
               />
             )}

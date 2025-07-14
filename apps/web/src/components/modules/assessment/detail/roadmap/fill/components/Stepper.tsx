@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import type { SubComponent } from "./form";
+import type { SubComponent } from "~/libs/models/subComponent.model";
 
 interface Props {
   steps: SubComponent[];

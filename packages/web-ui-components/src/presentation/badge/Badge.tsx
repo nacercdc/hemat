@@ -1,9 +1,9 @@
-import type { VariantProps } from "class-variance-authority";
-import { cva } from "class-variance-authority";
 import { Badge as ShadcnBadge } from "../../shadcn-ui";
+import { cva } from "class-variance-authority";
 import { cn } from "../../shadcn-ui/utils/cn";
+import type { VariantProps } from "class-variance-authority";
 
-const badgeVariants = cva("text-xs font-medium p-4", {
+const badgeVariants = cva("text-xs font-medium p-0.5 px-2", {
   variants: {
     variant: {
       outlined:
@@ -13,6 +13,7 @@ const badgeVariants = cva("text-xs font-medium p-4", {
       info: "bg-info/5 text-info-500 hover:bg-info/15",
       warning: "bg-warning-500/10 text-warning-500 hover:bg-warning/15",
       dark: "bg-dark-lighter/10 text-dark hover:bg-dark-lighter/15",
+      light: "bg-primary text-white hover:bg-primary/80",
       progress:
         "bg-destructive-500/10 text-destructive-500 hover:bg-destructive/15",
     },
@@ -30,7 +31,7 @@ const badgeVariants = cva("text-xs font-medium p-4", {
 export type BadgeVariants = VariantProps<typeof badgeVariants>;
 
 interface Props extends BadgeVariants {
-  text: string;
+  text: React.ReactNode;
   icon?: React.ReactNode;
   onAction?: () => void;
 }
@@ -41,7 +42,7 @@ export function Badge({ text, icon, onAction, variant, shape }: Props) {
       className={cn(
         badgeVariants({ variant, shape }),
         "flex items-center gap-1 max-h-7 w-fit text-xs font-medium",
-        !onAction && "justify-center",
+        !onAction && "justify-center"
       )}
     >
       {text}
@@ -49,7 +50,7 @@ export function Badge({ text, icon, onAction, variant, shape }: Props) {
         <div
           className={cn(
             "flex items-center cursor-pointer",
-            variant === "outlined" ? "text-basic" : `text-${variant}-100`,
+            variant === "outlined" ? "text-basic" : `text-${variant}-100`
           )}
           onClick={onAction}
         >
