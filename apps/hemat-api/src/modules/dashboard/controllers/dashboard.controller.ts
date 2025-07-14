@@ -1,11 +1,22 @@
 import { Controller, Get, Query, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiOkResponse } from '@nestjs/swagger';
 import { DashboardService } from '../services/dashboard.service';
+import { DashboardQueryDto } from '../dtos/dashboard-query.dto';
+import { DomainService } from '../../template/services/domain.service';
+import { ComponentService } from '../../template/services/component.service';
+import { SubComponentService } from '../../template/services/sub-component.service';
+import { Inject } from '@nestjs/common';
+import { SubComponentMeasurementScaleService } from '../../template/services/sub-component-mesurment-scale.service';
 
 @ApiTags('Dashboard')
 @Controller('dashboard')
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(
+    private readonly dashboardService: DashboardService,
+    @Inject(DomainService) private readonly domainService: DomainService,
+    @Inject(ComponentService) private readonly componentService: ComponentService,
+    @Inject(SubComponentMeasurementScaleService) private readonly subComponentMeasurementScaleService: SubComponentMeasurementScaleService,
+  ) {}
 
   @ApiOperation({ summary: 'Get total countries count' })
   @ApiOkResponse({ description: 'Total number of countries', type: Number })
@@ -23,7 +34,7 @@ export class DashboardController {
 
   @ApiOperation({ summary: 'Get count of countries with completed assessments' })
   @ApiOkResponse({ description: 'Number of unique countries with at least one completed assessment', type: Number })
-  @Get('completed-assessment-countries/count')
+  @Get('completed-assessment/count')
   async getCompletedAssessmentCountriesCount(): Promise<{ count: number }> {
     return this.dashboardService.getCompletedAssessmentCountriesCount();
   }
@@ -34,29 +45,23 @@ export class DashboardController {
     schema: {
       example: [
         {
-          templateDomainId: 'ab909a31-7873-4b10-8c1b-704656f851b1',
-          templateDomainName: 'Public Health Infrastructure',
-          assessmentDomainCount: 2,
-          subComponentCount: 3,
-          answerCount: 3,
-          rateCount: 3,
-          averageRate: 3.0
+          id: 'ab909a31-7873-4b10-8c1b-704656f851b1',
+          name: 'Public Health Infrastructure',
+          domainId: '90f809da-d364-40e0-bc68-ef93d37595e9',
+          averageRate: 2
         },
         {
-          templateDomainId: 'b6aa14f1-f3aa-4c9f-8022-5038b15e39ca',
-          templateDomainName: 'Disease Prevention and Control',
-          assessmentDomainCount: 2,
-          subComponentCount: 2,
-          answerCount: 1,
-          rateCount: 1,
-          averageRate: 2.0
+          id: 'b6aa14f1-f3aa-4c9f-8022-5038b15e39ca',
+          name: 'Disease Prevention and Control',
+          domainId: '90f809da-d364-40e0-bc68-ef93d37595e9',
+          averageRate: 0
         }
       ]
     }
   })
-  @Get('domains/average-rate-by-template')
-  async getAverageDomainRatesByTemplate(): Promise<any[]> {
-    return this.dashboardService.getAverageDomainRatesByTemplate();
+  @Get('domains/average-rate')
+  async getAverageDomainRatesByTemplate(@Query() query: DashboardQueryDto): Promise<any[]> {
+    return this.dashboardService.getAverageDomainRatesByTemplate(query);
   }
 
   @ApiOperation({ summary: 'Get average measurement scale rate per template component for a template domain' })
@@ -65,29 +70,26 @@ export class DashboardController {
     schema: {
       example: [
         {
-          templateComponentId: 'c1c2c3c4-1234-5678-9abc-def012345678',
-          templateComponentName: 'Immunization',
-          assessmentComponentCount: 2,
-          subComponentCount: 4,
-          answerCount: 4,
-          rateCount: 4,
-          averageRate: 2.5
+          id: 'c1c2c3c4-1234-5678-9abc-def012345678',
+          name: 'Immunization',
+          componentId: 'comp1',
+          averageRate: 2
         },
         {
-          templateComponentId: 'd4d5d6d7-2345-6789-abcd-ef0123456789',
-          templateComponentName: 'Surveillance',
-          assessmentComponentCount: 1,
-          subComponentCount: 2,
-          answerCount: 1,
-          rateCount: 1,
-          averageRate: 3.0
+          id: 'd4d5d6d7-2345-6789-abcd-ef0123456789',
+          name: 'Surveillance',
+          componentId: 'comp2',
+          averageRate: 3
         }
       ]
     }
   })
-  @Get('domains/:templateDomainId/components/average-rate-by-template')
-  async getAverageComponentRatesByTemplateDomain(@Param('templateDomainId') templateDomainId: string): Promise<any[]> {
-    return this.dashboardService.getAverageComponentRatesByTemplateDomain(templateDomainId);
+  @Get('domains/:templateDomainId/components/average-rate')
+  async getAverageComponentRatesByTemplateDomain(
+    @Param('templateDomainId') templateDomainId: string,
+    @Query() query: DashboardQueryDto
+  ): Promise<any[]> {
+    return this.dashboardService.getAverageComponentRatesByTemplateDomain(templateDomainId, query);
   }
 
   @ApiOperation({ summary: 'Get average measurement scale rate per template subcomponent for a template component' })
@@ -96,23 +98,163 @@ export class DashboardController {
     schema: {
       example: [
         {
-          templateSubComponentId: 's1s2s3s4-1234-5678-9abc-def012345678',
-          templateSubComponentName: 'Cold Chain Management',
-          templateSubComponentDescription: 'Ensures vaccines are stored at the correct temperature.',
-          assessmentSubComponentCount: 2,
-          measurementScales: [
-            { id: 'ms1', name: 'Initial', rate: 1 },
-            { id: 'ms2', name: 'Advanced', rate: 3 }
-          ],
-          answerCount: 2,
-          rateCount: 2,
-          averageRate: 2.0
+          id: 's1s2s3s4-1234-5678-9abc-def012345678',
+          name: 'Cold Chain Management',
+          description: 'Ensures vaccines are stored at the correct temperature.',
+          subComponentId: 'sub1',
+          averageRate: 2
         }
       ]
     }
   })
-  @Get('components/:templateComponentId/subcomponents/average-rate-by-template')
-  async getAverageSubComponentRatesByTemplateComponent(@Param('templateComponentId') templateComponentId: string): Promise<any[]> {
-    return this.dashboardService.getAverageSubComponentRatesByTemplateComponent(templateComponentId);
+  @Get('components/:templateComponentId/subcomponents/average-rate')
+  async getAverageSubComponentRatesByTemplateComponent(
+    @Param('templateComponentId') templateComponentId: string,
+    @Query() query: DashboardQueryDto
+  ): Promise<any[]> {
+    return this.dashboardService.getAverageSubComponentRatesByTemplateComponent(templateComponentId, query);
+  }
+
+  @ApiOperation({ summary: 'Fetch all template domains' })
+  @ApiOkResponse({
+    description: 'List of template domains',
+    schema: {
+      example: [
+        { id: '90f809da-d364-40e0-bc68-ef93d37595e9', name: 'Public Health Infrastructure' },
+        { id: 'b6aa14f1-f3aa-4c9f-8022-5038b15e39ca', name: 'Disease Prevention and Control' }
+      ]
+    }
+  })
+  @Get('template/domains')
+  async getTemplateDomains(): Promise<any[]> {
+    const { data } = await this.domainService.findAll({} as any);
+    return data.map(domain => ({
+      id: domain.id,
+      name: domain.name
+    }));
+  }
+
+  @ApiOperation({ summary: 'Fetch components by template domain' })
+  @ApiOkResponse({
+    description: 'List of components for a template domain',
+    schema: {
+      example: [
+        {
+          "id": "7857d20f-548f-4665-9d42-860cfa6422f6",
+          "name": "Health Information Systems"
+      },
+      {
+          "id": "28473394-f018-41d7-b2d3-89bfb41d9548",
+          "name": "Laboratory Services"
+      },
+      ]
+    }
+  })
+  @Get('template/domains/:templateDomainId/components')
+  async getTemplateComponentsByDomain(@Param('templateDomainId') templateDomainId: string): Promise<any[]> {
+    const { data } = await this.domainService.findComponents(templateDomainId, {} as any);
+    return data.map(component => ({
+      id: component.id,
+      name: component.name
+    }));
+  }
+
+  @ApiOperation({ summary: 'Fetch subcomponents by template component (with measurement scales)' })
+  @ApiOkResponse({
+    description: 'List of subcomponents for a template component, including measurement scales',
+    schema: {
+      example: [
+        {
+          "id": "a704c71d-5eb4-4aa8-8b45-833202805980",
+          "name": "Diagnostic Testing",
+          "description": "Laboratory diagnostic testing capabilities",
+          "measurementScales": [
+              {
+                  "id": "55dc06ec-c9a3-467a-9bec-5d3f8701be2f",
+                  "name": "Initial",
+                  "rate": 1,
+                  "description": "Basic level of implementation"
+              },
+              {
+                  "id": "b74b1dd0-6693-4f18-879f-3b9363c88e06",
+                  "name": "Developing",
+                  "rate": 2,
+                  "description": "Developing implementation level"
+              },
+              {
+                  "id": "cce7add3-333a-488e-90d1-c8cc86260656",
+                  "name": "Mature",
+                  "rate": 3,
+                  "description": "Mature implementation level"
+              },
+              {
+                  "id": "7f242287-68a8-4041-bf13-f65ceca78872",
+                  "name": "Advanced",
+                  "rate": 4,
+                  "description": "Advanced implementation level"
+              },
+              {
+                  "id": "b9438dd4-6222-4553-aad0-6e9feb8272d6",
+                  "name": "Optimizing",
+                  "rate": 5,
+                  "description": "Optimizing implementation level"
+              }
+          ]
+      },
+      ]
+    }
+  })
+  @Get('template/components/:templateComponentId/subcomponents')
+  async getTemplateSubComponentsByComponent(@Param('templateComponentId') templateComponentId: string): Promise<any[]> {
+    const { data } = await this.componentService.findSubComponents(templateComponentId, { include: ['measurementScales.measurementScale'] } as any);
+    return data.map(subComponent => ({
+      id: subComponent.id,
+      name: subComponent.name,
+      description: subComponent.description,
+      measurementScales: (subComponent.measurementScales || []).map(msc => ({
+        id: msc.measurementScale?.id,
+        name: msc.measurementScale?.name,
+        rate: msc.measurementScale?.rate,
+        description: msc.measurementScale?.description,
+      })),
+    }));
+  }
+
+  @ApiOperation({ summary: 'Fetch a specific measurement scale description for a subcomponent' })
+  @ApiOkResponse({
+    description: 'Measurement scale description for a subcomponent',
+    schema: {
+      example: {
+        "id": "3191426b-99df-4e07-ab17-b3abf0467d08",
+        "measurementScaleId": "b9438dd4-6222-4553-aad0-6e9feb8272d6",
+        "description": "Optimizing level for Diagnostic Testing",
+        "translations": {
+            "am": {
+                "description": "የDiagnostic Testing Optimizing ደረጃ"
+            },
+            "en": {
+                "description": "Optimizing level for Diagnostic Testing"
+            },
+            "fr": {
+                "description": "Niveau Optimizing pour Diagnostic Testing"
+            }
+        }
+    }
+    }
+  })
+  @Get('template/subcomponents/:subComponentId/measurement-scale/:measurementScaleId')
+  async getMeasurementScaleDescriptionBySubComponentAndScale(
+    @Param('subComponentId') subComponentId: string,
+    @Param('measurementScaleId') measurementScaleId: string
+  ): Promise<any> {
+    const msc = await this.subComponentMeasurementScaleService['measurementScaleSubComponentRepository'].findOne({
+      where: { subComponentId, measurementScaleId },
+    });
+    if (!msc) return null;
+    return {
+      id: msc.id,
+      measurementScaleId: msc.measurementScaleId,
+      description: msc.description
+    };
   }
 } 
