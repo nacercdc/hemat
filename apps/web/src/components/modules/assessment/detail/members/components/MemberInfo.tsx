@@ -1,6 +1,6 @@
 import React from "react";
 import { Avatar } from "@etm/web-ui-components";
-import { getInitials } from "~/utils/string.util";
+import { capitalizeFirstLetter, getInitials } from "~/utils/string.util";
 
 interface Props {
   name?: string;
@@ -30,7 +30,11 @@ export default function MemberInfo({
         <div className="flex flex-col text-xs w-full">
           {name && <span className="font-bold w-fit">{name}</span>}
           {email && <span className="flex ">{email}</span>}
-          {role && <span className="flex font-bold">{role}</span>}
+          {role && (
+            <span className="flex font-bold">
+              {capitalizeFirstLetter(role)}
+            </span>
+          )}
         </div>
       </div>
     </div>

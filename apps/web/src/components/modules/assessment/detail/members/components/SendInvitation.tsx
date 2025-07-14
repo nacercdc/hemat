@@ -4,8 +4,8 @@ import React, { useRef, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { z } from "zod";
 import type { ModalRef } from "@etm/web-ui-components";
-import { Button, Input, useToast } from "@etm/web-ui-components";
-import { useForm, Controller } from "react-hook-form";
+import { Button, InputRHF, useToast } from "@etm/web-ui-components";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MemberRoleCard from "../../components/MemberRoleCard";
 import MemberInfo from "./MemberInfo";
@@ -20,6 +20,8 @@ import type {
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { formatDateToYYYYMMDD } from "@etm/utilities";
+import { capitalizeFirstLetter } from "~/utils/string.util";
+import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
 
 const addAssessmentInvitationSchema = z.object({
   email: z
@@ -53,7 +55,7 @@ export function SendInvitation() {
     resolver: zodResolver(addAssessmentInvitationSchema),
   });
 
-  const addEmail = async (): Promise<void> => {
+  const addEmailHandler = async (): Promise<void> => {
     const isValid = await trigger("email");
     if (!isValid) return;
     const newEmail = getValues("email").trim().toLowerCase();
@@ -63,7 +65,7 @@ export function SendInvitation() {
     }
   };
 
-  const removeEmail = (email: string) => {
+  const removeEmailHandler = (email: string) => {
     setEmails((prev) => prev.filter((e) => e !== email));
   };
 
@@ -86,7 +88,6 @@ export function SendInvitation() {
 
   const onInvitationSubmitHandler = () => {
     if (emails.length === 0) return;
-
     const formatted: MemberInvitationGroup[] = [
       {
         group: null,
@@ -110,6 +111,9 @@ export function SendInvitation() {
           });
           sendInvitationModalRef.current?.closeModal();
           setEmails([]);
+          queryClient.invalidateQueries({
+            queryKey: ["ASSESSMENT_GROUPS_KEY"],
+          });
         },
       }
     );
@@ -118,30 +122,22 @@ export function SendInvitation() {
     <div className="flex items-start flex-wrap justify-between gap-4 bg-dark-lighter/5 ">
       <div className="lg:w-3/5 w-full flex flex-col gap-3 p-2">
         <div className="flex gap-3">
-          <Controller
+          <InputRHF
             name="email"
             control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                type="email"
-                placeholder="Write email of the participant's"
-                size="lg"
-                error={errors.email?.message}
-              />
-            )}
+            placeholder="Write email of the participant's"
           />
           <Button
             leftNode={<Icon icon={"mdi:users-add"} className="!w-5 !h-5" />}
             size="lg"
             color="primaryLight"
             variant="outline"
-            onClick={addEmail}
+            onClick={addEmailHandler}
           >
             Add
           </Button>
         </div>
-        {emails.length != 0 ? (
+        {emails.length != 0 && (
           <div className="flex flex-col bg-card rounded-sm p-2">
             <div>
               {emails.map((email) => (
@@ -149,7 +145,7 @@ export function SendInvitation() {
                   <MemberInfo email={email} />
                   <MemberAction
                     id={email}
-                    refetch={() => removeEmail(email)}
+                    refetch={() => removeEmailHandler(email)}
                     optionsList={["Remove", "Make Primary"]}
                   />
                 </div>
@@ -161,47 +157,61 @@ export function SendInvitation() {
               </Button>
             </div>
           </div>
+        )}
+        {assessmentGroups?.data.length == 0 && emails.length == 0 ? (
+          <div className="flex flex-col gap-4 items-center align-middle">
+            <Icon icon={"mdi:users-add"} className="!w-8 !h-8" />
+            <span className="text-xm font-semibold">
+              No Invited Participants
+            </span>
+          </div>
         ) : (
-          <div className="text-sm p-4">
-            Add the email before sending the invitation
+          <div className="flex flex-col gap-4 w-full">
+            {assessmentGroups?.data.length != 0 && (
+              <div className="grid grid-cols-3 font-semibold text-sm p-">
+                <div>Invited participants</div>
+                <div>Date</div>
+                <div>Status</div>
+              </div>
+            )}
+            {assessmentGroups?.data.map((assessmentGroup, index) => (
+              <div className="flex flex-col gap-2" key={index}>
+                {assessmentGroup.invitations &&
+                  assessmentGroup.invitations.map((invitation, index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-3  text-sm p-2  "
+                    >
+                      <div className="flex items-center gap-3">
+                        <MemberInfo
+                          email={invitation.email}
+                          role={invitation.role}
+                        />
+                      </div>
+                      <span className="text-sm ">
+                        {formatDateToYYYYMMDD(
+                          invitation.createdAt as unknown as Date
+                        )}
+                      </span>
+                      <span
+                        className={`text-sm font-semibold ${
+                          invitation.status === "pending"
+                            ? "text-dark"
+                            : invitation.status === "accepted"
+                              ? "text-primary-600"
+                              : invitation.status === "rejected"
+                                ? "text-"
+                                : "text-destructive-500"
+                        }`}
+                      >
+                        {capitalizeFirstLetter(invitation.status as string)}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            ))}
           </div>
         )}
-
-        <div className="flex flex-col gap-2 ">
-          <div className="flex justify-between font-semibold text-sm p-2">
-            <div>Invited participants</div>
-            <div>Date</div>
-            <div>Status</div>
-          </div>
-          {assessmentGroups?.data.map((assessmentGroup, index) => (
-            <div className="flex flex-col gap-2" key={index}>
-              {assessmentGroup.invitations &&
-                assessmentGroup.invitations.map((invitation, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between "
-                  >
-                    <div className="flex items-center gap-3">
-                      <MemberInfo
-                        email={invitation.email}
-                        role={invitation.role}
-                      />
-                    </div>
-                    <span className="text-sm ">
-                      {formatDateToYYYYMMDD(
-                        invitation.createdAt as unknown as Date
-                      )}
-                    </span>
-                    <span className="text-sm font-semibold text-primary-500">
-                      {invitation.status}
-                    </span>
-                  </div>
-                ))}
-            </div>
-          ))}
-
-          <div></div>
-        </div>
       </div>
       <div className="flex-1 rounded-sm gap-2 flex flex-col p-2">
         <MemberRoleCard
