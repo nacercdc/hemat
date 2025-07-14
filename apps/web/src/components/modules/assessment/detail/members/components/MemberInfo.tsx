@@ -8,12 +8,15 @@ interface Props {
   userId?: string;
   isLeader?: boolean;
   avatarUrl?: string;
+  status?: string;
+  role?: string;
 }
 export default function MemberInfo({
   name,
   email,
   avatarUrl,
   isLeader,
+  role,
 }: Props) {
   return (
     <div className="flex gap-2 justify-between px-2">
@@ -27,7 +30,7 @@ export default function MemberInfo({
         <div className="flex flex-col text-xs w-full">
           {name && <span className="font-bold w-fit">{name}</span>}
           {email && <span className="flex ">{email}</span>}
-          {isLeader && <span className="font-bold">Team Leader</span>}
+          {role && <span className="flex font-bold">{role}</span>}
         </div>
       </div>
     </div>

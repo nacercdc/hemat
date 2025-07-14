@@ -12,8 +12,14 @@ import MemberInfo from "./MemberInfo";
 import MemberAction from "./MemberAction";
 import { useParams } from "next/navigation";
 import { Modal } from "@etm/web-ui-components";
-import type { MemberInvitationGroup } from "~/libs/models/assessment-member.model";
+import type {
+  AssessmentGroup,
+  AssessmentGroupIncludeAble,
+  MemberInvitationGroup,
+} from "~/libs/models/assessment-member.model";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import { formatDateToYYYYMMDD } from "@etm/utilities";
 
 const addAssessmentInvitationSchema = z.object({
   email: z
@@ -65,6 +71,19 @@ export function SendInvitation() {
     MemberInvitationGroup[]
   >(`assessments/${assessmentId as string}/invitations`);
 
+  const { data: assessmentGroups, ...assessmentGroupsState } = useFindAll<
+    AssessmentGroup,
+    AssessmentGroupIncludeAble
+  >({
+    path: `/assessments/${assessmentId}/groups`,
+    queries: {
+      include: ["members", "members.user", "invitations"],
+    },
+    tqOptions: {
+      queryKey: ["ASSESSMENT_GROUPS_KEY"],
+    },
+  });
+
   const onInvitationSubmitHandler = () => {
     if (emails.length === 0) return;
 
@@ -90,6 +109,7 @@ export function SendInvitation() {
             variant: "success",
           });
           sendInvitationModalRef.current?.closeModal();
+          setEmails([]);
         },
       }
     );
@@ -146,6 +166,42 @@ export function SendInvitation() {
             Add the email before sending the invitation
           </div>
         )}
+
+        <div className="flex flex-col gap-2 ">
+          <div className="flex justify-between font-semibold text-sm p-2">
+            <div>Invited participants</div>
+            <div>Date</div>
+            <div>Status</div>
+          </div>
+          {assessmentGroups?.data.map((assessmentGroup, index) => (
+            <div className="flex flex-col gap-2" key={index}>
+              {assessmentGroup.invitations &&
+                assessmentGroup.invitations.map((invitation, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between "
+                  >
+                    <div className="flex items-center gap-3">
+                      <MemberInfo
+                        email={invitation.email}
+                        role={invitation.role}
+                      />
+                    </div>
+                    <span className="text-sm ">
+                      {formatDateToYYYYMMDD(
+                        invitation.createdAt as unknown as Date
+                      )}
+                    </span>
+                    <span className="text-sm font-semibold text-primary-500">
+                      {invitation.status}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          ))}
+
+          <div></div>
+        </div>
       </div>
       <div className="flex-1 rounded-sm gap-2 flex flex-col p-2">
         <MemberRoleCard
@@ -176,7 +232,7 @@ export function SendInvitation() {
               type="submit"
               size="lg"
               onClick={onInvitationSubmitHandler}
-              loading={sendInvitationState.isSuccess}
+              loading={sendInvitationState.isPending}
             >
               Yes send invitation
             </Button>

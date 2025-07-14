@@ -1,26 +1,17 @@
 import { User } from "./user.model";
 
-// export interface MemberInvitation {
-//   group: string | null;
-//   invitations: {
-//     email: string;
-//     role: string;
-//   }[];
-// }
+export interface Invitations {
+  email: string;
+  role: string;
+  assessmentId?: string;
+  createdAt?: string;
+  groupId?: string;
+  status?: string;
+}
 export interface MemberInvitationGroup {
   group: string | null;
-  invitations: {
-    email: string;
-    role: string;
-  }[];
+  invitations: Invitations[];
 }
-// type InvitationPayload = {
-//   group: string | null;
-//   invitations: {
-//     email: string;
-//     role: string;
-//   }[];
-// }[];
 
 export interface Member {
   email: string;
@@ -39,6 +30,7 @@ export interface AssessmentGroup {
   id?: string;
   name: string;
   members: Member[];
+  invitations: Invitations[];
 }
 
 export interface MemberMoveTo {
@@ -47,4 +39,7 @@ export interface MemberMoveTo {
   promoteUserId?: string;
 }
 
-export type AssessmentGroupIncludeAble = "members" | "members.user";
+export type AssessmentGroupIncludeAble =
+  | "members"
+  | "members.user"
+  | "invitations";

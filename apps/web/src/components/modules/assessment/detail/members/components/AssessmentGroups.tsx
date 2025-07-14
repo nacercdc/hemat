@@ -42,7 +42,7 @@ export default function AssessmentGroups() {
   >({
     path: `/assessments/${assessmentId}/groups`,
     queries: {
-      include: ["members", "members.user"],
+      include: ["members", "members.user", "invitations"],
     },
     tqOptions: {
       queryKey: [ASSESSMENT_GROUPS_KEY],
@@ -125,7 +125,6 @@ export default function AssessmentGroups() {
             onSubmitTeamGroupForm={onSubmitTeamGroupFormHandler}
           />
         </div>
-        {/* {assessmentGroupsState.refetch()} */}
       </Modal>
     </div>
   );
