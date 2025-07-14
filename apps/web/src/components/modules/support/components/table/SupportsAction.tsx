@@ -20,7 +20,7 @@ export default function SupportAction({ support }: Props) {
   const { toast } = useToast();
 
   const { mutate: deleteSupport, ...deleteSupportState } = useDeleteMutation(
-    `supports/${support.id}`
+    `support/${support.id}`
   );
 
   const onDeleteSupportHandler = () => {
@@ -33,7 +33,7 @@ export default function SupportAction({ support }: Props) {
             message: "Support has been deleted successfully!",
             variant: "success",
           });
-          queryClient.invalidateQueries({ queryKey: ["/supports"] });
+          queryClient.invalidateQueries({ queryKey: ["/support"] });
           deleteSupportDialogRef.current?.closeDialog();
         },
       }
