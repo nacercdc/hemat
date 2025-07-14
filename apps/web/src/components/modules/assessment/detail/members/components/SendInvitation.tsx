@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { z } from "zod";
 import type { ModalRef } from "@etm/web-ui-components";
-import { Button, InputRHF, useToast } from "@etm/web-ui-components";
+import { Button, InputRHF, SelectRHF, useToast } from "@etm/web-ui-components";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import MemberRoleCard from "../../components/MemberRoleCard";
@@ -22,12 +22,23 @@ import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { formatDateToYYYYMMDD } from "@etm/utilities";
 import { capitalizeFirstLetter } from "~/utils/string.util";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
+import InvitationListSkeleton from "./form/InvitationListSkeleton";
+
+export const groupSchema = z.object({
+  id: z
+    .string()
+    .min(1, { message: "Select the group that you want to invite" })
+    .max(50, { message: "Group name is too long" }),
+});
 
 const addAssessmentInvitationSchema = z.object({
   email: z
     .string()
     .email({ message: "Enter a valid email" })
     .min(1, { message: "Email is required" }),
+  group: z.object({
+    id: z.string().min(1, { message: "Select the group that you invite" }),
+  }),
 });
 
 export type AddAssessmentInvitationFormData = z.infer<
@@ -36,24 +47,20 @@ export type AddAssessmentInvitationFormData = z.infer<
 
 export function SendInvitation() {
   const [emails, setEmails] = useState<string[]>([]);
+
   const params = useParams();
   const assessmentId = params.id;
   const { toast } = useToast();
   const sendInvitationModalRef = useRef<ModalRef>(null);
   const openInvitationModal = () => sendInvitationModalRef.current?.openModal();
 
-  const {
-    control,
-    getValues,
-    setValue,
-    trigger,
-    formState: { errors },
-  } = useForm<AddAssessmentInvitationFormData>({
-    defaultValues: {
-      email: "",
-    },
-    resolver: zodResolver(addAssessmentInvitationSchema),
-  });
+  const { control, getValues, setValue, trigger } =
+    useForm<AddAssessmentInvitationFormData>({
+      defaultValues: {
+        email: "",
+      },
+      resolver: zodResolver(addAssessmentInvitationSchema),
+    });
 
   const addEmailHandler = async (): Promise<void> => {
     const isValid = await trigger("email");
@@ -77,7 +84,7 @@ export function SendInvitation() {
     AssessmentGroup,
     AssessmentGroupIncludeAble
   >({
-    path: `/assessments/${assessmentId}/groups`,
+    path: `/assessments/${assessmentId as string}/groups`,
     queries: {
       include: ["members", "members.user", "invitations"],
     },
@@ -88,9 +95,10 @@ export function SendInvitation() {
 
   const onInvitationSubmitHandler = () => {
     if (emails.length === 0) return;
+    const values = getValues();
     const formatted: MemberInvitationGroup[] = [
       {
-        group: null,
+        group: values.group?.id ?? "",
         invitations: emails.map((email) => ({
           email,
           role: "member",
@@ -137,6 +145,18 @@ export function SendInvitation() {
             Add
           </Button>
         </div>
+        {assessmentGroups?.data?.length != 0 && (
+          <SelectRHF<AssessmentGroup, AddAssessmentInvitationFormData>
+            control={control}
+            name="group"
+            labelKey="name"
+            placeholder="Select group"
+            valueKey="id"
+            labelVariant="bold"
+            options={assessmentGroups?.data ?? []}
+          />
+        )}
+
         {emails.length != 0 && (
           <div className="flex flex-col bg-card rounded-sm p-2">
             <div>
@@ -166,50 +186,62 @@ export function SendInvitation() {
             </span>
           </div>
         ) : (
-          <div className="flex flex-col gap-4 w-full">
-            {assessmentGroups?.data.length != 0 && (
-              <div className="grid grid-cols-3 font-semibold text-sm p-">
-                <div>Invited participants</div>
-                <div>Date</div>
-                <div>Status</div>
+          <div className="flex flex-col gap-2 w-full">
+            {assessmentGroupsState.isLoading ? (
+              <InvitationListSkeleton />
+            ) : assessmentGroups?.data?.length ? (
+              <>
+                <div className="grid grid-cols-3 font-semibold text-sm p-2">
+                  <div>Invited participants</div>
+                  <div>Date</div>
+                  <div>Status</div>
+                </div>
+
+                {assessmentGroups?.data.map((assessmentGroup, groupIdx) => (
+                  <div className="flex flex-col gap-2 px-2" key={groupIdx}>
+                    {assessmentGroup.invitations?.map(
+                      (invitation, inviteIdx) => (
+                        <div
+                          key={`${groupIdx}-${inviteIdx}`}
+                          className="grid grid-cols-3 text-sm px-2"
+                        >
+                          <div className="flex items-center gap-3">
+                            <MemberInfo
+                              email={invitation.email}
+                              role={invitation.role}
+                            />
+                          </div>
+
+                          <span className="text-sm">
+                            {formatDateToYYYYMMDD(
+                              invitation.createdAt as unknown as Date
+                            )}
+                          </span>
+
+                          <span
+                            className={`text-sm font-semibold ${
+                              invitation.status === "pending"
+                                ? "text-dark"
+                                : invitation.status === "accepted"
+                                  ? "text-primary-600"
+                                  : "text-destructive-500"
+                            }`}
+                          >
+                            {capitalizeFirstLetter(
+                              invitation.status ?? "Reject"
+                            )}
+                          </span>
+                        </div>
+                      )
+                    )}
+                  </div>
+                ))}
+              </>
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                No invitations found.
               </div>
             )}
-            {assessmentGroups?.data.map((assessmentGroup, index) => (
-              <div className="flex flex-col gap-2" key={index}>
-                {assessmentGroup.invitations &&
-                  assessmentGroup.invitations.map((invitation, index) => (
-                    <div
-                      key={index}
-                      className="grid grid-cols-3  text-sm p-2  "
-                    >
-                      <div className="flex items-center gap-3">
-                        <MemberInfo
-                          email={invitation.email}
-                          role={invitation.role}
-                        />
-                      </div>
-                      <span className="text-sm ">
-                        {formatDateToYYYYMMDD(
-                          invitation.createdAt as unknown as Date
-                        )}
-                      </span>
-                      <span
-                        className={`text-sm font-semibold ${
-                          invitation.status === "pending"
-                            ? "text-dark"
-                            : invitation.status === "accepted"
-                              ? "text-primary-600"
-                              : invitation.status === "rejected"
-                                ? "text-"
-                                : "text-destructive-500"
-                        }`}
-                      >
-                        {capitalizeFirstLetter(invitation.status as string)}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-            ))}
           </div>
         )}
       </div>

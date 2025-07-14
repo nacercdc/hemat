@@ -4,12 +4,13 @@ import MemberRoleCard from "../../components/MemberRoleCard";
 import MemberInfo from "./MemberInfo";
 import MemberAction from "./MemberAction";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import {
+import type {
   AssessmentGroupIncludeAble,
   AssessmentGroup as IAssessmentGroup,
 } from "~/libs/models/assessment-member.model";
 import { useParams } from "next/navigation";
-import { Button, Modal, ModalRef } from "@etm/web-ui-components";
+import type { ModalRef } from "@etm/web-ui-components";
+import { Button, Modal } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { CreateGroupForm } from "./form/CreateGroupForm";
 export const ASSESSMENT_GROUPS_KEY = "assessments-groups-list";
@@ -40,7 +41,7 @@ export default function AssessmentGroups() {
     IAssessmentGroup,
     AssessmentGroupIncludeAble
   >({
-    path: `/assessments/${assessmentId}/groups`,
+    path: `/assessments/${assessmentId as string}/groups`,
     queries: {
       include: ["members", "members.user", "invitations"],
     },
@@ -73,34 +74,37 @@ export default function AssessmentGroups() {
               <div className="absolute -top-3 left-4 bg-white px-4 text-sm font-bold  border-2 border-primary-50 rounded">
                 {group.name}
               </div>
+              {assessmentGroupsState.isLoading && <div> LOADING ...</div>}
+              {group?.members && (
+                <>
+                  {group?.members.map((member, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between "
+                    >
+                      <div className="flex items-center gap-3">
+                        <MemberInfo
+                          name={member.user?.name}
+                          email={member.user?.email}
+                          userId={member.userId}
+                          isLeader={member.isLeader}
+                        />
+                      </div>
 
-              {group?.members &&
-                group?.members.map((member, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between "
-                  >
-                    <div className="flex items-center gap-3">
-                      <MemberInfo
-                        name={member.user?.name}
-                        email={member.user?.email}
-                        userId={member.userId}
-                        isLeader={member.isLeader}
+                      <MemberAction
+                        id={member?.userId}
+                        refetch={() => removeMember(member.email)}
+                        optionsList={[
+                          "Remove",
+                          "Make Primary",
+                          "Team leader",
+                          "Move to",
+                        ]}
                       />
                     </div>
-
-                    <MemberAction
-                      id={member.userId as string}
-                      refetch={() => removeMember(member.email)}
-                      optionsList={[
-                        "Remove",
-                        "Make Primary",
-                        "Team leader",
-                        "Move to",
-                      ]}
-                    />
-                  </div>
-                ))}
+                  ))}
+                </>
+              )}
             </div>
           ))}
         </div>

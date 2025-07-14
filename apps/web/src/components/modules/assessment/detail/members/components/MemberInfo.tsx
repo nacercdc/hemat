@@ -11,13 +11,7 @@ interface Props {
   status?: string;
   role?: string;
 }
-export default function MemberInfo({
-  name,
-  email,
-  avatarUrl,
-  isLeader,
-  role,
-}: Props) {
+export default function MemberInfo({ name, email, avatarUrl, role }: Props) {
   return (
     <div className="flex gap-2 justify-between px-2">
       <div className="flex gap-2 items-center">

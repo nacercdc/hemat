@@ -1,4 +1,4 @@
-import { User } from "./user.model";
+import type { User } from "./user.model";
 
 export interface Invitations {
   email: string;
@@ -6,7 +6,7 @@ export interface Invitations {
   assessmentId?: string;
   createdAt?: string;
   groupId?: string;
-  status?: string;
+  status?: string | undefined;
 }
 export interface MemberInvitationGroup {
   group: string | null;
@@ -34,7 +34,7 @@ export interface AssessmentGroup {
 }
 
 export interface MemberMoveTo {
-  userId: string;
+  userId: string | undefined;
   toGroupId?: string;
   promoteUserId?: string;
 }

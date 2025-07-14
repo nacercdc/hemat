@@ -24,7 +24,7 @@ export const ASSESSMENT_GROUP_LIST_KEY = "assessments-groups";
 
 type OptionType = "Team leader" | "Make Primary" | "Remove" | "Move to";
 interface Props {
-  id: string;
+  id: string | undefined;
   refetch?: (email?: string) => void;
   optionsList?: OptionType[];
 }
@@ -68,7 +68,6 @@ export default function MemberAction({
   const {
     control,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<MemberMoveToFormData>({
     defaultValues: {
@@ -109,7 +108,7 @@ export default function MemberAction({
 
   const { data: assessmentGroups, ...assessmentGroupsState } =
     useFindAll<AssessmentGroup>({
-      path: `/assessments/${assessmentId}/groups`,
+      path: `/assessments/${assessmentId as string}/groups`,
       tqOptions: {
         queryKey: [ASSESSMENT_GROUP_LIST_KEY],
       },
