@@ -1,5 +1,8 @@
-import Image from "next/image";
+"use client";
+
 import React from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { LanguageSelector } from "~/components/ui/language-selector/LanguageSelector";
 
 interface Props {
@@ -7,12 +10,17 @@ interface Props {
 }
 
 export function AuthLayout({ children }: Props) {
+  const router = useRouter();
+
   return (
     <div className="flex flex-col min-h-screen w-full bg-white px-4 sm:px-6 md:px-10 py-6">
       <div className="flex flex-col lg:flex-row items-start justify-between w-full flex-1 gap-6 mt-10">
-        <div className="flex justify-center lg:justify-start w-full lg:w-[20%]">
+        <div
+          className="flex justify-center lg:justify-start w-full lg:w-[20%] cursor-pointer"
+          onClick={() => router.replace("/home")}
+        >
           <Image
-            src="/images/acdc-logo.png"
+            src="/images/acdc-logo.svg"
             width={140}
             height={100}
             className="-mt-4 sm:-mt-6 z-40 object-contain"

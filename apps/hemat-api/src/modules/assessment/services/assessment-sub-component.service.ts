@@ -11,6 +11,8 @@ import {
   AssessmentSubComponent,
   AssessmentSubComponentAnswer,
   SubComponent,
+  AssessmentSubComponentRoadmap,
+  Roadmap,
 } from '@database/entities';
 import { UUID } from '@shared/helpers';
 import { Filter, QueryService } from '@shared/services';
@@ -20,6 +22,7 @@ import {
   FindAllAssessmentAnswerDto,
   FindAllAssessmentSubComponentDto,
   FindOneAssessmentSubComponentDto,
+  FindOnePrimaryAssessmentAnswerDto,
 } from '../dtos';
 import { MemberRole } from '@shared/enums';
 import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
@@ -37,6 +40,10 @@ export class AssessmentSubComponentService {
     private subComponentAnswerRepository: Repository<AssessmentSubComponentAnswer>,
     @InjectRepository(Answer)
     private answerRepository: Repository<Answer>,
+    @InjectRepository(AssessmentSubComponentRoadmap)
+    private subComponentRoadmapRepository: Repository<AssessmentSubComponentRoadmap>,
+    @InjectRepository(Roadmap)
+    private readonly roadmapRepository: Repository<Roadmap>,
   ) {}
 
   async create(
@@ -144,11 +151,22 @@ export class AssessmentSubComponentService {
   async findPrimaryAnswer(
     subComponentId: string,
     userId: string,
+    query: FindOnePrimaryAssessmentAnswerDto,
   ): Promise<AssessmentSubComponentAnswer> {
     const qb = this.subComponentAnswerRepository
-      .createQueryBuilder('sca')
-      .innerJoin('sca.answer', 'answer')
-      .where('sca.subComponentId = :subComponentId', { subComponentId })
+      .createQueryBuilder('sca');
+    if (query.include?.includes('answer')) {
+      qb.leftJoinAndSelect('sca.answer', 'answer');
+    } else {
+      qb.innerJoin('sca.answer', 'answer');
+    }
+    if (query.include?.includes('measurementScale')) {
+      qb.leftJoinAndSelect('sca.measurementScale', 'measurementScale');
+    }
+    if (query.include?.includes('subComponent')) {
+      qb.leftJoinAndSelect('sca.subComponent', 'subComponent');
+    }
+    qb.where('sca.subComponentId = :subComponentId', { subComponentId })
       .andWhere('sca.deletedAt IS NULL')
       .andWhere('answer.deletedAt IS NULL')
       .andWhere('answer.userId = :userId', { userId })
@@ -180,6 +198,16 @@ export class AssessmentSubComponentService {
       qb.andWhere('answer.groupId = :groupId', {
         groupId: user.assessmentGroupId,
       });
+    }
+
+    if (query.include?.includes('assessment')) {
+      qb.leftJoinAndSelect('answer.assessment', 'assessment');
+    }
+    if (query.include?.includes('user')) {
+      qb.leftJoinAndSelect('answer.user', 'user');
+    }
+    if (query.include?.includes('roadmaps')) {
+      qb.leftJoinAndSelect('answer.roadmaps', 'roadmaps');
     }
 
     const result = await qb.getOne();
@@ -269,5 +297,24 @@ export class AssessmentSubComponentService {
       .andWhere('sca.deletedAt IS NULL')
       .andWhere('answer.deletedAt IS NULL')
       .getMany();
+  }
+
+  async getSubComponentRoadmapAnswer(
+    assessmentId: string,
+    subComponentId: string,
+    user: AssessmentAbilityDto,
+  ): Promise<AssessmentSubComponentRoadmap> {
+    // Find the user's primary roadmap for this assessment
+    const roadmap = await this.roadmapRepository.findOne({
+      where: { assessmentId, userId: user.id, isPrimary: true },
+    });
+    if (!roadmap) throw new NotFoundException('No roadmap found for user');
+
+    // Find the roadmap answer for this sub-component
+    const roadmapAnswer = await this.subComponentRoadmapRepository.findOne({
+      where: { roadmapId: roadmap.id, subComponentId },
+    });
+    if (!roadmapAnswer) throw new NotFoundException('No roadmap answer for this sub-component');
+    return roadmapAnswer;
   }
 }

@@ -13,6 +13,7 @@ import {
   MeasurementScaleModule,
   SupportModule,
   TemplateModule,
+  DashboardModule,
 } from './modules';
 import { ExistConstraint, UniqueConstraint } from './shared/validators';
 @Module({
@@ -33,6 +34,7 @@ import { ExistConstraint, UniqueConstraint } from './shared/validators';
     MeasurementScaleModule,
     SupportModule,
     TemplateModule,
+    DashboardModule,
   ],
   providers: [UniqueConstraint, ExistConstraint],
 })

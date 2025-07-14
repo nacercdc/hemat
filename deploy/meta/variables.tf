@@ -1,60 +1,38 @@
-variable "name" {
-  description = "Name of the project"
+variable "project_name" {
   type = string
-}
-
-variable "gitlab" {
-  description = "GitLab URL"
-  type = string
-}
-
-variable "gitlab_project_id" {
-  description = "GitLab project ID"
-  type = string
-}
-
-variable "repository" {
-  description = "Name of the Git repository."
-  type        = string
-}
-
-variable "organization" {
-  description = "GitHub organization name."
-  type        = string
-  
-}
-
-variable "env_secrets" {
-  description = "Map of environment variable names to their values."
-  type        = map(string)
-}
-
-variable "github_secrets" {
-  description = "Map of GitHub secrets to be created."
-  type        = map(string)
 }
 
 variable "project_id" {
-  description = "Google Cloud project ID."
-  type        = string
+  type = string
 }
 
 variable "region" {
-  description = "Google Cloud region for resources."
-  type        = string
+  type = string
+}
+
+variable "zone" {
+  type = string
+}
+
+variable "github_repository" {
+  type = string
+}
+
+variable "github_organization" {
+  type = string
+}
+
+variable "secrets" {
+  type = map(string)
+  default = {}
 }
 
 variable "environment" {
-  description = "Deployment environment"
-  type        = string
+  type = string
+  default = "development"
 }
 
-variable "http_token" {
-  description = "HTTP access token for API operations"
-  type        = string
-}
-
-variable "http_username" {
-  description = "HTTP username for API operations"
-  type        = string  
+variable "github_secrets" {
+  type = map(string)
+  default = {}
 }

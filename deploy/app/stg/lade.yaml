@@ -1,3 +1,3 @@
 ^terragrunt:
-  GOOGLE_CREDENTIALS: file://config.json?query=.google_application_credentials
-  GOOGLE_BACKEND_IMPERSONATE_SERVICE_ACCOUNT: file://config.json?query=.google_backend_impersonate_service_account
+  GOOGLE_CREDENTIALS: file://config.json?query=.credentials
+  GOOGLE_BACKEND_IMPERSONATE_SERVICE_ACCOUNT: file://config.json?query=.credentials.client_email

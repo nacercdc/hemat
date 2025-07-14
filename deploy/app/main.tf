@@ -1,30 +1,42 @@
 module "web" {
-  source = "git::https://github.com/etmsoftware/tf-modules.git//gcp/cloud_run/app?ref=main"
-  
-  name            = var.name
-  service         = "web"
-  project_id      = var.project_id
-  region          = var.region
-  image_tag       = var.image_tag
-  create_job      = false
-  database_access = false
-  vpc_access      = false
+  source = "./modules"
 
-   resource = {
-    cpu    = "1000m"
-    memory = "2Gi"
+  project_name = var.project_name
+  service_name = "web"
+  region       = var.region
+  project_id   = var.project_id
+  image_tag    = var.image_tag
+
+  template = {
+    max_instance_request_concurrency = 100
+  }
+
+  container = {
+    resources = {
+      limits = {
+        cpu    = "1000m"
+        memory = "2Gi"
+      }
+    }
   }
 }
 
 module "hemat_api" {
-  source = "git::https://github.com/etmsoftware/tf-modules.git//gcp/cloud_run/app?ref=main"
+  source = "./modules"
 
-  name            = var.name
-  service         = "hemat-api"
-  project_id      = var.project_id
-  region          = var.region
-  image_tag       = var.image_tag
-  create_job      = false
-  database_access = false
-  vpc_access      = false
+  project_name = var.project_name
+  service_name = "hemat-api"
+  region       = var.region
+  project_id   = var.project_id
+  image_tag    = var.image_tag
+
+  container = {
+    resources = {
+      limits = {
+        cpu    = "300m"
+        memory = "512Mi"
+      }
+    }
+  }
+  
 }

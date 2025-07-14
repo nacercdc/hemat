@@ -11,10 +11,11 @@ import {
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { Button, useToast } from "@etm/web-ui-components";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
-import type { Component } from "./components/components-list";
-import type { AssessmentFormData, SubComponent } from "./components/form";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import { Stepper } from "./components/Stepper";
+import type { Component } from "./components/components-list";
+import type { AssessmentFormData } from "./components/form";
+import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import type { SubComponent } from "~/libs/models/subComponent.model";
 
 export function CurrentAssessmentFill() {
   const router = useRouter();
@@ -32,14 +33,15 @@ export function CurrentAssessmentFill() {
       assessmentId: string;
       measurementScaleId: string;
       subComponentId: string;
+      isPrimary: boolean;
     }
-  >("assessments/219318d9-a37b-458b-a1f4-3b65a07563d8/answers");
+  >("assessments/e9989a40-722d-4541-b368-8c7ebab86013/answers");
 
   //TODO: this will be replaced with our real domain-segment from our path param
   const { data: components, ...componentsState } = useFindAll<
     QueryManyResponse<{ id: string; name: string }>
   >({
-    path: "/assessmentDomains/387f0cdd-f2c4-4af1-b59a-5c20ac89802a/components",
+    path: "/assessmentDomains/588f3382-e7e1-474c-8e3f-67eb9de43eec/components",
     queries: {
       limit: 100,
       page: 1,
@@ -112,12 +114,13 @@ export function CurrentAssessmentFill() {
         data: {
           ...values,
           measurementScaleId: values.measurementScale.id,
-          assessmentId: "219318d9-a37b-458b-a1f4-3b65a07563d8",
+          assessmentId: "e9989a40-722d-4541-b368-8c7ebab86013",
           subComponentId: (
             subComponents?.data[
               activeSubComponentIndex
             ] as unknown as SubComponent
           ).id,
+          isPrimary: true,
         },
       },
       {

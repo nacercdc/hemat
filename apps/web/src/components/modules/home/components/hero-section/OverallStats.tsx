@@ -3,6 +3,7 @@
 import { Tooltip } from "@etm/web-ui-components";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { AnimatedCounter } from "./AnimatedCounter";
 
 export function OverallStats() {
   const [isHovered, setIsHovered] = useState(false);
@@ -213,7 +214,9 @@ export function OverallStats() {
             }
           >
             <div className="flex flex-col justify-center items-center h-full gap-2">
-              <span className="text-5xl text-[#E8D8A6] font-bold">32</span>
+              <span className="text-5xl text-[#E8D8A6] font-bold">
+                <AnimatedCounter from={0} to={45} duration={4} delay={2} />
+              </span>
               <span className="rounded-md text-xs text-center text-white bg-[#E8D8A6]/25 p-1">
                 Countries
               </span>

@@ -10,10 +10,10 @@ terraform {
 }
 
 remote_state {
-  backend = "http"
+  backend = "gcs"
   config = {
-    address        = "${local.config.common.gitlab}/api/v4/projects/${local.config.common.gitlab_project_id}/terraform/state/${local.config.common.name}.meta.${local.env}"
-    lock_address   = "${local.config.common.gitlab}/api/v4/projects/${local.config.common.gitlab_project_id}/terraform/state/${local.config.common.name}.meta.${local.env}/lock"
-    unlock_address = "${local.config.common.gitlab}/api/v4/projects/${local.config.common.gitlab_project_id}/terraform/state/${local.config.common.name}.meta.${local.env}/lock"
+    bucket  = "${local.config.common.project_name}-terraform-tfstate"
+    prefix  = "${local.config.common.project_name}.meta.${local.env}"
+    project = local.config[local.env].project_id
   }
 }
