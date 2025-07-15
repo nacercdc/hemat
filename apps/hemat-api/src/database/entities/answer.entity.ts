@@ -88,6 +88,9 @@ export class Answer extends BaseEntityWithSoftDelete {
   @Column({ type: 'float', default: 0.0 })
   percentage: number;
 
+  @Column({ type: 'float', nullable: true })
+  averageRate?: number;
+
   @OneToMany(
     () => AssessmentSubComponentAnswer,
     (subComponent) => subComponent.answer,
