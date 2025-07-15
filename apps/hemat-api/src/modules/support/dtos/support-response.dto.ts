@@ -13,6 +13,9 @@ export class SupportResponseDto {
   @ApiProperty()
   description: string;
 
+  @ApiProperty()
+  issuedById: string;
+
   @ApiProperty({ type: () => User })
   issuedBy: User;
 

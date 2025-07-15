@@ -9,6 +9,9 @@ export class SupportReplyResponseDto {
   @ApiProperty()
   supportId: string;
 
+  @ApiProperty()
+  repliedById: string;
+
   @ApiProperty({ type: () => User })
   repliedBy: User;
 

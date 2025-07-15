@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { DomainTranslationDto } from '@shared/dtos';
 import { BaseEntityWithSoftDelete } from './entity';
 import { Component } from './component.entity';
+import { AssessmentDomain } from './assessment-domain.entity';
 
 @Entity('domains')
 export class Domain extends BaseEntityWithSoftDelete {
@@ -47,7 +48,16 @@ export class Domain extends BaseEntityWithSoftDelete {
 
   @OneToMany(() => Component, (component) => component.domain, {
     cascade: true,
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   components: Component[];
+
+  @OneToMany(
+    () => AssessmentDomain,
+    (assessment) => assessment.templateDomain,
+    {
+      onDelete: 'RESTRICT',
+    },
+  )
+  assessmentDomains?: AssessmentDomain[];
 }

@@ -44,5 +44,11 @@ import { SubComponentMeasurementScaleController } from './controllers/sub-compon
     SubComponentController,
     SubComponentMeasurementScaleController,
   ],
+  exports: [
+    DomainService,
+    ComponentService,
+    SubComponentService,
+    SubComponentMeasurementScaleService,
+  ],
 })
 export class TemplateModule {}
