@@ -28,6 +28,9 @@ import {
   FindOneAssessmentAnswerDto,
 } from '../dtos';
 import { AssessmentSubComponentService } from './assessment-sub-component.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { SubComponentAnswerUpdatedEvent } from '../events/assessment-answer.events';
+import { ASSESSMENT_ANSWER_EVENTS } from '../events/assessment-answer.events.constants';
 
 @Injectable()
 export class AssessmentAnswerService {
@@ -35,7 +38,8 @@ export class AssessmentAnswerService {
     @InjectRepository(Answer) private answerRepository: Repository<Answer>,
     private dataSource: DataSource,
     private validator: AssessmentAnswerValidator,
-    private assessmentSubComponentService: AssessmentSubComponentService, // Injected service
+    private assessmentSubComponentService: AssessmentSubComponentService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async findAll(
@@ -131,7 +135,6 @@ export class AssessmentAnswerService {
         );
       }
 
-      // Fetch the component to get domainId
       const component = await manager.findOne(AssessmentComponent, {
         where: { id: subComponent.componentId },
       });
@@ -141,7 +144,6 @@ export class AssessmentAnswerService {
         );
       }
 
-      // Validate that the measurement scale belongs to this assessment
       const measurementScale = await manager.findOne(AssessmentMeasurementScale, {
         where: { id: payload.measurementScaleId },
       });
@@ -153,7 +155,6 @@ export class AssessmentAnswerService {
 
       let allowedDomainIds: string[] = [];
       if (!isPrimary) {
-        // Load the group and its domains
         const group = await manager.findOne(AssessmentGroup, {
           where: { id: member.groupId },
           relations: ['domains'],
@@ -195,7 +196,6 @@ export class AssessmentAnswerService {
         });
         await manager.save(Answer, answer);
 
-        // Set assessment status to IN_PROGRESS if not already in progress or beyond
         if (
           assessment &&
           assessment.status !== AssessmentStatus.IN_PROGRESS &&
@@ -274,6 +274,9 @@ export class AssessmentAnswerService {
         }
       }
       // --- END COMPLETION CHECK ---
+
+      // Emit event after subcomponent answer create/update
+      this.eventEmitter.emit(ASSESSMENT_ANSWER_EVENTS.SUBCOMPONENT_UPDATED, new SubComponentAnswerUpdatedEvent(answer.id));
 
       return answer;
     });
@@ -402,6 +405,9 @@ export class AssessmentAnswerService {
         }
       }
       // --- END COMPLETION CHECK ---
+
+      // Emit event after subcomponent answer update
+      this.eventEmitter.emit(ASSESSMENT_ANSWER_EVENTS.SUBCOMPONENT_UPDATED, new SubComponentAnswerUpdatedEvent(answer.id));
 
       return manager.save(Answer, answer);
     });

@@ -26,6 +26,7 @@ import {
   ASSESSMENT_SERVICES,
   AssessmentMemberService,
   AssessmentService,
+  AssessmentSubComponentService,
 } from './services';
 import {
   AssessmentController,
@@ -42,6 +43,8 @@ import {
 import { AuthModule } from '@shared/modules';
 import { AssessmentAnswerValidator, AssessmentRoadmapValidator } from './utils';
 import { AssessmentRoleGuard } from './guards/assessment-role.guard';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { AssessmentAnswerListener } from './listeners/assessment-answer.listener';
 
 @Module({
   imports: [
@@ -68,6 +71,7 @@ import { AssessmentRoleGuard } from './guards/assessment-role.guard';
       Roadmap,
     ]),
     AuthModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [
     AssessmentController,
@@ -86,7 +90,8 @@ import { AssessmentRoleGuard } from './guards/assessment-role.guard';
     AssessmentAnswerValidator,
     AssessmentRoadmapValidator,
     AssessmentRoleGuard,
+    AssessmentAnswerListener,
   ],
-  exports: [AssessmentService, AssessmentMemberService, AssessmentRoleGuard],
+  exports: [AssessmentService, AssessmentMemberService, AssessmentRoleGuard, AssessmentSubComponentService],
 })
 export class AssessmentModule {}
