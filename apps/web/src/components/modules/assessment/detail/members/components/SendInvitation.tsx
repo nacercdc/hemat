@@ -73,7 +73,7 @@ export function SendInvitation() {
   };
 
   const removeEmailHandler = (email: string) => {
-    setEmails((prev) => prev.filter((e) => e !== email));
+    setEmails((prev) => prev?.filter((e) => e !== email));
   };
 
   const { mutate: sendInvitation, ...sendInvitationState } = useAddMutation<

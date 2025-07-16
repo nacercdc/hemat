@@ -25,6 +25,6 @@ export const siteConfig: SiteConfig = {
   },
 
   icons: {
-    icon: "/favicon.png",
+    icon: "/icon.png",
   },
 };
