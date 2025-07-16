@@ -157,7 +157,7 @@ export function SendInvitation() {
           />
         )}
 
-        {emails.length != 0 && (
+        {emails.length > 0 && (
           <div className="flex flex-col bg-card rounded-sm p-2">
             <div>
               {emails.map((email) => (
@@ -172,13 +172,13 @@ export function SendInvitation() {
               ))}
             </div>
             <div className="flex justify-end">
-              <Button type="submit" size="lg" onClick={openInvitationModal}>
+              <Button type="button" size="lg" onClick={openInvitationModal}>
                 Send Invitation
               </Button>
             </div>
           </div>
         )}
-        {assessmentGroups?.data.length == 0 && emails.length == 0 ? (
+        {(assessmentGroups?.data?.length ?? 0) === 0 && emails.length === 0 ? (
           <div className="flex flex-col gap-4 items-center align-middle">
             <Icon icon={"mdi:users-add"} className="!w-8 !h-8" />
             <span className="text-xm font-semibold">
@@ -200,41 +200,42 @@ export function SendInvitation() {
                 {(assessmentGroups?.data ?? []).map(
                   (assessmentGroup, groupIdx) => (
                     <div className="flex flex-col gap-2 px-2" key={groupIdx}>
-                      {assessmentGroup.invitations?.map(
-                        (invitation, inviteIdx) => (
-                          <div
-                            key={`${groupIdx}-${inviteIdx}`}
-                            className="grid grid-cols-3 text-sm px-2"
-                          >
-                            <div className="flex items-center gap-3">
-                              <MemberInfo
-                                email={invitation.email}
-                                role={invitation.role}
-                              />
-                            </div>
-
-                            <span className="text-sm">
-                              {formatDateToYYYYMMDD(
-                                invitation.createdAt as unknown as Date
-                              )}
-                            </span>
-
-                            <span
-                              className={`text-sm font-semibold ${
-                                invitation.status === "pending"
-                                  ? "text-dark"
-                                  : invitation.status === "accepted"
-                                    ? "text-primary-600"
-                                    : "text-destructive-500"
-                              }`}
+                      {Array.isArray(assessmentGroup.invitations) &&
+                        assessmentGroup.invitations.map(
+                          (invitation, inviteIdx) => (
+                            <div
+                              key={`${groupIdx}-${inviteIdx}`}
+                              className="grid grid-cols-3 text-sm px-2"
                             >
-                              {capitalizeFirstLetter(
-                                invitation.status ?? "Reject"
-                              )}
-                            </span>
-                          </div>
-                        )
-                      )}
+                              <div className="flex items-center gap-3">
+                                <MemberInfo
+                                  email={invitation.email}
+                                  role={invitation.role}
+                                />
+                              </div>
+
+                              <span className="text-sm">
+                                {formatDateToYYYYMMDD(
+                                  invitation.createdAt as unknown as Date
+                                )}
+                              </span>
+
+                              <span
+                                className={`text-sm font-semibold ${
+                                  invitation.status === "pending"
+                                    ? "text-dark"
+                                    : invitation.status === "accepted"
+                                      ? "text-primary-600"
+                                      : "text-destructive-500"
+                                }`}
+                              >
+                                {capitalizeFirstLetter(
+                                  invitation.status ?? "Reject"
+                                )}
+                              </span>
+                            </div>
+                          )
+                        )}
                     </div>
                   )
                 )}
@@ -273,7 +274,7 @@ export function SendInvitation() {
 
           <div>
             <Button
-              type="submit"
+              type="button"
               size="lg"
               onClick={onInvitationSubmitHandler}
               loading={sendInvitationState.isPending}
