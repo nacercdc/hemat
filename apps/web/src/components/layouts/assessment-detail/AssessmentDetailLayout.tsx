@@ -13,7 +13,7 @@ import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types"
 const TABS = [
   { value: "detail", label: "Detail" },
   { value: "setting", label: "Setting" },
-  { value: "member", label: "Member" },
+  { value: "member", label: "Participants" },
   { value: "current-assessments", label: "Current Assessment" },
   { value: "roadmap", label: "Roadmap" },
 ] as const;
