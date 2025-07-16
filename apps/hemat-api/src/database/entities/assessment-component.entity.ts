@@ -13,6 +13,7 @@ import { Assessment } from './assessment.entity';
 import { AssessmentDomain } from './assessment-domain.entity';
 import { AssessmentSubComponent } from './assessment-sub-component.entity';
 import { ComponentTranslationDto } from '../../shared/dtos';
+import { Component } from './component.entity';
 
 @Entity('assessment-components')
 @Unique(['code', 'assessmentId'])
@@ -60,6 +61,19 @@ export class AssessmentComponent extends BaseEntityWithSoftDelete {
   })
   @Column('jsonb')
   translations: Record<string, ComponentTranslationDto> = {};
+
+  @ApiProperty({
+    description: 'ID of the original template component',
+    example: 'template-component-uuid',
+    type: String,
+    required: false,
+  })
+  @Column({ type: 'uuid', nullable: true })
+  templateComponentId?: string;
+
+  @ManyToOne(() => Component, { nullable: true })
+  @JoinColumn({ name: 'templateComponentId' })
+  templateComponent?: Component;
 
   @ApiProperty({
     description: 'ID of the associated domain',

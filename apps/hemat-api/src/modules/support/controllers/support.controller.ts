@@ -107,8 +107,6 @@ export class SupportController {
     @AuthUser() user: AuthDto,
     @Query() query: SupportQueryDto,
   ): Promise<FindAllResponseDto<any>> {
-    // Admins see all replies (public and internal)
-    // Normal users see only public replies to tickets they created
     if (user.isAdmin) {
       return this.supportService.findAllReplies(query);
     } else {
@@ -132,9 +130,10 @@ export class SupportController {
   async findOneReply(
     @AuthUser() user: AuthDto,
     @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: SupportQueryDto,
   ): Promise<any> {
-    const reply = await this.supportService.findOneReply(id);
-    if (!user.isAdmin && reply.support.issuedBy.id !== user.id) {
+    const reply = await this.supportService.findOneReply(id, query);
+    if (!user.isAdmin && reply.support && reply.support.issuedBy && reply.support.issuedBy.id !== user.id) {
       throw new ForbiddenException('You do not have access to this reply.');
     }
     return reply;
@@ -155,9 +154,10 @@ export class SupportController {
   async findOne(
     @AuthUser() user: AuthDto,
     @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: SupportQueryDto,
   ): Promise<any> {
-    const ticket = await this.supportService.findOne(id);
-    if (!user.isAdmin && ticket.issuedBy.id !== user.id) {
+    const ticket = await this.supportService.findOne(id, query);
+    if (!user.isAdmin && ticket.issuedBy && ticket.issuedBy.id !== user.id) {
       throw new ForbiddenException('You do not have access to this ticket.');
     }
     return ticket;
@@ -203,8 +203,9 @@ export class SupportController {
     @AuthUser() user: AuthDto,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: SupportCreateRequestDto,
+    @Query() query: SupportQueryDto,
   ): Promise<any> {
-    const ticket = await this.supportService.findOne(id);
+    const ticket = await this.supportService.findOne(id, query);
     if (ticket.issuedBy.id !== user.id) {
       throw new ForbiddenException('Only the ticket owner can update this ticket.');
     }
@@ -231,8 +232,9 @@ export class SupportController {
   async delete(
     @AuthUser() user: AuthDto,
     @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: SupportQueryDto,
   ): Promise<any> {
-    const ticket = await this.supportService.findOne(id);
+    const ticket = await this.supportService.findOne(id, query);
     if (!user.isAdmin && ticket.issuedBy.id !== user.id) {
       throw new ForbiddenException('Only the ticket owner or an admin can delete this ticket.');
     }

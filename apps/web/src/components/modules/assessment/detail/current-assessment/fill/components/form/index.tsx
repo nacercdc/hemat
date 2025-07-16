@@ -17,20 +17,9 @@ import { AssessmentFormSkeleton } from "./AssessmentFormSkeleton";
 import type { Scale } from "~/libs/models/scale.model";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { Answer, AnswerIncludable } from "~/libs/models/answer.model";
+import type { SubComponent } from "~/libs/models/subComponent.model";
 
 export const SubCompAssessmentFormID = "SubCompAssessmentForm";
-
-//TODO: extract every temp interface to there own model
-export interface SubComponent {
-  id: string;
-  name: string;
-  description: string;
-}
-
-export interface ScaleDescription {
-  id: string;
-  description: string;
-}
 
 const MeasurementScaleSchema = z.object(
   {
@@ -93,7 +82,7 @@ export function SubCompAssessmentForm({
   const { data: measurementScales, ...measurementScalesState } = useFindAll<
     QueryManyResponse<MeasurementScaleType>
   >({
-    path: "/assessments/219318d9-a37b-458b-a1f4-3b65a07563d8/measurement-scales",
+    path: "/assessments/e9989a40-722d-4541-b368-8c7ebab86013/measurement-scales",
     queries: {
       limit: 100,
       page: 1,
@@ -101,20 +90,23 @@ export function SubCompAssessmentForm({
   });
 
   //TODO: replace assessmentId from params
-  const { data: subComponentAnswers, ...subComponentAnswersState } =
-    useFindById<QueryManyResponse<Answer>, AnswerIncludable>({
-      path: `/assessments/219318d9-a37b-458b-a1f4-3b65a07563d8/sub-components/${subComponent?.id}/answers`,
-      queries: {
-        include: ["measurementScale"],
-      },
-      tqOptions: {
-        enabled: !!subComponent,
-        staleTime: 0,
-      },
-    });
+  const { data: subComponentAnswer, ...subComponentAnswerState } = useFindById<
+    QueryManyResponse<Answer>,
+    AnswerIncludable
+  >({
+    path: `/assessments/e9989a40-722d-4541-b368-8c7ebab86013/sub-components/${subComponent?.id}/primary-answer`,
+    queries: {
+      include: ["measurementScale"],
+    },
+    tqOptions: {
+      enabled: !!subComponent,
+      staleTime: 0,
+      retry: false,
+    },
+  });
 
   const { data: scaleDescription, ...scaleDescriptionState } = useFindById<
-    ScaleDescription,
+    Scale,
     unknown
   >({
     path: `/assessment-sub-components/${subComponent?.id}/measurement-scales/${activeMeasurementScale?.id}`,
@@ -145,50 +137,33 @@ export function SubCompAssessmentForm({
 
   //TODO: it will be an object response instead of an array onces the API is fixed
   useEffect(() => {
-    const answers = subComponentAnswers?.data as unknown as Answer[];
+    const answer = subComponentAnswer as unknown as Answer;
 
-    if (answers?.length) {
-      const answer = answers.find(
-        (ans) => ans.subComponentId === subComponent?.id
+    if (answer) {
+      const formattedScale = formattedMeasurementScales.find(
+        (scale) => scale.id === answer.measurementScale?.id
       );
-      if (answer) {
-        const formattedScale = formattedMeasurementScales.find(
-          (scale) => scale.id === answer.measurementScale.id
-        );
-        reset({
-          evidence: answer.evidence,
-          reference: answer.reference,
-          measurementScale: {
-            id: formattedScale?.id,
-            name: formattedScale?.name,
-          },
-        });
-      } else {
-        reset({
-          evidence: "",
-          reference: "",
-          measurementScale: { name: "", id: "" },
-        });
-      }
-      return;
+      reset({
+        evidence: answer.evidence,
+        reference: answer.reference,
+        measurementScale: {
+          id: formattedScale?.id,
+          name: formattedScale?.name,
+        },
+      });
+    } else {
+      reset({
+        evidence: "",
+        reference: "",
+        measurementScale: { id: "", name: "" },
+      });
     }
-
-    reset({
-      evidence: "",
-      reference: "",
-      measurementScale: { name: "", id: "" },
-    });
-  }, [
-    formattedMeasurementScales,
-    reset,
-    subComponent?.id,
-    subComponentAnswers?.data,
-  ]);
+  }, [formattedMeasurementScales, reset, subComponent?.id, subComponentAnswer]);
 
   if (
     isLoading ||
     measurementScalesState.isFetching ||
-    subComponentAnswersState.isFetching
+    subComponentAnswerState.isFetching
   )
     return <AssessmentFormSkeleton />;
 

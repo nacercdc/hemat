@@ -77,6 +77,5 @@ export interface AssessmentDetail {
 export type AssessmentFilterable = "rate";
 export type AssessmentSortable = "createdAt" | "rate" | "name" | "color";
 export type AssessmentsIncludeAble = "user" | "country" | "members" | "groups";
-
 export type AssessmentSorts = Sort<AssessmentSortable>[];
 export type AssessmentFilters = Filter<AssessmentFilterable>[];

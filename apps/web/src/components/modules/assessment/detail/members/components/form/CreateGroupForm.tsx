@@ -18,8 +18,9 @@ export type TeamGroupFormData = z.infer<typeof LanguageFormSchema>;
 interface Member {
   id: string;
   name: string;
-  email: string;
-  avatarUrl: string;
+  email?: string;
+  isLeader?: boolean;
+  avatarUrl?: string;
 }
 
 const DummyMembers: Member[] = [
@@ -37,7 +38,7 @@ const DummyMembers: Member[] = [
   },
 ];
 const fetchAssessmentMembers = (): Promise<Member[]> => {
-  // TODO: This function fetch invited user
+  //TODO: This function fetch invited user
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(DummyMembers);
@@ -63,6 +64,31 @@ export function CreateGroupForm({
     resolver: zodResolver(LanguageFormSchema),
     mode: "all",
   });
+
+  const [selectedMembers, setSelectedMembers] = useState<Member[]>([]);
+  const [availableMembers, setAvailableMembers] =
+    useState<Member[]>(DummyMembers);
+
+  const handleAdd = (member: Member) => {
+    setSelectedMembers([...selectedMembers, member]);
+    setAvailableMembers(
+      availableMembers.filter((m) => m.email !== member.email)
+    );
+  };
+
+  const handleRemove = (member: Member) => {
+    setAvailableMembers([...availableMembers, member]);
+    setSelectedMembers(selectedMembers.filter((m) => m.email !== member.email));
+  };
+
+  const setLeader = (email: string) => {
+    setSelectedMembers(
+      selectedMembers.map((member) => ({
+        ...member,
+        isLeader: member.email === email,
+      }))
+    );
+  };
 
   const onCancelHandler = () => {
     onCancelTeamGroupForm?.();
@@ -102,15 +128,45 @@ export function CreateGroupForm({
           size="xl"
           labelVariant="bold"
         />
+
         <div className="flex flex-col gap-4">
-          {members.map((group) => (
+          {selectedMembers.map((group) => (
             <div className="flex justify-between">
               <MemberInfo
                 key={group.id}
                 email={group.email}
                 name={group.name}
               />
-              <Icon icon="mdi:add" className="text-xl text-right text-dark" />
+              <select
+                value={group?.isLeader ? "Team Leader" : ""}
+                onChange={() => setLeader(group?.email as string)}
+                className="border px-2 py-1 rounded"
+              >
+                <option value="">Select</option>
+                <option value="Team Leader">Team Leader</option>
+              </select>
+              <Icon
+                icon="mdi:close"
+                className="text-xl text-right text-dark text-red-500"
+                onClick={() => handleRemove(group)}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {availableMembers.map((group) => (
+            <div className="flex justify-between">
+              <MemberInfo
+                key={group.id}
+                email={group.email}
+                name={group.name}
+              />
+              <Icon
+                icon="mdi:add"
+                className="text-xl text-right text-dark"
+                onClick={() => handleAdd(group)}
+              />
             </div>
           ))}
         </div>

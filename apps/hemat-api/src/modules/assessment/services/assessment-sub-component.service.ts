@@ -74,6 +74,7 @@ export class AssessmentSubComponentService {
             assessmentId,
             componentId: parentId,
             translations,
+            templateSubComponentId: id,
           });
           templateSubComponentId[id] = subComponent.id;
           assessmentSubComponents.push(subComponent);

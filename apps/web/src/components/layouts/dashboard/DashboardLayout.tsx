@@ -7,6 +7,7 @@ import Sidebar from "../components/sidebar/Sidebar";
 import UserAbilityProvider from "~/providers/ability/UserAbilityProvider";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
+import HelpSupportButton from "~/components/modules/support/components/button";
 
 interface Props {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ export function DashboardLayout({ children }: Props) {
 
   return (
     <UserAbilityProvider>
-      <div className="flex w-full h-full gap-2 bg-basic-200">
+      <div className="flex w-full h-full gap-2 bg-basic-200 relative">
         <Sidebar />
         <div className="flex flex-col flex-1 gap-1 w-full h-full px-5 min-[2160px]:px-72 overflow-hidden py-6">
           <Suspense fallback={<Loading />}>
@@ -44,6 +45,7 @@ export function DashboardLayout({ children }: Props) {
             </motion.div>
           </Suspense>
         </div>
+        <HelpSupportButton />
       </div>
     </UserAbilityProvider>
   );

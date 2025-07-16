@@ -75,4 +75,6 @@ export class AssessmentSubComponentDto {
   @IsNotEmpty()
   @Type(() => SubComponentTranslationDto)
   translations: Record<string, SubComponentTranslationDto> = {};
+
+  templateSubComponentId?: string;
 }

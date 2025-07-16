@@ -63,4 +63,6 @@ export class AssessmentComponentDto {
   @IsNotEmpty()
   @Type(() => ComponentTranslationDto)
   translations: Record<string, ComponentTranslationDto> = {};
+
+  templateComponentId?: string;
 }

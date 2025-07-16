@@ -26,7 +26,7 @@ export class SupportService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async findAll(query: SupportQueryDto): Promise<FindAllResponseDto<Support>> {
+  async findAll(query: SupportQueryDto): Promise<FindAllResponseDto<any>> {
     return new QueryService<Support>(this.supportRepository)
       .join(query.include)
       .filter([], { fields: ['title'], value: query.search })
@@ -39,7 +39,7 @@ export class SupportService {
   async findAllByUser(
     userId: string,
     query: SupportQueryDto,
-  ): Promise<FindAllResponseDto<Support>> {
+  ): Promise<FindAllResponseDto<any>> {
     return new QueryService<Support>(this.supportRepository)
       .join(query.include)
       .filter([{ field: 'issuedBy.id', operator: '=', value: userId }], {
@@ -52,8 +52,11 @@ export class SupportService {
       .getManyAndCount();
   }
 
-  async findOne(id: string): Promise<Support> {
-    const support = await this.supportRepository.findOne({ where: { id } });
+  async findOne(id: string, query: SupportQueryDto): Promise<Support> {
+    const support = await this.supportRepository.findOne({
+      where: { id },
+      relations: query.include,
+    });
     if (!support) throw new NotFoundException(`Support ${id} not found.`);
     return support;
   }
@@ -104,7 +107,9 @@ export class SupportService {
       if (!support) throw new NotFoundException(`Support ${id} not found.`);
       try {
         // Soft delete all replies for this support ticket
-        await manager.getRepository(SupportReply).softDelete({ support: { id } });
+        await manager
+          .getRepository(SupportReply)
+          .softDelete({ support: { id } });
         // Soft delete the support ticket
         return await manager.getRepository(Support).softRemove(support);
       } catch (err) {
@@ -160,8 +165,9 @@ export class SupportService {
     });
   }
 
-  async findAllReplies(query: SupportQueryDto): Promise<FindAllResponseDto<SupportReply>> {
-    // Admins see all replies (no filter on visibility)
+  async findAllReplies(
+    query: SupportQueryDto,
+  ): Promise<FindAllResponseDto<any>> {
     return new QueryService<SupportReply>(this.supportReplyRepository)
       .join(query.include)
       .filter([], { fields: ['description'], value: query.search })
@@ -171,26 +177,29 @@ export class SupportService {
       .getManyAndCount();
   }
 
-  async findAllRepliesByUser(userId: string, query: SupportQueryDto): Promise<FindAllResponseDto<SupportReply>> {
-    const qb = this.supportReplyRepository.createQueryBuilder('reply')
-      .leftJoinAndSelect('reply.support', 'support')
-      .where('support.issuedById = :userId', { userId })
-      .andWhere('reply.visibility = :visibility', { visibility: SupportVisibilityEnum.PUBLIC });
-
-    if (query.search) {
-      qb.andWhere('reply.description ILIKE :search', { search: `%${query.search}%` });
-    }
-    if (query.take) qb.take(query.take);
-    if (query.skip) qb.skip(query.skip);
-
-    const [data, count] = await qb.getManyAndCount();
-    return { data, total: count };
+  async findAllRepliesByUser(
+    userId: string,
+    query: SupportQueryDto,
+  ): Promise<FindAllResponseDto<any>> {
+    return new QueryService<SupportReply>(this.supportReplyRepository)
+      .join(query.include)
+      .filter([{ field: 'support.issuedById', operator: '=', value: userId }], {
+        fields: ['description'],
+        value: query.search,
+      })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
-  async findOneReply(id: string): Promise<SupportReply> {
+  async findOneReply(
+    id: string,
+    query: SupportQueryDto,
+  ): Promise<SupportReply> {
     const reply = await this.supportReplyRepository.findOne({
       where: { id },
-      relations: ['support', 'support.issuedBy', 'repliedBy'],
+      relations: query.include,
     });
     if (!reply) throw new NotFoundException(`Support reply ${id} not found.`);
     return reply;

@@ -48,6 +48,15 @@ export class AssessmentMeasurementScaleSubComponent extends BaseEntityWithSoftDe
   @Column({ type: 'text' })
   description: string;
 
+  @ApiProperty({
+    description: 'ID of the original template measurement scale sub-component',
+    example: 'template-measurement-scale-sub-component-uuid',
+    type: String,
+    required: false,
+  })
+  @Column({ type: 'uuid', nullable: true })
+  templateMeasurementScaleSubComponentId?: string;
+
   @ApiPropertyOptional({
     description: 'Assessments related to this Measurement scale SubComponent',
     type: () => MeasurementScaleSubComponentTranslationDto,

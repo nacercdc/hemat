@@ -27,6 +27,7 @@ import {
   FindAllAssessmentAnswerDto,
   FindOneAssessmentAnswerDto,
 } from '../dtos';
+import { AssessmentSubComponentService } from './assessment-sub-component.service';
 
 @Injectable()
 export class AssessmentAnswerService {
@@ -34,6 +35,7 @@ export class AssessmentAnswerService {
     @InjectRepository(Answer) private answerRepository: Repository<Answer>,
     private dataSource: DataSource,
     private validator: AssessmentAnswerValidator,
+    private assessmentSubComponentService: AssessmentSubComponentService, // Injected service
   ) {}
 
   async findAll(
@@ -252,6 +254,27 @@ export class AssessmentAnswerService {
           : AnswerStatus.INPROGRESS;
       await manager.save(Answer, answer);
 
+      // --- COMPLETION CHECK FOR PRIMARY ANSWERS ---
+      if (isPrimary) {
+        // Count all subcomponents for this assessment
+        const totalSubComponents = await manager.count(AssessmentSubComponent, { where: { assessmentId } });
+        // Count unique subComponentIds with a primary answer for this assessment
+        const primaryAnswered = await manager
+          .createQueryBuilder(AssessmentSubComponentAnswer, 'sca')
+          .innerJoin('sca.answer', 'answer')
+          .where('answer.assessmentId = :assessmentId', { assessmentId })
+          .andWhere('answer.isPrimary = :isPrimary', { isPrimary: true })
+          .andWhere('sca.deletedAt IS NULL')
+          .andWhere('answer.deletedAt IS NULL')
+          .select('DISTINCT sca.subComponentId', 'subComponentId')
+          .getRawMany();
+        if (primaryAnswered.length === totalSubComponents && totalSubComponents > 0) {
+          assessment.status = AssessmentStatus.COMPLETED;
+          await manager.save(Assessment, assessment);
+        }
+      }
+      // --- END COMPLETION CHECK ---
+
       return answer;
     });
   }
@@ -359,6 +382,27 @@ export class AssessmentAnswerService {
         answer.percentage === 100
           ? AnswerStatus.COMPLETED
           : AnswerStatus.INPROGRESS;
+
+      // --- COMPLETION CHECK FOR PRIMARY ANSWERS (update) ---
+      if (answer.isPrimary) {
+        const totalSubComponents = await manager.count(AssessmentSubComponent, { where: { assessmentId } });
+        const primaryAnswered = await manager
+          .createQueryBuilder(AssessmentSubComponentAnswer, 'sca')
+          .innerJoin('sca.answer', 'answer')
+          .where('answer.assessmentId = :assessmentId', { assessmentId })
+          .andWhere('answer.isPrimary = :isPrimary', { isPrimary: true })
+          .andWhere('sca.deletedAt IS NULL')
+          .andWhere('answer.deletedAt IS NULL')
+          .select('DISTINCT sca.subComponentId', 'subComponentId')
+          .getRawMany();
+        const assessment = await manager.findOne(Assessment, { where: { id: assessmentId } });
+        if (assessment && primaryAnswered.length === totalSubComponents && totalSubComponents > 0) {
+          assessment.status = AssessmentStatus.COMPLETED;
+          await manager.save(Assessment, assessment);
+        }
+      }
+      // --- END COMPLETION CHECK ---
+
       return manager.save(Answer, answer);
     });
   }
