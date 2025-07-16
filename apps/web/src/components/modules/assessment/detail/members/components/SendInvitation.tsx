@@ -73,7 +73,7 @@ export function SendInvitation() {
   };
 
   const removeEmailHandler = (email: string) => {
-    setEmails((prev) => prev?.filter((e) => e !== email));
+    setEmails((prev = []) => prev.filter((e) => e !== email));
   };
 
   const { mutate: sendInvitation, ...sendInvitationState } = useAddMutation<
@@ -197,45 +197,47 @@ export function SendInvitation() {
                   <div>Status</div>
                 </div>
 
-                {assessmentGroups?.data.map((assessmentGroup, groupIdx) => (
-                  <div className="flex flex-col gap-2 px-2" key={groupIdx}>
-                    {assessmentGroup.invitations?.map(
-                      (invitation, inviteIdx) => (
-                        <div
-                          key={`${groupIdx}-${inviteIdx}`}
-                          className="grid grid-cols-3 text-sm px-2"
-                        >
-                          <div className="flex items-center gap-3">
-                            <MemberInfo
-                              email={invitation.email}
-                              role={invitation.role}
-                            />
-                          </div>
-
-                          <span className="text-sm">
-                            {formatDateToYYYYMMDD(
-                              invitation.createdAt as unknown as Date
-                            )}
-                          </span>
-
-                          <span
-                            className={`text-sm font-semibold ${
-                              invitation.status === "pending"
-                                ? "text-dark"
-                                : invitation.status === "accepted"
-                                  ? "text-primary-600"
-                                  : "text-destructive-500"
-                            }`}
+                {(assessmentGroups?.data ?? []).map(
+                  (assessmentGroup, groupIdx) => (
+                    <div className="flex flex-col gap-2 px-2" key={groupIdx}>
+                      {assessmentGroup.invitations?.map(
+                        (invitation, inviteIdx) => (
+                          <div
+                            key={`${groupIdx}-${inviteIdx}`}
+                            className="grid grid-cols-3 text-sm px-2"
                           >
-                            {capitalizeFirstLetter(
-                              invitation.status ?? "Reject"
-                            )}
-                          </span>
-                        </div>
-                      )
-                    )}
-                  </div>
-                ))}
+                            <div className="flex items-center gap-3">
+                              <MemberInfo
+                                email={invitation.email}
+                                role={invitation.role}
+                              />
+                            </div>
+
+                            <span className="text-sm">
+                              {formatDateToYYYYMMDD(
+                                invitation.createdAt as unknown as Date
+                              )}
+                            </span>
+
+                            <span
+                              className={`text-sm font-semibold ${
+                                invitation.status === "pending"
+                                  ? "text-dark"
+                                  : invitation.status === "accepted"
+                                    ? "text-primary-600"
+                                    : "text-destructive-500"
+                              }`}
+                            >
+                              {capitalizeFirstLetter(
+                                invitation.status ?? "Reject"
+                              )}
+                            </span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )
+                )}
               </>
             ) : (
               <div className="text-sm text-muted-foreground">
