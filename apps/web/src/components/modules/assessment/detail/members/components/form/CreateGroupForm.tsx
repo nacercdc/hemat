@@ -133,12 +133,8 @@ export function CreateGroupForm({
 
         <div className="flex flex-col gap-4">
           {selectedMembers.map((group) => (
-            <div className="flex justify-between">
-              <MemberInfo
-                key={group.id}
-                email={group.email}
-                name={group.name}
-              />
+            <div className="flex justify-between" key={group.id}>
+              <MemberInfo email={group.email} name={group.name} />
               <select
                 value={group?.isLeader ? "Team Leader" : ""}
                 onChange={() => setLeader(group?.email as string)}
@@ -158,12 +154,8 @@ export function CreateGroupForm({
 
         <div className="flex flex-col gap-4">
           {availableMembers.map((group) => (
-            <div className="flex justify-between">
-              <MemberInfo
-                key={group.id}
-                email={group.email}
-                name={group.name}
-              />
+            <div className="flex justify-between" key={group.id}>
+              <MemberInfo email={group.email} name={group.name} />
               <Icon
                 icon="mdi:add"
                 className="text-xl text-right text-dark"
