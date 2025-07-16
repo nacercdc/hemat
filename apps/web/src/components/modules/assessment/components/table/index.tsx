@@ -94,7 +94,7 @@ export function AssessmentsTable() {
       <ETMTable<Assessment>
         columns={AssessmentsTableColumns}
         data={assessments?.data}
-        totalItems={10}
+        totalItems={assessments?.total ?? DEFAULT_PAGE_SIZE}
         isLoading={assessmentsState.isLoading}
         onSortingChange={onSortingChangeHandler}
         onSearchFilterChange={onSearchFilterChangeHandler}

@@ -32,7 +32,7 @@ export default function AssessmentGroups() {
     //TODO:
     const updatedGroups = groups.map((group) => ({
       ...group,
-      members: group.members.filter((member) => member.email !== email),
+      members: group?.members?.filter((member) => member.email !== email),
     }));
     setGroups(updatedGroups);
   };
