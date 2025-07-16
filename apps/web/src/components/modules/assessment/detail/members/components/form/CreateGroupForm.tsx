@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { Button, InputRHF } from "@etm/web-ui-components";
 import { useForm } from "react-hook-form";
@@ -37,8 +36,9 @@ const DummyMembers: Member[] = [
     avatarUrl: "http://path-that-goes-no-where.com",
   },
 ];
+
 const fetchAssessmentMembers = (): Promise<Member[]> => {
-  //TODO: This function fetch invited user
+  // TODO: This function should fetch invited users from API
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(DummyMembers);
@@ -66,26 +66,25 @@ export function CreateGroupForm({
   });
 
   const [selectedMembers, setSelectedMembers] = useState<Member[]>([]);
-  const [availableMembers, setAvailableMembers] =
-    useState<Member[]>(DummyMembers);
+  const [availableMembers, setAvailableMembers] = useState<Member[]>([]);
 
   const handleAdd = (member: Member) => {
-    setSelectedMembers([...selectedMembers, member]);
+    setSelectedMembers([...(selectedMembers ?? []), member]);
     setAvailableMembers(
-      availableMembers?.filter((m) => m.email !== member.email)
+      (availableMembers ?? []).filter((m) => m.email !== member.email)
     );
   };
 
   const handleRemove = (member: Member) => {
-    setAvailableMembers([...availableMembers, member]);
+    setAvailableMembers([...(availableMembers ?? []), member]);
     setSelectedMembers(
-      selectedMembers?.filter((m) => m.email !== member.email)
+      (selectedMembers ?? []).filter((m) => m.email !== member.email)
     );
   };
 
   const setLeader = (email: string) => {
     setSelectedMembers(
-      selectedMembers.map((member) => ({
+      (selectedMembers ?? []).map((member) => ({
         ...member,
         isLeader: member.email === email,
       }))
@@ -95,6 +94,8 @@ export function CreateGroupForm({
   const onCancelHandler = () => {
     onCancelTeamGroupForm?.();
     reset();
+    setAvailableMembers(members);
+    setSelectedMembers([]);
   };
 
   useEffect(() => {
@@ -102,6 +103,7 @@ export function CreateGroupForm({
       setIsLoading(true);
       const data = await fetchAssessmentMembers();
       setMembers(data);
+      setAvailableMembers(data);
       setIsLoading(false);
     };
 
@@ -117,6 +119,8 @@ export function CreateGroupForm({
       onSubmit={handleSubmit((values) => {
         onSubmitTeamGroupForm(values);
         reset();
+        setAvailableMembers(members);
+        setSelectedMembers([]);
       })}
       className="flex flex-col w-full min-h-20 bg-card rounded-xl relative"
     >
@@ -126,18 +130,21 @@ export function CreateGroupForm({
           control={control}
           name="name"
           label="Name"
-          placeholder="Write Group Name "
+          placeholder="Write Group Name"
           size="xl"
           labelVariant="bold"
         />
 
         <div className="flex flex-col gap-4">
-          {selectedMembers.map((group) => (
-            <div className="flex justify-between" key={group.id}>
-              <MemberInfo email={group.email} name={group.name} />
+          {(selectedMembers ?? []).map((member) => (
+            <div className="flex justify-between items-center" key={member.id}>
+              <MemberInfo
+                email={member.email ?? "unknown@example.com"}
+                name={member.name}
+              />
               <select
-                value={group?.isLeader ? "Team Leader" : ""}
-                onChange={() => setLeader(group?.email as string)}
+                value={member?.isLeader ? "Team Leader" : ""}
+                onChange={() => setLeader(member.email ?? "")}
                 className="border px-2 py-1 rounded"
               >
                 <option value="">Select</option>
@@ -145,26 +152,30 @@ export function CreateGroupForm({
               </select>
               <Icon
                 icon="mdi:close"
-                className="text-xl text-right text-dark text-red-500"
-                onClick={() => handleRemove(group)}
+                className="text-xl text-right text-dark text-red-500 cursor-pointer"
+                onClick={() => handleRemove(member)}
               />
             </div>
           ))}
         </div>
 
         <div className="flex flex-col gap-4">
-          {availableMembers.map((group) => (
-            <div className="flex justify-between" key={group.id}>
-              <MemberInfo email={group.email} name={group.name} />
+          {(availableMembers ?? []).map((member) => (
+            <div className="flex justify-between items-center" key={member.id}>
+              <MemberInfo
+                email={member.email ?? "unknown@example.com"}
+                name={member.name}
+              />
               <Icon
                 icon="mdi:add"
-                className="text-xl text-right text-dark"
-                onClick={() => handleAdd(group)}
+                className="text-xl text-right text-dark cursor-pointer"
+                onClick={() => handleAdd(member)}
               />
             </div>
           ))}
         </div>
       </div>
+
       <div className="flex justify-between items-center w-full bg-layout-bg p-4 rounded-b-lg px-8 mt-auto">
         <Button variant="outline" type="button" onClick={onCancelHandler}>
           Reset to default

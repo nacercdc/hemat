@@ -108,13 +108,12 @@ export default function MemberAction({
 
   const { data: assessmentGroups, ...assessmentGroupsState } =
     useFindAll<AssessmentGroup>({
-      path: `/assessments/${assessmentId}/groups`,
+      path: assessmentId ? `/assessments/${assessmentId}/groups` : "",
       tqOptions: {
-        queryKey: [ASSESSMENT_GROUP_LIST_KEY],
+        queryKey: [ASSESSMENT_GROUP_LIST_KEY, assessmentId],
+        enabled: !!assessmentId,
       },
     });
-
-  console.log(assessmentGroups, "Groups");
 
   const { mutate: memberMoveto, ...memberMovetoState } =
     useAddMutation<MemberMoveTo>(`assessments/${assessmentId}/members/move`);
