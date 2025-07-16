@@ -50,7 +50,7 @@ export default function MemberAction({
 }: Props) {
   const toaster = useToast();
   const params = useParams();
-  const assessmentId = params.id;
+  const assessmentId = params.id as string | undefined;
   const openMemberActionRef = useRef<ModalRef>(null);
   const onGotoRemoveMemberHandler = () => {
     if (refetch) {
@@ -108,7 +108,7 @@ export default function MemberAction({
 
   const { data: assessmentGroups, ...assessmentGroupsState } =
     useFindAll<AssessmentGroup>({
-      path: `/assessments/${assessmentId as string}/groups`,
+      path: `/assessments/${assessmentId}/groups`,
       tqOptions: {
         queryKey: [ASSESSMENT_GROUP_LIST_KEY],
       },
@@ -117,9 +117,7 @@ export default function MemberAction({
   console.log(assessmentGroups, "Groups");
 
   const { mutate: memberMoveto, ...memberMovetoState } =
-    useAddMutation<MemberMoveTo>(
-      `assessments/${assessmentId as string}/members/move`
-    );
+    useAddMutation<MemberMoveTo>(`assessments/${assessmentId}/members/move`);
 
   const onMoveToHandler = (data: MemberMoveToFormData) => {
     memberMoveto(
@@ -157,7 +155,9 @@ export default function MemberAction({
             className="text-xl text-right text-dark"
           />
         }
-        options={optionsList.map((key) => allOptions[key])}
+        options={optionsList
+          .map((key) => allOptions[key])
+          .filter((option) => option !== undefined)}
       />
 
       <Modal ref={openMemberActionRef} title="Select The Group">

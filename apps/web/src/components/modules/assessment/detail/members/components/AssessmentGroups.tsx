@@ -17,7 +17,7 @@ export const ASSESSMENT_GROUPS_KEY = "assessments-groups-list";
 
 export default function AssessmentGroups() {
   const params = useParams();
-  const assessmentId = params.id;
+  const assessmentId = params.id as string | undefined;
   const [groups, setGroups] = useState<IAssessmentGroup[]>([]);
   const addTeamGroupModalRef = useRef<ModalRef>(null);
 
@@ -41,7 +41,7 @@ export default function AssessmentGroups() {
     IAssessmentGroup,
     AssessmentGroupIncludeAble
   >({
-    path: `/assessments/${assessmentId as string}/groups`,
+    path: `/assessments/${assessmentId}/groups`,
     queries: {
       include: ["members", "members.user", "invitations"],
     },

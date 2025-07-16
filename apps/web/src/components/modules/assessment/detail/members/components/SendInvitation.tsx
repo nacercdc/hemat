@@ -49,7 +49,7 @@ export function SendInvitation() {
   const [emails, setEmails] = useState<string[]>([]);
 
   const params = useParams();
-  const assessmentId = params.id;
+  const assessmentId = params.id as string | undefined;
   const { toast } = useToast();
   const sendInvitationModalRef = useRef<ModalRef>(null);
   const openInvitationModal = () => sendInvitationModalRef.current?.openModal();
@@ -78,13 +78,13 @@ export function SendInvitation() {
 
   const { mutate: sendInvitation, ...sendInvitationState } = useAddMutation<
     MemberInvitationGroup[]
-  >(`assessments/${assessmentId as string}/invitations`);
+  >(`assessments/${assessmentId}/invitations`);
 
   const { data: assessmentGroups, ...assessmentGroupsState } = useFindAll<
     AssessmentGroup,
     AssessmentGroupIncludeAble
   >({
-    path: `/assessments/${assessmentId as string}/groups`,
+    path: `/assessments/${assessmentId}/groups`,
     queries: {
       include: ["members", "members.user", "invitations"],
     },
