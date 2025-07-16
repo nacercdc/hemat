@@ -72,13 +72,15 @@ export function CreateGroupForm({
   const handleAdd = (member: Member) => {
     setSelectedMembers([...selectedMembers, member]);
     setAvailableMembers(
-      availableMembers.filter((m) => m.email !== member.email)
+      availableMembers?.filter((m) => m.email !== member.email)
     );
   };
 
   const handleRemove = (member: Member) => {
     setAvailableMembers([...availableMembers, member]);
-    setSelectedMembers(selectedMembers.filter((m) => m.email !== member.email));
+    setSelectedMembers(
+      selectedMembers?.filter((m) => m.email !== member.email)
+    );
   };
 
   const setLeader = (email: string) => {
