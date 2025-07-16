@@ -7,9 +7,8 @@ import {
   HttpCode,
   UseGuards,
   Query,
-  Request,
   ForbiddenException,
-  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -210,6 +209,26 @@ export class AssessmentSubComponentController {
     return this.assessmentSubComponentService.findAllPrimaryAnswers(
       assessmentId,
     );
+  }
+
+  @Get('primary-answers/average-rate')
+  async getAverageRateForPrimaryAnswersByCountryAndYear(
+    @Query('countryId') countryId: string,
+    @Query('year') year: string,
+  ) {
+    if (!countryId || !year) {
+      throw new BadRequestException('countryId and year are required query parameters');
+    }
+    const yearNum = Number(year);
+    if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
+      throw new BadRequestException('year must be a valid number');
+    }
+    const averageRate = await this.assessmentSubComponentService.getAverageRateForPrimaryAnswersByCountryAndYear(countryId, yearNum);
+    return {
+      countryId,
+      year: yearNum,
+      averageRate,
+    };
   }
 
   @ApiOperation({
