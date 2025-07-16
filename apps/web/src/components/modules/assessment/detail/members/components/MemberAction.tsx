@@ -81,7 +81,15 @@ export default function MemberAction({
   const openMemberActionModal = () => openMemberActionRef.current?.openModal();
   const onCancelMemberActionHandler = () =>
     openMemberActionRef.current?.closeModal();
-  const allOptions = {
+  const allOptions: Record<
+    OptionType,
+    {
+      value: OptionType;
+      label: string;
+      onClick: () => void;
+      destructive?: boolean;
+    }
+  > = {
     "Team leader": {
       value: "Team leader",
       label: "Team leader",
@@ -118,6 +126,31 @@ export default function MemberAction({
   const { mutate: memberMoveto, ...memberMovetoState } =
     useAddMutation<MemberMoveTo>(`assessments/${assessmentId}/members/move`);
 
+  // const onMoveToHandler = (data: MemberMoveToFormData) => {
+  //   memberMoveto(
+  //     {
+  //       data: {
+  //         userId: id,
+  //         toGroupId: data.group.id,
+  //       },
+  //       isProtected: true,
+  //     },
+  //     {
+  //       onSuccess: () => {
+  //         toaster.toast({
+  //           title: "Success",
+  //           message: "Member has been moved successfully",
+  //           variant: "success",
+  //         });
+  //         onCancelMemberActionHandler();
+  //         queryClient.invalidateQueries({
+  //           queryKey: [ASSESSMENT_GROUP_LIST_KEY],
+  //         });
+  //       },
+  //     }
+  //   );
+  // };
+
   const onMoveToHandler = (data: MemberMoveToFormData) => {
     memberMoveto(
       {
@@ -139,6 +172,13 @@ export default function MemberAction({
             queryKey: [ASSESSMENT_GROUP_LIST_KEY],
           });
         },
+        onError: (error) => {
+          toaster.toast({
+            title: "Error",
+            message: error?.message || "Failed to move member.",
+            variant: "destructive",
+          });
+        },
       }
     );
   };
@@ -154,9 +194,9 @@ export default function MemberAction({
             className="text-xl text-right text-dark"
           />
         }
-        options={optionsList
-          .map((key) => allOptions[key])
-          .filter((option) => option !== undefined)}
+        options={(optionsList ?? [])
+          .filter((key): key is keyof typeof allOptions => key in allOptions)
+          .map((key) => allOptions[key])}
       />
 
       <Modal ref={openMemberActionRef} title="Select The Group">
@@ -189,6 +229,7 @@ export default function MemberAction({
               size="lg"
               type="submit"
               loading={memberMovetoState.isPending}
+              disabled={memberMovetoState.isPending || !!errors.group}
             >
               Move
             </Button>
