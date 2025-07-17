@@ -9683,7 +9683,6 @@ __metadata:
     "@nestjs/common": "npm:^11.0.1"
     "@nestjs/config": "npm:^4.0.2"
     "@nestjs/core": "npm:^11.0.1"
-    "@nestjs/cqrs": "npm:^11.0.3"
     "@nestjs/event-emitter": "npm:^3.0.1"
     "@nestjs/jwt": "npm:^11.0.0"
     "@nestjs/passport": "npm:^11.0.5"

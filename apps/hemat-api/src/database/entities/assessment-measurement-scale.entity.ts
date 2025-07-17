@@ -57,6 +57,15 @@ export class AssessmentMeasurementScale extends BaseEntityWithSoftDelete {
   translations: Record<string, MeasurementScaleTranslationDto> = {};
 
   @ApiProperty({
+    description: 'ID of the original template measurement scale',
+    example: 'template-measurement-scale-uuid',
+    type: String,
+    required: false,
+  })
+  @Column({ type: 'uuid', nullable: true })
+  templateMeasurementScaleId?: string;
+
+  @ApiProperty({
     description: 'ID of the associated assessment',
     example: '123e4567-e89b-12d3-a456-426614174000',
     type: String,

@@ -39,6 +39,8 @@ export class AssessmentMeasurementScaleSubComponentDto {
   })
   @Type(() => MeasurementScaleSubComponentTranslationDto)
   translations: Record<string, MeasurementScaleSubComponentTranslationDto> = {};
+
+  templateMeasurementScaleSubComponentId?: string;
 }
 
 export class AssessmentMeasurementScaleSubComponentUpdateDto {

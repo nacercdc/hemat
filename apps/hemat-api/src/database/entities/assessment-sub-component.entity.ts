@@ -16,6 +16,7 @@ import { Roadmap } from './roadmap.entity';
 import { AssessmentMeasurementScaleSubComponent } from './assessment-measurement-scale-sub-component.entity';
 import { AssessmentSubComponentAnswer } from './assessment-sub-component-answer.entity';
 import { AssessmentSubComponentRoadmap } from './assessment-sub-component-roadmap.entity';
+import { SubComponent } from './sub-component.entity';
 
 @Entity('assessment_sub_components')
 @Unique(['code', 'assessmentId'])
@@ -69,6 +70,19 @@ export class AssessmentSubComponent extends BaseEntityWithSoftDelete {
   @ManyToOne(() => AssessmentComponent, (component) => component.subComponents)
   @JoinColumn({ name: 'componentId' })
   component: AssessmentComponent;
+
+  @ApiProperty({
+    description: 'ID of the original template sub-component',
+    example: 'template-sub-component-uuid',
+    type: String,
+    required: false,
+  })
+  @Column({ type: 'uuid', nullable: true })
+  templateSubComponentId?: string;
+
+  @ManyToOne(() => SubComponent, { nullable: true })
+  @JoinColumn({ name: 'templateSubComponentId' })
+  templateSubComponent?: SubComponent;
 
   @OneToMany(
     () => AssessmentSubComponentAnswer,

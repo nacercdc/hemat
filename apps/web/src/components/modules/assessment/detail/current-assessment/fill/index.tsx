@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -11,10 +12,22 @@ import {
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { Button, useToast } from "@etm/web-ui-components";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
-import type { Component } from "./components/components-list";
-import type { AssessmentFormData, SubComponent } from "./components/form";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import { Stepper } from "./components/Stepper";
+import type { Component } from "./components/components-list";
+import type { AssessmentFormData } from "./components/form";
+import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import type { SubComponent } from "~/libs/models/subComponent.model";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
+
+//TODO: to be refactored and put into its own model
+interface FilledStatus {
+  ids: string[];
+  latest: { subComponentId: string };
+}
+
+export interface FilledSubComponent extends SubComponent {
+  filled: boolean;
+}
 
 export function CurrentAssessmentFill() {
   const router = useRouter();
@@ -32,14 +45,15 @@ export function CurrentAssessmentFill() {
       assessmentId: string;
       measurementScaleId: string;
       subComponentId: string;
+      isPrimary: boolean;
     }
-  >("assessments/219318d9-a37b-458b-a1f4-3b65a07563d8/answers");
+  >("assessments/e9989a40-722d-4541-b368-8c7ebab86013/answers");
 
   //TODO: this will be replaced with our real domain-segment from our path param
   const { data: components, ...componentsState } = useFindAll<
     QueryManyResponse<{ id: string; name: string }>
   >({
-    path: "/assessmentDomains/387f0cdd-f2c4-4af1-b59a-5c20ac89802a/components",
+    path: "/assessmentDomains/588f3382-e7e1-474c-8e3f-67eb9de43eec/components",
     queries: {
       limit: 100,
       page: 1,
@@ -59,10 +73,27 @@ export function CurrentAssessmentFill() {
     },
   });
 
+  //TODO: this will be replaced with our real assessment-segment from our path param
+  const { data: filledSubComps } = useFindById<QueryManyResponse<FilledStatus>>(
+    {
+      path: `/assessments/e9989a40-722d-4541-b368-8c7ebab86013/sub-components/filled-status`,
+    }
+  );
+
   const isFirstSubComponent = activeSubComponentIndex === 0;
 
   const isLastSubComponent =
     activeSubComponentIndex + 1 === subComponents?.data.length;
+
+  const filledSubComponents: FilledSubComponent[] =
+    (subComponents?.data as unknown as SubComponent[])?.map((subComp) => ({
+      ...subComp,
+      filled: (filledSubComps as unknown as FilledStatus)?.ids.includes(
+        (subComponents?.data as unknown as SubComponent[])[
+          activeSubComponentIndex
+        ]!.id
+      ),
+    })) || [];
 
   const isSubComponentDataLoading =
     subComponentsState.isPending ||
@@ -112,12 +143,13 @@ export function CurrentAssessmentFill() {
         data: {
           ...values,
           measurementScaleId: values.measurementScale.id,
-          assessmentId: "219318d9-a37b-458b-a1f4-3b65a07563d8",
+          assessmentId: "e9989a40-722d-4541-b368-8c7ebab86013",
           subComponentId: (
             subComponents?.data[
               activeSubComponentIndex
             ] as unknown as SubComponent
           ).id,
+          isPrimary: true,
         },
       },
       {
@@ -159,6 +191,14 @@ export function CurrentAssessmentFill() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 w-full">
           <ComponentsList
             components={components?.data as unknown as Component[]}
+            statusLoading={
+              !filledSubComponents ||
+              !(subComponents?.data as unknown as SubComponent[])
+            }
+            numberOfFilledSubs={filledSubComponents?.length || 0}
+            numberOfSubs={
+              (subComponents?.data as unknown as SubComponent[])?.length || 0
+            }
             onClick={onComponentClickHandler}
             isLoading={componentsState.isFetching}
           />
@@ -196,9 +236,7 @@ export function CurrentAssessmentFill() {
               </div>
               <div className="justify-self-center absolute top-0 left-0 right-0 mx-auto z-10 w-full bg-dark-lighter/20 backdrop-blur-sm rounded-md rounded-b-none overflow-hidden px-2">
                 <Stepper
-                  steps={
-                    (subComponents?.data as unknown as SubComponent[]) || []
-                  }
+                  steps={filledSubComponents}
                   activeStep={activeSubComponentIndex}
                   onStepClick={onNavigateSubCompHandler}
                   isDisabled={

@@ -79,4 +79,6 @@ export class AssessmentDomainDto {
   @IsObject({ message: 'validation.translations.isObject' })
   @Type(() => Object)
   translations: Record<string, DomainTranslationDto>;
+
+  templateDomainId?: string;
 }

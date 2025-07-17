@@ -68,6 +68,7 @@ export class AssessmentComponentService {
             assessmentId,
             domainId: parentId,
             translations,
+            templateComponentId: id,
           });
           templateComponentId[id] = component.id;
           assessmentComponents.push(component);

@@ -74,13 +74,14 @@ export class AssessmentSubComponentService {
             assessmentId,
             componentId: parentId,
             translations,
+            templateSubComponentId: id,
           });
           templateSubComponentId[id] = subComponent.id;
           assessmentSubComponents.push(subComponent);
         }
       },
     );
-    
+
     await manager.insert(AssessmentSubComponent, assessmentSubComponents);
 
     return { subComponents: assessmentSubComponents, templateSubComponentId };
@@ -153,8 +154,7 @@ export class AssessmentSubComponentService {
     userId: string,
     query: FindOnePrimaryAssessmentAnswerDto,
   ): Promise<AssessmentSubComponentAnswer> {
-    const qb = this.subComponentAnswerRepository
-      .createQueryBuilder('sca');
+    const qb = this.subComponentAnswerRepository.createQueryBuilder('sca');
     if (query.include?.includes('answer')) {
       qb.leftJoinAndSelect('sca.answer', 'answer');
     } else {
@@ -174,7 +174,9 @@ export class AssessmentSubComponentService {
 
     const result = await qb.getOne();
     if (!result) {
-      throw new NotFoundException('No primary answer found for this sub-component');
+      throw new NotFoundException(
+        'No primary answer found for this sub-component',
+      );
     }
     return result;
   }
@@ -238,24 +240,35 @@ export class AssessmentSubComponentService {
     return filters;
   }
 
-  async getFilledStatusByAssessment(assessmentId: string, user: any): Promise<{ ids: string[]; latest: any | null }> {
+  async getFilledStatusByAssessment(
+    assessmentId: string,
+    user: any,
+  ): Promise<{ ids: string[]; latest: any | null }> {
     const qb = this.subComponentAnswerRepository
       .createQueryBuilder('assessment_sub_component_answers')
-      .innerJoinAndSelect('assessment_sub_component_answers.subComponent', 'assessment_sub_components')
+      .innerJoinAndSelect(
+        'assessment_sub_component_answers.subComponent',
+        'assessment_sub_components',
+      )
       .innerJoin('assessment_sub_component_answers.answer', 'answers')
       .where('answers.assessmentId = :assessmentId', { assessmentId })
       .andWhere('assessment_sub_component_answers.deletedAt IS NULL')
       .andWhere('answers.deletedAt IS NULL');
 
-    const all = await qb.select([
-      'assessment_sub_component_answers.subComponentId',
-      'assessment_sub_components.code',
-    ]).getRawMany();
+    const all = await qb
+      .select([
+        'assessment_sub_component_answers.subComponentId',
+        'assessment_sub_components.code',
+      ])
+      .getRawMany();
 
     const uniqueMap = new Map<string, string>();
     for (const row of all) {
       if (!uniqueMap.has(row.assessment_sub_component_answers_subComponentId)) {
-        uniqueMap.set(row.assessment_sub_component_answers_subComponentId, row.assessment_sub_components_code);
+        uniqueMap.set(
+          row.assessment_sub_component_answers_subComponentId,
+          row.assessment_sub_components_code,
+        );
       }
     }
     const ids = Array.from(uniqueMap.entries())
@@ -264,7 +277,10 @@ export class AssessmentSubComponentService {
 
     const latest = await this.subComponentAnswerRepository
       .createQueryBuilder('assessment_sub_component_answers')
-      .innerJoinAndSelect('assessment_sub_component_answers.subComponent', 'assessment_sub_components')
+      .innerJoinAndSelect(
+        'assessment_sub_component_answers.subComponent',
+        'assessment_sub_components',
+      )
       .innerJoin('assessment_sub_component_answers.answer', 'answers')
       .where('answers.assessmentId = :assessmentId', { assessmentId })
       .andWhere('assessment_sub_component_answers.deletedAt IS NULL')
@@ -314,7 +330,121 @@ export class AssessmentSubComponentService {
     const roadmapAnswer = await this.subComponentRoadmapRepository.findOne({
       where: { roadmapId: roadmap.id, subComponentId },
     });
-    if (!roadmapAnswer) throw new NotFoundException('No roadmap answer for this sub-component');
+    if (!roadmapAnswer)
+      throw new NotFoundException('No roadmap answer for this sub-component');
     return roadmapAnswer;
+  }
+
+  /**
+   * Calculate and update the averageRate for all answers in an assessment.
+   * This should be called after answers are created/updated.
+   */
+  async updateAverageRatesForAssessment(assessmentId: string): Promise<void> {
+    // Get all answers for this assessment
+    const answers = await this.answerRepository.find({
+      where: { assessmentId },
+    });
+    for (const answer of answers) {
+      // Use a single aggregate query to compute the average rate for this answer
+      const result = await this.subComponentAnswerRepository
+        .createQueryBuilder('sca')
+        .leftJoin('sca.measurementScale', 'ms')
+        .select('AVG(ms.rate)', 'avg')
+        .where('sca.answerId = :answerId', { answerId: answer.id })
+        .getRawOne();
+      const averageRate =
+        result && result.avg !== null ? Number(result.avg) : undefined;
+      await this.answerRepository.update(answer.id, { averageRate });
+    }
+  }
+
+  /**
+   * Get the averageRate for a given answerId
+   */
+  async getAverageRateForAnswer(answerId: string): Promise<number | null> {
+    const answer = await this.answerRepository.findOne({
+      where: { id: answerId },
+    });
+    return answer?.averageRate ?? null;
+  }
+
+  /**
+   * Efficiently update the averageRate for a single answerId
+   */
+  async updateAverageRateForAnswer(answerId: string): Promise<void> {
+    const result = await this.subComponentAnswerRepository
+      .createQueryBuilder('sca')
+      .leftJoin('sca.measurementScale', 'ms')
+      .select('AVG(ms.rate)', 'avg')
+      .where('sca.answerId = :answerId', { answerId })
+      .getRawOne();
+    const averageRate =
+      result && result.avg !== null ? Number(result.avg) : undefined;
+    await this.answerRepository.update(answerId, { averageRate });
+  }
+
+  /**
+   * Get the average of averageRate for all answers where isPrimary is true, assessment.countryId matches, and createdAt is in the given year
+   */
+  async getAverageRateForPrimaryAnswersByCountryAndYear(
+    countryId: string,
+    year: number,
+  ): Promise<number | null> {
+    const qb = this.answerRepository
+      .createQueryBuilder('answer')
+      .innerJoin('answer.assessment', 'assessment')
+      .select('AVG(answer.averageRate)', 'avg')
+      .where('answer.isPrimary = :isPrimary', { isPrimary: true })
+      .andWhere('assessment.countryId = :countryId', { countryId })
+      .andWhere('EXTRACT(YEAR FROM answer.createdAt) = :year', { year });
+    const result = await qb.getRawOne();
+    return result && result.avg !== null ? Number(result.avg) : null;
+  }
+
+  /**
+   * Get the average of averageRate for all answers where isPrimary is true, country.subregion matches, and createdAt is in the given year
+   */
+  async getAverageRateForPrimaryAnswersBySubregionAndYear(subregion: string, year: number): Promise<number | null> {
+    const qb = this.answerRepository.createQueryBuilder('answer')
+      .innerJoin('answer.assessment', 'assessment')
+      .innerJoin('assessment.country', 'country')
+      .select('AVG(answer.averageRate)', 'avg')
+      .where('answer.isPrimary = :isPrimary', { isPrimary: true })
+      .andWhere('country.subregion = :subregion', { subregion })
+      .andWhere('EXTRACT(YEAR FROM answer.createdAt) = :year', { year });
+    const result = await qb.getRawOne();
+    return result && result.avg !== null ? Number(result.avg) : null;
+  }
+
+  /**
+   * Get the average of averageRate for all primary answers grouped by year, subregion, and country.
+   * Each result includes year, subregion, country, and the average rate (rounded to nearest 0.5, max 5).
+   */
+  async getAverageRateForPrimaryAnswersGrouped(): Promise<Array<{ year: number; subregion: string | null; country: string; averageRate: number }>> {
+    const qb = this.answerRepository.createQueryBuilder('answer')
+      .innerJoin('answer.assessment', 'assessment')
+      .innerJoin('assessment.country', 'country')
+      .select([
+        'EXTRACT(YEAR FROM answer.createdAt) AS year',
+        'country.subregion AS subregion',
+        'country.name AS country',
+        'AVG(answer.averageRate) AS avg',
+      ])
+      .where('answer.isPrimary = :isPrimary', { isPrimary: true })
+      .groupBy('year')
+      .addGroupBy('country.subregion')
+      .addGroupBy('country.name');
+    const raw = await qb.getRawMany();
+    // Map and round averageRate to nearest 0.5, max 5, and ensure it's always a number
+    return raw.map(row => {
+      let avg = row.avg !== null ? Number(row.avg) : 0;
+      avg = Math.min(5, Math.round(avg * 2) / 2); // round to nearest 0.5, max 5
+      return {
+        year: Number(row.year),
+        subregion: row.subregion,
+        country: row.country,
+        averageRate: avg,
+      };
+    });
   }
 }

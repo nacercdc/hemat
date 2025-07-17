@@ -15,8 +15,12 @@ export class Support extends BaseEntityWithSoftDelete {
   @Column({ type: 'text' })
   description: string;
 
+  @ApiProperty({ description: 'ID of the user who issued the support ticket', example: '123e4567-e89b-12d3-a456-426614174000' })
+  @Column()
+  issuedById: string;
+
   @ApiProperty({ description: 'User who issued the support ticket', type: () => User })
-  @ManyToOne(() => User, { nullable: false, eager: true })
+  @ManyToOne(() => User, { nullable: false })
   issuedBy: User;
 
   @ApiProperty({ description: 'Status of the support ticket', enum: SupportStatusEnum, default: SupportStatusEnum.OPEN })

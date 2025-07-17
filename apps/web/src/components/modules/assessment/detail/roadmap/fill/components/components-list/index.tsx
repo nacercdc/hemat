@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import { cn } from "~/utils/cn.util";
-import type { SubComponent } from "../form";
 import { ComponentsListSkeleton } from "./ComponentsListSkeleton";
+import { TruncatedText } from "~/components/ui/TruncatedText";
+import type { Component as ComponentModel } from "~/libs/models/component.model";
+import type { SubComponent } from "~/libs/models/subComponent.model";
 
-export interface Component {
-  id: string;
-  name: string;
+export interface Component extends ComponentModel {
   subComponents: SubComponent[];
 }
 
@@ -50,7 +50,11 @@ export function ComponentsList({
           )}
         >
           <span className="text-sm font-medium flex-1 text-nowrap">
-            {component.name}
+            <TruncatedText
+              text={component.name}
+              maxLength={25}
+              toolTipVariant="dark"
+            />
           </span>
           <Icon
             icon="ion:chevron-forward-outline"

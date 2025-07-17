@@ -13,7 +13,7 @@ variable "environment" {
 
 variable "image_tag" {
   type = string
-  default = "pr-96-6adbb64"
+  default = "latest"
 }
 
 variable "project_id" {
