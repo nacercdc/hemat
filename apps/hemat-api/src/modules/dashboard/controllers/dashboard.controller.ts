@@ -83,6 +83,14 @@ export class DashboardController {
     return this.dashboardService.getAverageDomainRatesByTemplate(query);
   }
 
+  @Get('domains/average-rate/country/:countryCode')
+  async getAverageDomainRatesByTemplateForCountry(
+    @Param('countryCode') countryCode: string,
+    @Query() query: DashboardQueryDto,
+  ): Promise<any[]> {
+    return this.dashboardService.getAverageDomainRatesByTemplateForCountry(countryCode, query);
+  }
+
   @ApiOperation({
     summary:
       'Get average measurement scale rate per template component for a template domain',
@@ -117,6 +125,15 @@ export class DashboardController {
     );
   }
 
+  @Get('domains/:templateDomainId/components/average-rate/country/:countryCode')
+  async getAverageComponentRatesByTemplateDomainForCountry(
+    @Param('templateDomainId') templateDomainId: string,
+    @Param('countryCode') countryCode: string,
+    @Query() query: DashboardQueryDto,
+  ): Promise<any[]> {
+    return this.dashboardService.getAverageComponentRatesByTemplateDomainForCountry(templateDomainId, countryCode, query);
+  }
+
   @ApiOperation({
     summary:
       'Get average measurement scale rate per template subcomponent for a template component',
@@ -146,6 +163,15 @@ export class DashboardController {
       templateComponentId,
       query,
     );
+  }
+
+  @Get('components/:templateComponentId/subcomponents/average-rate/country/:countryCode')
+  async getAverageSubComponentRatesByTemplateComponentForCountry(
+    @Param('templateComponentId') templateComponentId: string,
+    @Param('countryCode') countryCode: string,
+    @Query() query: DashboardQueryDto,
+  ): Promise<any[]> {
+    return this.dashboardService.getAverageSubComponentRatesByTemplateComponentForCountry(templateComponentId, countryCode, query);
   }
 
   @ApiOperation({ summary: 'Fetch all template domains' })
