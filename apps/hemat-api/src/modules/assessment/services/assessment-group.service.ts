@@ -44,7 +44,8 @@ export class AssessmentGroupService {
         'members',
         'members.user',
         'invitations',
-        'assessment'
+        'assessment',
+        'domains'
       ];
       let requestedIncludes = query.include.filter((inc) => allowedIncludes.includes(inc));
       if (requestedIncludes.includes('members.user')) {
@@ -84,7 +85,8 @@ export class AssessmentGroupService {
         'members',
         'members.user',
         'invitations',
-        'assessment'
+        'assessment',
+        'domains'
       ];
       let requestedIncludes = query.include.filter((inc) => allowedIncludes.includes(inc));
       if (requestedIncludes.includes('members.user')) {
