@@ -1,9 +1,12 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1752590324481 implements MigrationInterface {
-    name = 'Migration1752590324481'
+export class Migration1752661839011 implements MigrationInterface {
+    name = 'Migration1752661839011'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`CREATE TYPE "public"."activity_logs_entity_enum" AS ENUM('assessment', 'assessment-answer', 'assessment-component', 'assessment-domain', 'assessment-group', 'assessment-language', 'assessment-measurement-scale', 'assessment-measurement-scale-sub-component', 'assessment-member', 'assessment-sub-component', 'comment', 'component', 'country', 'dashboard', 'domain', 'entity', 'invitation', 'language', 'measurement-scale', 'measurement-scale-sub-component', 'permission', 'profile', 'report', 'response', 'roadmap', 'role', 'sub-component', 'user', 'support', 'support-reply')`);
+        await queryRunner.query(`CREATE TYPE "public"."activity_logs_action_enum" AS ENUM('read', 'create', 'update', 'delete', 'remove', 'restore', 'approve', 'reject')`);
+        await queryRunner.query(`CREATE TABLE "activity_logs" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" uuid, "entity" "public"."activity_logs_entity_enum" NOT NULL, "entityId" uuid NOT NULL, "action" "public"."activity_logs_action_enum" NOT NULL, CONSTRAINT "PK_f25287b6140c5ba18d38776a796" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "comments" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "userId" character varying NOT NULL, "comment" text NOT NULL, "responseId" uuid NOT NULL, CONSTRAINT "PK_8bf68bc960f2b69e818bdb90dcb" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "responses" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "assessmentId" uuid NOT NULL, "content" character varying NOT NULL, "isPublished" boolean NOT NULL DEFAULT false, CONSTRAINT "REL_b6e5f0e01fed305a4ccfb88085" UNIQUE ("assessmentId"), CONSTRAINT "PK_be3bdac59bd243dff421ad7bf70" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "measurement_scales" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, "name" character varying NOT NULL, "description" character varying NOT NULL, "color" character varying NOT NULL, "rate" integer NOT NULL, "translations" jsonb NOT NULL, CONSTRAINT "PK_14999b22ac6bc16ac1f27212e3f" PRIMARY KEY ("id"))`);
@@ -315,6 +318,9 @@ export class Migration1752590324481 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "measurement_scales"`);
         await queryRunner.query(`DROP TABLE "responses"`);
         await queryRunner.query(`DROP TABLE "comments"`);
+        await queryRunner.query(`DROP TABLE "activity_logs"`);
+        await queryRunner.query(`DROP TYPE "public"."activity_logs_action_enum"`);
+        await queryRunner.query(`DROP TYPE "public"."activity_logs_entity_enum"`);
     }
 
 }
