@@ -2,17 +2,17 @@
 
 import React, { useState } from "react";
 import { CheckboxFilter } from "@etm/web-ui-components";
-import { SupportStatus } from "~/libs/models/support.model";
+import { StatusEnum } from "~/libs/models/support.model";
 
 export interface StatusType {
-  label: SupportStatus;
-  value: SupportStatus;
+  label: StatusEnum;
+  value: StatusEnum;
 }
 
 const StatusTypesOptions: StatusType[] = [
-  { label: SupportStatus.OPEN, value: SupportStatus.OPEN },
-  { label: SupportStatus.CLOSED, value: SupportStatus.CLOSED },
-  { label: SupportStatus.PROCESSING, value: SupportStatus.PROCESSING },
+  { label: StatusEnum.OPEN, value: StatusEnum.OPEN },
+  { label: StatusEnum.CLOSE, value: StatusEnum.CLOSE },
+  { label: StatusEnum.PROCESSING, value: StatusEnum.PROCESSING },
 ];
 
 interface Props {

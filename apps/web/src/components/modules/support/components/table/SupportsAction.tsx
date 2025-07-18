@@ -7,12 +7,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 import type { DialogRef } from "@etm/web-ui-components";
 import type { Support } from "~/libs/models/support.model";
+import { useRouter } from "next/navigation";
 
 interface Props {
   support: Support;
   refetch?: () => void;
 }
 export default function SupportAction({ support }: Props) {
+  const router = useRouter();
+
   const deleteSupportDialogRef = useRef<DialogRef>(null);
 
   const queryClient = useQueryClient();
@@ -40,6 +43,10 @@ export default function SupportAction({ support }: Props) {
     );
   };
 
+  const onViewDetailHandler = () => {
+    router.push(`/support/${support.id}`);
+  };
+
   return (
     <>
       <DropdownMenu
@@ -52,6 +59,17 @@ export default function SupportAction({ support }: Props) {
           />
         }
         options={[
+          {
+            value: "view",
+            label: "View",
+            leftNode: (
+              <Icon
+                icon="lets-icons:view-light"
+                className="!text-xl text-dark"
+              />
+            ),
+            onClick: onViewDetailHandler,
+          },
           {
             value: "delete",
             label: "Delete",

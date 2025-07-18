@@ -1,9 +1,9 @@
 import type { Sort } from "../tanstack-api-query/helpers/types";
 import type { User } from "./user.model";
 
-export enum SupportStatus {
+export enum StatusEnum {
   OPEN = "open",
-  CLOSED = "closed",
+  CLOSE = "close",
   PROCESSING = "processing",
 }
 
@@ -14,14 +14,14 @@ export enum VisibilityEnum {
 
 export enum PriorityEnum {
   LOW = "low",
-  MEDIUM = "medium",
+  NORMAL = "normal",
   HIGH = "high",
 }
 
-interface SupportReply {
+export interface SupportReply {
   id: string;
   supportId: string;
-  repliedBy: User;
+  repliedById: string;
   description: string;
   visibility: VisibilityEnum;
   priority: PriorityEnum;
@@ -33,7 +33,7 @@ export interface Support {
   title: string;
   description: string;
   issuedBy: User;
-  status: SupportStatus;
+  status: StatusEnum;
   replies?: SupportReply[];
   createdAt: string;
 }
