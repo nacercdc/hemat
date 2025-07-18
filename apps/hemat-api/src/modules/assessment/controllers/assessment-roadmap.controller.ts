@@ -11,6 +11,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Request,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -266,6 +267,34 @@ export class AssessmentRoadmapController {
     @Request() req: { user: AuthDto },
   ): Promise<{ ids: string[]; latest: any }> {
     return this.roadmapService.getFilledStatusByAssessment(
+      assessmentId,
+      req.user.id,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Submit all roadmaps for the assessment',
+    description:
+      'Submit (finalize) roadmaps for the assessment. Only allowed if all subcomponents for the assessment are filled and roadmap status is COMPLETED.',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Roadmap })
+  @ApiBadRequestResponse({ description: 'Bad Request', type: ExceptionResponseDto })
+  @ApiForbiddenResponse({ description: 'Forbidden', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.UPDATE,
+        subject: PermissionSubjectEnum.ROADMAP,
+      },
+    ],
+  })
+  @Patch('submit')
+  async submitAssessmentRoadmap(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Request() req: { user: AuthDto },
+  ): Promise<any> {
+    return this.roadmapService.submitAssessmentRoadmap(
       assessmentId,
       req.user.id,
     );

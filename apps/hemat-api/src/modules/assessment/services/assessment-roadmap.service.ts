@@ -3,9 +3,10 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, In } from 'typeorm';
 import {
   Roadmap,
   AssessmentSubComponentRoadmap,
@@ -199,6 +200,7 @@ export class AssessmentRoadmapService {
           responsible: payload.responsible,
           resources: payload.resources,
           documentation: payload.documentation,
+          gapAddressed: payload.gapAddressed,
           startTime: new Date(payload.startTime),
           endTime: new Date(payload.endTime),
         });
@@ -214,6 +216,7 @@ export class AssessmentRoadmapService {
           responsible: payload.responsible,
           resources: payload.resources,
           documentation: payload.documentation,
+          gapAddressed: payload.gapAddressed,
           startTime: new Date(payload.startTime),
           endTime: new Date(payload.endTime),
         });
@@ -292,7 +295,8 @@ export class AssessmentRoadmapService {
         payload.documentation ||
         payload.startTime ||
         payload.endTime ||
-        payload.currentState
+        payload.currentState ||
+        payload.gapAddressed
       ) {
         const subComponentRoadmap = await manager.findOne(
           AssessmentSubComponentRoadmap,
@@ -343,6 +347,7 @@ export class AssessmentRoadmapService {
           resources: payload.resources || subComponentRoadmap.resources,
           documentation:
             payload.documentation || subComponentRoadmap.documentation,
+          gapAddressed: payload.gapAddressed || subComponentRoadmap.gapAddressed,
           startTime: payload.startTime
             ? new Date(payload.startTime)
             : subComponentRoadmap.startTime,
@@ -364,6 +369,49 @@ export class AssessmentRoadmapService {
           ? AnswerStatus.COMPLETED
           : AnswerStatus.INPROGRESS;
       return manager.save(Roadmap, roadmap);
+    });
+  }
+
+  async submitAssessmentRoadmap(
+    assessmentId: string,
+    userId: string,
+  ): Promise<any> {
+    return this.dataSource.transaction(async (manager) => {
+      // Find the user's primary roadmap for this assessment
+      const roadmap = await manager.findOne(Roadmap, {
+        where: { assessmentId, userId, isPrimary: true },
+        relations: ['subComponentRoadmaps'],
+      });
+      if (!roadmap) {
+        throw new NotFoundException('No primary roadmap found for this assessment');
+      }
+      // Find all subcomponents for the assessment
+      const subComponents = await manager.getRepository(AssessmentSubComponent).find({ where: { assessmentId } });
+      if (!subComponents.length) {
+        throw new NotFoundException('No subcomponents found for this assessment');
+      }
+      // Check all subcomponents for this assessment are filled in the roadmap
+      const subComponentIds = subComponents.map((sc) => sc.id);
+      const filled = await manager.find(AssessmentSubComponentRoadmap, {
+        where: {
+          roadmapId: roadmap.id,
+          subComponentId: In(subComponentIds),
+        },
+      });
+      if (filled.length !== subComponentIds.length) {
+        throw new UnprocessableEntityException('Not all subcomponents for this assessment are filled in the roadmap');
+      }
+      // Check roadmap status is COMPLETED or SUBMITTED
+      if (roadmap.status === AnswerStatus.SUBMITTED) {
+        return { message: 'Assessment roadmap already submitted', roadmapId: roadmap.id, status: roadmap.status };
+      }
+      if (roadmap.status !== AnswerStatus.COMPLETED) {
+        throw new UnprocessableEntityException('Roadmap status must be COMPLETED to submit');
+      }
+      // Set status to SUBMITTED
+      roadmap.status = AnswerStatus.SUBMITTED;
+      await manager.save(Roadmap, roadmap);
+      return { message: 'Assessment roadmap submitted', roadmapId: roadmap.id, status: roadmap.status };
     });
   }
 

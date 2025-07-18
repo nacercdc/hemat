@@ -5,7 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, In } from 'typeorm';
 import {
   Answer,
   AssessmentSubComponentAnswer,
@@ -410,6 +410,48 @@ export class AssessmentAnswerService {
       this.eventEmitter.emit(ASSESSMENT_ANSWER_EVENTS.SUBCOMPONENT_UPDATED, new SubComponentAnswerUpdatedEvent(answer.id));
 
       return manager.save(Answer, answer);
+    });
+  }
+
+  async submitAssessmentAnswers(
+    assessmentId: string,
+    userId: string,
+  ): Promise<any> {
+    return this.dataSource.transaction(async (manager) => {
+      // Find all subcomponents for the assessment
+      const subComponents = await manager.getRepository(AssessmentSubComponent).find({ where: { assessmentId } });
+      if (!subComponents.length) {
+        throw new NotFoundException('No subcomponents found for this assessment');
+      }
+      // Find the user's primary answer for this assessment
+      const answer = await manager.findOne(Answer, {
+        where: { assessmentId, userId, isPrimary: true },
+      });
+      if (!answer) {
+        throw new NotFoundException('No primary answer found for this assessment');
+      }
+      // Check all subcomponents for this assessment are answered
+      const subComponentIds = subComponents.map((sc) => sc.id);
+      const answered = await manager.find(AssessmentSubComponentAnswer, {
+        where: {
+          answerId: answer.id,
+          subComponentId: In(subComponentIds),
+        },
+      });
+      if (answered.length !== subComponentIds.length) {
+        throw new BadRequestException('Not all subcomponents for this assessment are answered');
+      }
+      // Check answer status is COMPLETED or SUBMITTED
+      if (answer.status === AnswerStatus.SUBMITTED) {
+        return { message: 'Assessment answers already submitted', answerId: answer.id, status: answer.status };
+      }
+      if (answer.status !== AnswerStatus.COMPLETED) {
+        throw new BadRequestException('Answer status must be COMPLETED to submit');
+      }
+      // Set status to SUBMITTED
+      answer.status = AnswerStatus.SUBMITTED;
+      await manager.save(Answer, answer);
+      return { message: 'Assessment answers submitted', answerId: answer.id, status: answer.status };
     });
   }
 }
