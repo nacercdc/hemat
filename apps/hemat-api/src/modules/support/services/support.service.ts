@@ -53,9 +53,14 @@ export class SupportService {
   }
 
   async findOne(id: string, query: SupportQueryDto): Promise<Support> {
+    // Always include only replies
+    const baseRelations = ['replies'];
+    const relations = Array.isArray(query.include)
+      ? Array.from(new Set([...(query.include || []), ...baseRelations]))
+      : baseRelations;
     const support = await this.supportRepository.findOne({
       where: { id },
-      relations: query.include,
+      relations,
     });
     if (!support) throw new NotFoundException(`Support ${id} not found.`);
     return support;
