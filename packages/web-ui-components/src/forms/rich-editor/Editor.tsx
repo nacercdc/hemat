@@ -19,7 +19,8 @@ import { useSharedHistoryContext } from "./context/SharedHistoryContext";
 
 import dynamic from "next/dynamic";
 import { Separator } from "../../shadcn-ui/separator";
-import { FormControl, FormControlVariants } from "../form-control";
+import type { FormControlVariants } from "../form-control";
+import { FormControl } from "../form-control";
 import { cn } from "../../shadcn-ui/utils/cn";
 const ImagesPlugin = dynamic(() => import("./plugins/ImagesPlugin"), {
   ssr: false,
@@ -35,6 +36,7 @@ export interface EditorProps {
   name: string;
   value: string;
   label: string;
+  noBorder?: boolean;
   labelVariant?: FormControlVariants["variant"];
   labelSize?: FormControlVariants["size"];
   description?: string;
@@ -50,6 +52,7 @@ export const Editor = forwardRef<EditorRef, EditorProps>(
       name,
       value,
       label,
+      noBorder = false,
       labelSize,
       labelVariant,
       description,
@@ -105,8 +108,9 @@ export const Editor = forwardRef<EditorRef, EditorProps>(
       >
         <div
           className={cn(
-            "flex flex-col border border-basic-300 rounded-md",
-            error && "border-destructive-500"
+            "flex flex-col border border-basic-300 rounded-md h-fit",
+            error && "border-destructive-500",
+            noBorder && "border-none"
           )}
         >
           <ToolbarPlugin
@@ -114,20 +118,23 @@ export const Editor = forwardRef<EditorRef, EditorProps>(
             activeEditor={activeEditor}
             setActiveEditor={setActiveEditor}
           />
-          <Separator className="h-px bg-basic-300 w-full" />
+          {isEnabled && <Separator className="h-px bg-basic-300 w-full" />}
           <ShortcutsPlugin editor={activeEditor} />
-          <div className="editor-container tree-view">
+          <div className="editor-container tree-view h-fit">
             <AutoFocusPlugin />
             <HistoryPlugin externalHistoryState={historyState} />
             <RichTextPlugin
               contentEditable={
-                <div className="editor-scroller">
+                <div
+                  className="editor-scroller h-fit"
+                  style={{ height: "auto" }}
+                >
                   <div
-                    className={`editor bg-white rounded-b-md ${!isEnabled && "rounded-md"}`}
+                    className={`editor bg-white rounded-b-md h-fit ${!isEnabled && "rounded-md"}`}
                   >
                     <ContentEditable
                       placeholder={placeholder}
-                      className="!focus:border-none h-full outline-none px-2 py-2"
+                      className={`!focus:border-none min-h-10 outline-none px-2 py-2 ${noBorder && "px-0"}`}
                     />
                   </div>
                 </div>
