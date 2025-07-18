@@ -162,7 +162,13 @@ export class SupportService {
         status: dto.status,
       });
       try {
-        return await manager.getRepository(SupportReply).save(reply);
+        const savedReply = await manager.getRepository(SupportReply).save(reply);
+        // If reply status is 'close', also close the support ticket
+        if (dto.status && dto.status.toLowerCase() === SupportStatusEnum.CLOSE) {
+          support.status = SupportStatusEnum.CLOSE;
+          await manager.getRepository(Support).save(support);
+        }
+        return savedReply;
       } catch (err) {
         this.logger.error('reply:', err);
         throw new BadRequestException('Failed to create support reply.');
@@ -222,7 +228,7 @@ export class SupportService {
     const [data, total] = await this.supportReplyRepository.findAndCount({
       where,
       relations: query.include,
-      order: { createdAt: 'ASC' },
+      order: { createdAt: 'DESC' },
     });
     return { data, total };
   }
