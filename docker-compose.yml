@@ -1,23 +1,18 @@
 services:
   postgres:
     image: postgres:16
-    container_name: africa_cdc_postgres
+    container_name: postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: africa_cdc_db
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - africa_cdc_network
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 5s
-      timeout: 5s
-      retries: 5
-  
+
   api:
     build:
       context: .
@@ -26,19 +21,31 @@ services:
       args:
         APP_NAME: hemat-api
     container_name: api
-    environment:
-      NEXT_PUBLIC_HOST_URL: http://localhost:3000
+    env_file:
+      - .env
     ports:
-      - '3000:3000'
+      - "8080:8080"
     depends_on:
       - postgres
     networks:
       - africa_cdc_network
-    healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:3000/health || exit 1']
-      interval: 30s
-      timeout: 10s
-      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web-runner
+      args:
+        APP_NAME: web
+    container_name: web
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - africa_cdc_network
 
 volumes:
   postgres_data:

@@ -46,6 +46,8 @@ export type AddAssessmentInvitationFormData = z.infer<
 >;
 
 export function SendInvitation() {
+  const [showInput, setShowInput] = useState(false);
+  const toggleInput = () => setShowInput((prev) => !prev);
   const [emails, setEmails] = useState<string[]>([]);
 
   const params = useParams();
@@ -156,6 +158,22 @@ export function SendInvitation() {
             options={assessmentGroups?.data ?? []}
           />
         )}
+        <div>
+          <button
+            onClick={toggleInput}
+            className="px-4 py-2 bg-blue-500 text-white rounded"
+          >
+            {showInput ? "Hide" : "Show"} Input
+          </button>
+
+          {showInput && (
+            <input
+              type="text"
+              placeholder="Type something..."
+              className="block mt-4 px-3 py-2 border border-gray-300 rounded"
+            />
+          )}
+        </div>
 
         {emails.length > 0 && (
           <div className="flex flex-col bg-card rounded-sm p-2">

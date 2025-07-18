@@ -1,8 +1,10 @@
 import React from "react";
 import Image from "next/image";
 import { Button } from "@etm/web-ui-components";
+import { useRouter } from "next/navigation";
 
 export function NavBar() {
+  const router = useRouter();
   return (
     <div
       className="flex items-center justify-between w-full h-[130px] text-white px-20"
@@ -15,7 +17,14 @@ export function NavBar() {
         height={100}
       />
       <div className="flex gap-4">
-        <Button variant="ghost" color="light" size="lg">
+        <Button
+          variant="ghost"
+          color="light"
+          size="lg"
+          onClick={() => {
+            router.push("/login");
+          }}
+        >
           <span className="font-bold">Sign In</span>
         </Button>
         <Button variant="outline" color="light" size="lg">
