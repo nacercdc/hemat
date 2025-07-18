@@ -209,4 +209,21 @@ export class SupportService {
     if (!reply) throw new NotFoundException(`Support reply ${id} not found.`);
     return reply;
   }
+
+  async findRepliesBySupportId(
+    supportId: string,
+    user: any,
+    query: any,
+  ): Promise<FindAllResponseDto<any>> {
+    const where: any = { support: { id: supportId } };
+    if (!user.isAdmin) {
+      where.support = { ...where.support, issuedBy: { id: user.id } };
+    }
+    const [data, total] = await this.supportReplyRepository.findAndCount({
+      where,
+      relations: query.include,
+      order: { createdAt: 'ASC' },
+    });
+    return { data, total };
+  }
 }
