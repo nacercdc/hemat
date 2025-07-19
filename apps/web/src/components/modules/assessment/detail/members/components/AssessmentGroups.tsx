@@ -54,7 +54,6 @@ export default function AssessmentGroups() {
     },
   });
 
-  // hydrate local state with fetched group data
   useEffect(() => {
     if (assessmentGroup?.data && Array.isArray(assessmentGroup.data)) {
       setGroups(assessmentGroup.data);

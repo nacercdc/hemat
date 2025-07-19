@@ -1,6 +1,6 @@
 import { SecondaryTabs } from "@etm/web-ui-components";
-import { SendInvitation } from "./components/SendInvitation";
 import AssessmentGroups from "./components/AssessmentGroups";
+import { SendInvitation } from "./components/invitation/SendInvitation";
 
 export function MemberInvitation() {
   return (

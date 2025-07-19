@@ -9,7 +9,7 @@ export interface Invitations {
   status?: string | undefined;
 }
 export interface MemberInvitationGroup {
-  group: string | null;
+  group: string | undefined;
   invitations: Invitations[];
 }
 
