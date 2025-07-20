@@ -47,15 +47,17 @@ ARG APP_NAME
 
 WORKDIR /app
 
-COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/standalone/apps ./apps
-COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/standalone/packages ./packages
-COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/standalone/package.json ./
-COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/public ./apps/${APP_NAME}/public
-COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/static ./apps/${APP_NAME}/.next/static
+# COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/standalone/apps ./apps
+# COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/standalone/packages ./packages
+# COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/standalone/package.json ./
+# COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/public ./apps/${APP_NAME}/public
+# COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/static ./apps/${APP_NAME}/.next/static
 
-COPY --from=builder --chown=nestjs:nodejs /app/packages/ ./packages/
-COPY --from=builder --chown=nestjs:nodejs /app/tooling/ ./tooling/
-COPY --from=builder --chown=nestjs:nodejs /app/scripts/ ./scripts/
+# COPY --from=builder --chown=nestjs:nodejs /app/packages/ ./packages/
+# COPY --from=builder --chown=nestjs:nodejs /app/tooling/ ./tooling/
+# COPY --from=builder --chown=nestjs:nodejs /app/scripts/ ./scripts/
+
+COPY  --from=builder --chown=nestjs:nodejs . .
 
 RUN yarn workspaces focus ${APP_NAME} --production
 

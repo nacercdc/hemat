@@ -6,10 +6,10 @@ import { IsArrayContains } from '@shared/validators';
 
 export class SupportQueryDto extends FindAllDto {
   @ApiPropertyOptional({
-    description: 'Comma separated relations eg. issuedBy, repliedBy',
+    description: 'Comma separated relations eg. issuedBy, repliedBy, replies',
     type: String,
   })
-  @IsArrayContains(['issuedBy', 'repliedBy'])
+  @IsArrayContains(['issuedBy', 'repliedBy', 'replies'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)
@@ -41,10 +41,10 @@ export class SupportQueryDto extends FindAllDto {
 
 export class FindOneRoleDto {
   @ApiPropertyOptional({
-    description: 'Comma separated relations eg. issuedBy, repliedBy',
+    description: 'Comma separated relations eg. issuedBy, repliedBy, replies',
     type: String,
   })
-  @IsArrayContains(['issuedBy', 'repliedBy'])
+  @IsArrayContains(['issuedBy', 'repliedBy', 'replies'])
   @IsString({ each: true })
   @IsOptional()
   @Type(() => String)

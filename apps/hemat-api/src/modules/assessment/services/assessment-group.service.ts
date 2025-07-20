@@ -44,7 +44,8 @@ export class AssessmentGroupService {
         'members',
         'members.user',
         'invitations',
-        'assessment'
+        'assessment',
+        'domains'
       ];
       let requestedIncludes = query.include.filter((inc) => allowedIncludes.includes(inc));
       if (requestedIncludes.includes('members.user')) {
@@ -84,7 +85,8 @@ export class AssessmentGroupService {
         'members',
         'members.user',
         'invitations',
-        'assessment'
+        'assessment',
+        'domains'
       ];
       let requestedIncludes = query.include.filter((inc) => allowedIncludes.includes(inc));
       if (requestedIncludes.includes('members.user')) {
@@ -239,7 +241,6 @@ export class AssessmentGroupService {
       }
     }
     return this.dataSource.transaction(async (manager) => {
-      // Professional: Only PRIMARYs and admins should be able to assign domains to groups. This should be enforced at the controller/guard level.
       // Validate group exists and belongs to assessment
       const group = await manager.getRepository(AssessmentGroup).findOne({
         where: { id: groupId, assessmentId },
@@ -262,11 +263,16 @@ export class AssessmentGroupService {
           );
         }
       }
-      // Professional: Log the domain assignment for traceability
+      // Validation: Only add new domains, do not remove existing ones
+      const currentDomainIds = (group.domains || []).map((d) => d.id);
+      const newDomains = domains.filter((domain) => !currentDomainIds.includes(domain.id));
+      if (newDomains.length === 0) {
+        throw new BadRequestException('All provided domains are already attached to this group');
+      }
       this.logger.log(
-        `Assigning domains [${domainIds.join(', ')}] to group ${groupId} in assessment ${assessmentId}`,
+        `Assigning new domains [${newDomains.map(d => d.id).join(', ')}] to group ${groupId} in assessment ${assessmentId}`,
       );
-      group.domains = domains;
+      group.domains = [...group.domains, ...newDomains];
       return await manager.getRepository(AssessmentGroup).save(group);
     });
   }

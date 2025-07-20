@@ -436,4 +436,47 @@ export class AssessmentRoadmapService {
       };
     });
   }
+
+  /**
+   * Get filled status for roadmap sub-components for an assessment
+   */
+  async getFilledStatusByAssessment(
+    assessmentId: string,
+    userId: string,
+  ): Promise<{ ids: string[]; latest: AssessmentSubComponentRoadmap | null }> {
+    // Get the primary roadmap for this assessment and user
+    const roadmap = await this.roadmapRepository.findOne({
+      where: { assessmentId, userId, isPrimary: true },
+    });
+    if (!roadmap) {
+      return { ids: [], latest: null };
+    }
+
+    // Get all filled subComponentRoadmaps for this roadmap
+    const all = await this.dataSource
+      .getRepository(AssessmentSubComponentRoadmap)
+      .createQueryBuilder('scr')
+      .where('scr.roadmapId = :roadmapId', { roadmapId: roadmap.id })
+      .andWhere('scr.deletedAt IS NULL')
+      .select(['scr.subComponentId'])
+      .getRawMany();
+
+    const uniqueIds = Array.from(new Set(all.map(row => row.scr_subComponentId)));
+
+    // Get the latest roadmap entry for this roadmap
+    const latest = await this.dataSource
+      .getRepository(AssessmentSubComponentRoadmap)
+      .createQueryBuilder('scr')
+      .where('scr.roadmapId = :roadmapId', { roadmapId: roadmap.id })
+      .andWhere('scr.deletedAt IS NULL')
+      .orderBy('scr.createdAt', 'DESC')
+      .addOrderBy('scr.id', 'DESC')
+      .leftJoinAndSelect('scr.subComponent', 'subComponent')
+      .leftJoinAndSelect('scr.answer', 'answer')
+      .leftJoinAndSelect('scr.measurementScale', 'measurementScale')
+      .limit(1)
+      .getOne();
+
+    return { ids: uniqueIds, latest };
+  }
 }

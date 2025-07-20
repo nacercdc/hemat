@@ -203,4 +203,71 @@ export class AssessmentRoadmapController {
   ): Promise<Roadmap> {
     return this.roadmapService.update(assessmentId, req.user.id, id, payload);
   }
+
+  @ApiOperation({
+    summary: 'Get filled status for roadmap sub-components',
+    description:
+      'Check if an assessment has roadmap sub-component entries. Returns sub-component IDs (ordered) and the latest roadmap entry.',
+  })
+  @ApiOkResponse({
+    description: 'Ok',
+    schema: {
+      type: 'object',
+      properties: {
+        ids: { type: 'array', items: { type: 'string' } },
+        latest: { type: 'object' },
+      },
+      example: {
+        ids: [
+          'b1e1c1d2-1234-4a5b-8c9d-1e2f3a4b5c6d',
+          'c2d2e2f3-2345-5b6c-9d0e-2f3a4b5c6d7e',
+        ],
+        latest: {
+          id: 'd3e3f3g4-3456-6c7d-0e1f-3a4b5c6d7e8f',
+          subComponentId: 'b1e1c1d2-1234-4a5b-8c9d-1e2f3a4b5c6d',
+          roadmapId: 'a1b2c3d4-5678-9abc-def0-1234567890ab',
+          measurementScaleId: 'e4f4g4h5-4567-7d8e-1f2a-4b5c6d7e8f9g',
+          answerId: 'f5g5h5i6-5678-8e9f-2a3b-5c6d7e8f9g0h',
+          target: '100',
+          currentState: '80',
+          activities: 'Some activities',
+          responsible: 'Someone',
+          resources: 'Some resources',
+          createdAt: '2024-06-01T12:34:56.789Z',
+          updatedAt: '2024-06-01T12:35:56.789Z',
+          deletedAt: null,
+          subComponent: {
+            id: 'b1e1c1d2-1234-4a5b-8c9d-1e2f3a4b5c6d',
+            code: '1.A.1',
+            name: 'Vaccine Distribution',
+            description: 'Sub-component for vaccine distribution',
+            createdAt: '2024-05-30T10:00:00.000Z',
+            updatedAt: '2024-05-30T10:00:00.000Z',
+            deletedAt: null,
+          },
+        },
+      },
+    },
+  })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ROADMAP,
+      },
+    ],
+  })
+  @Get('filled-status')
+  async getFilledStatus(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Request() req: { user: AuthDto },
+  ): Promise<{ ids: string[]; latest: any }> {
+    return this.roadmapService.getFilledStatusByAssessment(
+      assessmentId,
+      req.user.id,
+    );
+  }
 }

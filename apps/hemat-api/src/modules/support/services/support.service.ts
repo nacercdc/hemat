@@ -53,9 +53,14 @@ export class SupportService {
   }
 
   async findOne(id: string, query: SupportQueryDto): Promise<Support> {
+    // Always include only replies
+    const baseRelations = ['replies'];
+    const relations = Array.isArray(query.include)
+      ? Array.from(new Set([...(query.include || []), ...baseRelations]))
+      : baseRelations;
     const support = await this.supportRepository.findOne({
       where: { id },
-      relations: query.include,
+      relations,
     });
     if (!support) throw new NotFoundException(`Support ${id} not found.`);
     return support;
@@ -157,7 +162,13 @@ export class SupportService {
         status: dto.status,
       });
       try {
-        return await manager.getRepository(SupportReply).save(reply);
+        const savedReply = await manager.getRepository(SupportReply).save(reply);
+        // If reply status is 'close', also close the support ticket
+        if (dto.status && dto.status.toLowerCase() === SupportStatusEnum.CLOSE) {
+          support.status = SupportStatusEnum.CLOSE;
+          await manager.getRepository(Support).save(support);
+        }
+        return savedReply;
       } catch (err) {
         this.logger.error('reply:', err);
         throw new BadRequestException('Failed to create support reply.');
@@ -203,5 +214,22 @@ export class SupportService {
     });
     if (!reply) throw new NotFoundException(`Support reply ${id} not found.`);
     return reply;
+  }
+
+  async findRepliesBySupportId(
+    supportId: string,
+    user: any,
+    query: any,
+  ): Promise<FindAllResponseDto<any>> {
+    const where: any = { support: { id: supportId } };
+    if (!user.isAdmin) {
+      where.support = { ...where.support, issuedBy: { id: user.id } };
+    }
+    const [data, total] = await this.supportReplyRepository.findAndCount({
+      where,
+      relations: query.include,
+      order: { createdAt: 'DESC' },
+    });
+    return { data, total };
   }
 }

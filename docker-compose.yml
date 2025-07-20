@@ -12,7 +12,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - africa_cdc_network
-
+  
   api:
     build:
       context: .
@@ -24,7 +24,7 @@ services:
     env_file:
       - .env
     ports:
-      - "8080:8080"
+      - '8080:8080'
     depends_on:
       - postgres
     networks:
@@ -41,7 +41,7 @@ services:
     env_file:
       - .env
     ports:
-      - "3000:3000"
+      - '3000:3000'
     depends_on:
       - api
     networks:

@@ -283,4 +283,24 @@ export class SupportController {
   ): Promise<any> {
     return this.supportService.replyToSupport(id, dto, user.id);
   }
+
+  @ApiOperation({ summary: 'Get all replies for a specific support ticket' })
+  @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.SUPPORT_REPLY,
+      },
+    ],
+  })
+  @Get(':id/replies')
+  async findRepliesBySupportId(
+    @AuthUser() user: AuthDto,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: SupportQueryDto,
+  ): Promise<FindAllResponseDto<any>> {
+    return this.supportService.findRepliesBySupportId(id, user, query);
+  }
 } 
