@@ -25,3 +25,14 @@ export interface UpdateProfile {
   country?: string;
   jobTitle?: string;
 }
+
+export interface RegisterProfile {
+  title?: string;
+  firstName: string;
+  lastName: string;
+  gender?: string;
+  dateOfBirth?: string;
+  phoneNumber?: string;
+  country?: string;
+  jobTitle?: string;
+}
