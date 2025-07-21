@@ -41,6 +41,7 @@ import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
 import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
 import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
 import { MemberRole } from '../../../shared/enums';
+import { AssessmentDomainDto } from '../dtos/assessment-domain.dto';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Groups')
@@ -259,5 +260,42 @@ export class AssessmentGroupController {
       domainIds,
       user,
     );
+  }
+
+  @ApiOperation({
+    summary: 'Get domains of an assessment group',
+    description: 'Retrieve all domains associated with a specific assessment group',
+  })
+  @ApiOkResponse({ description: 'Ok', type: [AssessmentDomainDto] })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @UseGuards(AssessmentRoleGuard)
+  @Get(':groupId/domains')
+  async getDomainsForGroup(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('groupId', new ParseUUIDPipe()) groupId: string,
+  ) {
+    // Permission logic: allow if user can access the group (same as findOne)
+    const { isAdmin, assessmentRole, assessmentGroupId } = user;
+    if (
+      isAdmin ||
+      assessmentRole === MemberRole.PRIMARY ||
+      (assessmentRole === MemberRole.TEAM_LEADER && assessmentGroupId === groupId) ||
+      (assessmentRole === MemberRole.MEMBER && assessmentGroupId === groupId)
+    ) {
+      return this.assessmentGroupService.getDomainsForGroup(assessmentId, groupId);
+    }
+    throw new ForbiddenException('You can only access your own group');
   }
 }
