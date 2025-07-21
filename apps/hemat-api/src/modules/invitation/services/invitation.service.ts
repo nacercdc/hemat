@@ -615,7 +615,7 @@ export class InvitationService {
             success: true,
             message: 'Invitation already accepted. Please log in.',
             nextStep: 'login',
-            registerUrl: `https://africa-cdc-app-web-501628761718.us-west1.run.app/login`,
+            registerUrl: `http://localhost:3000/login`,
           };
         }
         throw new BadRequestException('Invitation accepted, user not found');
@@ -678,7 +678,7 @@ export class InvitationService {
 
       const frontendDomain =
         this.configService.get('frontendDomain', { infer: true }) ||
-        'https://africa-cdc-app-web-501628761718.us-west1.run.app';
+        'http://localhost:3000';
       return {
         success: true,
         message: 'User not found. Please register.',
