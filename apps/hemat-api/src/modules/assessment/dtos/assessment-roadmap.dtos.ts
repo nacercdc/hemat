@@ -139,6 +139,16 @@ export class RoadmapCreateRequestDto {
   @IsDateString({}, { message: 'validation.endTime.isDateString' })
   @Type(() => String)
   endTime: string;
+
+  @ApiPropertyOptional({
+    description: 'Gap addressed by the roadmap',
+    example: 'Lack of cold chain equipment',
+    type: String,
+  })
+  @IsOptional()
+  @IsString({ message: 'validation.gapAddressed.isString' })
+  @Type(() => String)
+  gapAddressed?: string;
 }
 
 export class RoadmapUpdateRequestDto {
@@ -282,4 +292,14 @@ export class RoadmapUpdateRequestDto {
   @IsDateString({}, { message: 'validation.endTime.isDateString' })
   @Type(() => String)
   endTime?: string;
+
+  @ApiPropertyOptional({
+    description: 'Gap addressed by the roadmap',
+    example: 'Lack of cold chain equipment',
+    type: String,
+  })
+  @IsOptional()
+  @IsString({ message: 'validation.gapAddressed.isString' })
+  @Type(() => String)
+  gapAddressed?: string;
 }

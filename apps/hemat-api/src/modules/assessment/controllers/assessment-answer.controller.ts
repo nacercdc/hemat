@@ -11,6 +11,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Request,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -201,6 +202,34 @@ export class AssessmentAnswerController {
       req.user.id,
       id,
       payload,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Submit all answers for the assessment',
+    description:
+      'Submit (finalize) answers for the assessment. Only allowed if all subcomponents for the assessment are answered with isPrimary=true and status is COMPLETED.',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Answer })
+  @ApiBadRequestResponse({ description: 'Bad Request', type: ExceptionResponseDto })
+  @ApiForbiddenResponse({ description: 'Forbidden', type: ExceptionResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.UPDATE,
+        subject: PermissionSubjectEnum.ASSESSMENT_ANSWER,
+      },
+    ],
+  })
+  @Patch('submit')
+  async submitAssessmentAnswers(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Request() req: { user: AuthDto },
+  ): Promise<any> {
+    return this.assessmentAnswerService.submitAssessmentAnswers(
+      assessmentId,
+      req.user.id,
     );
   }
 }
