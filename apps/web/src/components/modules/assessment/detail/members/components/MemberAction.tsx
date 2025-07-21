@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import type { ModalRef } from "@etm/web-ui-components";
 import {
@@ -12,6 +12,7 @@ import {
 import type {
   AssessmentGroup,
   MemberMoveTo,
+  MemberUpdateRole,
 } from "~/libs/models/assessment-member.model";
 import { useParams } from "next/navigation";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
@@ -20,9 +21,10 @@ import { z } from "zod";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 export const ASSESSMENT_GROUP_LIST_KEY = "assessments-groups";
 
-type OptionType = "Team leader" | "Make Primary" | "Remove" | "Move to";
+type OptionType = "team-leader" | "primary" | "member" | "Move to" | "Remove";
 interface Props {
   id: string | undefined;
   refetch?: (email?: string) => void;
@@ -46,25 +48,14 @@ export type MemberMoveToFormData = z.infer<typeof memberMoveToSchema>;
 export default function MemberAction({
   id,
   refetch,
-  optionsList = ["Team leader", "Make Primary", "Remove", "Move to"],
+  optionsList = ["team-leader", "primary", "member", "Remove", "Move to"],
 }: Props) {
   const toaster = useToast();
   const params = useParams();
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
   const assessmentId = params.id as string | undefined;
   const openMemberActionRef = useRef<ModalRef>(null);
-  const onGotoRemoveMemberHandler = () => {
-    if (refetch) {
-      refetch(id);
-    }
-  };
 
-  const onGotoPrimaryLeaderHandler = () => {
-    //TODO: this a function make the user a Time leader
-  };
-
-  const onGotoTeamLeaderHandler = () => {
-    //TODO: this a function make the user a Time leader
-  };
   const {
     control,
     handleSubmit,
@@ -78,9 +69,11 @@ export default function MemberAction({
     resolver: zodResolver(memberMoveToSchema),
     mode: "all",
   });
-  const openMemberActionModal = () => openMemberActionRef.current?.openModal();
+  const openMemberActionModalHandler = () =>
+    openMemberActionRef.current?.openModal();
   const onCancelMemberActionHandler = () =>
     openMemberActionRef.current?.closeModal();
+
   const allOptions: Record<
     OptionType,
     {
@@ -90,27 +83,31 @@ export default function MemberAction({
       destructive?: boolean;
     }
   > = {
-    "Team leader": {
-      value: "Team leader",
+    "team-leader": {
+      value: "team-leader",
       label: "Team leader",
-      onClick: onGotoTeamLeaderHandler,
+      onClick: () => handleMemberAction(id, "team-leader"),
     },
-    "Make Primary": {
-      value: "Make Primary",
+    member: {
+      value: "member",
+      label: "Member",
+      onClick: () => handleMemberAction(id, "member"),
+    },
+    primary: {
+      value: "primary",
       label: "Make Primary",
-      onClick: onGotoPrimaryLeaderHandler,
+      onClick: () => handleMemberAction(id, "primary"),
     },
     Remove: {
       value: "Remove",
       label: "Remove",
       destructive: true,
-      onClick: onGotoRemoveMemberHandler,
+      onClick: () => handleMemberAction(id, "Remove"),
     },
-
     "Move to": {
       value: "Move to",
       label: "Move to",
-      onClick: openMemberActionModal,
+      onClick: openMemberActionModalHandler,
     },
   };
 
@@ -122,9 +119,61 @@ export default function MemberAction({
         enabled: !!assessmentId,
       },
     });
-
   const { mutate: memberMoveto, ...memberMovetoState } =
     useAddMutation<MemberMoveTo>(`assessments/${assessmentId}/members/move`);
+
+  const { mutate: updateRole } = usePutMutation<MemberUpdateRole>(
+    selectedUserId
+      ? `assessments/${assessmentId}/members/${selectedUserId}`
+      : ""
+  );
+
+  const handleMemberAction = (
+    userId: string | undefined,
+    action: OptionType
+  ) => {
+    if (!userId) return;
+
+    if (action === "Remove") {
+      refetch?.(userId);
+      return;
+    }
+
+    if (action === "Move to") {
+      openMemberActionRef.current?.openModal();
+      return;
+    }
+
+    setSelectedUserId(userId);
+    updateRole(
+      {
+        data: {
+          promoteUserId: action,
+          userId: selectedUserId,
+        },
+        isProtected: true,
+      },
+      {
+        onSuccess: () => {
+          toaster.toast({
+            title: "Success",
+            message: `Member set as ${action}`,
+            variant: "success",
+          });
+          queryClient.invalidateQueries({
+            queryKey: [ASSESSMENT_GROUP_LIST_KEY],
+          });
+        },
+        onError: (error) => {
+          toaster.toast({
+            title: "Error",
+            message: error?.message || "Failed to update role.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
 
   const onMoveToHandler = (data: MemberMoveToFormData) => {
     memberMoveto(

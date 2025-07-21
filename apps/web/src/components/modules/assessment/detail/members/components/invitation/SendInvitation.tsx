@@ -136,7 +136,7 @@ export function SendInvitation() {
               control={control}
               name="group"
               labelKey="name"
-              placeholder="Select group"
+              placeholder="Select team"
               valueKey="id"
               options={assessmentGroups?.data ?? []}
             />
@@ -145,17 +145,21 @@ export function SendInvitation() {
             <InputRHF
               name="newGroup"
               control={control}
-              placeholder="Write group name"
+              placeholder="Write name of the team"
             />
           )}
+
           <Button
             type="button"
+            leftNode={
+              <Icon icon={"ic:baseline-groups"} className="!w-5 !h-5" />
+            }
             size="lg"
             color="primaryLight"
             variant="outline"
             onClick={openTextFiledHandler}
           >
-            {addNewGroupName ? "Exist group" : "New group"}
+            {addNewGroupName ? "Exist team" : "Create new"}
           </Button>
         </div>
         <div className="flex gap-3">
@@ -165,7 +169,7 @@ export function SendInvitation() {
             placeholder="Enter the email addresses of the participants you want to invite "
           />
           <Button
-            leftNode={<Icon icon={"mdi:users-add"} className="!w-5 !h-5" />}
+            leftNode={<Icon icon={"mdi:user-add"} className="!w-5 !h-5" />}
             size="lg"
             color="primaryLight"
             variant="outline"

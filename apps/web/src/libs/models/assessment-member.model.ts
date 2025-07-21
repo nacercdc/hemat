@@ -39,6 +39,11 @@ export interface MemberMoveTo {
   promoteUserId?: string;
 }
 
+export interface MemberUpdateRole {
+  userId: string;
+  promoteUserId?: string;
+}
+
 export type AssessmentGroupIncludeAble =
   | "members"
   | "members.user"
