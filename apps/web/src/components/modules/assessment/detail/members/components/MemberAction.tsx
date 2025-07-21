@@ -126,31 +126,6 @@ export default function MemberAction({
   const { mutate: memberMoveto, ...memberMovetoState } =
     useAddMutation<MemberMoveTo>(`assessments/${assessmentId}/members/move`);
 
-  // const onMoveToHandler = (data: MemberMoveToFormData) => {
-  //   memberMoveto(
-  //     {
-  //       data: {
-  //         userId: id,
-  //         toGroupId: data.group.id,
-  //       },
-  //       isProtected: true,
-  //     },
-  //     {
-  //       onSuccess: () => {
-  //         toaster.toast({
-  //           title: "Success",
-  //           message: "Member has been moved successfully",
-  //           variant: "success",
-  //         });
-  //         onCancelMemberActionHandler();
-  //         queryClient.invalidateQueries({
-  //           queryKey: [ASSESSMENT_GROUP_LIST_KEY],
-  //         });
-  //       },
-  //     }
-  //   );
-  // };
-
   const onMoveToHandler = (data: MemberMoveToFormData) => {
     memberMoveto(
       {

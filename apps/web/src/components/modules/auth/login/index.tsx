@@ -128,19 +128,21 @@ export default function Login() {
         </Button>
       </div>
 
-      <Button
-        type="submit"
-        disabled={loginState.isPending}
-        loading={loginState.isPending}
-      >
-        Sign in
-      </Button>
+      <div className="z-40 flex justify-between">
+        <Button
+          type="submit"
+          disabled={loginState.isPending}
+          loading={loginState.isPending}
+        >
+          Sign in
+        </Button>
 
-      <div className="flex flex-row gap-4">
-        <span className="text-sm">Do not have an account?</span>
-        <Link href={""} className="underline text-sm text-info-500">
-          Register
-        </Link>
+        <div className="flex flex-row gap-4">
+          <span className="text-sm">Do not have an account?</span>
+          <Link href={"/register"} className="underline text-sm text-info-500">
+            Register
+          </Link>
+        </div>
       </div>
     </form>
   );

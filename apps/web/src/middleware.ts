@@ -4,8 +4,9 @@ import type { NextRequest } from "next/server";
 const DASHBOARD = "/";
 const LOGIN = "/login";
 const HOME = "/home";
+const REGISTER = "/register";
 
-const PUBLIC_ROUTES = new Set([LOGIN, HOME]);
+const PUBLIC_ROUTES = new Set([LOGIN, HOME, REGISTER]);
 
 export function middleware(request: NextRequest) {
   const { nextUrl, cookies } = request;

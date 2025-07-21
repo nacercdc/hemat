@@ -4,7 +4,7 @@ import { PageContainer } from "~/components/modules/components/PageContainer";
 
 export default function SkeletonForDetail() {
   return (
-    <PageContainer pageTitle="Loading Assessment..." includeBreadcrumb={false}>
+    <PageContainer pageTitle="" includeBreadcrumb={false}>
       <div className="flex items-start flex-wrap justify-between gap-4">
         {/* Left Side */}
         <div className="lg:w-3/5 w-full flex flex-col gap-3">

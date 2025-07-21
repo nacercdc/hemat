@@ -23,7 +23,7 @@ import type { Profile, UpdateProfile } from "~/libs/models/profile.model";
 import { ProfileTabSkeleton } from "./ProfileTabSkeleton";
 import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "@etm/utilities";
 import type { Country } from "~/libs/models/country.model";
-const PERSONAL_TITLES = [
+export const PERSONAL_TITLES = [
   "Mr.",
   "Mrs.",
   "Miss",

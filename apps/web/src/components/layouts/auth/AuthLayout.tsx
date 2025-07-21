@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LanguageSelector } from "~/components/ui/language-selector/LanguageSelector";
 
 interface Props {
@@ -11,6 +11,9 @@ interface Props {
 
 export function AuthLayout({ children }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isLogin = pathname === "/login";
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-white px-4 sm:px-6 md:px-10 py-6">
@@ -28,18 +31,30 @@ export function AuthLayout({ children }: Props) {
           />
         </div>
 
-        <div className="flex justify-center w-full lg:w-[60%]">
-          <div className="flex flex-col gap-6 w-full sm:w-[90%] md:w-[70%] lg:w-[70%] xl:w-[50%] 2xl:w-[40%]">
+        <div
+          className={`flex justify-center w-full  ${
+            isLogin ? "lg:w-[60%]" : ""
+          }`}
+        >
+          <div
+            className={`flex flex-col gap-6 w-full ${
+              isLogin
+                ? "sm:w-[90%] md:w-[70%] lg:w-[70%] xl:w-[50%] 2xl:w-[40%]"
+                : ""
+            }`}
+          >
             <div className="flex flex-col gap-0 text-center lg:text-left">
               <span className="font-bold text-lg sm:text-xl">
                 Welcome to Africa CDC
               </span>
               <span className="text-xs sm:text-sm text-basic-600">
-                Enter your credentials to login to your account
+                {isLogin
+                  ? "Enter your credentials to login to your account"
+                  : "Register and let's get started"}
               </span>
             </div>
 
-            <div className="relative pt-8 pb-8 px-6 sm:px-8 bg-white rounded-lg border border-basic-200 flex flex-col gap-6 shadow-sm">
+            <div className="relative pt-8 pb-8 px-6 sm:px-8 bg-white rounded-lg border border-basic-200 flex flex-col gap-6 shadow-sm ">
               <Image
                 src="/images/head-board.png"
                 width={0}
@@ -56,7 +71,7 @@ export function AuthLayout({ children }: Props) {
                 src="/images/branding-texture.png"
                 width={80}
                 height={60}
-                className="absolute bottom-0 right-0 rounded-br-xl"
+                className="absolute bottom-0 right-0 rounded-br-xl z-10"
                 alt="Africa CDC Texture"
               />
             </div>

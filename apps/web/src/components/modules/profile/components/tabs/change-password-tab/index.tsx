@@ -17,8 +17,8 @@ import { usePatchMutation } from "~/libs/tanstack-api-query/hooks/usePatchMutati
 import { useGetMe } from "~/providers/me/useGetMe";
 import ChangePasswordTabSkeleton from "./ChangePasswordSkeleton";
 import PasswordVisibilityToggler from "~/components/modules/components/PasswordVisibilityToggler";
-const PasswordMinLength = 8;
-const PasswordMustIncludeTypes: PasswordIncludeType[] = [
+export const PasswordMinLength = 8;
+export const PasswordMustIncludeTypes: PasswordIncludeType[] = [
   "Number",
   "SpecialChar",
   "UpperCase",

@@ -43,7 +43,7 @@ export function AssessmentOverview() {
   return (
     <div className="flex items-start flex-wrap justify-between  gap-4">
       <div className="lg:w-3/5 w-full flex flex-col gap-3">
-        <div className="bg-dark-lighter/5 p-4 rounded-sm">
+        <div className="flex gap-2 bg-dark-lighter/5 p-4 rounded-sm">
           <h1 className="text-sm font-bold">Status</h1>
           <Badge
             text={`${assessment?.status}`}
