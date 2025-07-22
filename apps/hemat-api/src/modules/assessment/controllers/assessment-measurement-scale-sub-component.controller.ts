@@ -7,6 +7,7 @@ import {
   HttpCode,
   UseGuards,
   Query,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -35,6 +36,8 @@ import {
   BatchUpdateAssessmentMeasurementScaleSubComponentDto,
 } from '../dtos';
 import { ParseUUIDPipe } from '@nestjs/common';
+import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
+import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Measurement Scale Sub-Components')
@@ -115,19 +118,25 @@ export class AssessmentMeasurementScaleSubComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
   @Get(':measurementScaleId')
   async findOne(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
     @Param('measurementScaleId', new ParseUUIDPipe())
     measurementScaleId: string,
     @Query('language') language?: string,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
+    const { isAdmin } = user;
+    if (isAdmin || user.assessmentRole) {
     return this.assessmentMeasurementScaleSubComponentService.findOne(
       subComponentId,
       measurementScaleId,
       language,
     );
+  }
+  throw new ForbiddenException('You do not have access to this resource');
   }
 
   @ApiOperation({

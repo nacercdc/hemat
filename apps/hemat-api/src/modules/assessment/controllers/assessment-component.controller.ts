@@ -8,6 +8,7 @@ import {
   UseGuards,
   Query,
   HttpStatus,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -35,6 +36,8 @@ import {
   FindAllAssessmentSubComponentDto,
 } from '../dtos';
 import { ParseUUIDPipe } from '@nestjs/common';
+import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
+import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Components')
@@ -154,13 +157,23 @@ export class AssessmentComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT_SUB_COMPONENT,
       },
     ],
+    requireAdmin: false,
   })
   @Get('assessmentSubcomponents/:id/subcomponents')
   async findSubComponents(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query() query: FindAllAssessmentSubComponentDto,
     @Query('language') language?: string,
   ) {
-    return this.assessmentComponentService.findSubComponents(id, { ...query, language });
+    const { isAdmin } = user;
+
+    if (isAdmin || user.assessmentRole) {
+      return this.assessmentComponentService.findSubComponents(id, {
+        ...query,
+        language,
+      });
+    }
+    throw new ForbiddenException('You do not have access to this resource');
   }
 }

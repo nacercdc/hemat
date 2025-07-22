@@ -50,39 +50,44 @@ export class RoleTransitionService {
       );
     }
 
-    // MEMBER -> TEAM_LEADER: promoteUserId required
+    // MEMBER -> TEAM_LEADER: promoteUserId required only if there are other members
     if (
       member.role === MemberRole.MEMBER &&
       targetRole === MemberRole.TEAM_LEADER
     ) {
-      if (!promoteUserId) {
-        throw new BadRequestException(
-          'promoteUserId is required when updating MEMBER to TEAM_LEADER.',
+      if (otherGroupMembers.length > 0) {
+        if (!promoteUserId) {
+          throw new BadRequestException(
+            'promoteUserId is required when updating MEMBER to TEAM_LEADER if there are other members in the group.',
+          );
+        }
+        const promoteUser = otherGroupMembers.find(
+          (m) => m.id === promoteUserId && m.role === MemberRole.MEMBER,
         );
-      }
-      const promoteUser = otherGroupMembers.find(
-        (m) => m.id === promoteUserId && m.role === MemberRole.MEMBER,
-      );
-      if (!promoteUser) {
-        throw new BadRequestException(
-          'promoteUserId must be another MEMBER in the same group.',
+        if (!promoteUser) {
+          throw new BadRequestException(
+            'promoteUserId must be another MEMBER in the same group.',
+          );
+        }
+        // Demote any existing TEAM_LEADER in the group
+        const oldTeamLeader = otherGroupMembers.find(
+          (m) => m.role === MemberRole.TEAM_LEADER,
         );
-      }
-      // Demote any existing TEAM_LEADER in the group
-      const oldTeamLeader = otherGroupMembers.find(
-        (m) => m.role === MemberRole.TEAM_LEADER,
-      );
-      if (oldTeamLeader) {
+        if (oldTeamLeader) {
+          await manager
+            .getRepository(AssessmentMember)
+            .update({ id: oldTeamLeader.id }, { role: MemberRole.MEMBER });
+        }
+        // Promote the specified user to TEAM_LEADER
         await manager
           .getRepository(AssessmentMember)
-          .update({ id: oldTeamLeader.id }, { role: MemberRole.MEMBER });
+          .update({ id: promoteUser.id }, { role: MemberRole.TEAM_LEADER });
+        // The current member remains MEMBER
+        return member;
       }
-      // Promote the specified user to TEAM_LEADER
-      await manager
-        .getRepository(AssessmentMember)
-        .update({ id: promoteUser.id }, { role: MemberRole.TEAM_LEADER });
-      // The current member remains MEMBER
-      return member;
+      // If only one member, allow promotion directly
+      member.role = MemberRole.TEAM_LEADER;
+      return await manager.getRepository(AssessmentMember).save(member);
     }
 
     // TEAM_LEADER -> MEMBER: promoteUserId required

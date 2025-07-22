@@ -139,16 +139,22 @@ export class AssessmentSubComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
   @Get('filled-status')
   async getFilledStatus(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
   ): Promise<{ ids: string[]; latest: any }> {
-    return this.assessmentSubComponentService.getFilledStatusByAssessment(
-      assessmentId,
-      user,
-    );
+    const { isAdmin } = user;
+
+    if (isAdmin || user.assessmentRole) {
+      return this.assessmentSubComponentService.getFilledStatusByAssessment(
+        assessmentId,
+        user,
+      );
+    }
+    throw new ForbiddenException('You do not have access to this resource');
   }
 
   @ApiOperation({
@@ -217,13 +223,19 @@ export class AssessmentSubComponentController {
     @Query('year') year: string,
   ) {
     if (!countryId || !year) {
-      throw new BadRequestException('countryId and year are required query parameters');
+      throw new BadRequestException(
+        'countryId and year are required query parameters',
+      );
     }
     const yearNum = Number(year);
     if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
       throw new BadRequestException('year must be a valid number');
     }
-    const averageRate = await this.assessmentSubComponentService.getAverageRateForPrimaryAnswersByCountryAndYear(countryId, yearNum);
+    const averageRate =
+      await this.assessmentSubComponentService.getAverageRateForPrimaryAnswersByCountryAndYear(
+        countryId,
+        yearNum,
+      );
     return {
       countryId,
       year: yearNum,

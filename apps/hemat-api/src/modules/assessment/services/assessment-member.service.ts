@@ -153,16 +153,48 @@ export class AssessmentMemberService {
     id: string,
     payload: AssessmentMemberUpdateRequestDto,
   ): Promise<AssessmentMember> {
+    return this._updateInternal({ assessmentId, id, userId: undefined, payload });
+  }
+
+  async updateByUserId(
+    assessmentId: string,
+    userId: string,
+    payload: AssessmentMemberUpdateRequestDto,
+  ): Promise<AssessmentMember> {
+    return this._updateInternal({ assessmentId, id: undefined, userId, payload });
+  }
+
+  private async _updateInternal({ assessmentId, id, userId, payload }: { assessmentId: string, id?: string, userId?: string, payload: AssessmentMemberUpdateRequestDto }): Promise<AssessmentMember> {
     return this.dataSource.transaction(async (manager) => {
-      const member = await manager.getRepository(AssessmentMember).findOne({
-        where: { id, assessmentId },
-        relations: ['user', 'assessment', 'group'],
-      });
+      let member;
+      if (id) {
+        member = await manager.getRepository(AssessmentMember).findOne({
+          where: { id, assessmentId },
+          relations: ['user', 'assessment', 'group'],
+        });
+      } else if (userId) {
+        member = await manager.getRepository(AssessmentMember).findOne({
+          where: { userId, assessmentId },
+          relations: ['user', 'assessment', 'group'],
+        });
+      }
       if (!member) {
-        throw new NotFoundException(`Assessment member ${id} not found`);
+        throw new NotFoundException(`Assessment member not found`);
       }
       if (!payload.role || payload.role === member.role) {
         return member;
+      }
+      // If demoting TEAM_LEADER to MEMBER, check group size
+      if (
+        member.role === MemberRole.TEAM_LEADER &&
+        payload.role === MemberRole.MEMBER
+      ) {
+        const groupMembers = await manager.getRepository(AssessmentMember).find({
+          where: { groupId: member.groupId, assessmentId },
+        });
+        if (groupMembers.length === 1) {
+          throw new BadRequestException('Cannot demote TEAM_LEADER to MEMBER when the group has only one member.');
+        }
       }
       return await RoleTransitionService.updateRole({
         manager,
