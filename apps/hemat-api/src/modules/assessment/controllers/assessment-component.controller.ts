@@ -38,6 +38,7 @@ import {
 import { ParseUUIDPipe } from '@nestjs/common';
 import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
 import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
+import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Components')
@@ -159,6 +160,7 @@ export class AssessmentComponentController {
     ],
     requireAdmin: false,
   })
+  @UseGuards(AssessmentRoleGuard)
   @Get('assessmentSubcomponents/:id/subcomponents')
   async findSubComponents(
     @AssessmentAbilityUser() user: AssessmentAbilityDto,

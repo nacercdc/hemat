@@ -85,16 +85,12 @@ export class AssessmentMeasurementScaleController {
     @Query() query: FindAllAssessmentMeasurementScaleDto,
     @Query('language') language: string = 'en',
   ): Promise<FindAllResponseDto<AssessmentMeasurementScale>> {
-    const { isAdmin } = user;
-
-    if (isAdmin || user.assessmentRole) {
-      return this.assessmentMeasurementScaleService.findAll({
-        ...query,
-        assessmentId,
-        language,
-      });
-    }
-    throw new ForbiddenException('You do not have access to this resource');
+    // Allow all authenticated users to access
+    return this.assessmentMeasurementScaleService.findAll({
+      ...query,
+      assessmentId,
+      language,
+    });
   }
 
   @ApiOperation({

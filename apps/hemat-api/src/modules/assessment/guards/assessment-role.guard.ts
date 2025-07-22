@@ -15,6 +15,10 @@ import { rolePermissions, methodToAction } from './assessment-role-permissions';
 import { ABILITIES } from '@shared/constants';
 import { AbilityParams } from '@shared/types';
 import { MemberRole } from '@shared/enums/member.enum';
+import { AssessmentDomain } from '@database/entities';
+import { AssessmentSubComponent } from '@database/entities';
+import { AssessmentComponent } from '@database/entities';
+import { AssessmentMeasurementScaleSubComponent } from '@database/entities';
 
 @Injectable()
 export class AssessmentRoleGuard implements CanActivate {
@@ -23,6 +27,14 @@ export class AssessmentRoleGuard implements CanActivate {
   constructor(
     @InjectRepository(AssessmentMember)
     private readonly assessmentMemberRepository: Repository<AssessmentMember>,
+    @InjectRepository(AssessmentDomain)
+    private readonly assessmentDomainRepository: Repository<AssessmentDomain>,
+    @InjectRepository(AssessmentSubComponent)
+    private readonly assessmentSubComponentRepository: Repository<AssessmentSubComponent>,
+    @InjectRepository(AssessmentComponent)
+    private readonly assessmentComponentRepository: Repository<AssessmentComponent>,
+    @InjectRepository(AssessmentMeasurementScaleSubComponent)
+    private readonly assessmentMeasurementScaleSubComponentRepository: Repository<AssessmentMeasurementScaleSubComponent>,
     private readonly abilityService: AbilityService,
     private readonly reflector: Reflector,
   ) {}
@@ -31,8 +43,38 @@ export class AssessmentRoleGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
     const userId: string | undefined = user?.id;
-    const assessmentId: string | undefined =
+    let assessmentId: string | undefined =
       request.params?.assessmentId || request.params?.id;
+    // Patch: If only domainId is present, resolve assessmentId from domain
+    if (!request.params?.assessmentId && request.params?.id) {
+      const domain = await this.assessmentDomainRepository.findOne({ where: { id: request.params.id } });
+      if (domain) {
+        assessmentId = domain.assessmentId;
+      } else {
+        // Try to resolve as AssessmentSubComponent
+        const subComponent = await this.assessmentSubComponentRepository.findOne({ where: { id: request.params.id } });
+        if (subComponent) {
+          assessmentId = subComponent.assessmentId;
+        } else {
+          // Try to resolve as AssessmentComponent
+          const component = await this.assessmentComponentRepository.findOne({ where: { id: request.params.id } });
+          if (component) {
+            assessmentId = component.assessmentId;
+          } else {
+            // Try to resolve as AssessmentMeasurementScaleSubComponent
+            const measurementScaleSubComponent = await this.assessmentMeasurementScaleSubComponentRepository.findOne({ where: { id: request.params.id } });
+            if (measurementScaleSubComponent) {
+              // Get the subComponentId, then look up the AssessmentSubComponent to get assessmentId
+              const subComponent = await this.assessmentSubComponentRepository.findOne({ where: { id: measurementScaleSubComponent.subComponentId } });
+              if (subComponent) {
+                assessmentId = subComponent.assessmentId;
+              }
+            }
+          }
+        }
+      }
+    }
+    this.logger.debug(`AssessmentRoleGuard: Resolved assessmentId: ${assessmentId} for userId: ${userId}`);
     const method = request.method as string;
     const action = methodToAction[method] || 'read';
     const subject = PermissionSubjectEnum.ASSESSMENT;
@@ -101,6 +143,7 @@ export class AssessmentRoleGuard implements CanActivate {
     const member = await this.assessmentMemberRepository.findOne({
       where: { assessmentId, userId, deletedAt: IsNull() },
     });
+    this.logger.debug(`AssessmentRoleGuard: Found member: ${JSON.stringify(member)}`);
 
     if (!member) {
       this.logger.warn(
