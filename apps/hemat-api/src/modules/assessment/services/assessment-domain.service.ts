@@ -449,8 +449,8 @@ export class AssessmentDomainService {
     return this.assessmentDomainRepository
       .createQueryBuilder('domain')
       .where('domain.assessmentId = :assessmentId', { assessmentId })
-      .leftJoin('domain.components', 'component')
-      .leftJoin('component.subComponents', 'subComponent')
+      .leftJoin('domain.components', 'component', 'component.assessmentId = :assessmentId', { assessmentId })
+      .leftJoin('component.subComponents', 'subComponent', 'subComponent.assessmentId = :assessmentId', { assessmentId })
       .select('domain.id', 'id')
       .addSelect(
         `COALESCE(domain.translations->'${language}'->>'code', domain.code)`,
@@ -464,8 +464,8 @@ export class AssessmentDomainService {
         `COALESCE(domain.translations->'${language}'->>'description', domain.description)`,
         'description',
       )
-      .addSelect('COUNT(component.id)::int as componentsCount')
-      .addSelect('COUNT(subComponent.id)::int as subComponentsCount')
+      .addSelect('COUNT(DISTINCT component.id)::int as componentsCount')
+      .addSelect('COUNT(DISTINCT subComponent.id)::int as subComponentsCount')
       .groupBy('domain.id')
       .execute();
   }
