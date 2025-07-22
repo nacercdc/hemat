@@ -211,6 +211,9 @@ export class AssessmentSubComponentService {
     if (query.include?.includes('roadmaps')) {
       qb.leftJoinAndSelect('answer.roadmaps', 'roadmaps');
     }
+    if (query.include?.includes('measurementScale')) {
+      qb.leftJoinAndSelect('sca.measurementScale', 'measurementScale');
+    }
 
     const result = await qb.getOne();
     if (!result) {
