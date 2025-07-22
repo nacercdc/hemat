@@ -18,6 +18,8 @@ import type { Scale } from "~/libs/models/scale.model";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { Answer, AnswerIncludable } from "~/libs/models/answer.model";
 import type { SubComponent } from "~/libs/models/subComponent.model";
+import { useParams, useSearchParams } from "next/navigation";
+import type { Access } from "~/libs/models/assessment.model";
 
 export const SubCompAssessmentFormID = "SubCompAssessmentForm";
 
@@ -57,15 +59,19 @@ export type MeasurementScaleType = z.infer<typeof MeasurementScaleSchema>;
 
 interface Props {
   subComponent?: SubComponent;
+  access?: Access;
   isLoading?: boolean;
   onSubmitHandler: (values: AssessmentFormData) => void;
 }
 
 export function SubCompAssessmentForm({
   subComponent,
+  access,
   isLoading = false,
   onSubmitHandler,
 }: Props) {
+  const params = useParams();
+  const searchParams = useSearchParams();
   const { control, reset, handleSubmit } = useForm<AssessmentFormData>({
     defaultValues: {
       evidence: "",
@@ -78,28 +84,26 @@ export function SubCompAssessmentForm({
   const [activeMeasurementScale, setActiveMeasurementScale] =
     useState<MeasurementScaleType>();
 
-  //TODO: replace assessmentId from params
   const { data: measurementScales, ...measurementScalesState } = useFindAll<
     QueryManyResponse<MeasurementScaleType>
   >({
-    path: "/assessments/e9989a40-722d-4541-b368-8c7ebab86013/measurement-scales",
+    path: `/assessments/${params.id as string}/measurement-scales`,
     queries: {
       limit: 100,
       page: 1,
     },
   });
 
-  //TODO: replace assessmentId from params
   const { data: subComponentAnswer, ...subComponentAnswerState } = useFindById<
     QueryManyResponse<Answer>,
     AnswerIncludable
   >({
-    path: `/assessments/e9989a40-722d-4541-b368-8c7ebab86013/sub-components/${subComponent?.id}/primary-answer`,
+    path: `/assessments/${params.id as string}/sub-components/${subComponent?.id}/${access?.role === "primary" && searchParams.get("as") !== "member" ? "primary-" : ""}answer`,
     queries: {
       include: ["measurementScale"],
     },
     tqOptions: {
-      enabled: !!subComponent,
+      enabled: !!subComponent || !!access,
       staleTime: 0,
       retry: false,
     },
@@ -135,7 +139,6 @@ export function SubCompAssessmentForm({
     setActiveMeasurementScale(undefined);
   };
 
-  //TODO: it will be an object response instead of an array onces the API is fixed
   useEffect(() => {
     const answer = subComponentAnswer as unknown as Answer;
 

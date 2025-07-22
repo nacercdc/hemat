@@ -3,29 +3,37 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import AssessmentDomainCard from "../../components/AssessmentDomainCard";
-
-export interface Domain {
-  id: string;
-  name: string;
-  componentsCount: number;
-  subComponentsCount: number;
-  progress: number;
-}
+import type { Domain } from "../../components/AssessmentDomainCard";
+import type { Access } from "~/libs/models/assessment.model";
+import type { GroupIDType } from "..";
 
 interface Props {
   title: string;
   subtitle: string;
   domains: Domain[];
-  groupId: string;
+  groupId: GroupIDType;
+  progressLoading: boolean;
+  domainsLoading: boolean;
+  access?: Access;
 }
 
-export function GroupedAssessment({ title, subtitle, domains }: Props) {
+export function GroupedAssessment({
+  groupId,
+  title,
+  subtitle,
+  domains,
+  access,
+  progressLoading,
+  domainsLoading,
+}: Props) {
   const router = useRouter();
   const onDetailViewClickHandler = (id: string) => {
     router.push(`current-assessments/${id}`);
   };
   const onFillClickHandler = (id: string) => {
-    router.push(`current-assessments/${id}/fill`);
+    router.push(
+      `current-assessments/${id}/fill${groupId !== "primary" ? "?as=member" : ""}`
+    );
   };
 
   return (
@@ -41,8 +49,12 @@ export function GroupedAssessment({ title, subtitle, domains }: Props) {
           <AssessmentDomainCard
             key={domain.id}
             domain={domain}
+            groupId={groupId}
+            progressLoading={progressLoading}
+            domainsLoading={domainsLoading}
             onDetailViewClickHandler={onDetailViewClickHandler}
             onFillClickHandler={onFillClickHandler}
+            access={access}
           />
         ))}
       </div>
