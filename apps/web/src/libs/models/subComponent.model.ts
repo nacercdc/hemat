@@ -46,7 +46,6 @@ export interface SubComponentMeasurementScaleCreate {
 
 export interface SubComponentCreate {
   name: string;
-  code: string;
   componentId: string;
   description: string;
   translations: Record<
@@ -61,7 +60,6 @@ export interface SubComponentCreate {
 export interface SubComponentEdit {
   id: string;
   name: string;
-  code: string;
   componentId: string;
   description: string;
   translations: Record<

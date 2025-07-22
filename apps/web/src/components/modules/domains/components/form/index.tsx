@@ -16,31 +16,23 @@ import type { Language } from "~/libs/models/language.model";
 import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 import { useGetLanguages } from "~/providers/languages/useGetLanguages";
 import type { ListItemType } from "../../types";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 const languageSchema = z.object({
-  name: z.string().min(1, { message: "Language name is required" }),
-  code: z.string().min(1, { message: "Language code is required" }),
-  native: z.string().min(1, { message: "Native language name is required" }),
+  name: z.string().min(1, { message: "Language name is required." }),
+  code: z.string().min(1, { message: "Language code is required." }),
+  native: z.string().min(1, { message: "Native language name is required." }),
 });
 
 const itemFormSchema = z
   .object({
-    name: z.string().min(1, { message: "Name is required" }),
-    description: z.string().min(1, { message: "Description is required" }),
-    code: z
-      .string({ message: "Code is required" })
-      .min(2, { message: "Code must be at least 2 characters" })
-      .max(10, { message: "Code must be less than 10 characters" }),
+    name: z.string().min(1, { message: "Name is required." }),
+    description: z.string().min(1, { message: "Description is required." }),
     translations: z.record(
       z.string(),
       z.object({
-        name: z.string().min(1, { message: "Translation name is required" }),
-        description: z
-          .string()
-          .min(1, { message: "Translation description is required" }),
-        code: z.string({ message: "Translation code is required" }).min(2, {
-          message: "Translation code must be at least 2 characters",
-        }),
+        name: z.string().optional(),
+        description: z.string().optional(),
       })
     ),
     selectedLanguages: z.array(languageSchema).optional(),
@@ -64,21 +56,14 @@ const itemFormSchema = z
         ctx.addIssue({
           path: ["translations", lang.code, "name"],
           code: z.ZodIssueCode.custom,
-          message: `Translation name for ${lang.name.toUpperCase()} is required`,
-        });
-      }
-      if (!translation.code?.trim()) {
-        ctx.addIssue({
-          path: ["translations", lang.code, "code"],
-          code: z.ZodIssueCode.custom,
-          message: `Translation code for ${lang.name.toUpperCase()} is required`,
+          message: `Translation name for ${lang.name} is required.`,
         });
       }
       if (!translation.description?.trim()) {
         ctx.addIssue({
           path: ["translations", lang.code, "description"],
           code: z.ZodIssueCode.custom,
-          message: `Translation description for ${lang.name.toUpperCase()} is required`,
+          message: `Translation description for ${lang.name} is required.`,
         });
       }
     }
@@ -120,12 +105,12 @@ export function DomainComponentForm({
     defaultValues: {
       name: item?.name ?? "",
       description: item?.description ?? "",
-      code: item?.code ?? "",
       translations: item?.translations ?? {},
       selectedLanguages: [],
     },
     resolver: zodResolver(itemFormSchema),
     mode: "all",
+    shouldUnregister: false,
   });
 
   const selectedLanguages = watch("selectedLanguages");
@@ -146,12 +131,11 @@ export function DomainComponentForm({
               lang.code === DEFAULT_LANGUAGE_CODE
                 ? (item?.description ?? "")
                 : "",
-            code: lang.code === DEFAULT_LANGUAGE_CODE ? (item?.code ?? "") : "",
           });
         }
       });
     },
-    [item, selectedLanguages, setValue]
+    [item, selectedLanguages, setValue, watch]
   );
 
   const onSubmit = (values: ItemFormData) => {
@@ -165,7 +149,6 @@ export function DomainComponentForm({
           {
             name: value.name || "",
             description: value.description || "",
-            code: value.code || "",
           },
         ])
     );
@@ -174,6 +157,29 @@ export function DomainComponentForm({
       translations: filteredTranslations,
     });
   };
+
+  const onRemoveLanguageHandler = (code: string) => {
+    const newLangs = (selectedLanguages || []).filter((l) => l.code !== code);
+    setValue("selectedLanguages", newLangs);
+  };
+
+  useEffect(() => {
+    if (selectedLanguages && Array.isArray(selectedLanguages)) {
+      selectedLanguages.forEach((lang) => {
+        const translation = watch(`translations.${lang.code}`);
+        if (!translation || typeof translation !== "object") {
+          setValue(`translations.${lang.code}`, { name: "", description: "" });
+        } else {
+          if (typeof translation.name !== "string") {
+            setValue(`translations.${lang.code}.name`, "");
+          }
+          if (typeof translation.description !== "string") {
+            setValue(`translations.${lang.code}.description`, "");
+          }
+        }
+      });
+    }
+  }, [selectedLanguages]);
 
   useEffect(() => {
     if (item && languageOptions.length > 0) {
@@ -184,7 +190,6 @@ export function DomainComponentForm({
       reset({
         name: item.name,
         description: item.description,
-        code: item.code,
         translations: item.translations,
         selectedLanguages: initialSelectedLanguages,
       });
@@ -192,7 +197,6 @@ export function DomainComponentForm({
       reset({
         name: "",
         description: "",
-        code: "",
         translations: {},
         selectedLanguages: [],
       });
@@ -205,72 +209,6 @@ export function DomainComponentForm({
       className="flex flex-col gap-6 w-full"
     >
       <div className="flex flex-col gap-4 p-4 px-7 max-h-[700px] overflow-x-hidden overflow-y-auto">
-        <InputRHF<ItemFormData>
-          control={control}
-          name="name"
-          label="Name"
-          placeholder="Write Default Name"
-          size="xl"
-          labelVariant="bold"
-          error={errors.name?.message}
-        />
-        {selectedLanguages?.map((lang) => (
-          <div key={lang.code} className="flex gap-2">
-            <div className="text-sm font-medium">{`${lang.code.toUpperCase()}:`}</div>
-            <InputRHF<ItemFormData>
-              control={control}
-              name={`translations.${lang.code}.name`}
-              placeholder={`Write ${lang.name} Name`}
-              size="xl"
-              labelVariant="bold"
-              error={errors.translations?.[lang.code]?.name?.message}
-            />
-          </div>
-        ))}
-        <InputRHF<ItemFormData>
-          control={control}
-          name="code"
-          label="Code"
-          placeholder="Write Default Code"
-          size="xl"
-          labelVariant="bold"
-          error={errors.code?.message}
-        />
-        {selectedLanguages?.map((lang) => (
-          <div key={lang.code} className="flex gap-2">
-            <div className="text-sm font-medium">{`${lang.code.toUpperCase()}:`}</div>
-            <InputRHF<ItemFormData>
-              control={control}
-              name={`translations.${lang.code}.code`}
-              placeholder={`Write ${lang.name} Code`}
-              size="xl"
-              labelVariant="bold"
-              error={errors.translations?.[lang.code]?.code?.message}
-            />
-          </div>
-        ))}
-        <TextAreaRHF<ItemFormData>
-          control={control}
-          name="description"
-          label="Description"
-          placeholder="Write Default Description..."
-          labelVariant="bold"
-          rows={4}
-          error={errors.description?.message}
-        />
-        {selectedLanguages?.map((lang) => (
-          <div key={lang.code} className="flex gap-2">
-            <div className="text-sm font-medium">{`${lang.code.toUpperCase()}:`}</div>
-            <TextAreaRHF<ItemFormData>
-              control={control}
-              name={`translations.${lang.code}.description`}
-              placeholder={`Write ${lang.name} Description...`}
-              labelVariant="bold"
-              rows={4}
-              error={errors.translations?.[lang.code]?.description?.message}
-            />
-          </div>
-        ))}
         <MultiSelectRHF
           control={control}
           name="selectedLanguages"
@@ -285,6 +223,72 @@ export function DomainComponentForm({
           loading={languagesState.isLoading}
           error={errors.selectedLanguages?.message}
         />
+        {/* English (default, not removable) */}
+        <div className="rounded-md bg-layout-bg/30 p-4 mb-4 relative">
+          <span className="flex items-center mb-3 absolute -top-2 px-2 py-1 bg-destructive-700/10 text-destructive-700 rounded text-xs font-medium mr-2">
+            English
+          </span>
+          <div className="grid grid-cols-1 gap-4 mb-2 mt-2">
+            <InputRHF<ItemFormData>
+              control={control}
+              name="name"
+              placeholder="Write Default Name"
+              label="Name"
+              labelVariant="bold"
+              size="xl"
+              error={errors.name?.message}
+            />
+          </div>
+          <TextAreaRHF<ItemFormData>
+            control={control}
+            name="description"
+            placeholder="Write Default Description..."
+            label="Description"
+            labelVariant="bold"
+            rows={4}
+            error={errors.description?.message}
+          />
+        </div>
+        {/* Other selected languages */}
+        {selectedLanguages
+          ?.filter((lang) => lang.code !== DEFAULT_LANGUAGE_CODE)
+          .map((lang) => (
+            <div
+              key={lang.code}
+              className="rounded-md bg-layout-bg/30 p-4 mb-4 relative"
+            >
+              <span className="flex items-center mb-3 absolute -top-2 px-2 py-1 bg-destructive-700/10 text-destructive-700 rounded text-xs font-medium mr-2">
+                {lang.name}
+              </span>
+              <button
+                type="button"
+                className="ml-auto text-xl px-2 py-1 bg-muted/50 rounded-tr-md rounded-bl-md absolute top-0 right-0"
+                onClick={() => onRemoveLanguageHandler(lang.code)}
+              >
+                <Icon icon="mdi:close" />
+              </button>
+              <div className="grid grid-cols-1 gap-4 mb-2 mt-2">
+                <InputRHF<ItemFormData>
+                  control={control}
+                  name={`translations.${lang.code}.name`}
+                  placeholder={`Write ${lang.name} Name`}
+                  label="Name"
+                  labelVariant="bold"
+                  size="xl"
+                  error={errors.translations?.[lang.code]?.name?.message}
+                />
+              </div>
+              <TextAreaRHF<ItemFormData>
+                control={control}
+                name={`translations.${lang.code}.description`}
+                placeholder={`Write ${lang.name} Description...`}
+                label="Description"
+                labelVariant="bold"
+                rows={4}
+                error={errors.translations?.[lang.code]?.description?.message}
+              />
+            </div>
+          ))}
       </div>
       <div className="bg-primary-50">
         <div className="flex items-center justify-between p-4 px-7">

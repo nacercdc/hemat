@@ -18,7 +18,6 @@ export interface Component {
 
 export interface ComponentCreate {
   name: string;
-  code: string;
   domainId: string;
   description: string;
   translations: Record<
@@ -33,7 +32,6 @@ export interface ComponentCreate {
 export interface ComponentEdit {
   id: string;
   name: string;
-  code: string;
   domainId: string;
   description: string;
   translations: Record<

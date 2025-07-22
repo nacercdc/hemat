@@ -18,28 +18,22 @@ import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 import { Icon } from "@iconify/react/dist/iconify.js";
 
 const languageSchema = z.object({
-  name: z.string().min(1, { message: "Language name is required" }),
-  code: z.string().min(1, { message: "Language code is required" }),
-  native: z.string().min(1, { message: "Native language name is required" }),
-});
-
-const translationSchema = z.object({
-  name: z.string().min(1, { message: "Translation name is required" }),
-  description: z
-    .string()
-    .min(1, { message: "Translation description is required" }),
-  code: z.string().min(1, { message: "Translation code is required" }),
+  name: z.string().min(1, { message: "Language name is required." }),
+  code: z.string().min(1, { message: "Language code is required." }),
+  native: z.string().min(1, { message: "Native language name is required." }),
 });
 
 const defaultFieldsSchema = z
   .object({
-    name: z.string().min(1, { message: "Name is required" }),
-    description: z.string().min(1, { message: "Description is required" }),
-    code: z
-      .string()
-      .min(1, { message: "Code is required" })
-      .max(10, { message: "Code must be less than 10 characters" }),
-    translations: z.record(z.string(), translationSchema).optional(),
+    name: z.string().min(1, { message: "Name is required." }),
+    description: z.string().min(1, { message: "Description is required." }),
+    translations: z.record(
+      z.string(),
+      z.object({
+        name: z.string().optional(),
+        description: z.string().optional(),
+      })
+    ),
     selectedLanguages: z.array(languageSchema).optional(),
   })
   .superRefine((data, ctx) => {
@@ -52,7 +46,7 @@ const defaultFieldsSchema = z
         ctx.addIssue({
           path: ["translations", lang.code],
           code: z.ZodIssueCode.custom,
-          message: `Translation for ${lang.name.toUpperCase()} is missing`,
+          message: `Translation for ${lang.name} is missing`,
         });
         continue;
       }
@@ -61,7 +55,7 @@ const defaultFieldsSchema = z
         ctx.addIssue({
           path: ["translations", lang.code, "name"],
           code: z.ZodIssueCode.custom,
-          message: `Translation name for ${lang.name.toUpperCase()} is required`,
+          message: `Translation name for ${lang.name} is required`,
         });
       }
 
@@ -69,15 +63,7 @@ const defaultFieldsSchema = z
         ctx.addIssue({
           path: ["translations", lang.code, "description"],
           code: z.ZodIssueCode.custom,
-          message: `Translation description for ${lang.name.toUpperCase()} is required`,
-        });
-      }
-
-      if (!translation.code?.trim()) {
-        ctx.addIssue({
-          path: ["translations", lang.code, "code"],
-          code: z.ZodIssueCode.custom,
-          message: `Translation code for ${lang.name.toUpperCase()} is required`,
+          message: `Translation description for ${lang.name} is required`,
         });
       }
     }
@@ -113,7 +99,6 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
     defaultValues: {
       name: subComponent?.name ?? "",
       description: subComponent?.description ?? "",
-      code: subComponent?.code ?? "",
       translations: subComponent?.translations ?? {},
       selectedLanguages:
         languageOptions.filter((lang) =>
@@ -133,7 +118,6 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
       ...values.translations,
       en: {
         name: values.name,
-        code: values.code,
         description: values.description,
       },
     };
@@ -149,7 +133,6 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
           {
             name: value.name || "",
             description: value.description || "",
-            code: value.code || "",
           },
         ])
     );
@@ -166,10 +149,8 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
 
   const syncEnglishFields = () => {
     const name = watch("name");
-    const code = watch("code");
     const description = watch("description");
     setValue("translations.en.name", name, { shouldValidate: false });
-    setValue("translations.en.code", code, { shouldValidate: false });
     setValue("translations.en.description", description, {
       shouldValidate: false,
     });
@@ -185,6 +166,24 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
   }, [watch]);
 
   useEffect(() => {
+    if (selectedLanguages && Array.isArray(selectedLanguages)) {
+      selectedLanguages.forEach((lang) => {
+        const translation = watch(`translations.${lang.code}`);
+        if (!translation || typeof translation !== "object") {
+          setValue(`translations.${lang.code}`, { name: "", description: "" });
+        } else {
+          if (typeof translation.name !== "string") {
+            setValue(`translations.${lang.code}.name`, "");
+          }
+          if (typeof translation.description !== "string") {
+            setValue(`translations.${lang.code}.description`, "");
+          }
+        }
+      });
+    }
+  }, [selectedLanguages]);
+
+  useEffect(() => {
     if (subComponent && languageOptions.length > 0) {
       const translationLangCodes = Object.keys(subComponent.translations || {});
       const initialSelectedLanguages = languageOptions.filter((lang) =>
@@ -193,14 +192,12 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
       reset({
         name: subComponent.name,
         description: subComponent.description,
-        code: subComponent.code,
         translations: subComponent.translations,
         selectedLanguages: initialSelectedLanguages,
       });
     } else if (!subComponent) {
       reset({
         name: "",
-        code: "",
         description: "",
         translations: {},
         selectedLanguages: [],
@@ -232,7 +229,7 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
           English
         </span>
 
-        <div className="grid grid-cols-2 gap-4 mb-2 mt-2">
+        <div className="grid grid-cols-1 gap-4 mb-2 mt-2">
           <InputRHF
             control={control}
             name="name"
@@ -240,14 +237,6 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
             label="Name"
             labelVariant="bold"
             error={errors.name?.message}
-          />
-          <InputRHF
-            control={control}
-            name="code"
-            placeholder="Write Code"
-            label="Code"
-            labelVariant="bold"
-            error={errors.code?.message}
           />
         </div>
         <TextAreaRHF
@@ -276,7 +265,7 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
           >
             <Icon icon="mdi:close" />
           </button>
-          <div className="grid grid-cols-2 gap-4 mb-2 mt-2">
+          <div className="grid grid-cols-1 gap-4 mb-2 mt-2">
             <InputRHF
               control={control}
               name={`translations.${lang.code}.name`}
@@ -284,14 +273,6 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
               label="Name"
               labelVariant="bold"
               error={errors.translations?.[lang.code]?.name?.message}
-            />
-            <InputRHF
-              control={control}
-              name={`translations.${lang.code}.code`}
-              placeholder="Write Code"
-              label="Code"
-              labelVariant="bold"
-              error={errors.translations?.[lang.code]?.code?.message}
             />
           </div>
           <TextAreaRHF
