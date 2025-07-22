@@ -404,17 +404,20 @@ export class AssessmentDomainService {
         .addGroupBy('domain.translations')
         .execute();
 
-    const primaryAnswers: DomainAnswerCount[] = await this.assessmentRepository
-      .createQueryBuilder('assessment')
-      .where('assessment.id = :assessmentId', { assessmentId })
-      .leftJoin('assessment.domains', 'domain')
-      .leftJoin('assessment.answers', 'answer')
-      .leftJoin('answer.assessmentSubComponentAnswers', 'subComponentAnswer')
-      .where('answer.isPrimary = :isPrimary', { isPrimary: true })
-      .select('domain.id', 'domainId')
-      .addSelect('COUNT(subComponentAnswer.id)::int', 'answerCount')
-      .groupBy('domain.id')
-      .execute();
+    // FIX: Only count subComponentAnswers for subComponents in the correct domain
+    const primaryAnswers: DomainAnswerCount[] =
+      await this.assessmentDomainRepository
+        .createQueryBuilder('domain')
+        .where('domain.assessmentId = :assessmentId', { assessmentId })
+        .leftJoin('domain.components', 'component')
+        .leftJoin('component.subComponents', 'subComponent')
+        .leftJoin('subComponent.answers', 'subComponentAnswer')
+        .leftJoin('subComponentAnswer.answer', 'answer')
+        .andWhere('answer.isPrimary = :isPrimary', { isPrimary: true })
+        .select('domain.id', 'domainId')
+        .addSelect('COUNT(subComponentAnswer.id)::int', 'answerCount')
+        .groupBy('domain.id')
+        .execute();
 
     const answerMap = new Map(
       primaryAnswers.map((answer) => [answer.domainId, answer.answerCount]),
