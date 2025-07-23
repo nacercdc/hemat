@@ -1,19 +1,9 @@
 import React from "react";
 import GroupCard from "../members/components/GroupCard";
+import { AssessmentGroup } from "~/libs/models/assessment-member.model";
 
-interface GroupMember {
-  name: string;
-  email: string;
-  isLeader?: boolean;
-  avatarUrl?: string;
-}
-
-interface Group {
-  groupName: string;
-  members: GroupMember[];
-}
 interface Props {
-  groups?: Group[];
+  groups?: AssessmentGroup[];
 }
 
 export default function GroupsList({ groups = [] }: Props) {
@@ -22,7 +12,7 @@ export default function GroupsList({ groups = [] }: Props) {
       {groups.map((group, index) => (
         <GroupCard
           key={index}
-          groupName={group.groupName}
+          groupName={group?.name as string}
           members={group.members}
         />
       ))}
