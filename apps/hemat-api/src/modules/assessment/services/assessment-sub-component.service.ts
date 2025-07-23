@@ -193,33 +193,52 @@ export class AssessmentSubComponentService {
       .where('sca.subComponentId = :subComponentId', { subComponentId })
       .andWhere('answer.assessmentId = :assessmentId', { assessmentId })
       .andWhere('sca.deletedAt IS NULL')
-      .andWhere('answer.deletedAt IS NULL')
-      .andWhere('answer.userId = :userId', { userId: user.id });
+      .andWhere('answer.deletedAt IS NULL');
 
     if (user.assessmentRole === MemberRole.TEAM_LEADER) {
-      qb.andWhere('answer.groupId = :groupId', {
-        groupId: user.assessmentGroupId,
-      });
+      // For TEAM_LEADER, return the latest answer for the group (not user-specific)
+      qb.andWhere('answer.groupId = :groupId', { groupId: user.assessmentGroupId });
+      qb.andWhere('answer.isPrimary = false');
+      qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC');
+      const result = await qb.getOne();
+      if (!result) {
+        throw new NotFoundException('No group answer found for this sub-component');
+      }
+      return result;
+    } else if (user.assessmentRole === MemberRole.PRIMARY) {
+      // If PRIMARY and acting as a team leader (has assessmentGroupId), return group answer
+      if (user.assessmentGroupId) {
+        qb.andWhere('answer.groupId = :groupId', { groupId: user.assessmentGroupId });
+        qb.andWhere('answer.isPrimary = false');
+      } else {
+        // Otherwise, return primary answer
+        qb.andWhere('answer.userId = :userId', { userId: user.id });
+        qb.andWhere('answer.isPrimary = true');
+        qb.andWhere('answer.groupId IS NULL');
+      }
+      qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC');
+      const result = await qb.getOne();
+      if (!result) {
+        throw new NotFoundException('No answer found for this sub-component');
+      }
+      return result;
+    } else if (user.isAdmin) {
+      // For ADMIN, return the latest group answer if groupId is present, else primary
+      if (user.assessmentGroupId) {
+        qb.andWhere('answer.groupId = :groupId', { groupId: user.assessmentGroupId });
+        qb.andWhere('answer.isPrimary = false');
+      } else {
+        qb.andWhere('answer.isPrimary = true');
+      }
+      qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC');
+      const result = await qb.getOne();
+      if (!result) {
+        throw new NotFoundException('No answer found for this sub-component');
+      }
+      return result;
     }
 
-    if (query.include?.includes('assessment')) {
-      qb.leftJoinAndSelect('answer.assessment', 'assessment');
-    }
-    if (query.include?.includes('user')) {
-      qb.leftJoinAndSelect('answer.user', 'user');
-    }
-    if (query.include?.includes('roadmaps')) {
-      qb.leftJoinAndSelect('answer.roadmaps', 'roadmaps');
-    }
-    if (query.include?.includes('measurementScale')) {
-      qb.leftJoinAndSelect('sca.measurementScale', 'measurementScale');
-    }
-
-    const result = await qb.getOne();
-    if (!result) {
-      throw new NotFoundException('No answer found for this sub-component');
-    }
-    return result;
+    throw new NotFoundException('No answer found for this sub-component');
   }
 
   private filters(
