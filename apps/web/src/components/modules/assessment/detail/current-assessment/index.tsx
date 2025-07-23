@@ -92,7 +92,6 @@ export function CurrentAssessment() {
       queryKey: ["ASSESSMENT_LIST_KEY"],
     },
   });
-  console.log("ASSESMSNT LIST ", assessments);
   return (
     <div className="flex flex-col  bg-layout-bg/15 rounded-md">
       <AssessmentFillHeader

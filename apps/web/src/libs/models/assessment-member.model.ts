@@ -36,9 +36,12 @@ export interface MemberMoveTo {
   toGroupId?: string;
   promoteUserId?: string;
 }
-
+export interface DeleteGroupMember {
+  userId: string | undefined;
+  assessmentId: string | null;
+}
 export interface MemberUpdateRole {
-  userRole?: string;
+  role?: string;
 }
 
 export type AssessmentGroupIncludeAble =

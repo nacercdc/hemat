@@ -68,7 +68,6 @@ export const refreshAccessToken = async (): Promise<SessionPayload | null> => {
         cachedSession = session;
         return session;
       } catch (error) {
-        console.error("Token refresh failed", error);
         return null;
       } finally {
         refreshTokenPromise = null;

@@ -1,9 +1,10 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { Icon } from "@iconify/react";
-import type { ModalRef } from "@etm/web-ui-components";
+import type { DialogRef, ModalRef } from "@etm/web-ui-components";
 import {
   Button,
+  Dialog,
   DropdownMenu,
   Modal,
   SelectRHF,
@@ -11,6 +12,7 @@ import {
 } from "@etm/web-ui-components";
 import type {
   AssessmentGroup,
+  DeleteGroupMember,
   MemberMoveTo,
   MemberUpdateRole,
 } from "~/libs/models/assessment-member.model";
@@ -22,6 +24,7 @@ import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
+import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 export const ASSESSMENT_GROUP_LIST_KEY = "assessments-groups";
 
 type OptionType = "team-leader" | "primary" | "member" | "Move to" | "Remove";
@@ -57,6 +60,7 @@ export default function MemberAction({
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const assessmentId = params.id as string | undefined;
   const openMemberActionRef = useRef<ModalRef>(null);
+  const deleteMemberDialogRef = useRef<DialogRef>(null);
 
   const {
     control,
@@ -112,6 +116,12 @@ export default function MemberAction({
     },
   };
 
+  const {
+    mutate: deleteAssessmentGroupMember,
+    ...deleteAssessmentGroupMemberState
+  } = useDeleteMutation<DeleteGroupMember>(
+    `assessments/${assessmentId}/members/${selectedUserId}`
+  );
   const { data: assessmentGroups, ...assessmentGroupsState } =
     useFindAll<AssessmentGroup>({
       path: assessmentId ? `/assessments/${assessmentId}/groups` : "",
@@ -128,7 +138,6 @@ export default function MemberAction({
       ? `assessments/${assessmentId}/members/${selectedUserId}`
       : ""
   );
-
   const handleMemberAction = (
     userRole: string | undefined,
     userId: string | undefined,
@@ -137,7 +146,7 @@ export default function MemberAction({
     if (!userId) return;
 
     if (action === "Remove") {
-      refetch?.(userId);
+      deleteMemberDialogRef.current?.openDialog();
       return;
     }
 
@@ -150,7 +159,7 @@ export default function MemberAction({
     updateRole(
       {
         data: {
-          userRole: action,
+          role: action,
         },
         isProtected: true,
       },
@@ -166,9 +175,12 @@ export default function MemberAction({
           });
         },
         onError: (error) => {
+          let errorMessage = "Role update failed.";
+          const parsed = JSON.parse(error.message);
+          errorMessage = parsed.message || errorMessage;
           toaster.toast({
             title: "Error",
-            message: error?.message || "Failed to update role.",
+            message: errorMessage,
             variant: "destructive",
           });
         },
@@ -198,10 +210,31 @@ export default function MemberAction({
           });
         },
         onError: (error) => {
+          let errorMessage = "Failed to move member.";
+          const parsed = JSON.parse(error.message);
+          errorMessage = parsed.message || errorMessage;
           toaster.toast({
             title: "Error",
-            message: error?.message || "Failed to move member.",
+            message: errorMessage,
             variant: "destructive",
+          });
+        },
+      }
+    );
+  };
+
+  const onDeleteAssessmentGroupMemberHandler = () => {
+    deleteAssessmentGroupMember(
+      {},
+      {
+        onSuccess: () => {
+          deleteMemberDialogRef.current?.closeDialog();
+          toaster.toast({
+            title: "Success",
+            message: "Assessment has been deleted successfully.",
+          });
+          queryClient.invalidateQueries({
+            queryKey: [ASSESSMENT_GROUP_LIST_KEY],
           });
         },
       }
@@ -236,6 +269,10 @@ export default function MemberAction({
               return (
                 key !== "team-leader" && key !== "member" && key !== "Remove"
               );
+            }
+
+            if (userRole === "member") {
+              return key !== "primary" && key !== "member";
             }
 
             return true;
@@ -280,6 +317,19 @@ export default function MemberAction({
           </div>
         </form>
       </Modal>
+
+      <Dialog
+        ref={deleteMemberDialogRef}
+        title="Delete member"
+        actionLabel="Delete"
+        actionVariant="destructive"
+        onAction={onDeleteAssessmentGroupMemberHandler}
+        autoClosable={deleteAssessmentGroupMemberState.isSuccess}
+        actionLoading={deleteAssessmentGroupMemberState.isPending}
+      >
+        Are you sure you want to delete this member? This action cannot be
+        undone.
+      </Dialog>
     </div>
   );
 }

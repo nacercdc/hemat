@@ -8,7 +8,6 @@ interface Props {
 }
 
 export default function GroupCard({ groupName, members = [] }: Props) {
-  console.log(members);
   return (
     <div className="p-2 bg-white rounded-sm flex flex-col gap-3">
       <h1 className="text-sm font-bold">{groupName}</h1>
