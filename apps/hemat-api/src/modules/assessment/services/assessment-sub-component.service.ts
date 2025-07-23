@@ -450,4 +450,59 @@ export class AssessmentSubComponentService {
       };
     });
   }
+
+  /**
+   * Get filled subcomponent IDs for a group or for primary
+   * @param assessmentId string
+   * @param groupId string | null (null for primary)
+   * @param isPrimary boolean (true for primary, false for group)
+   */
+  async getFilledSubComponentIds(
+    assessmentId: string,
+    groupId: string | null,
+    isPrimary: boolean
+  ): Promise<string[]> {
+    const qb = this.subComponentAnswerRepository
+      .createQueryBuilder('sca')
+      .innerJoin('sca.answer', 'answer')
+      .innerJoin('answer.assessment', 'assessment')
+      .where('assessment.id = :assessmentId', { assessmentId })
+      .andWhere('answer.isPrimary = :isPrimary', { isPrimary })
+      .andWhere('sca.deletedAt IS NULL')
+      .andWhere('answer.deletedAt IS NULL');
+    if (groupId) {
+      qb.andWhere('answer.groupId = :groupId', { groupId });
+    } else {
+      qb.andWhere('answer.groupId IS NULL');
+    }
+    const results = await qb.select('DISTINCT sca.subComponentId', 'subComponentId').getRawMany();
+    return results.map(r => r.subComponentId);
+  }
+
+  /**
+   * Get the latest filled subcomponent answer for a group or for primary
+   * @param assessmentId string
+   * @param groupId string | null (null for primary)
+   * @param isPrimary boolean (true for primary, false for group)
+   */
+  async getLatestFilledSubComponentAnswer(
+    assessmentId: string,
+    groupId: string | null,
+    isPrimary: boolean
+  ): Promise<AssessmentSubComponentAnswer | null> {
+    const qb = this.subComponentAnswerRepository
+      .createQueryBuilder('sca')
+      .innerJoin('sca.answer', 'answer')
+      .innerJoin('answer.assessment', 'assessment')
+      .where('assessment.id = :assessmentId', { assessmentId })
+      .andWhere('answer.isPrimary = :isPrimary', { isPrimary })
+      .andWhere('sca.deletedAt IS NULL')
+      .andWhere('answer.deletedAt IS NULL');
+    if (groupId) {
+      qb.andWhere('answer.groupId = :groupId', { groupId });
+    } else {
+      qb.andWhere('answer.groupId IS NULL');
+    }
+    return qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC').getOne();
+  }
 }

@@ -168,7 +168,7 @@ export class RoleTransitionService {
       await manager
         .getRepository(AssessmentMember)
         .update({ id: promoteUser.id }, { role: MemberRole.PRIMARY });
-      // --- Transfer answers from old PRIMARY to new PRIMARY (promoteUser) ---
+      // --- Transfer all primary answers from old PRIMARY to new PRIMARY ---
       await manager.getRepository('Answer').update(
         { assessmentId, userId: member.userId, isPrimary: true },
         { userId: promoteUser.userId }
