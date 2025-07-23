@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { PageContainer } from "~/components/modules/components/PageContainer";
 import { ComponentsList } from "./components/components-list";
 import {
@@ -13,11 +12,15 @@ import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { Button, useToast } from "@etm/web-ui-components";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import { Stepper } from "./components/Stepper";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 import type { Component } from "./components/components-list";
 import type { AssessmentFormData } from "./components/form";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { SubComponent } from "~/libs/models/subComponent.model";
-import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
+import type {
+  Assessment,
+  AssessmentFilterable,
+} from "~/libs/models/assessment.model";
 
 //TODO: to be refactored and put into its own model
 interface FilledStatus {
@@ -31,14 +34,28 @@ export interface FilledSubComponent extends SubComponent {
 
 export function CurrentAssessmentFill() {
   const router = useRouter();
+
+  const params = useParams();
+
+  const searchParams = useSearchParams();
+
   const { toast } = useToast();
 
   const [activeComponent, setActiveComponent] = useState<Component>();
 
+  const { data: assessmentDetail, ...assessmentDetailState } = useFindById<
+    Assessment,
+    AssessmentFilterable
+  >({
+    path: `assessments/${params.id as string}`,
+    tqOptions: {
+      queryKey: ["assessment", params.id as string],
+    },
+  });
+
   const [activeSubComponentIndex, setActiveSubComponentIndex] =
     useState<number>(0);
 
-  //TODO: this will be replaced with our real assessment-segment from our path param
   const { mutate: answerAssessment, ...answerAssessmentState } = useAddMutation<
     { id: string; name: string },
     AssessmentFormData & {
@@ -47,13 +64,12 @@ export function CurrentAssessmentFill() {
       subComponentId: string;
       isPrimary: boolean;
     }
-  >("assessments/e9989a40-722d-4541-b368-8c7ebab86013/answers");
+  >(`assessments/${params.id as string}/answers`);
 
-  //TODO: this will be replaced with our real domain-segment from our path param
   const { data: components, ...componentsState } = useFindAll<
     QueryManyResponse<{ id: string; name: string }>
   >({
-    path: "/assessmentDomains/588f3382-e7e1-474c-8e3f-67eb9de43eec/components",
+    path: `/assessmentDomains/${params.currentAssessmentId as string}/components`,
     queries: {
       limit: 100,
       page: 1,
@@ -73,12 +89,11 @@ export function CurrentAssessmentFill() {
     },
   });
 
-  //TODO: this will be replaced with our real assessment-segment from our path param
-  const { data: filledSubComps } = useFindById<QueryManyResponse<FilledStatus>>(
-    {
-      path: `/assessments/e9989a40-722d-4541-b368-8c7ebab86013/sub-components/filled-status`,
-    }
-  );
+  const { data: filledSubComps, ...filledSubCompsState } = useFindById<
+    QueryManyResponse<FilledStatus>
+  >({
+    path: `/assessments/${params.id as string}/sub-components/filled-status`,
+  });
 
   const isFirstSubComponent = activeSubComponentIndex === 0;
 
@@ -89,9 +104,7 @@ export function CurrentAssessmentFill() {
     (subComponents?.data as unknown as SubComponent[])?.map((subComp) => ({
       ...subComp,
       filled: (filledSubComps as unknown as FilledStatus)?.ids.includes(
-        (subComponents?.data as unknown as SubComponent[])[
-          activeSubComponentIndex
-        ]!.id
+        subComp.id
       ),
     })) || [];
 
@@ -99,6 +112,23 @@ export function CurrentAssessmentFill() {
     subComponentsState.isPending ||
     subComponentsState.isLoading ||
     subComponentsState.isFetching;
+
+  const isAssessmentDetailLoading =
+    assessmentDetailState.isFetching || assessmentDetailState.isLoading;
+
+  const isPermittedToAnswer = useMemo(() => {
+    return (
+      assessmentDetail?.access?.role === "primary" ||
+      (assessmentDetail?.access?.domains
+        .map((domain) => domain.id)
+        .includes(params.currentAssessmentId as string) &&
+        assessmentDetail?.access?.role === "team-leader")
+    );
+  }, [
+    assessmentDetail?.access?.domains,
+    assessmentDetail?.access?.role,
+    params.currentAssessmentId,
+  ]);
 
   const onNavigateSubCompHandler = useCallback(
     (direction: "next" | "prev" | number) => {
@@ -143,13 +173,15 @@ export function CurrentAssessmentFill() {
         data: {
           ...values,
           measurementScaleId: values.measurementScale.id,
-          assessmentId: "e9989a40-722d-4541-b368-8c7ebab86013",
+          assessmentId: `${params.id as string}`,
           subComponentId: (
             subComponents?.data[
               activeSubComponentIndex
             ] as unknown as SubComponent
           ).id,
-          isPrimary: true,
+          isPrimary:
+            assessmentDetail?.access?.role === "primary" &&
+            searchParams.get("as") !== "member",
         },
       },
       {
@@ -159,7 +191,7 @@ export function CurrentAssessmentFill() {
             message: "Assessment has been answered successfully!",
             variant: "success",
           });
-
+          filledSubCompsState.refetch();
           onNavigateSubCompHandler("next");
         },
       }
@@ -192,10 +224,11 @@ export function CurrentAssessmentFill() {
           <ComponentsList
             components={components?.data as unknown as Component[]}
             statusLoading={
-              !filledSubComponents ||
+              filledSubCompsState.isFetching ||
+              filledSubCompsState.isLoading ||
               !(subComponents?.data as unknown as SubComponent[])
             }
-            numberOfFilledSubs={filledSubComponents?.length || 0}
+            filledSubs={filledSubComponents}
             numberOfSubs={
               (subComponents?.data as unknown as SubComponent[])?.length || 0
             }
@@ -212,27 +245,34 @@ export function CurrentAssessmentFill() {
                       activeSubComponentIndex
                     ] as unknown as SubComponent
                   }
-                  isLoading={isSubComponentDataLoading}
+                  access={assessmentDetail?.access}
+                  isLoading={
+                    isSubComponentDataLoading || isAssessmentDetailLoading
+                  }
                 />
               </div>
               <div className="flex w-full gap-4 justify-between mt-5 mb-20">
-                <Button
-                  onClick={() => onNavigateSubCompHandler("prev")}
-                  disabled={isFirstSubComponent || isSubComponentDataLoading}
-                  variant="outline"
-                  size="lg"
-                >
-                  Previous
-                </Button>
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={isSubComponentDataLoading}
-                  loading={answerAssessmentState.isPending}
-                  onClick={onFormSubmitTriggerHandler}
-                >
-                  {isLastSubComponent ? "Save" : "Next"}
-                </Button>
+                {isPermittedToAnswer && (
+                  <Button
+                    onClick={() => onNavigateSubCompHandler("prev")}
+                    disabled={isFirstSubComponent || isSubComponentDataLoading}
+                    variant="outline"
+                    size="lg"
+                  >
+                    Previous
+                  </Button>
+                )}
+                {isPermittedToAnswer && (
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={isSubComponentDataLoading}
+                    loading={answerAssessmentState.isPending}
+                    onClick={onFormSubmitTriggerHandler}
+                  >
+                    {isLastSubComponent ? "Save" : "Next"}
+                  </Button>
+                )}
               </div>
               <div className="justify-self-center absolute top-0 left-0 right-0 mx-auto z-10 w-full bg-dark-lighter/20 backdrop-blur-sm rounded-md rounded-b-none overflow-hidden px-2">
                 <Stepper
