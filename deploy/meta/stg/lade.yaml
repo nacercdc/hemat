@@ -1,6 +1,7 @@
 ^terragrunt:
   GOOGLE_CREDENTIALS: file://config.json?query=.credentials
   GOOGLE_BACKEND_IMPERSONATE_SERVICE_ACCOUNT: file://config.json?query=.credentials.client_email
+  GITHUB_TOKEN: file://config.json?query=.github_token
   TF_VAR_project_id: file://config.json?query=.credentials.project_id
   TF_VAR_secrets: file://config.json?query=.secrets
   TF_VAR_github_secrets: file://config.json?query=.github_secrets
