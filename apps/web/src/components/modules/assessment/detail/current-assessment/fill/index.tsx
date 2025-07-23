@@ -118,10 +118,10 @@ export function CurrentAssessmentFill() {
 
   const isPermittedToAnswer = useMemo(() => {
     return (
-      assessmentDetail?.access?.domains
+      assessmentDetail?.access?.role === "primary" ||
+      (assessmentDetail?.access?.domains
         .map((domain) => domain.id)
         .includes(params.currentAssessmentId as string) &&
-      (assessmentDetail?.access?.role === "primary" ||
         assessmentDetail?.access?.role === "team-leader")
     );
   }, [

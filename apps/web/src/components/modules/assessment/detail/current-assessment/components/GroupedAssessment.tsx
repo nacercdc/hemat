@@ -12,8 +12,6 @@ interface Props {
   subtitle: string;
   domains: Domain[];
   groupId: GroupIDType;
-  progressLoading: boolean;
-  domainsLoading: boolean;
   access?: Access;
 }
 
@@ -23,8 +21,6 @@ export function GroupedAssessment({
   subtitle,
   domains,
   access,
-  progressLoading,
-  domainsLoading,
 }: Props) {
   const router = useRouter();
   const onDetailViewClickHandler = (id: string) => {
@@ -45,13 +41,11 @@ export function GroupedAssessment({
         </div>
       </div>
       <div className="flex flex-col sm:flex-row gap-6">
-        {domains.map((domain) => (
+        {domains?.map((domain) => (
           <AssessmentDomainCard
             key={domain.id}
             domain={domain}
             groupId={groupId}
-            progressLoading={progressLoading}
-            domainsLoading={domainsLoading}
             onDetailViewClickHandler={onDetailViewClickHandler}
             onFillClickHandler={onFillClickHandler}
             access={access}

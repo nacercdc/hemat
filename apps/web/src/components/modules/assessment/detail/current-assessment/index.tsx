@@ -18,8 +18,9 @@ import type {
   Group,
   GroupIncludeAble,
 } from "~/libs/models/assessment-group.model";
+import { GroupSkeleton } from "./components/GroupSkeleton";
 
-export type GroupIDType = "primary" | "my";
+export type GroupIDType = "primary" | "my" | "rest";
 
 export function CurrentAssessment() {
   const params = useParams();
@@ -168,6 +169,13 @@ export function CurrentAssessment() {
   const primaryProgressLoading =
     primaryProgressState.isFetching || primaryProgressState.isLoading;
 
+  const primaryCategoryLoading = assessmentLoading || primaryProgressLoading;
+
+  const ownCategoryLoading = assessmentLoading || restProgressLoading;
+
+  const restCategoryLoading =
+    assessmentLoading || restProgressLoading || groupsLoading;
+
   return (
     <div className="flex flex-col  bg-layout-bg/15 rounded-md">
       <AssessmentFillHeader
@@ -176,42 +184,43 @@ export function CurrentAssessment() {
       />
 
       <div className="flex flex-col w-full rounded-md gap-3 p-3">
-        {primaryDomainList?.length > 0 && (
+        {!primaryCategoryLoading && primaryDomainList?.length > 0 && (
           <GroupedAssessment
             groupId="primary"
             title="Primary"
             subtitle="Primary Assessment"
             domains={primaryDomainList}
             access={assessmentDetail?.access}
-            progressLoading={primaryProgressLoading}
-            domainsLoading={assessmentLoading}
           />
         )}
 
-        {myDomainList?.length > 0 && (
+        {primaryCategoryLoading && <GroupSkeleton />}
+
+        {!ownCategoryLoading && myDomainList?.length > 0 && (
           <GroupedAssessment
             groupId="my"
             title="My"
             subtitle="My Assessment"
             domains={myDomainList}
             access={assessmentDetail?.access}
-            progressLoading={restProgressLoading}
-            domainsLoading={assessmentLoading}
           />
         )}
 
-        {assessmentDetail?.access?.role === "primary" &&
+        {ownCategoryLoading && <GroupSkeleton />}
+
+        {!restCategoryLoading &&
+          assessmentDetail?.access?.role === "primary" &&
           notMyGroups?.map((group) => (
             <GroupedAssessment
-              groupId={group.id}
+              key={group.id}
+              groupId="rest"
               title={group.name}
               subtitle={`${group.name}'s Assessment`}
               domains={group.domains}
-              access={undefined}
-              progressLoading={false}
-              domainsLoading={assessmentLoading || groupsLoading}
             />
           ))}
+
+        {restCategoryLoading && <GroupSkeleton />}
       </div>
     </div>
   );

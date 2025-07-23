@@ -17,8 +17,6 @@ export interface Domain {
 
 interface Props {
   domain: Domain;
-  progressLoading: boolean;
-  domainsLoading: boolean;
   access?: Access;
   groupId: GroupIDType;
   onDetailViewClickHandler: (id: string) => void;
@@ -27,15 +25,11 @@ interface Props {
 
 export default function AssessmentDomainCard({
   domain,
-  progressLoading,
-  domainsLoading,
   access,
   groupId,
   onDetailViewClickHandler,
   onFillClickHandler,
 }: Props) {
-  if (domainsLoading || progressLoading) return <div>Loading...</div>;
-
   return (
     <div
       key={domain.name}
