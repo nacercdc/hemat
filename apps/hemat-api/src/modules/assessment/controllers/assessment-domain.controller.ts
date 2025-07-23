@@ -111,7 +111,9 @@ export class AssessmentDomainController {
     if (isAdmin || assessmentRole) {
       return this.assessmentDomainService.getDomains(assessmentId, language);
     }
-    throw new ForbiddenException('You are not authorized to view domains for this assessment.');
+    throw new ForbiddenException(
+      'You are not authorized to view domains for this assessment.',
+    );
   }
 
   @ApiOperation({
@@ -191,7 +193,7 @@ export class AssessmentDomainController {
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
-    isAdmin: true, 
+    isAdmin: true,
     permissions: [
       {
         action: PermissionActionEnum.READ,
@@ -291,23 +293,31 @@ export class AssessmentDomainController {
         subject: PermissionSubjectEnum.ASSESSMENT_COMPONENT,
       },
     ],
+    requireAdmin: false,
   })
   @UseGuards(AssessmentRoleGuard)
   @Get('assessmentDomains/:id/components')
   async findComponents(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query() query: FindAllAssessmentComponentDto,
     @Query('language') language?: string,
   ) {
-    return this.assessmentDomainService.findComponents(id, {
-      ...query,
-      language,
-    });
+    const { isAdmin } = user;
+
+    if (isAdmin || user.assessmentRole) {
+      return this.assessmentDomainService.findComponents(id, {
+        ...query,
+        language,
+      });
+    }
+    throw new ForbiddenException('You do not have access to this resource');
   }
 
   @ApiOperation({
     summary: 'Get domain with answers',
-    description: 'Fetch a domain with its components, subcomponents, and answers (with measurement scale) for a given assessment',
+    description:
+      'Fetch a domain with its components, subcomponents, and answers (with measurement scale) for a given assessment',
   })
   @ApiOkResponse({ description: 'Ok', type: Object })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -334,19 +344,24 @@ export class AssessmentDomainController {
 
     if (isAdmin || assessmentRole === MemberRole.PRIMARY) {
       // Admin and Primary see all
-      return this.assessmentDomainService.getDomainWithAnswers(assessmentId, domainId, language);
+      return this.assessmentDomainService.getDomainWithAnswers(
+        assessmentId,
+        domainId,
+        language,
+      );
     }
 
     if (
-      (assessmentRole === MemberRole.TEAM_LEADER || assessmentRole === MemberRole.MEMBER)
-      && assessmentGroupId
+      (assessmentRole === MemberRole.TEAM_LEADER ||
+        assessmentRole === MemberRole.MEMBER) &&
+      assessmentGroupId
     ) {
       // Team Leader and Member see only their group
       return this.assessmentDomainService.getDomainWithAnswersByGroup(
         assessmentId,
         domainId,
         assessmentGroupId,
-        language
+        language,
       );
     }
 
@@ -355,7 +370,8 @@ export class AssessmentDomainController {
 
   @ApiOperation({
     summary: 'Get domain with primary answers',
-    description: 'Fetch a domain with its components, subcomponents, and ONLY primary answers (isPrimary = true) for a given assessment',
+    description:
+      'Fetch a domain with its components, subcomponents, and ONLY primary answers (isPrimary = true) for a given assessment',
   })
   @ApiOkResponse({ description: 'Ok', type: Object })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -380,7 +396,11 @@ export class AssessmentDomainController {
   ) {
     const { isAdmin, assessmentRole } = user;
     if (isAdmin || assessmentRole) {
-      return this.assessmentDomainService.getDomainWithPrimaryAnswers(assessmentId, domainId, language);
+      return this.assessmentDomainService.getDomainWithPrimaryAnswers(
+        assessmentId,
+        domainId,
+        language,
+      );
     }
     throw new ForbiddenException('You do not have access to primary answers');
   }

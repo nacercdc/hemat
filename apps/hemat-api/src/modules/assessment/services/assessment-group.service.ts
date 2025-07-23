@@ -276,4 +276,21 @@ export class AssessmentGroupService {
       return await manager.getRepository(AssessmentGroup).save(group);
     });
   }
+
+  /**
+   * Get all domains for a specific group in an assessment
+   */
+  async getDomainsForGroup(
+    assessmentId: string,
+    groupId: string
+  ): Promise<AssessmentDomain[]> {
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId, assessmentId },
+      relations: ['domains'],
+    });
+    if (!group) {
+      throw new NotFoundException('Assessment group not found');
+    }
+    return group.domains || [];
+  }
 }

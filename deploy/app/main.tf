@@ -33,8 +33,8 @@ module "hemat_api" {
   container = {
     resources = {
       limits = {
-        cpu    = "300m"
-        memory = "512Mi"
+        cpu    = "1000m"
+        memory = "1Gi"
       }
     }
   }

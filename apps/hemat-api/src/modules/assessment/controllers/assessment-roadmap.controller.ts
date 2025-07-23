@@ -11,6 +11,8 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Request,
+  Patch,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -37,6 +39,9 @@ import {
   RoadmapUpdateRequestDto,
 } from '../dtos';
 import { RoadmapDomainProgress } from '../types/assessment-progress.type';
+import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
+import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
+import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
 
 @ApiTags('Roadmaps')
 @ApiBearerAuth()
@@ -250,6 +255,7 @@ export class AssessmentRoadmapController {
     },
   })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @UseGuards(AssessmentRoleGuard)
   @HttpCode(HttpStatus.OK)
   @Abilities({
     isAdmin: true,
@@ -259,13 +265,55 @@ export class AssessmentRoadmapController {
         subject: PermissionSubjectEnum.ROADMAP,
       },
     ],
+    requireAdmin: false,
   })
   @Get('filled-status')
   async getFilledStatus(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
   ): Promise<{ ids: string[]; latest: any }> {
-    return this.roadmapService.getFilledStatusByAssessment(
+    const { isAdmin } = user;
+
+    if (isAdmin || user.assessmentRole) {
+      return this.roadmapService.getFilledStatusByAssessment(
+        assessmentId,
+        req.user.id,
+      );
+    }
+
+    throw new ForbiddenException('You do not have access to this resource');
+  }
+
+  @ApiOperation({
+    summary: 'Submit all roadmaps for the assessment',
+    description:
+      'Submit (finalize) roadmaps for the assessment. Only allowed if all subcomponents for the assessment are filled and roadmap status is COMPLETED.',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Roadmap })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.UPDATE,
+        subject: PermissionSubjectEnum.ROADMAP,
+      },
+    ],
+  })
+  @Patch('submit')
+  async submitAssessmentRoadmap(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Request() req: { user: AuthDto },
+  ): Promise<any> {
+    return this.roadmapService.submitAssessmentRoadmap(
       assessmentId,
       req.user.id,
     );

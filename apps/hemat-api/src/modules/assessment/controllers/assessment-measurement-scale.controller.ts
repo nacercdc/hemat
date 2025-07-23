@@ -8,6 +8,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Query,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -30,6 +31,8 @@ import {
   AssessmentMeasurementScaleDto,
   FindAllAssessmentMeasurementScaleDto,
 } from '../dtos';
+import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
+import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Measurement Scales')
@@ -73,13 +76,16 @@ export class AssessmentMeasurementScaleController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
   @Get()
   async findAll(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query() query: FindAllAssessmentMeasurementScaleDto,
-    @Query('language') language?: string,
+    @Query('language') language: string = 'en',
   ): Promise<FindAllResponseDto<AssessmentMeasurementScale>> {
+    // Allow all authenticated users to access
     return this.assessmentMeasurementScaleService.findAll({
       ...query,
       assessmentId,
@@ -110,7 +116,11 @@ export class AssessmentMeasurementScaleController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query('language') language?: string,
   ): Promise<AssessmentMeasurementScale> {
-    return this.assessmentMeasurementScaleService.findOne(assessmentId, id, language);
+    return this.assessmentMeasurementScaleService.findOne(
+      assessmentId,
+      id,
+      language,
+    );
   }
   @ApiOperation({
     summary: 'Update an assessment measurement scale',

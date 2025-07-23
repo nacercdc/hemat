@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
 import type {
   Assessment,
@@ -20,6 +20,7 @@ import {
   AssessmentGroupIncludeAble,
 } from "~/libs/models/assessment-member.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import { useAssessmentAccess } from "../../context/assessment-access/useAssessmentAccess";
 
 export function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
@@ -31,6 +32,7 @@ export function AssessmentOverview() {
     "In-Progress": "progress",
   };
   const params = useParams();
+  const assessmentAccessCtx = useAssessmentAccess();
   const assessmentId = params.id;
 
   const { data: assessmentGroup, ...assessmentGroupsState } = useFindAll<
@@ -52,9 +54,14 @@ export function AssessmentOverview() {
     },
   });
 
+  useEffect(() => {
+    if (assessment?.access) assessmentAccessCtx?.setAccess(assessment.access);
+  }, [assessment?.access, assessmentAccessCtx]);
+
   if (assessmentState.isLoading) {
     return <SkeletonForDetail />;
   }
+
   return (
     <div className="flex items-start flex-wrap justify-between  gap-4">
       <div className="lg:w-3/5 w-full flex flex-col gap-3">

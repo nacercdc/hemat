@@ -1,7 +1,23 @@
 import type { Filter, Sort } from "../tanstack-api-query/helpers/types";
+import type { Group } from "./assessment-group.model";
 import type { Country } from "./country.model";
+import type { Domain } from "./domain.model";
 import type { Language } from "./language.model";
 import { User } from "./user.model";
+
+export interface Access {
+  domains: Domain[];
+  groupId: string;
+  groupName: string;
+  role: "primary" | "member" | "team-leader";
+}
+
+export interface GroupMember {
+  name: string;
+  email: string;
+  isLeader: boolean;
+  avatarUrl: string;
+}
 
 export type StatusType =
   | "Draft"
@@ -24,6 +40,9 @@ export interface Assessment {
   organization?: string;
   description?: string;
   languages?: Language[];
+  members?: User[];
+  groups?: Group[];
+  access?: Access;
 }
 
 export interface AssessmentCreate {

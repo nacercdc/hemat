@@ -170,7 +170,7 @@ export class AssessmentMemberController {
   @ApiOperation({
     summary: 'Update an assessment member',
     description:
-      'Update the role of an assessment member by ID.\n\nExample: Update MEMBER to TEAM_LEADER, promote another MEMBER in the group.\nRequest body:\n{\n  "role": "TEAM_LEADER",\n  "promoteUserId": "other-member-uuid"\n}\n\nExample: Update PRIMARY to TEAM_LEADER, promote a TEAM_LEADER in any group to PRIMARY.\nRequest body:\n{\n  "role": "TEAM_LEADER",\n  "promoteUserId": "team-leader-uuid"\n}\n',
+      'Update the role of an assessment member by userId.\n\nExample: Update MEMBER to TEAM_LEADER, promote another MEMBER in the group.\nRequest body:\n{\n  "role": "TEAM_LEADER",\n  "promoteUserId": "other-member-uuid"\n}\n\nExample: Update PRIMARY to TEAM_LEADER, promote a TEAM_LEADER in any group to PRIMARY.\nRequest body:\n{\n  "role": "TEAM_LEADER",\n  "promoteUserId": "team-leader-uuid"\n}\n',
   })
   @ApiBody({
     schema: {
@@ -180,13 +180,13 @@ export class AssessmentMemberController {
       },
     },
   })
-  @Put(':id')
+  @Put(':userId')
   async update(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('userId', new ParseUUIDPipe()) userId: string,
     @Body() payload: AssessmentMemberUpdateRequestDto,
   ): Promise<AssessmentMember> {
-    return this.assessmentMemberService.update(assessmentId, id, payload);
+    return this.assessmentMemberService.updateByUserId(assessmentId, userId, payload);
   }
 
   @ApiOperation({

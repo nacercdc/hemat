@@ -7,6 +7,7 @@ import {
   HttpCode,
   UseGuards,
   Query,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -35,6 +36,9 @@ import {
   BatchUpdateAssessmentMeasurementScaleSubComponentDto,
 } from '../dtos';
 import { ParseUUIDPipe } from '@nestjs/common';
+import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
+import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
+import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
 
 @ApiBearerAuth()
 @ApiTags('Assessment Measurement Scale Sub-Components')
@@ -85,15 +89,23 @@ export class AssessmentMeasurementScaleSubComponentController {
   @Get()
   async findAll(
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
-    @Query() query: Omit<FindAllAssessmentMeasurementScaleSubComponentDto, 'subComponentId'>,
+    @Query()
+    query: Omit<
+      FindAllAssessmentMeasurementScaleSubComponentDto,
+      'subComponentId'
+    >,
     @Query('language') language?: string,
   ): Promise<FindAllResponseDto<AssessmentMeasurementScaleSubComponentDto>> {
-    const queryWithSubComponentId: FindAllAssessmentMeasurementScaleSubComponentDto & { language?: string } = {
+    const queryWithSubComponentId: FindAllAssessmentMeasurementScaleSubComponentDto & {
+      language?: string;
+    } = {
       ...query,
       subComponentId,
       language,
     };
-    return this.assessmentMeasurementScaleSubComponentService.findAll(queryWithSubComponentId);
+    return this.assessmentMeasurementScaleSubComponentService.findAll(
+      queryWithSubComponentId,
+    );
   }
 
   @ApiOperation({
@@ -115,14 +127,18 @@ export class AssessmentMeasurementScaleSubComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
+  @UseGuards(AssessmentRoleGuard)
   @Get(':measurementScaleId')
   async findOne(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('subComponentId', new ParseUUIDPipe()) subComponentId: string,
     @Param('measurementScaleId', new ParseUUIDPipe())
     measurementScaleId: string,
     @Query('language') language?: string,
   ): Promise<AssessmentMeasurementScaleSubComponent> {
+    // Allow all authenticated users to access
     return this.assessmentMeasurementScaleSubComponentService.findOne(
       subComponentId,
       measurementScaleId,
@@ -166,7 +182,8 @@ export class AssessmentMeasurementScaleSubComponentController {
 
   @ApiOperation({
     summary: 'Batch update measurement scales for a sub-component',
-    description: 'Batch update the description and translations of multiple measurement scales associated with a specific sub-component',
+    description:
+      'Batch update the description and translations of multiple measurement scales associated with a specific sub-component',
   })
   @ApiOkResponse({
     description: 'Updated measurement scales for the sub-component',
@@ -174,7 +191,10 @@ export class AssessmentMeasurementScaleSubComponentController {
     isArray: true,
   })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
-  @ApiBadRequestResponse({ description: 'Bad Request', type: ExceptionResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(200)
   @Abilities({
     isAdmin: true,

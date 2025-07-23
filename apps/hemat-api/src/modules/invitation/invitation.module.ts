@@ -6,6 +6,10 @@ import {
   AssessmentGroup,
   AssessmentMember,
   User,
+  AssessmentDomain,
+  AssessmentSubComponent,
+  AssessmentComponent,
+  AssessmentMeasurementScaleSubComponent,
 } from '../../database/entities';
 import { InvitationService } from './services';
 import { InvitationController } from './controllers';
@@ -25,6 +29,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       AssessmentGroup,
       AssessmentMember,
       User,
+      AssessmentDomain,
+      AssessmentSubComponent,
+      AssessmentComponent,
+      AssessmentMeasurementScaleSubComponent,
     ]),
     AuthModule,
     AssessmentModule,

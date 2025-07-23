@@ -78,7 +78,7 @@ export class AssessmentSubComponentController {
   @ApiOperation({
     summary: 'Get filled status for an assessment',
     description:
-      'Check if an assessment has sub-component answers. Returns sub-component IDs (ordered by code) and the latest answer.',
+      'Check if an assessment has sub-component answers. Returns sub-component IDs (ordered by code) and the latest answer. Optionally filter by groupId (for group answers) or isPrimary=true (for primary answers).',
   })
   @ApiOkResponse({
     description: 'Ok',
@@ -139,16 +139,48 @@ export class AssessmentSubComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
   @Get('filled-status')
   async getFilledStatus(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
+    @Query('groupId') groupId?: string | null,
+    @Query('isPrimary') isPrimary?: string | undefined,
   ): Promise<{ ids: string[]; latest: any }> {
-    return this.assessmentSubComponentService.getFilledStatusByAssessment(
-      assessmentId,
-      user,
-    );
+    const { isAdmin } = user;
+
+    // If groupId is provided, always return for that group (isPrimary=false)
+    if (groupId) {
+      const ids = await this.assessmentSubComponentService.getFilledSubComponentIds(
+        assessmentId,
+        groupId,
+        false
+      );
+      // latest: get the latest answer for this group
+      const latest = await this.assessmentSubComponentService.getLatestFilledSubComponentAnswer(
+        assessmentId,
+        groupId,
+        false
+      );
+      return { ids, latest };
+    }
+    // If isPrimary=true and no groupId, return for primary
+    if (isPrimary === 'true') {
+      const ids = await this.assessmentSubComponentService.getFilledSubComponentIds(
+        assessmentId,
+        null,
+        true
+      );
+      // latest: get the latest primary answer
+      const latest = await this.assessmentSubComponentService.getLatestFilledSubComponentAnswer(
+        assessmentId,
+        null,
+        true
+      );
+      return { ids, latest };
+    }
+    throw new BadRequestException('You must provide either groupId (for group answers) or isPrimary=true (for primary answers)');
   }
 
   @ApiOperation({
@@ -217,13 +249,19 @@ export class AssessmentSubComponentController {
     @Query('year') year: string,
   ) {
     if (!countryId || !year) {
-      throw new BadRequestException('countryId and year are required query parameters');
+      throw new BadRequestException(
+        'countryId and year are required query parameters',
+      );
     }
     const yearNum = Number(year);
     if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
       throw new BadRequestException('year must be a valid number');
     }
-    const averageRate = await this.assessmentSubComponentService.getAverageRateForPrimaryAnswersByCountryAndYear(countryId, yearNum);
+    const averageRate =
+      await this.assessmentSubComponentService.getAverageRateForPrimaryAnswersByCountryAndYear(
+        countryId,
+        yearNum,
+      );
     return {
       countryId,
       year: yearNum,
