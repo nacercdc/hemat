@@ -505,7 +505,7 @@ export class AssessmentRoadmapService {
       .getRepository(AssessmentSubComponentRoadmap)
       .createQueryBuilder('scr')
       .where('scr.roadmapId = :roadmapId', { roadmapId: roadmap.id })
-      .andWhere('scr.deletedAt IS NULL')
+      // .andWhere('scr.deletedAt IS NULL')
       .select(['scr.subComponentId'])
       .getRawMany();
 
@@ -516,8 +516,8 @@ export class AssessmentRoadmapService {
       .getRepository(AssessmentSubComponentRoadmap)
       .createQueryBuilder('scr')
       .where('scr.roadmapId = :roadmapId', { roadmapId: roadmap.id })
-      .andWhere('scr.deletedAt IS NULL')
-      .orderBy('scr.createdAt', 'DESC')
+      // .andWhere('scr.deletedAt IS NULL')
+      // .orderBy('scr.createdAt', 'DESC')
       .addOrderBy('scr.id', 'DESC')
       .leftJoinAndSelect('scr.subComponent', 'subComponent')
       .leftJoinAndSelect('scr.answer', 'answer')
