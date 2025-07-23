@@ -22,6 +22,7 @@ import MemberAction from "../MemberAction";
 import MemberInfo from "../MemberInfo";
 import InvitationSection from "./InvitationSection";
 import AssessmentGroupsSkeleton from "../form/AssessmentGroupsSkeleton";
+import InvitationListSkeleton from "./InvitationListSkeleton";
 
 export const groupSchema = z.object({
   id: z
@@ -128,7 +129,7 @@ export function SendInvitation() {
     );
   };
   if (assessmentGroupsState.isLoading) {
-    return <AssessmentGroupsSkeleton />;
+    return <InvitationListSkeleton />;
   }
   return (
     <div className="flex items-start flex-wrap justify-between gap-4">

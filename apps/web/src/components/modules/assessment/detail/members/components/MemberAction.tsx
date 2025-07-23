@@ -26,7 +26,8 @@ export const ASSESSMENT_GROUP_LIST_KEY = "assessments-groups";
 
 type OptionType = "team-leader" | "primary" | "member" | "Move to" | "Remove";
 interface Props {
-  id: string | undefined;
+  userRole?: string | undefined;
+  userId: string | undefined;
   refetch?: (email?: string) => void;
   optionsList?: OptionType[];
 }
@@ -46,7 +47,8 @@ export const memberMoveToSchema = z.object({
 export type MemberMoveToFormData = z.infer<typeof memberMoveToSchema>;
 
 export default function MemberAction({
-  id,
+  userRole,
+  userId,
   refetch,
   optionsList = ["team-leader", "primary", "member", "Remove", "Move to"],
 }: Props) {
@@ -73,7 +75,6 @@ export default function MemberAction({
     openMemberActionRef.current?.openModal();
   const onCancelMemberActionHandler = () =>
     openMemberActionRef.current?.closeModal();
-
   const allOptions: Record<
     OptionType,
     {
@@ -86,23 +87,23 @@ export default function MemberAction({
     "team-leader": {
       value: "team-leader",
       label: "Team leader",
-      onClick: () => handleMemberAction(id, "team-leader"),
+      onClick: () => handleMemberAction(userRole, userId, "team-leader"),
     },
     member: {
       value: "member",
       label: "Member",
-      onClick: () => handleMemberAction(id, "member"),
+      onClick: () => handleMemberAction(userRole, userId, "member"),
     },
     primary: {
       value: "primary",
       label: "Make Primary",
-      onClick: () => handleMemberAction(id, "primary"),
+      onClick: () => handleMemberAction(userRole, userId, "primary"),
     },
     Remove: {
       value: "Remove",
       label: "Remove",
       destructive: true,
-      onClick: () => handleMemberAction(id, "Remove"),
+      onClick: () => handleMemberAction(userRole, userId, "Remove"),
     },
     "Move to": {
       value: "Move to",
@@ -129,6 +130,7 @@ export default function MemberAction({
   );
 
   const handleMemberAction = (
+    userRole: string | undefined,
     userId: string | undefined,
     action: OptionType
   ) => {
@@ -148,8 +150,7 @@ export default function MemberAction({
     updateRole(
       {
         data: {
-          promoteUserId: action,
-          userId: selectedUserId,
+          userRole: action,
         },
         isProtected: true,
       },
@@ -179,7 +180,7 @@ export default function MemberAction({
     memberMoveto(
       {
         data: {
-          userId: id,
+          userId: userId,
           toGroupId: data.group.id,
         },
         isProtected: true,
@@ -219,7 +220,26 @@ export default function MemberAction({
           />
         }
         options={(optionsList ?? [])
-          .filter((key): key is keyof typeof allOptions => key in allOptions)
+          .filter((key): key is keyof typeof allOptions => {
+            if (!(key in allOptions)) return false;
+
+            if (userRole === "primary") {
+              return (
+                key !== "team-leader" &&
+                key !== "member" &&
+                key !== "Remove" &&
+                key !== "primary"
+              );
+            }
+
+            if (userRole === "team-leader") {
+              return (
+                key !== "team-leader" && key !== "member" && key !== "Remove"
+              );
+            }
+
+            return true;
+          })
           .map((key) => allOptions[key])}
       />
 
