@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import MemberRoleCard from "../../components/MemberRoleCard";
 import MemberInfo from "./MemberInfo";
 import MemberAction from "./MemberAction";
