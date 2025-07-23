@@ -1,6 +1,6 @@
 import React from "react";
 import { Avatar } from "@etm/web-ui-components";
-import { getInitials } from "~/utils/string.util";
+import { capitalizeFirstLetter, getInitials } from "~/utils/string.util";
 
 interface Props {
   name: string | undefined;
@@ -30,7 +30,9 @@ export default function GroupMemberCard({
           <span>{email}</span>
         </div>
       </div>
-      <span className="text-xs font-normal items-center">{role}</span>
+      <span className="text-xs font-normal items-center">
+        {capitalizeFirstLetter(role ?? "")}
+      </span>
     </div>
   );
 }
