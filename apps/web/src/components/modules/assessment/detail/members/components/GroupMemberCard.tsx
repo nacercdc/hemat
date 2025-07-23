@@ -3,16 +3,18 @@ import { Avatar } from "@etm/web-ui-components";
 import { getInitials } from "~/utils/string.util";
 
 interface Props {
-  name: string;
-  email: string;
-  isLeader?: boolean;
+  name: string | undefined;
+  email: string | undefined;
+  isAdmin?: boolean;
   avatarUrl?: string;
+  role: string | undefined;
 }
 export default function GroupMemberCard({
   name,
   email,
-  isLeader = false,
+  isAdmin = false,
   avatarUrl,
+  role,
 }: Props) {
   return (
     <div className="flex gap-2 justify-between px-2">
@@ -28,11 +30,7 @@ export default function GroupMemberCard({
           <span>{email}</span>
         </div>
       </div>
-      {isLeader ? (
-        <span className="text-xs font-bold items-center">Leader</span>
-      ) : (
-        <span className="text-xs font-normal items-center">Member</span>
-      )}
+      <span className="text-xs font-normal items-center">{role}</span>
     </div>
   );
 }

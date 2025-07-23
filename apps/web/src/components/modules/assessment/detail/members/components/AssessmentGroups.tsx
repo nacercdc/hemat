@@ -99,7 +99,8 @@ export default function AssessmentGroups() {
                         </div>
 
                         <MemberAction
-                          id={member?.userId}
+                          userRole={member?.role}
+                          userId={member?.userId}
                           refetch={() =>
                             member.user?.email &&
                             removeMember(member.user.email)

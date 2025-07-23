@@ -1,22 +1,7 @@
 import type { Filter, Sort } from "../tanstack-api-query/helpers/types";
 import type { Country } from "./country.model";
 import type { Language } from "./language.model";
-
-export interface User {
-  name: string;
-}
-
-export interface GroupMember {
-  name: string;
-  email: string;
-  isLeader: boolean;
-  avatarUrl: string;
-}
-
-export interface Group {
-  groupName: string;
-  members: GroupMember[];
-}
+import { User } from "./user.model";
 
 export type StatusType =
   | "Draft"
@@ -39,8 +24,6 @@ export interface Assessment {
   organization?: string;
   description?: string;
   languages?: Language[];
-  members?: User[];
-  groups?: Group[];
 }
 
 export interface AssessmentCreate {

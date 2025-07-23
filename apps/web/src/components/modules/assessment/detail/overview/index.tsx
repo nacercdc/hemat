@@ -15,6 +15,11 @@ import GroupsList from "../components/GroupsList";
 import MemberRoleCard from "../components/MemberRoleCard";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 import { formatDateToYYYYMMDD } from "@etm/utilities";
+import {
+  AssessmentGroup,
+  AssessmentGroupIncludeAble,
+} from "~/libs/models/assessment-member.model";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 
 export function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
@@ -27,13 +32,23 @@ export function AssessmentOverview() {
   };
   const params = useParams();
   const assessmentId = params.id;
+
+  const { data: assessmentGroup, ...assessmentGroupsState } = useFindAll<
+    AssessmentGroup,
+    AssessmentGroupIncludeAble
+  >({
+    path: `/assessments/${assessmentId}/groups`,
+    queries: {
+      include: ["members.user"],
+    },
+  });
   const { data: assessment, ...assessmentState } = useFindById<
     Assessment,
     AssessmentsIncludeAble
   >({
     path: `assessments/${assessmentId as string}`,
     queries: {
-      include: ["user", "members", "groups"],
+      include: ["user"],
     },
   });
 
@@ -121,8 +136,8 @@ export function AssessmentOverview() {
         </div>
       </div>
       <div className="flex-1 bg-dark-lighter/5 p-2 rounded-sm gap-2 flex flex-col">
-        {assessment?.groups?.length != 0 ? (
-          <GroupsList groups={assessment?.groups} />
+        {assessmentGroup?.data.length != 0 ? (
+          <GroupsList groups={assessmentGroup?.data} />
         ) : (
           <div className="flex flex-col gap-2 w-full">
             <MemberRoleCard
