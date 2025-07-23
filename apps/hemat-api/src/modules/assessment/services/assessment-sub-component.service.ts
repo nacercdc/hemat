@@ -170,7 +170,8 @@ export class AssessmentSubComponentService {
       .andWhere('sca.deletedAt IS NULL')
       .andWhere('answer.deletedAt IS NULL')
       .andWhere('answer.userId = :userId', { userId })
-      .andWhere('answer.isPrimary = :isPrimary', { isPrimary: true });
+      .andWhere('answer.isPrimary = :isPrimary', { isPrimary: true })
+      .andWhere('answer.groupId IS NULL'); // ENFORCE: only true primary answers
 
     const result = await qb.getOne();
     if (!result) {
@@ -195,10 +196,14 @@ export class AssessmentSubComponentService {
       .andWhere('sca.deletedAt IS NULL')
       .andWhere('answer.deletedAt IS NULL');
 
+    if (query.include?.includes('measurementScale')) {
+      qb.leftJoinAndSelect('sca.measurementScale', 'measurementScale');
+    }
+
     if (user.assessmentRole === MemberRole.TEAM_LEADER) {
       // For TEAM_LEADER, return the latest answer for the group (not user-specific)
       qb.andWhere('answer.groupId = :groupId', { groupId: user.assessmentGroupId });
-      qb.andWhere('answer.isPrimary = false');
+      qb.andWhere('answer.isPrimary = false'); // ENFORCE: only group answers
       qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC');
       const result = await qb.getOne();
       if (!result) {
@@ -209,12 +214,12 @@ export class AssessmentSubComponentService {
       // If PRIMARY and acting as a team leader (has assessmentGroupId), return group answer
       if (user.assessmentGroupId) {
         qb.andWhere('answer.groupId = :groupId', { groupId: user.assessmentGroupId });
-        qb.andWhere('answer.isPrimary = false');
+        qb.andWhere('answer.isPrimary = false'); // ENFORCE: only group answers
       } else {
         // Otherwise, return primary answer
         qb.andWhere('answer.userId = :userId', { userId: user.id });
         qb.andWhere('answer.isPrimary = true');
-        qb.andWhere('answer.groupId IS NULL');
+        qb.andWhere('answer.groupId IS NULL'); // ENFORCE: only true primary answers
       }
       qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC');
       const result = await qb.getOne();
@@ -229,6 +234,7 @@ export class AssessmentSubComponentService {
         qb.andWhere('answer.isPrimary = false');
       } else {
         qb.andWhere('answer.isPrimary = true');
+        qb.andWhere('answer.groupId IS NULL'); // ENFORCE: only true primary answers
       }
       qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC');
       const result = await qb.getOne();
