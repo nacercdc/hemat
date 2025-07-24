@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { GroupedAssessment } from "./components/GroupedAssessment";
 import AssessmentFillHeader from "../components/AssessmentFillHeader";
 import type {
@@ -20,11 +20,12 @@ import type {
 } from "~/libs/models/assessment-group.model";
 import { GroupSkeleton } from "./components/GroupSkeleton";
 
-export type GroupIDType = "primary" | "my" | "rest";
-
 export function CurrentAssessment() {
   const params = useParams();
   const assessmentId = params.id;
+  const [selectedLanguage, setSelectedLanguage] = useState<
+    string | undefined
+  >();
 
   const { data: assessmentDetail, ...assessmentDetailState } = useFindById<
     Assessment,
@@ -51,7 +52,7 @@ export function CurrentAssessment() {
 
   const { data: assessmentDomains, ...assessmentDomainsState } =
     useFindAll<Domain>({
-      path: `assessments/${assessmentId as string}/assessment-domains`,
+      path: `assessments/${assessmentId as string}/assessment-domains${selectedLanguage ? `?language=${selectedLanguage}` : ""}`,
       tqOptions: {
         queryKey: ["assessment-domains"],
       },
@@ -181,12 +182,14 @@ export function CurrentAssessment() {
       <AssessmentFillHeader
         title="All Assessments"
         subTitle="Team and team leader's assessments"
+        languages={assessmentDetail?.languages || []}
+        onLanguageChangeHandler={(lang?: string) => setSelectedLanguage(lang)}
       />
 
       <div className="flex flex-col w-full rounded-md gap-3 p-3">
         {!primaryCategoryLoading && primaryDomainList?.length > 0 && (
           <GroupedAssessment
-            groupId="primary"
+            groupTag="primary"
             title="Primary"
             subtitle="Primary Assessment"
             domains={primaryDomainList}
@@ -198,7 +201,8 @@ export function CurrentAssessment() {
 
         {!ownCategoryLoading && myDomainList?.length > 0 && (
           <GroupedAssessment
-            groupId="my"
+            groupTag="my"
+            groupId={assessmentDetail?.access?.groupId}
             title="My"
             subtitle="My Assessment"
             domains={myDomainList}
@@ -213,7 +217,8 @@ export function CurrentAssessment() {
           notMyGroups?.map((group) => (
             <GroupedAssessment
               key={group.id}
-              groupId="rest"
+              groupId={group.id}
+              groupTag="rest"
               title={group.name}
               subtitle={`${group.name}'s Assessment`}
               domains={group.domains}
