@@ -22,8 +22,7 @@ import type {
   AssessmentFilterable,
 } from "~/libs/models/assessment.model";
 
-//TODO: to be refactored and put into its own model
-interface FilledStatus {
+export interface FilledStatus {
   ids: string[];
   latest: { subComponentId: string };
 }
@@ -92,7 +91,10 @@ export function CurrentAssessmentFill() {
   const { data: filledSubComps, ...filledSubCompsState } = useFindById<
     QueryManyResponse<FilledStatus>
   >({
-    path: `/assessments/${params.id as string}/sub-components/filled-status`,
+    path: `/assessments/${params.id as string}/sub-components/filled-status?${searchParams.get("groupId") ? `groupId=${searchParams.get("groupId")}&` : ""}isPrimary=${searchParams.get("as") === "primary"}`,
+    tqOptions: {
+      staleTime: 0,
+    },
   });
 
   const isFirstSubComponent = activeSubComponentIndex === 0;

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Icon } from "@iconify/react";
 import type { FilledSubComponent } from "..";
 
 interface Props {
