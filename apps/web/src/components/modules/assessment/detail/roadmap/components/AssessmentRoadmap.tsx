@@ -1,19 +1,16 @@
 "use client";
-import { useRouter } from "next/navigation";
+
 import React from "react";
+import { useRouter } from "next/navigation";
 import AssessmentDomainCard from "../../components/AssessmentDomainCard";
-export interface Domain {
-  id: string;
-  name: string;
-  componentsCount: number;
-  subComponentsCount: number;
-  progress: number;
-}
+import type { Domain } from "../../components/AssessmentDomainCard";
+import type { Access } from "~/libs/models/assessment.model";
 interface Props {
   domains: Domain[];
+  access?: Access;
 }
 
-export function AssessmentRoadmap({ domains }: Props) {
+export function AssessmentRoadmap({ domains, access }: Props) {
   const router = useRouter();
   const onDetailViewClickHandler = (id: string) => {
     router.push(`roadmap/${id}`);
@@ -28,6 +25,8 @@ export function AssessmentRoadmap({ domains }: Props) {
         <AssessmentDomainCard
           key={domain.id}
           domain={domain}
+          groupTag="roadmaps"
+          access={access}
           onDetailViewClickHandler={onDetailViewClickHandler}
           onFillClickHandler={onFillClickHandler}
         />
