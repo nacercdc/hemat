@@ -56,7 +56,7 @@ export default function AssessmentGroups() {
       <div className="lg:w-3/5 w-full flex flex-col p-2 bg-dark-lighter/5 rounded-sm">
         <div className="bg-white w-full flex flex-col gap-4 p-2 rounded-sm">
           <div className="flex justify-between p-2">
-            <span className="font-semibold text-sm">Team & Members</span>
+            <span className="font-semibold text-sm">Team & Participants</span>
           </div>
 
           {Array.isArray(groups) &&
@@ -93,7 +93,7 @@ export default function AssessmentGroups() {
                             name={member.user?.name}
                             email={member.user?.email}
                             userId={member.userId}
-                            isLeader={member.isLeader}
+                            isLeader={member.isAdmin}
                             role={member.role}
                           />
                         </div>
