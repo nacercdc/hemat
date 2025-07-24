@@ -21,7 +21,6 @@ import MemberRoleCard from "../../../components/MemberRoleCard";
 import MemberAction from "../MemberAction";
 import MemberInfo from "../MemberInfo";
 import InvitationSection from "./InvitationSection";
-import AssessmentGroupsSkeleton from "../form/AssessmentGroupsSkeleton";
 import InvitationListSkeleton from "./InvitationListSkeleton";
 
 export const groupSchema = z.object({
@@ -189,9 +188,9 @@ export function SendInvitation() {
               <div key={email} className="flex justify-between">
                 <MemberInfo email={email} />
                 <MemberAction
-                  id={email}
+                  userId={email}
                   refetch={() => removeEmailHandler(email)}
-                  optionsList={["Remove"]}
+                  optionsList={["Cancel Invitation"]}
                 />
               </div>
             ))}

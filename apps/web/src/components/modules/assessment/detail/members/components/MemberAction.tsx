@@ -27,7 +27,13 @@ import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 export const ASSESSMENT_GROUP_LIST_KEY = "assessments-groups";
 
-type OptionType = "team-leader" | "primary" | "member" | "Move to" | "Remove";
+type OptionType =
+  | "team-leader"
+  | "primary"
+  | "member"
+  | "Move to"
+  | "Remove"
+  | "Cancel Invitation";
 interface Props {
   userRole?: string | undefined;
   userId: string | undefined;
@@ -53,7 +59,14 @@ export default function MemberAction({
   userRole,
   userId,
   refetch,
-  optionsList = ["team-leader", "primary", "member", "Remove", "Move to"],
+  optionsList = [
+    "team-leader",
+    "primary",
+    "member",
+    "Remove",
+    "Move to",
+    "Cancel Invitation",
+  ],
 }: Props) {
   const toaster = useToast();
   const params = useParams();
@@ -77,6 +90,11 @@ export default function MemberAction({
   });
   const openMemberActionModalHandler = () =>
     openMemberActionRef.current?.openModal();
+  const onGotoRemoveMemberInvitationHandler = () => {
+    if (refetch) {
+      refetch(userId);
+    }
+  };
   const onCancelMemberActionHandler = () =>
     openMemberActionRef.current?.closeModal();
   const allOptions: Record<
@@ -114,14 +132,14 @@ export default function MemberAction({
       label: "Move to",
       onClick: openMemberActionModalHandler,
     },
+    "Cancel Invitation": {
+      value: "Cancel Invitation",
+      label: "Cancel Invitation",
+      destructive: true,
+      onClick: onGotoRemoveMemberInvitationHandler,
+    },
   };
 
-  const {
-    mutate: deleteAssessmentGroupMember,
-    ...deleteAssessmentGroupMemberState
-  } = useDeleteMutation<DeleteGroupMember>(
-    `assessments/${assessmentId}/members/${selectedUserId}`
-  );
   const { data: assessmentGroups, ...assessmentGroupsState } =
     useFindAll<AssessmentGroup>({
       path: assessmentId ? `/assessments/${assessmentId}/groups` : "",
@@ -138,13 +156,22 @@ export default function MemberAction({
       ? `assessments/${assessmentId}/members/${selectedUserId}`
       : ""
   );
+
+  const {
+    mutate: deleteAssessmentGroupMember,
+    ...deleteAssessmentGroupMemberState
+  } = useDeleteMutation<DeleteGroupMember>(
+    selectedUserId
+      ? `assessments/${assessmentId}/members/${selectedUserId}`
+      : ""
+  );
   const handleMemberAction = (
     userRole: string | undefined,
     userId: string | undefined,
     action: OptionType
   ) => {
     if (!userId) return;
-
+    setSelectedUserId(userId);
     if (action === "Remove") {
       deleteMemberDialogRef.current?.openDialog();
       return;
@@ -155,7 +182,6 @@ export default function MemberAction({
       return;
     }
 
-    setSelectedUserId(userId);
     updateRole(
       {
         data: {
@@ -261,18 +287,26 @@ export default function MemberAction({
                 key !== "team-leader" &&
                 key !== "member" &&
                 key !== "Remove" &&
-                key !== "primary"
+                key !== "primary" &&
+                key !== "Cancel Invitation"
               );
             }
 
             if (userRole === "team-leader") {
               return (
-                key !== "team-leader" && key !== "member" && key !== "Remove"
+                key !== "team-leader" &&
+                key !== "member" &&
+                key !== "Remove" &&
+                key !== "Cancel Invitation"
               );
             }
 
             if (userRole === "member") {
-              return key !== "primary" && key !== "member";
+              return (
+                key !== "primary" &&
+                key !== "member" &&
+                key !== "Cancel Invitation"
+              );
             }
 
             return true;
