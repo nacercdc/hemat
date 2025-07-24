@@ -231,6 +231,7 @@ export class AssessmentDomainService {
 
   // Helper: Fetch all domains for the assessment with subcomponent counts
   private async getAssessmentDomainsWithCounts(assessmentId: string, language: string): Promise<DomainSubComponentCount[]> {
+    // FIX: Count unique subcomponents for the domain (across all components)
     return this.assessmentDomainRepository
       .createQueryBuilder('domain')
       .where('domain.assessmentId = :assessmentId', { assessmentId })
@@ -238,7 +239,7 @@ export class AssessmentDomainService {
       .leftJoin('component.subComponents', 'subComponent')
       .select('domain.id', 'domainId')
       .addSelect(`COALESCE(domain.translations->'${language}'->>'name', domain.name)`, 'domainName')
-      .addSelect('COUNT(subComponent.id)::int', 'subComponentCount')
+      .addSelect('COUNT(DISTINCT subComponent.id)::int', 'subComponentCount')
       .groupBy('domain.id')
       .addGroupBy('domain.name')
       .addGroupBy('domain.translations')
@@ -252,6 +253,7 @@ export class AssessmentDomainService {
     groupIds?: string[],
     includePrimary?: boolean
   ): Promise<GroupDomainAnswerCount[]> {
+    // Extra debug: log all subcomponent answers being counted
     const answerQuery = this.assessmentRepository
       .createQueryBuilder('assessment')
       .where('assessment.id = :assessmentId', { assessmentId })
@@ -259,11 +261,13 @@ export class AssessmentDomainService {
       .leftJoin('assessment.groups', 'group')
       .leftJoin('assessment.answers', 'answer')
       .leftJoin('answer.assessmentSubComponentAnswers', 'subComponentAnswer')
+      .leftJoin('subComponentAnswer.subComponent', 'subComponent')
+      .leftJoin('subComponent.component', 'component')
       .select('domain.id', 'domainId')
       .addSelect(`COALESCE(domain.translations->'${language}'->>'name', domain.name)`, 'domainName')
       .addSelect('group.id', 'groupId')
       .addSelect('group.name', 'groupName')
-      .addSelect('COUNT(CASE WHEN subComponentAnswer.domainId = domain.id THEN 1 END)::int', 'answerCount')
+      .addSelect('COUNT(DISTINCT CASE WHEN component.domainId = domain.id AND subComponentAnswer.deletedAt IS NULL AND answer.deletedAt IS NULL THEN subComponentAnswer.subComponentId END)::int', 'answerCount')
       .groupBy('domain.id')
       .addGroupBy('group.id')
       .addGroupBy('domain.name')
@@ -280,6 +284,33 @@ export class AssessmentDomainService {
       answerQuery.andWhere('group.id IN (:...ids)', { ids });
     }
     answerQuery.andWhere('answer.isPrimary = false');
+
+    // LOGGING: Print all subcomponent answers being counted for debugging
+    const domainIdList = groupIds && groupIds.length
+      ? groupIds.map(id => `'${id}'`).join(',')
+      : `(SELECT id FROM assessment_domains WHERE assessmentId = '${assessmentId}')`;
+    const debugQuery = `
+      SELECT sca.subComponentId, sca.id AS subComponentAnswerId, sca.deletedAt, a.groupId, a.isPrimary, a.deletedAt AS answerDeletedAt, c.domainId, sca.answerId
+      FROM assessment_sub_component_answers sca
+      JOIN answers a ON a.id = sca."answerId"
+      JOIN assessment_sub_components sc ON sc.id = sca.subComponentId
+      JOIN assessment_components c ON c.id = sc.componentId
+      WHERE c.domainId IN ${domainIdList}
+        AND a.isPrimary = false
+        AND sca.deletedAt IS NULL
+        AND a.deletedAt IS NULL;
+    `;
+    // eslint-disable-next-line no-console
+    console.log('[PROGRESS DEBUG] Executing debug query:', debugQuery);
+    try {
+      const rawAnswers = await this.assessmentRepository.manager.query(debugQuery);
+      // eslint-disable-next-line no-console
+      console.log('[PROGRESS DEBUG] Raw filled subcomponent answers:', rawAnswers);
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[PROGRESS DEBUG] Error executing debug query:', err);
+    }
+
     return answerQuery.execute() as Promise<GroupDomainAnswerCount[]>;
   }
 
@@ -315,10 +346,14 @@ export class AssessmentDomainService {
       const group = groupMap.get(groupId)!;
       const domain = domainMap.get(domainId);
       if (domain) {
+        // LOGGING: Print numerator and denominator for debugging
+        const numerator = answerCount;
+        const denominator = domain.subComponentCount;
+        this.logger.log(`[PROGRESS DEBUG] Group: ${groupName || groupId}, Domain: ${domainName || domainId}, Filled: ${numerator}, Total: ${denominator}, Percentage: ${denominator > 0 ? (numerator * 100) / denominator : 0}`);
         group.domains.push({
           id: domainId,
           name: domainName,
-          percentage: domain.subComponentCount > 0 ? (answerCount * 100) / domain.subComponentCount : 0,
+          percentage: denominator > 0 ? (numerator * 100) / denominator : 0,
         });
       }
     });
@@ -398,13 +433,14 @@ export class AssessmentDomainService {
           `COALESCE(domain.translations->'${language}'->>'name', domain.name)`,
           'domainName',
         )
-        .addSelect('COUNT(subComponent.id)::int', 'subComponentCount')
+        // FIX: Count unique subcomponents for the domain
+        .addSelect('COUNT(DISTINCT subComponent.id)::int', 'subComponentCount')
         .groupBy('domain.id')
         .addGroupBy('domain.name')
         .addGroupBy('domain.translations')
         .execute();
 
-    // FIX: Only count subComponentAnswers for subComponents in the correct domain
+    // FIX: Only count unique, non-deleted subcomponents with a primary answer in the correct domain
     const primaryAnswers: DomainAnswerCount[] =
       await this.assessmentDomainRepository
         .createQueryBuilder('domain')
@@ -414,8 +450,10 @@ export class AssessmentDomainService {
         .leftJoin('subComponent.answers', 'subComponentAnswer')
         .leftJoin('subComponentAnswer.answer', 'answer')
         .andWhere('answer.isPrimary = :isPrimary', { isPrimary: true })
+        .andWhere('subComponentAnswer.deletedAt IS NULL')
+        .andWhere('answer.deletedAt IS NULL')
         .select('domain.id', 'domainId')
-        .addSelect('COUNT(subComponentAnswer.id)::int', 'answerCount')
+        .addSelect('COUNT(DISTINCT subComponentAnswer.subComponentId)::int', 'answerCount')
         .groupBy('domain.id')
         .execute();
 

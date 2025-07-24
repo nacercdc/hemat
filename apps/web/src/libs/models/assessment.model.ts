@@ -3,10 +3,7 @@ import type { Group } from "./assessment-group.model";
 import type { Country } from "./country.model";
 import type { Domain } from "./domain.model";
 import type { Language } from "./language.model";
-
-export interface User {
-  name: string;
-}
+import { User } from "./user.model";
 
 export interface Access {
   domains: Domain[];

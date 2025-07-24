@@ -170,7 +170,8 @@ export class AssessmentSubComponentService {
       .andWhere('sca.deletedAt IS NULL')
       .andWhere('answer.deletedAt IS NULL')
       .andWhere('answer.userId = :userId', { userId })
-      .andWhere('answer.isPrimary = :isPrimary', { isPrimary: true });
+      .andWhere('answer.isPrimary = :isPrimary', { isPrimary: true })
+      .andWhere('answer.groupId IS NULL'); // ENFORCE: only true primary answers
 
     const result = await qb.getOne();
     if (!result) {
@@ -193,33 +194,57 @@ export class AssessmentSubComponentService {
       .where('sca.subComponentId = :subComponentId', { subComponentId })
       .andWhere('answer.assessmentId = :assessmentId', { assessmentId })
       .andWhere('sca.deletedAt IS NULL')
-      .andWhere('answer.deletedAt IS NULL')
-      .andWhere('answer.userId = :userId', { userId: user.id });
+      .andWhere('answer.deletedAt IS NULL');
 
-    if (user.assessmentRole === MemberRole.TEAM_LEADER) {
-      qb.andWhere('answer.groupId = :groupId', {
-        groupId: user.assessmentGroupId,
-      });
-    }
-
-    if (query.include?.includes('assessment')) {
-      qb.leftJoinAndSelect('answer.assessment', 'assessment');
-    }
-    if (query.include?.includes('user')) {
-      qb.leftJoinAndSelect('answer.user', 'user');
-    }
-    if (query.include?.includes('roadmaps')) {
-      qb.leftJoinAndSelect('answer.roadmaps', 'roadmaps');
-    }
     if (query.include?.includes('measurementScale')) {
       qb.leftJoinAndSelect('sca.measurementScale', 'measurementScale');
     }
 
-    const result = await qb.getOne();
-    if (!result) {
-      throw new NotFoundException('No answer found for this sub-component');
+    if (user.assessmentRole === MemberRole.TEAM_LEADER) {
+      // For TEAM_LEADER, return the latest answer for the group (not user-specific)
+      qb.andWhere('answer.groupId = :groupId', { groupId: user.assessmentGroupId });
+      qb.andWhere('answer.isPrimary = false'); // ENFORCE: only group answers
+      qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC');
+      const result = await qb.getOne();
+      if (!result) {
+        throw new NotFoundException('No group answer found for this sub-component');
+      }
+      return result;
+    } else if (user.assessmentRole === MemberRole.PRIMARY) {
+      // If PRIMARY and acting as a team leader (has assessmentGroupId), return group answer
+      if (user.assessmentGroupId) {
+        qb.andWhere('answer.groupId = :groupId', { groupId: user.assessmentGroupId });
+        qb.andWhere('answer.isPrimary = false'); // ENFORCE: only group answers
+      } else {
+        // Otherwise, return primary answer
+        qb.andWhere('answer.userId = :userId', { userId: user.id });
+        qb.andWhere('answer.isPrimary = true');
+        qb.andWhere('answer.groupId IS NULL'); // ENFORCE: only true primary answers
+      }
+      qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC');
+      const result = await qb.getOne();
+      if (!result) {
+        throw new NotFoundException('No answer found for this sub-component');
+      }
+      return result;
+    } else if (user.isAdmin) {
+      // For ADMIN, return the latest group answer if groupId is present, else primary
+      if (user.assessmentGroupId) {
+        qb.andWhere('answer.groupId = :groupId', { groupId: user.assessmentGroupId });
+        qb.andWhere('answer.isPrimary = false');
+      } else {
+        qb.andWhere('answer.isPrimary = true');
+        qb.andWhere('answer.groupId IS NULL'); // ENFORCE: only true primary answers
+      }
+      qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC');
+      const result = await qb.getOne();
+      if (!result) {
+        throw new NotFoundException('No answer found for this sub-component');
+      }
+      return result;
     }
-    return result;
+
+    throw new NotFoundException('No answer found for this sub-component');
   }
 
   private filters(
@@ -449,5 +474,60 @@ export class AssessmentSubComponentService {
         averageRate: avg,
       };
     });
+  }
+
+  /**
+   * Get filled subcomponent IDs for a group or for primary
+   * @param assessmentId string
+   * @param groupId string | null (null for primary)
+   * @param isPrimary boolean (true for primary, false for group)
+   */
+  async getFilledSubComponentIds(
+    assessmentId: string,
+    groupId: string | null,
+    isPrimary: boolean
+  ): Promise<string[]> {
+    const qb = this.subComponentAnswerRepository
+      .createQueryBuilder('sca')
+      .innerJoin('sca.answer', 'answer')
+      .innerJoin('answer.assessment', 'assessment')
+      .where('assessment.id = :assessmentId', { assessmentId })
+      .andWhere('answer.isPrimary = :isPrimary', { isPrimary })
+      .andWhere('sca.deletedAt IS NULL')
+      .andWhere('answer.deletedAt IS NULL');
+    if (groupId) {
+      qb.andWhere('answer.groupId = :groupId', { groupId });
+    } else {
+      qb.andWhere('answer.groupId IS NULL');
+    }
+    const results = await qb.select('DISTINCT sca.subComponentId', 'subComponentId').getRawMany();
+    return results.map(r => r.subComponentId);
+  }
+
+  /**
+   * Get the latest filled subcomponent answer for a group or for primary
+   * @param assessmentId string
+   * @param groupId string | null (null for primary)
+   * @param isPrimary boolean (true for primary, false for group)
+   */
+  async getLatestFilledSubComponentAnswer(
+    assessmentId: string,
+    groupId: string | null,
+    isPrimary: boolean
+  ): Promise<AssessmentSubComponentAnswer | null> {
+    const qb = this.subComponentAnswerRepository
+      .createQueryBuilder('sca')
+      .innerJoin('sca.answer', 'answer')
+      .innerJoin('answer.assessment', 'assessment')
+      .where('assessment.id = :assessmentId', { assessmentId })
+      .andWhere('answer.isPrimary = :isPrimary', { isPrimary })
+      .andWhere('sca.deletedAt IS NULL')
+      .andWhere('answer.deletedAt IS NULL');
+    if (groupId) {
+      qb.andWhere('answer.groupId = :groupId', { groupId });
+    } else {
+      qb.andWhere('answer.groupId IS NULL');
+    }
+    return qb.orderBy('sca.createdAt', 'DESC').addOrderBy('sca.id', 'DESC').getOne();
   }
 }

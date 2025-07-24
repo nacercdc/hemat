@@ -35,4 +35,7 @@ export interface RegisterProfile {
   phoneNumber?: string;
   country?: string;
   jobTitle?: string;
+  invitationId: string;
+  password: string;
+  email: string;
 }

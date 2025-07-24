@@ -12,6 +12,7 @@
         "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/terraform%40<Google Project Id>.iam.gserviceaccount.com",
         "universe_domain": "googleapis.com"
     },
+    "github_token": "<GitHub Token>",
     "secrets": {
         "<Secret Name 1>": "<Secret Value 1>",
         "<Secret Name 2>": "<Secret Value 2>"

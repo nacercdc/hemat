@@ -14,9 +14,7 @@ export interface MemberInvitationGroup {
 }
 
 export interface Member {
-  email: string;
-  isLeader?: boolean;
-  name: string;
+  isAdmin?: boolean;
   role?: string;
   userId?: string;
   user?: User;
@@ -37,6 +35,13 @@ export interface MemberMoveTo {
   userId: string | undefined;
   toGroupId?: string;
   promoteUserId?: string;
+}
+export interface DeleteGroupMember {
+  userId: string | undefined;
+  assessmentId: string | null;
+}
+export interface MemberUpdateRole {
+  role?: string;
 }
 
 export type AssessmentGroupIncludeAble =
