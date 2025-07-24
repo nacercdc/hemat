@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": ".",
+    "module": "NodeNext",
+    "declaration": true,
+    "sourceMap": true,
+    "composite": true,
+    "incremental": true,
+    "strictPropertyInitialization": false,
+    // Enable strict type checking
+    "strict": true,
+    // Modern module resolution
+    "moduleResolution": "nodenext",
+    "esModuleInterop": true,
+
+    // Additional helpful flags
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Support for decorators (important for NestJS)
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
+}

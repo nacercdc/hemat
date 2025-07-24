@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { ConfigType } from '../config/types';
+import path from 'path';
+
+const projectRoot = path.resolve(__dirname, '../../../..');
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
@@ -25,7 +28,13 @@ export class DatabaseService implements TypeOrmOptionsFactory {
       keepConnectionAlive: true,
       logging:
         this.configService.get('app.nodeEnv', { infer: true }) !== 'production',
-      entities: ['dist/database/entities/*{.entity.js,.entity.ts}'],
+      entities: [
+        'dist/database/entities/*{.entity.js,.entity.ts}',
+        path.join(
+          projectRoot,
+          'packages/server-media-upload/dist/src/entities/*.entity.js',
+        ),
+      ],
       subscribers: [
         'dist/database/subscribers/*{.subscriber.js,.subscriber.ts}',
       ],

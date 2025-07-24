@@ -2,11 +2,13 @@
   "name": "africa-cdc",
   "description": "A unified Africa CDC monorepo designed to manage the backend and web applications efficiently.",
   "private": true,
-  "workspaces": [
-    "./apps/*",
-    "./packages/*",
-    "./tooling/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "./apps/*",
+      "./packages/*",
+      "./tooling/*"
+    ]
+  },
   "scripts": {
     "build": "turbo run build",
     "clean": "rm -rf node_modules **/node_modules",
