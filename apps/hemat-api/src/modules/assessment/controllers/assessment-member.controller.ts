@@ -191,7 +191,7 @@ export class AssessmentMemberController {
 
   @ApiOperation({
     summary: 'Delete an assessment member',
-    description: 'Soft delete an assessment member by ID',
+    description: 'Soft delete an assessment member by userId',
   })
   @ApiOkResponse({ description: 'Ok', type: AssessmentMember })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -205,11 +205,19 @@ export class AssessmentMemberController {
       },
     ],
   })
-  @Delete(':id')
+  @Delete(':userId')
   async delete(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
-    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('userId', new ParseUUIDPipe()) userId: string,
   ): Promise<AssessmentMember> {
-    return this.assessmentMemberService.delete(assessmentId, id);
+    return this.assessmentMemberService.deleteByUserId(assessmentId, userId);
+  }
+
+  @Post(':userId/restore')
+  async restore(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+  ): Promise<AssessmentMember> {
+    return this.assessmentMemberService.restoreByUserId(assessmentId, userId);
   }
 }

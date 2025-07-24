@@ -19,16 +19,12 @@ export class RoleTransitionService {
     assessmentId: string;
     groupId: string;
   }): Promise<AssessmentMember> {
-    // Prevent role change if assessment is in progress or beyond and member is PRIMARY or TEAM_LEADER
-    const assessment = await manager.getRepository(Assessment).findOne({ where: { id: assessmentId } });
-    if (
-      assessment &&
-      [AssessmentStatus.IN_PROGRESS, AssessmentStatus.CLOSED, AssessmentStatus.COMPLETED].includes(assessment.status) &&
-      (member.role === MemberRole.PRIMARY || member.role === MemberRole.TEAM_LEADER)
-    ) {
-      throw new BadRequestException('Cannot change role of PRIMARY or TEAM_LEADER after assessment has started filling.');
+    // Return early if the member already has the target role
+    if (member.role === targetRole) {
+      return member;
     }
-
+    // Prevent role change if assessment is in progress or beyond and member is PRIMARY or TEAM_LEADER
+    // (Removed restriction to allow role changes at any time)
     const allMembers = await AssessmentMemberValidator.fetchAssessmentMembers(
       manager,
       assessmentId,
@@ -77,12 +73,19 @@ export class RoleTransitionService {
           'promoteUserId is required when updating TEAM_LEADER to MEMBER.',
         );
       }
+      // Use member.groupId to fetch group members
+      const groupMembers = await AssessmentMemberValidator.fetchGroupMembers(
+        manager,
+        member.groupId,
+        assessmentId,
+      );
+      const otherGroupMembers = groupMembers.filter((m) => m.id !== member.id);
       const promoteUser = otherGroupMembers.find(
-        (m) => m.id === promoteUserId && m.role === MemberRole.MEMBER,
+        (m) => m.userId === promoteUserId
       );
       if (!promoteUser) {
         throw new BadRequestException(
-          'promoteUserId must be another MEMBER in the same group.',
+          'promoteUserId must be another member in the same group.',
         );
       }
       // Promote the specified user to TEAM_LEADER
@@ -157,7 +160,7 @@ export class RoleTransitionService {
         );
       }
       const promoteUser = allMembers.find(
-        (m) => m.id === promoteUserId && m.role === MemberRole.TEAM_LEADER,
+        (m) => m.userId === promoteUserId && m.role === MemberRole.TEAM_LEADER,
       );
       if (!promoteUser) {
         throw new BadRequestException(

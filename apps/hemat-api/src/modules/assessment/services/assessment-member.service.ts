@@ -315,4 +315,48 @@ export class AssessmentMemberService {
       where: { groupId, role: MemberRole.TEAM_LEADER },
     }));
   }
+
+  async deleteByUserId(assessmentId: string, userId: string): Promise<AssessmentMember> {
+    return this.dataSource.transaction(async (manager) => {
+      try {
+        const member = await manager.getRepository(AssessmentMember).findOne({
+          where: { userId, assessmentId },
+          relations: ['user', 'assessment', 'group'],
+        });
+        if (!member) {
+          throw new NotFoundException(`Assessment member for user ${userId} not found`);
+        }
+        await manager.getRepository(AssessmentMember).softDelete({ userId, assessmentId });
+        return member;
+      } catch (err) {
+        this.logger.error(
+          `Failed to delete assessment member by userId: ${err.message}`,
+          err.stack,
+        );
+        throw new BadRequestException('Failed to delete assessment member');
+      }
+    });
+  }
+
+  async restoreByUserId(assessmentId: string, userId: string): Promise<AssessmentMember> {
+    return this.dataSource.transaction(async (manager) => {
+      try {
+        const member = await manager.getRepository(AssessmentMember).findOne({
+          where: { userId, assessmentId },
+          withDeleted: true,
+        });
+        if (!member) {
+          throw new NotFoundException(`Assessment member for user ${userId} not found`);
+        }
+        await manager.getRepository(AssessmentMember).recover(member);
+        return member;
+      } catch (err) {
+        this.logger.error(
+          `Failed to restore assessment member by userId: ${err.message}`,
+          err.stack,
+        );
+        throw new BadRequestException('Failed to restore assessment member');
+      }
+    });
+  }
 }
