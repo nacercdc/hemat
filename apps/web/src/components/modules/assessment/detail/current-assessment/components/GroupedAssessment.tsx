@@ -3,19 +3,23 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import AssessmentDomainCard from "../../components/AssessmentDomainCard";
-import type { Domain } from "../../components/AssessmentDomainCard";
+import type {
+  Domain,
+  GroupTagType,
+} from "../../components/AssessmentDomainCard";
 import type { Access } from "~/libs/models/assessment.model";
-import type { GroupIDType } from "..";
 
 interface Props {
   title: string;
   subtitle: string;
   domains: Domain[];
-  groupId: GroupIDType;
+  groupTag: GroupTagType;
+  groupId?: string;
   access?: Access;
 }
 
 export function GroupedAssessment({
+  groupTag,
   groupId,
   title,
   subtitle,
@@ -26,9 +30,9 @@ export function GroupedAssessment({
   const onDetailViewClickHandler = (id: string) => {
     router.push(`current-assessments/${id}`);
   };
-  const onFillClickHandler = (id: string) => {
+  const onFillClickHandler = (id: string, groupId?: string) => {
     router.push(
-      `current-assessments/${id}/fill${groupId !== "primary" ? "?as=member" : ""}`
+      `current-assessments/${id}/fill${groupTag === "primary" ? "?as=primary" : "?as=member"}${groupId ? `&groupId=${groupId}` : ""}`
     );
   };
 
@@ -45,6 +49,7 @@ export function GroupedAssessment({
           <AssessmentDomainCard
             key={domain.id}
             domain={domain}
+            groupTag={groupTag}
             groupId={groupId}
             onDetailViewClickHandler={onDetailViewClickHandler}
             onFillClickHandler={onFillClickHandler}

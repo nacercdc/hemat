@@ -1,10 +1,10 @@
 import React from "react";
-import { Button, Progress, Skeleton } from "@etm/web-ui-components";
+import { Button, Progress } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import type { Access } from "~/libs/models/assessment.model";
-import type { GroupIDType } from "../current-assessment";
 
 export type AssessmentRoleType = "primary" | "team-leader";
+export type GroupTagType = "primary" | "my" | "rest" | "roadmaps";
 
 export interface Domain {
   id: string;
@@ -18,14 +18,16 @@ export interface Domain {
 interface Props {
   domain: Domain;
   access?: Access;
-  groupId: GroupIDType;
+  groupTag: GroupTagType;
+  groupId?: string;
   onDetailViewClickHandler: (id: string) => void;
-  onFillClickHandler: (id: string) => void;
+  onFillClickHandler: (id: string, groupId?: string) => void;
 }
 
 export default function AssessmentDomainCard({
   domain,
   access,
+  groupTag,
   groupId,
   onDetailViewClickHandler,
   onFillClickHandler,
@@ -66,13 +68,13 @@ export default function AssessmentDomainCard({
             shape="circular"
           />
           <div className="flex w-full items-center mt-4">
-            {((groupId === "my" && access?.role === "primary") ||
+            {((groupTag === "my" && access?.role === "primary") ||
               domain.fillAccess === access?.role) && (
               <Button
                 full
                 variant="outline"
                 rightNode={<Icon icon="lucide:chevron-right" />}
-                onClick={() => onFillClickHandler(domain.id)}
+                onClick={() => onFillClickHandler(domain.id, groupId)}
               >
                 Fill
               </Button>
