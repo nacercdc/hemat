@@ -12,12 +12,13 @@ FROM base AS deps
 
 WORKDIR /app
 
-COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 COPY apps ./apps
 COPY packages ./packages
-COPY tooling ./tooling
 COPY scripts ./scripts
+COPY tooling ./tooling
+COPY turbo  ./turbo
+COPY .watchmanconfig .yarnrc.yml package.json yarn.lock turbo.json vitest.config.mts ./
 
 RUN yarn install
 
@@ -27,16 +28,8 @@ ARG APP_NAME
 
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/package.json ./package.json
-COPY --from=deps /app/yarn.lock ./yarn.lock
-COPY --from=deps /app/.yarnrc.yml ./.yarnrc.yml
-COPY --from=deps /app/.yarn ./.yarn
 
-COPY --from=deps /app/apps/ ./apps/
-COPY --from=deps /app/packages/ ./packages/
-COPY --from=deps /app/tooling/ ./tooling/
-COPY --from=deps /app/scripts/ ./scripts/
+COPY --from=deps /app ./
 COPY --from=deps /app/apps/${APP_NAME}/.env.stg ./apps/${APP_NAME}/.env
 
 RUN yarn workspace ${APP_NAME} build
@@ -47,17 +40,7 @@ ARG APP_NAME
 
 WORKDIR /app
 
-COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/standalone/apps ./apps
-COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/standalone/packages ./packages
-COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/standalone/package.json ./
-COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/public ./apps/${APP_NAME}/public
-COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/.next/static ./apps/${APP_NAME}/.next/static
-
-COPY --from=builder --chown=nestjs:nodejs /app/packages/ ./packages/
-COPY --from=builder --chown=nestjs:nodejs /app/tooling/ ./tooling/
-COPY --from=builder --chown=nestjs:nodejs /app/scripts/ ./scripts/
-
-RUN yarn workspaces focus ${APP_NAME} --production
+COPY --from=builder --chown=nestjs:nodejs /app ./
 
 EXPOSE 3000
 
