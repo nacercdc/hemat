@@ -16,6 +16,8 @@ import {
   DashboardModule,
 } from './modules';
 import { ExistConstraint, UniqueConstraint } from './shared/validators';
+import { MediaUploadModule } from '@etm/server-media-upload';
+
 @Module({
   imports: [
     SentryModule.forRoot(),
@@ -23,6 +25,17 @@ import { ExistConstraint, UniqueConstraint } from './shared/validators';
       isGlobal: true,
       load: [appConfig, authConfig, databaseConfig],
       envFilePath: ['.env'],
+    }),
+    MediaUploadModule.register({
+      storage: 'gcs',
+      gcsConfig: {
+        projectId: 'ethiochicken-test-459516',
+        // keyFilename: './storage-gcs.json', // For local uncomment this line
+        bucket: 'hemat',
+      },
+      // destinationPath: 'uploads',
+      useUniqueFilenames: true,
+      maxFileSize: 5 * 1024 * 1024, // 5MB
     }),
     DatabaseModule,
     AccessModule,
