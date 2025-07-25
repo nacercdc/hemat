@@ -16,6 +16,7 @@ import { SidebarSkeleton } from "../../SidebarSkeleton";
 export function SubComponents() {
   const params = useParams();
   const { id: assessmentId } = params;
+
   const { data: subComponents, ...subComponentsState } =
     useFindAll<AssessmentSubComponent>({
       path: `/assessments/${assessmentId as string}/sub-components`,
@@ -44,8 +45,8 @@ export function SubComponents() {
         displayKey="name"
       />
       <Content
-        activeSubComponent={activeSubComponent}
         assessmentId={assessmentId as string}
+        activeSubComponent={activeSubComponent}
         refetchSubComponents={subComponentsState.refetch}
       />
     </div>

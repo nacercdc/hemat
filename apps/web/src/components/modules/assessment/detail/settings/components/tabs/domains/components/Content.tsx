@@ -121,7 +121,6 @@ export function Content({
     control,
     handleSubmit,
     reset,
-    // setValue, // removed, not used
     watch,
     formState: { errors },
   } = useForm<AssessmentDomainFormData>({

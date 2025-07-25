@@ -1,26 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { Button, MultiSelectRHF, useToast } from "@etm/web-ui-components";
+import { Button, useToast } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useCallback } from "react";
-import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
-import type { Language } from "~/libs/models/language.model";
 
 import { Fields } from "./Fields";
 import type {
   AssessmentComponent,
   AssessmentComponentUpdate,
 } from "~/libs/models/assessment-component.model";
-import {
-  DEFAULT_LANGUAGE_CODE,
-  DEFAULT_LANGUAGE_NAME,
-  DEFAULT_LANGUAGE_NATIVE,
-} from "~/constants";
+import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
+import type { Assessment } from "~/libs/models/assessment.model";
 
 export const assessmentComponentFormSchema = z
   .object({
@@ -84,29 +78,23 @@ export type AssessmentComponentFormData = z.infer<
 >;
 
 interface Props {
-  activeComponent: AssessmentComponent | null;
+  assessment?: Assessment;
   assessmentId: string;
   refetchComponents: () => void;
+  activeComponent: AssessmentComponent | null;
 }
 
 export function Content({
   activeComponent,
+  assessment,
   assessmentId,
   refetchComponents,
 }: Props) {
   const { toast } = useToast();
-  const { data: languages, isLoading: languagesLoading } = useFindAll<
-    QueryManyResponse<Language>
-  >({
-    path: "/languages",
-  });
-  const { mutate: updateComponent, ...updateComponentState } = usePutMutation<
-    AssessmentComponent,
-    AssessmentComponentUpdate
-  >(`/assessments/${assessmentId}/components/${activeComponent?.id}`);
 
-  const languageOptions: Language[] =
-    (languages?.data as unknown as Language[]) ?? [];
+  const nonDefaultLanguages = (assessment?.languages ?? []).filter(
+    (lang) => lang.code !== DEFAULT_LANGUAGE_CODE
+  );
 
   const getDefaultTranslations = useCallback(
     (component: AssessmentComponent | null) => {
@@ -117,28 +105,22 @@ export function Content({
         string,
         { name: string; description: string; code: string }
       > = {};
-      languageOptions.forEach((lang) => {
+      nonDefaultLanguages.forEach((lang) => {
         translations[lang.code] = {
-          name:
-            lang.code === DEFAULT_LANGUAGE_CODE ? (component?.name ?? "") : "",
-          description:
-            lang.code === DEFAULT_LANGUAGE_CODE
-              ? (component?.description ?? "")
-              : "",
-          code:
-            lang.code === DEFAULT_LANGUAGE_CODE ? (component?.code ?? "") : "",
+          name: "",
+          description: "",
+          code: "",
         };
       });
       return translations;
     },
-    [languageOptions]
+    [nonDefaultLanguages]
   );
 
   const {
     control,
     handleSubmit,
     reset,
-    setValue,
     watch,
     formState: { errors },
   } = useForm<AssessmentComponentFormData>({
@@ -146,77 +128,24 @@ export function Content({
       name: activeComponent?.name ?? "",
       description: activeComponent?.description ?? "",
       code: activeComponent?.code ?? "",
-      selectedLanguages: activeComponent?.translations
-        ? Object.keys(activeComponent.translations).map((code) => {
-            const lang = languageOptions.find((lang) => lang.code === code);
-            return lang ? lang : { name: "", code, native: "" };
-          })
-        : languageOptions.length > 0
-          ? [languageOptions[0]]
-          : [],
+      selectedLanguages: nonDefaultLanguages,
       translations: activeComponent?.translations ?? {},
     },
     resolver: zodResolver(assessmentComponentFormSchema),
     mode: "all",
   });
 
-  const componentLanguages = activeComponent?.translations
-    ? Object.keys(activeComponent.translations).map((code) => {
-        const lang = languageOptions.find((lang) => lang.code === code);
-        return lang ? lang : { name: "", code, native: "" };
-      })
-    : languageOptions.length > 0
-      ? [languageOptions[0]]
-      : [];
+  const selectedLanguages = nonDefaultLanguages;
 
-  const selectedLanguages = watch("selectedLanguages");
-
-  const defaultLanguage = languageOptions.find(
-    (lang) => lang.code === DEFAULT_LANGUAGE_CODE
-  ) || {
-    name: DEFAULT_LANGUAGE_NAME,
-    code: DEFAULT_LANGUAGE_CODE,
-    native: DEFAULT_LANGUAGE_NATIVE,
-  };
-
-  const onLanguageSelectHandler = useCallback(
-    (langs: Language[]) => {
-      langs.forEach((lang) => {
-        if (
-          !selectedLanguages.some((selected) => selected.code === lang.code)
-        ) {
-          const existingTranslation =
-            activeComponent?.translations?.[lang.code];
-
-          setValue(`translations.${lang.code}`, {
-            name:
-              existingTranslation?.name ??
-              (lang.code === DEFAULT_LANGUAGE_CODE
-                ? (watch("name") ?? "")
-                : ""),
-            description:
-              existingTranslation?.description ??
-              (lang.code === DEFAULT_LANGUAGE_CODE
-                ? (watch("description") ?? "")
-                : ""),
-            code:
-              existingTranslation?.code ??
-              (lang.code === DEFAULT_LANGUAGE_CODE
-                ? (watch("code") ?? "")
-                : ""),
-          });
-        }
-      });
-    },
-    [selectedLanguages, activeComponent?.translations, setValue, watch]
-  );
+  const { mutate: updateComponent, ...updateComponentState } = usePutMutation<
+    AssessmentComponent,
+    AssessmentComponentUpdate
+  >(`/assessments/${assessmentId}/components/${activeComponent?.id}`);
 
   const onSubmitHandler = (values: AssessmentComponentFormData) => {
     const filteredTranslations = Object.fromEntries(
       Object.entries(values.translations || {})
-        .filter(([key]) =>
-          values.selectedLanguages?.some((lang) => lang.code === key)
-        )
+        .filter(([key]) => selectedLanguages?.some((lang) => lang.code === key))
         .map(([key, value]) => [
           key,
           {
@@ -257,77 +186,56 @@ export function Content({
       description: activeComponent?.description ?? "",
       code: activeComponent?.code ?? "",
       translations: getDefaultTranslations(activeComponent),
-      selectedLanguages:
-        componentLanguages.length > 0 ? componentLanguages : [defaultLanguage],
+      selectedLanguages: nonDefaultLanguages,
     });
-  }, [activeComponent, getDefaultTranslations, componentLanguages, reset]);
+  }, [activeComponent, getDefaultTranslations, nonDefaultLanguages, reset]);
 
   useEffect(() => {
-    if (languageOptions.length > 0) {
-      reset({
-        name: activeComponent?.name ?? "",
-        description: activeComponent?.description ?? "",
-        code: activeComponent?.code ?? "",
-        translations: getDefaultTranslations(activeComponent),
-        selectedLanguages:
-          componentLanguages.length > 0
-            ? componentLanguages
-            : [defaultLanguage],
-      });
-    }
-  }, [activeComponent, languages, reset, getDefaultTranslations]);
+    reset({
+      name: activeComponent?.name ?? "",
+      description: activeComponent?.description ?? "",
+      code: activeComponent?.code ?? "",
+      translations: getDefaultTranslations(activeComponent),
+      selectedLanguages: nonDefaultLanguages,
+    });
+  }, [activeComponent, reset]);
 
   if (!activeComponent) {
     return null;
   }
 
   return (
-    <div className="flex flex-col w-full md:w-3/4 h-fit bg-card border border-secondary-300 rounded-r-sm">
-      <form
-        onSubmit={handleSubmit(onSubmitHandler)}
-        className="flex flex-col gap-6 w-full flex-1 overflow-y-auto pb-20 p-4"
-      >
-        <>
-          <Fields
-            control={control}
-            selectedLanguages={selectedLanguages}
-            watch={watch}
-            errors={errors}
-          />
-          <MultiSelectRHF
-            control={control}
-            name="selectedLanguages"
-            placeholder="Select Languages"
-            options={languageOptions}
-            valueKey="code"
-            labelKey="name"
-            displayLabel="Languages"
-            labelVariant="bold"
-            onChange={() => onLanguageSelectHandler}
-            size="lg"
-            loading={languagesLoading}
-          />
-        </>
+    <form
+      onSubmit={handleSubmit(onSubmitHandler)}
+      className="flex flex-col w-full md:w-3/4 h-full bg-card border border-secondary-300 rounded-r-sm gap-6 flex-1 overflow-y-auto pb-20 p-4"
+    >
+      <>
+        <Fields
+          control={control}
+          selectedLanguages={selectedLanguages}
+          watch={watch}
+          errors={errors}
+        />
+      </>
 
-        <div className="flex justify-end gap-8 items-center w-full bg-basic-200/30 p-4">
-          <Button
-            variant="outline"
-            type="button"
-            color="card"
-            size="lg"
-            onClick={onCancelHandler}
-          >
-            Cancel
-          </Button>
-          <Button
-            size="lg"
-            type="submit"
-            loading={updateComponentState.isPending}
-          >
-            {updateComponentState.isPending ? "Saving..." : "Save"}
-          </Button>
-        </div>
-      </form>
-    </div>
+      <div className="flex justify-end gap-8 items-center w-full bg-basic-200/30 p-4">
+        <Button
+          variant="outline"
+          type="button"
+          color="card"
+          size="lg"
+          onClick={onCancelHandler}
+        >
+          Cancel
+        </Button>
+        <Button
+          size="lg"
+          type="submit"
+          loading={updateComponentState.isPending}
+        >
+          {updateComponentState.isPending ? "Saving..." : "Save"}
+        </Button>
+      </div>
+    </form>
   );
 }
