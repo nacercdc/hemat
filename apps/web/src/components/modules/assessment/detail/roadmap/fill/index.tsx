@@ -156,7 +156,7 @@ export function RoadmapFill() {
             message: "Roadmap has been filled successfully!",
             variant: "success",
           });
-
+          filledSubCompsState.refetch();
           onNavigateSubCompHandler("next");
         },
       }
