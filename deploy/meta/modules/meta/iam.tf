@@ -7,6 +7,7 @@ locals {
     "roles/run.admin",
     "roles/iam.serviceAccountUser",
     "roles/vpcaccess.admin",
+    "roles/cloudsql.client"
   ]
   compute_engine_service_account_roles = [
     "roles/secretmanager.secretAccessor",

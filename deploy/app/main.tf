@@ -6,19 +6,6 @@ module "web" {
   region       = var.region
   project_id   = var.project_id
   image_tag    = var.image_tag
-
-  template = {
-    max_instance_request_concurrency = 100
-  }
-
-  container = {
-    resources = {
-      limits = {
-        cpu    = "1000m"
-        memory = "2Gi"
-      }
-    }
-  }
 }
 
 module "hemat_api" {
@@ -29,14 +16,4 @@ module "hemat_api" {
   region       = var.region
   project_id   = var.project_id
   image_tag    = var.image_tag
-
-  container = {
-    resources = {
-      limits = {
-        cpu    = "1000m"
-        memory = "1Gi"
-      }
-    }
-  }
-  
 }

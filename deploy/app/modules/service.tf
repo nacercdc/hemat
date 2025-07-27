@@ -1,12 +1,3 @@
-locals {
-  image_path = "${var.region}-${var.registry_host}/${var.project_id}/${var.project_name}-repo/${var.project_name}-${var.service_name}:${var.image_tag}"
-  secrets = toset([for s in data.google_secret_manager_secrets.all.secrets : split("/", s.name)[length(split("/", s.name))-1]])
-}
-
-data "google_secret_manager_secrets" "all" {
-  project = var.project_id
-}
-
 resource "google_cloud_run_v2_service" "service" {
     name = "${var.project_name}-${var.service_name}"
     location = var.region
@@ -49,6 +40,11 @@ resource "google_cloud_run_v2_service" "service" {
                 }
             }
 
+            # env {
+            #   name = "DATABASE_URL"
+            #   value = "postgresql://${var.project_name}-database-user:${data.google_secret_manager_secret_version.database_password_value.secret_data}@localhost/${var.project_name}-db?host=/cloudsql/${data.google_sql_database_instance.database_instance.connection_name}"
+            # }
+
             dynamic "env" {
                 for_each = var.container.env
                 content {
@@ -69,44 +65,18 @@ resource "google_cloud_run_v2_service" "service" {
                     }
                 }
             }
-            
+            # volume_mounts {
+            #     mount_path = "/cloudsql"
+            #     name       = "cloudsql"
+            # }
         }
 
-        dynamic "containers" {
-          for_each = var.sidecar != null ? [var.sidecar] : []
-          iterator = sidecar
-          content {
-            image = local.image_path
-            command = sidecar.value.command
-            args = sidecar.value.args
-
-            resources {
-                limits = {
-                    "cpu" = var.container.resources.limits.cpu
-                    "memory" = var.container.resources.limits.memory
-                }
-                cpu_idle = var.container.resources.cpu_idle
-                startup_cpu_boost = var.container.resources.startup_cpu_boost
-            }
-
-            dynamic "env" {
-                for_each = var.container.env
-                content {
-                    name  = env.value.name
-                    value = env.value.value
-                    dynamic "value_source" {
-                        for_each = env.value.value_source.secret_key_ref.secret != null ? [env.value.value_source] : []
-                        content {
-                            secret_key_ref {
-                                secret  = value_source.value.secret_key_ref.secret
-                                version = value_source.value.secret_key_ref.version
-                            }
-                        }
-                    }
-                }
-            }
-          }
-        }
+        # volumes {
+        #   name = "cloudsql"
+        #   cloud_sql_instance {
+        #     instances = [data.google_sql_database_instance.database_instance.connection_name]
+        #   }
+        # }
     }
 
     scaling {
@@ -118,11 +88,5 @@ resource "google_cloud_run_v2_service" "service" {
     traffic {
         type = var.traffic.type
         percent = var.traffic.percent
-    }
-
-    timeouts {
-      create = "5m"
-      update = "5m"
-      delete = "5m"
     }
 }

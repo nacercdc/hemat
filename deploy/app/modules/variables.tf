@@ -45,7 +45,7 @@ variable "template" {
     labels = optional(map(string), {})
     annotations = optional(map(string), {})
     timeout = optional(string, "10s")
-    max_instance_request_concurrency = optional(number, 1)
+    max_instance_request_concurrency = optional(number, 100)
     scaling = optional(object({
       min_instance_count = number
       max_instance_count = number
@@ -54,12 +54,16 @@ variable "template" {
       min_instance_count = 0
       max_instance_count = 1
     })
+    vpc_access = optional(object({
+      connector = optional(string, null)
+      egress = optional(string, "PRIVATE_RANGES_ONLY")
+    }), null)
   })
   default = {
     labels = {}
     annotations = {}
     timeout = "10s"
-    max_instance_request_concurrency = 1
+    max_instance_request_concurrency = 100
     scaling = {
       min_instance_count = 0
       max_instance_count = 1
@@ -77,19 +81,22 @@ variable "container" {
       ports = optional(list(object({
         container_port = number
         name           = string
-      })), [])
+      })), [{
+        name = "http1"
+        container_port = 8080
+      }])
 
       resources = optional(object({
         limits = object({
-          cpu    = optional(string, "80m")
-          memory = optional(string, "128Mi")
+          cpu    = optional(string, "1000m")
+          memory = optional(string, "512Mi")
         })
         cpu_idle = optional(bool, true)
         startup_cpu_boost = optional(bool, false)
       }), {
         limits = {
-          cpu    = "80m"
-          memory = "128Mi"
+          cpu    = "1000m"
+          memory = "512Mi"
         }
         cpu_idle = true
         startup_cpu_boost = false
@@ -100,8 +107,8 @@ variable "container" {
     ports = []
     resources = {
       limits = {
-        cpu    = "80m"
-        memory = "128Mi"
+        cpu    = "1000m"
+        memory = "512Mi"
       }
       cpu_idle = true
       startup_cpu_boost = false
