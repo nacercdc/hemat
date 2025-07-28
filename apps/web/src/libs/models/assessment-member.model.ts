@@ -1,3 +1,4 @@
+import type { Domain } from "domain";
 import type { User } from "./user.model";
 
 export interface Invitations {
@@ -25,10 +26,11 @@ export interface AssessmentGroup {
   createdAt: string | null;
   deletedAt: string | null;
   updatedAt: string | null;
-  id?: string;
+  id: string;
   name: string;
   members: Member[];
   invitations: Invitations[];
+  domains: Domain[];
 }
 
 export interface MemberMoveTo {
@@ -47,4 +49,5 @@ export interface MemberUpdateRole {
 export type AssessmentGroupIncludeAble =
   | "members"
   | "members.user"
-  | "invitations";
+  | "invitations"
+  | "domains";
