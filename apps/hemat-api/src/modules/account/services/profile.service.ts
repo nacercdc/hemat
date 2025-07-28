@@ -1,12 +1,17 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, EntityManager, Repository } from 'typeorm';
-import { User, Profile } from '../../../database/entities';
-import { ConfigType } from '../../../config/types';
-import { AccountResponseDto, ProfileCreateRequestDto } from '../dtos';
-import { AuthDto } from '../../../shared/modules';
+import { Profile, User } from '../../../database/entities';
 import { CrudService } from '../../../shared/services';
+import { AuthDto } from '../../../shared/modules';
+import { AccountResponseDto } from '../dtos';
+import { ProfileCreateRequestDto } from '../dtos';
+import { FileUploadService, Media } from '@etm/server-media-upload';
 
 @Injectable()
 export class ProfileService extends CrudService<Profile> {
@@ -15,10 +20,8 @@ export class ProfileService extends CrudService<Profile> {
   constructor(
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     private readonly dataSource: DataSource,
-    private readonly configService: ConfigService<ConfigType>,
+    private readonly fileUploadService: FileUploadService,
   ) {
     super(profileRepository);
   }
@@ -67,5 +70,36 @@ export class ProfileService extends CrudService<Profile> {
         this.loggerService.error('updateProfile:', err);
         throw new BadRequestException('Failed to save profile');
       });
+  }
+
+  public async updateProfilePicture(auth: AuthDto, file: Express.Multer.File) {
+    type ProfileType = Profile & { medias: Media[] };
+    const profile = (await this.profileRepository
+      .createQueryBuilder('profile')
+      .leftJoinAndMapMany(
+        'profile.medias',
+        Media,
+        'media',
+        `media.entityId = profile.id::text AND media.entityType = :type AND media.deletedAt IS NULL`,
+        { type: 'profiles' },
+      )
+      .where('profile.userId = :userId', { userId: auth.id })
+      .andWhere('profile.deletedAt IS NULL')
+      .getOne()) as ProfileType;
+
+    if (!profile) {
+      throw new NotFoundException('User profile not found');
+    }
+
+    if (profile.medias.length > 0) {
+      await this.fileUploadService.delete(profile.medias[0].id);
+    }
+
+    return this.fileUploadService.upload(
+      file,
+      'picture',
+      'profiles',
+      profile.id,
+    );
   }
 }

@@ -6,6 +6,8 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -27,7 +29,11 @@ import {
 } from '../../../shared/modules';
 import { ExceptionResponseDto } from '../../../shared/dtos';
 import { ProfileService } from '../services';
-import { ProfileCreateRequestDto, AccountResponseDto } from '../dtos';
+import {
+  ProfileCreateRequestDto,
+  AccountResponseDto,
+} from '../dtos';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiBearerAuth()
 @ApiTags('Profiles')
@@ -51,6 +57,7 @@ import { ProfileCreateRequestDto, AccountResponseDto } from '../dtos';
 @Controller('profiles')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
+
   @ApiOperation({ summary: 'Update', description: 'Update profile.' })
   @ApiOkResponse({ description: 'Ok', type: AccountResponseDto })
   @HttpCode(HttpStatus.OK)
@@ -61,5 +68,21 @@ export class ProfileController {
     @Body() payload: ProfileCreateRequestDto,
   ) {
     return this.profileService.updateProfile(auth, payload);
+  }
+
+  @ApiOperation({
+    summary: 'Update Profile Picture',
+    description: 'Update profile picture using file upload.',
+  })
+  @ApiOkResponse({ description: 'Ok', type: AccountResponseDto })
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Post('profile-picture')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateProfilePicture(
+    @AuthUser() auth: AuthDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.profileService.updateProfilePicture(auth, file);
   }
 }
