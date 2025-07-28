@@ -19,16 +19,12 @@ export class RoleTransitionService {
     assessmentId: string;
     groupId: string;
   }): Promise<AssessmentMember> {
-    // Prevent role change if assessment is in progress or beyond and member is PRIMARY or TEAM_LEADER
-    const assessment = await manager.getRepository(Assessment).findOne({ where: { id: assessmentId } });
-    if (
-      assessment &&
-      [AssessmentStatus.IN_PROGRESS, AssessmentStatus.CLOSED, AssessmentStatus.COMPLETED].includes(assessment.status) &&
-      (member.role === MemberRole.PRIMARY || member.role === MemberRole.TEAM_LEADER)
-    ) {
-      throw new BadRequestException('Cannot change role of PRIMARY or TEAM_LEADER after assessment has started filling.');
+    // Return early if the member already has the target role
+    if (member.role === targetRole) {
+      return member;
     }
-
+    // Prevent role change if assessment is in progress or beyond and member is PRIMARY or TEAM_LEADER
+    // (Removed restriction to allow role changes at any time)
     const allMembers = await AssessmentMemberValidator.fetchAssessmentMembers(
       manager,
       assessmentId,
@@ -50,42 +46,19 @@ export class RoleTransitionService {
       );
     }
 
-    // MEMBER -> TEAM_LEADER: promoteUserId required only if there are other members
+    // MEMBER -> TEAM_LEADER: always demote old TEAM_LEADER (if any) and promote this member, do not require promoteUserId
     if (
       member.role === MemberRole.MEMBER &&
       targetRole === MemberRole.TEAM_LEADER
     ) {
-      if (otherGroupMembers.length > 0) {
-        if (!promoteUserId) {
-          throw new BadRequestException(
-            'promoteUserId is required when updating MEMBER to TEAM_LEADER if there are other members in the group.',
-          );
-        }
-        const promoteUser = otherGroupMembers.find(
-          (m) => m.id === promoteUserId && m.role === MemberRole.MEMBER,
-        );
-        if (!promoteUser) {
-          throw new BadRequestException(
-            'promoteUserId must be another MEMBER in the same group.',
-          );
-        }
-        // Demote any existing TEAM_LEADER in the group
-        const oldTeamLeader = otherGroupMembers.find(
-          (m) => m.role === MemberRole.TEAM_LEADER,
-        );
-        if (oldTeamLeader) {
-          await manager
-            .getRepository(AssessmentMember)
-            .update({ id: oldTeamLeader.id }, { role: MemberRole.MEMBER });
-        }
-        // Promote the specified user to TEAM_LEADER
+      const oldTeamLeader = otherGroupMembers.find(
+        (m) => m.role === MemberRole.TEAM_LEADER,
+      );
+      if (oldTeamLeader) {
         await manager
           .getRepository(AssessmentMember)
-          .update({ id: promoteUser.id }, { role: MemberRole.TEAM_LEADER });
-        // The current member remains MEMBER
-        return member;
+          .update({ id: oldTeamLeader.id }, { role: MemberRole.MEMBER });
       }
-      // If only one member, allow promotion directly
       member.role = MemberRole.TEAM_LEADER;
       return await manager.getRepository(AssessmentMember).save(member);
     }
@@ -100,18 +73,30 @@ export class RoleTransitionService {
           'promoteUserId is required when updating TEAM_LEADER to MEMBER.',
         );
       }
+      // Use member.groupId to fetch group members
+      const groupMembers = await AssessmentMemberValidator.fetchGroupMembers(
+        manager,
+        member.groupId,
+        assessmentId,
+      );
+      const otherGroupMembers = groupMembers.filter((m) => m.id !== member.id);
       const promoteUser = otherGroupMembers.find(
-        (m) => m.id === promoteUserId && m.role === MemberRole.MEMBER,
+        (m) => m.userId === promoteUserId
       );
       if (!promoteUser) {
         throw new BadRequestException(
-          'promoteUserId must be another MEMBER in the same group.',
+          'promoteUserId must be another member in the same group.',
         );
       }
       // Promote the specified user to TEAM_LEADER
       await manager
         .getRepository(AssessmentMember)
         .update({ id: promoteUser.id }, { role: MemberRole.TEAM_LEADER });
+      // --- Transfer group answers from old TEAM_LEADER to new TEAM_LEADER ---
+      await manager.getRepository('Answer').update(
+        { assessmentId, groupId: member.groupId, userId: member.userId, isPrimary: false },
+        { userId: promoteUser.userId }
+      );
       // The current member becomes MEMBER
       member.role = MemberRole.MEMBER;
       return await manager.getRepository(AssessmentMember).save(member);
@@ -145,6 +130,11 @@ export class RoleTransitionService {
             .getRepository(AssessmentMember)
             .update({ id: oldPrimary.id }, { role: MemberRole.MEMBER });
         }
+        // --- Transfer answers from old PRIMARY to new PRIMARY (member) ---
+        await manager.getRepository('Answer').update(
+          { assessmentId, userId: oldPrimary.userId, isPrimary: true },
+          { userId: member.userId }
+        );
       }
       // Cannot have TEAM_LEADER in the same group
       const groupHasTeamLeader = otherGroupMembers.some(
@@ -170,7 +160,7 @@ export class RoleTransitionService {
         );
       }
       const promoteUser = allMembers.find(
-        (m) => m.id === promoteUserId && m.role === MemberRole.TEAM_LEADER,
+        (m) => m.userId === promoteUserId && m.role === MemberRole.TEAM_LEADER,
       );
       if (!promoteUser) {
         throw new BadRequestException(
@@ -181,6 +171,11 @@ export class RoleTransitionService {
       await manager
         .getRepository(AssessmentMember)
         .update({ id: promoteUser.id }, { role: MemberRole.PRIMARY });
+      // --- Transfer all primary answers from old PRIMARY to new PRIMARY ---
+      await manager.getRepository('Answer').update(
+        { assessmentId, userId: member.userId, isPrimary: true },
+        { userId: promoteUser.userId }
+      );
       // The current member becomes TEAM_LEADER in their group if possible, else MEMBER
       const groupHasTeamLeader = otherGroupMembers.some(
         (m) => m.role === MemberRole.TEAM_LEADER,

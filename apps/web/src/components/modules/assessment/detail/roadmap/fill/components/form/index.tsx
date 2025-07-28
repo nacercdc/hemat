@@ -23,20 +23,9 @@ import type {
 } from "~/libs/models/roadmap-answer.model";
 import type { Answer, AnswerIncludable } from "~/libs/models/answer.model";
 import type { SubComponent } from "~/libs/models/subComponent.model";
+import { useParams } from "next/navigation";
 
 export const SubCompRoadmapFormID = "SubCompRoadmapForm";
-
-//TODO: extract every temp interface to there own model
-// export interface SubComponent {
-//   id: string;
-//   name: string;
-//   description: string;
-// }
-
-// export interface ScaleDescription {
-//   id: string;
-//   description: string;
-// }
 
 const MeasurementScaleSchema = z.object(
   {
@@ -53,15 +42,14 @@ const RoadmapFormSchema = z.object({
   startTime: z.date(),
   endTime: z.date(),
   measurementScale: MeasurementScaleSchema,
-  // TODO: uncomment me once the
-  // gapAddressed: z.string().superRefine((html, ctx) => {
-  //   if (isHtmlStringEmpty(html)) {
-  //     ctx.addIssue({
-  //       code: z.ZodIssueCode.custom,
-  //       message: "Gap addressed can't be empty",
-  //     });
-  //   }
-  // }),
+  gapAddressed: z.string().superRefine((html, ctx) => {
+    if (isHtmlStringEmpty(html)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Gap addressed can't be empty",
+      });
+    }
+  }),
   activities: z.string().superRefine((html, ctx) => {
     if (isHtmlStringEmpty(html)) {
       ctx.addIssue({
@@ -102,12 +90,14 @@ export function SubCompRoadmapForm({
   isLoading = false,
   onSubmitHandler,
 }: Props) {
+  const params = useParams();
+
   const { control, reset, handleSubmit } = useForm<RoadmapFormData>({
     defaultValues: {
       startTime: new Date(),
       endTime: new Date(),
       measurementScale: { id: "", name: "" },
-      // gapAddressed: "",
+      gapAddressed: "",
       activities: "",
       responsible: "",
       resources: "",
@@ -118,21 +108,19 @@ export function SubCompRoadmapForm({
   const [activeMeasurementScale, setActiveMeasurementScale] =
     useState<MeasurementScaleType>();
 
-  //TODO: replace assessmentId from params
   const { data: measurementScales, ...measurementScalesState } = useFindAll<
     QueryManyResponse<MeasurementScaleType>
   >({
-    path: "/assessments/e9989a40-722d-4541-b368-8c7ebab86013/measurement-scales",
+    path: `/assessments/${params.id as string}/measurement-scales`,
     queries: {
       limit: 100,
       page: 1,
     },
   });
 
-  //TODO: replace assessmentId from params
   const { data: subCompAssessmentAnswer, ...subCompAssessmentAnswerState } =
     useFindById<QueryManyResponse<Answer>, AnswerIncludable>({
-      path: `/assessments/e9989a40-722d-4541-b368-8c7ebab86013/sub-components/${subComponent?.id}/primary-answer`,
+      path: `/assessments/${params.id as string}/sub-components/${subComponent?.id}/primary-answer`,
 
       queries: {
         include: ["measurementScale"],
@@ -143,10 +131,9 @@ export function SubCompRoadmapForm({
       },
     });
 
-  //TODO: replace assessmentId from params
   const { data: subCompRoadmapAnswer, ...subCompRoadmapAnswerState } =
     useFindById<QueryManyResponse<RoadmapAnswer>, RoadmapAnswerIncludable>({
-      path: `/assessments/e9989a40-722d-4541-b368-8c7ebab86013/sub-components/${subComponent?.id}/roadmap-answer`,
+      path: `/assessments/${params.id as string}/sub-components/${subComponent?.id}/roadmap-answer`,
 
       queries: {
         include: ["measurementScale"],
@@ -198,7 +185,7 @@ export function SubCompRoadmapForm({
       reset({
         startTime: new Date(answer.startTime),
         endTime: new Date(answer.endTime),
-        // gapAddressed: answer.gapAddressed,
+        gapAddressed: answer.gapAddressed,
         activities: answer.activities,
         resources: answer.resources,
         responsible: answer.responsible,
@@ -211,7 +198,7 @@ export function SubCompRoadmapForm({
       reset({
         startTime: new Date(),
         endTime: new Date(),
-        // gapAddressed: "",
+        gapAddressed: "",
         activities: "",
         resources: "",
         responsible: "",
@@ -297,13 +284,13 @@ export function SubCompRoadmapForm({
           onBadgeLeave={onScaleDescMouseLeaveHandler}
         />
 
-        {/* <ETMEditorRHF
+        <ETMEditorRHF
           control={control}
           name="gapAddressed"
           label="Gap Addressed"
           labelVariant="medium"
           placeholder="Enter gap addressed here"
-        /> */}
+        />
 
         <ETMEditorRHF
           control={control}

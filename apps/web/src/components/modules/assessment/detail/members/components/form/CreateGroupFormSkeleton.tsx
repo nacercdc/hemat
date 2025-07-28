@@ -7,7 +7,7 @@ export function CreateGroupFormSkeleton() {
         <Skeleton className="h-6 w-40" />
       </div>
 
-      <div className="flex flex-col gap-6 px-8 flex-1 py-8 w-full">
+      <div className="flex flex-col gap-6 px-8 flex-1 py-8 w-full bg-dark-lighter/5">
         {/* Group name input */}
         <div className="space-y-2">
           <Skeleton className="h-4 w-24" />
@@ -15,14 +15,14 @@ export function CreateGroupFormSkeleton() {
         </div>
 
         {/* Members list */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 w-full">
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="flex justify-between items-center">
               <div className="flex items-center gap-4">
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <div className="space-y-1">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-3 w-full" />
                 </div>
               </div>
               <Skeleton className="h-6 w-6" />
@@ -32,7 +32,7 @@ export function CreateGroupFormSkeleton() {
       </div>
 
       {/* Footer Buttons */}
-      <div className="flex justify-between items-center w-full bg-layout-bg p-4 rounded-b-lg px-8 mt-auto">
+      <div className="flex justify-between items-center w-full bg-dark-lighter/5 p-4 rounded-b-lg px-8 mt-auto">
         <Skeleton className="h-10 w-32" />
         <div className="flex gap-4">
           <Skeleton className="h-10 w-24" />

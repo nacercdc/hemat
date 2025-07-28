@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { cn } from "~/utils/cn.util";
 import { ComponentsListSkeleton } from "./ComponentsListSkeleton";
 import { TruncatedText } from "~/components/ui/TruncatedText";
+import { Badge, Skeleton } from "@etm/web-ui-components";
 import type { SubComponent } from "~/libs/models/subComponent.model";
 import type { Component as ComponentModel } from "~/libs/models/component.model";
-import { Badge, Skeleton } from "@etm/web-ui-components";
+import type { FilledSubComponent } from "../..";
 
 export interface Component extends ComponentModel {
   subComponents: SubComponent[];
@@ -15,7 +16,7 @@ export interface Component extends ComponentModel {
 
 interface Props {
   components?: Component[];
-  numberOfFilledSubs: number;
+  filledSubs: FilledSubComponent[];
   numberOfSubs: number;
   statusLoading: boolean;
   isLoading?: boolean;
@@ -24,7 +25,7 @@ interface Props {
 
 export function ComponentsList({
   components,
-  numberOfFilledSubs,
+  filledSubs,
   numberOfSubs,
   statusLoading,
   isLoading = false,
@@ -42,6 +43,11 @@ export function ComponentsList({
       setActiveComponent(components?.[0]);
     }
   }, [activeComponent, components]);
+
+  const numOfFilledSub = useMemo(
+    () => filledSubs?.filter((sub) => sub.filled),
+    [filledSubs]
+  );
 
   if (isLoading) return <ComponentsListSkeleton />;
 
@@ -72,7 +78,7 @@ export function ComponentsList({
               {!statusLoading && (
                 <Badge
                   text={
-                    <span className="text-[9px]">{`${numberOfFilledSubs} / ${numberOfSubs}`}</span>
+                    <span className="text-[9px]">{`${numOfFilledSub?.length || 0} / ${numberOfSubs}`}</span>
                   }
                   shape="circular"
                   variant="light"

@@ -1,7 +1,6 @@
 name: Build and Deploy
 
 on:
-  pull_request:
   push:
     branches: 
       - main
@@ -9,7 +8,6 @@ on:
 
 jobs:
   build:
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/docker.yaml
     with:
       artifact_registry_region: us-west1
@@ -21,7 +19,6 @@ jobs:
       GCP_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
 
   deploy:
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
     needs: build
     uses: ./.github/workflows/terragrunt.yaml
     with:

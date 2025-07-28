@@ -21,6 +21,8 @@ import MemberRoleCard from "../../../components/MemberRoleCard";
 import MemberAction from "../MemberAction";
 import MemberInfo from "../MemberInfo";
 import InvitationSection from "./InvitationSection";
+import AssessmentGroupsSkeleton from "../form/AssessmentGroupsSkeleton";
+import InvitationListSkeleton from "./InvitationListSkeleton";
 
 export const groupSchema = z.object({
   id: z
@@ -126,7 +128,9 @@ export function SendInvitation() {
       }
     );
   };
-
+  if (assessmentGroupsState.isLoading) {
+    return <InvitationListSkeleton />;
+  }
   return (
     <div className="flex items-start flex-wrap justify-between gap-4">
       <div className="lg:w-3/5 w-full flex flex-col gap-3 p-2 bg-dark-lighter/5 rounded-sm">
@@ -136,7 +140,7 @@ export function SendInvitation() {
               control={control}
               name="group"
               labelKey="name"
-              placeholder="Select group"
+              placeholder="Select team"
               valueKey="id"
               options={assessmentGroups?.data ?? []}
             />
@@ -145,17 +149,21 @@ export function SendInvitation() {
             <InputRHF
               name="newGroup"
               control={control}
-              placeholder="Write group name"
+              placeholder="Write name of the team"
             />
           )}
+
           <Button
             type="button"
+            leftNode={
+              <Icon icon={"ic:baseline-groups"} className="!w-5 !h-5" />
+            }
             size="lg"
             color="primaryLight"
             variant="outline"
             onClick={openTextFiledHandler}
           >
-            {addNewGroupName ? "Exist group" : "New group"}
+            {addNewGroupName ? "Exist team" : "Create new"}
           </Button>
         </div>
         <div className="flex gap-3">
@@ -165,7 +173,7 @@ export function SendInvitation() {
             placeholder="Enter the email addresses of the participants you want to invite "
           />
           <Button
-            leftNode={<Icon icon={"mdi:users-add"} className="!w-5 !h-5" />}
+            leftNode={<Icon icon={"mdi:user-add"} className="!w-5 !h-5" />}
             size="lg"
             color="primaryLight"
             variant="outline"

@@ -1,5 +1,5 @@
 module "meta" {
-  source              = "./modules"
+  source              = "./modules/meta"
   
   project_name        = var.project_name
   project_id          = var.project_id

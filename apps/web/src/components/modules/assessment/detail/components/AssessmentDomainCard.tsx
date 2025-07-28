@@ -1,23 +1,34 @@
 import React from "react";
 import { Button, Progress } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import type { Access } from "~/libs/models/assessment.model";
 
-interface Domain {
+export type AssessmentRoleType = "primary" | "team-leader";
+export type GroupTagType = "primary" | "my" | "rest" | "roadmaps";
+
+export interface Domain {
   id: string;
   name: string;
-  componentsCount: number;
-  subComponentsCount: number;
+  componentscount: number;
+  subcomponentscount: number;
   progress: number;
+  fillAccess: AssessmentRoleType;
 }
 
 interface Props {
   domain: Domain;
+  access?: Access;
+  groupTag: GroupTagType;
+  groupId?: string;
   onDetailViewClickHandler: (id: string) => void;
-  onFillClickHandler: (id: string) => void;
+  onFillClickHandler: (id: string, groupId?: string) => void;
 }
 
 export default function AssessmentDomainCard({
   domain,
+  access,
+  groupTag,
+  groupId,
   onDetailViewClickHandler,
   onFillClickHandler,
 }: Props) {
@@ -33,11 +44,11 @@ export default function AssessmentDomainCard({
         <h3 className="text-sm font-bold">{domain.name}</h3>
         <div className="flex items-center">
           <span className="text-xs font-normal flex-wrap">Components :</span>
-          <span className="text-sm font-bold">{domain.componentsCount}</span>
+          <span className="text-sm font-bold">{domain.componentscount}</span>
         </div>
         <div className="flex items-center flex-wrap">
           <span className="text-xs font-normal">Sub-Components :</span>
-          <span className="text-sm font-bold">{domain.subComponentsCount}</span>
+          <span className="text-sm font-bold">{domain.subcomponentscount}</span>
         </div>
       </div>
 
@@ -49,6 +60,7 @@ export default function AssessmentDomainCard({
               {domain.progress}%
             </span>
           </div>
+
           <Progress
             value={domain.progress}
             color="#00B156"
@@ -56,16 +68,17 @@ export default function AssessmentDomainCard({
             shape="circular"
           />
           <div className="flex w-full items-center mt-4">
-            <Button
-              size="fullSm"
-              variant="outline"
-              onClick={() => onFillClickHandler(domain.id)}
-            >
-              <div className="flex items-center justify-center gap-4">
+            {((groupTag === "my" && access?.role === "primary") ||
+              domain.fillAccess === access?.role) && (
+              <Button
+                full
+                variant="outline"
+                rightNode={<Icon icon="lucide:chevron-right" />}
+                onClick={() => onFillClickHandler(domain.id, groupId)}
+              >
                 Fill
-                <Icon icon="lucide:chevron-right" />
-              </div>
-            </Button>
+              </Button>
+            )}
           </div>
         </div>
       </div>

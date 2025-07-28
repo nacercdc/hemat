@@ -3,29 +3,37 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import AssessmentDomainCard from "../../components/AssessmentDomainCard";
-
-export interface Domain {
-  id: string;
-  name: string;
-  componentsCount: number;
-  subComponentsCount: number;
-  progress: number;
-}
+import type {
+  Domain,
+  GroupTagType,
+} from "../../components/AssessmentDomainCard";
+import type { Access } from "~/libs/models/assessment.model";
 
 interface Props {
   title: string;
   subtitle: string;
   domains: Domain[];
-  groupId: string;
+  groupTag: GroupTagType;
+  groupId?: string;
+  access?: Access;
 }
 
-export function GroupedAssessment({ title, subtitle, domains }: Props) {
+export function GroupedAssessment({
+  groupTag,
+  groupId,
+  title,
+  subtitle,
+  domains,
+  access,
+}: Props) {
   const router = useRouter();
   const onDetailViewClickHandler = (id: string) => {
     router.push(`current-assessments/${id}`);
   };
-  const onFillClickHandler = (id: string) => {
-    router.push(`current-assessments/${id}/fill`);
+  const onFillClickHandler = (id: string, groupId?: string) => {
+    router.push(
+      `current-assessments/${id}/fill${groupTag === "primary" ? "?as=primary" : "?as=member"}${groupId ? `&groupId=${groupId}` : ""}`
+    );
   };
 
   return (
@@ -37,12 +45,15 @@ export function GroupedAssessment({ title, subtitle, domains }: Props) {
         </div>
       </div>
       <div className="flex flex-col sm:flex-row gap-6">
-        {domains.map((domain) => (
+        {domains?.map((domain) => (
           <AssessmentDomainCard
             key={domain.id}
             domain={domain}
+            groupTag={groupTag}
+            groupId={groupId}
             onDetailViewClickHandler={onDetailViewClickHandler}
             onFillClickHandler={onFillClickHandler}
+            access={access}
           />
         ))}
       </div>

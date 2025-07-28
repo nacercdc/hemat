@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { PageContainer } from "~/components/modules/components/PageContainer";
 import { ComponentsList } from "./components/components-list";
 import { SubCompRoadmapForm, SubCompRoadmapFormID } from "./components/form";
@@ -13,9 +13,17 @@ import type { Component } from "./components/components-list";
 import type { RoadmapFormData } from "./components/form";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { SubComponent } from "~/libs/models/subComponent.model";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
+import type {
+  FilledStatus,
+  FilledSubComponent,
+} from "../../current-assessment/fill";
 
 export function RoadmapFill() {
+  const params = useParams();
+
   const router = useRouter();
+
   const { toast } = useToast();
 
   const [activeComponent, setActiveComponent] = useState<Component>();
@@ -23,7 +31,6 @@ export function RoadmapFill() {
   const [activeSubComponentIndex, setActiveSubComponentIndex] =
     useState<number>(0);
 
-  //TODO: this will be replaced with our real assessment-segment from our path param
   //TODO: create and replace me with create roadmap answer model from models ASAP
   const { mutate: answerRoadmap, ...answerRoadmapState } = useAddMutation<
     { id: string; name: string },
@@ -36,13 +43,12 @@ export function RoadmapFill() {
       endTime: string;
       documentation: string; //delete me ASAP
     }
-  >("assessments/e9989a40-722d-4541-b368-8c7ebab86013/roadmaps");
+  >(`assessments/${params.id as string}/roadmaps`);
 
-  //TODO: this will be replaced with our real domain-segment from our path param
   const { data: components, ...componentsState } = useFindAll<
     QueryManyResponse<{ id: string; name: string }>
   >({
-    path: "/assessmentDomains/588f3382-e7e1-474c-8e3f-67eb9de43eec/components",
+    path: `/assessmentDomains/${params.roadMapId as string}/components`,
     queries: {
       limit: 100,
       page: 1,
@@ -62,6 +68,12 @@ export function RoadmapFill() {
     },
   });
 
+  const { data: filledSubComps, ...filledSubCompsState } = useFindById<
+    QueryManyResponse<FilledStatus>
+  >({
+    path: `/assessments/${params.id as string}/roadmaps/filled-status`,
+  });
+
   const isFirstSubComponent = activeSubComponentIndex === 0;
 
   const isLastSubComponent =
@@ -71,6 +83,14 @@ export function RoadmapFill() {
     subComponentsState.isPending ||
     subComponentsState.isLoading ||
     subComponentsState.isFetching;
+
+  const filledSubComponents: FilledSubComponent[] =
+    (subComponents?.data as unknown as SubComponent[])?.map((subComp) => ({
+      ...subComp,
+      filled: (filledSubComps as unknown as FilledStatus)?.ids.includes(
+        subComp.id
+      ),
+    })) || [];
 
   const onNavigateSubCompHandler = useCallback(
     (direction: "next" | "prev" | number) => {
@@ -112,13 +132,12 @@ export function RoadmapFill() {
   const onRoadmapSubmitHandler = (
     values: RoadmapFormData & { answerId: string }
   ) => {
-    //TODO replace assessment assessmentId ASAP
     answerRoadmap(
       {
         data: {
           ...values,
           measurementScaleId: values.measurementScale.id,
-          assessmentId: "e9989a40-722d-4541-b368-8c7ebab86013",
+          assessmentId: params.id as string,
           subComponentId: (
             subComponents?.data[
               activeSubComponentIndex
@@ -137,7 +156,7 @@ export function RoadmapFill() {
             message: "Roadmap has been filled successfully!",
             variant: "success",
           });
-
+          filledSubCompsState.refetch();
           onNavigateSubCompHandler("next");
         },
       }
@@ -154,6 +173,8 @@ export function RoadmapFill() {
     }
   }, [components?.data]);
 
+  // /assessments/{assessmentId}/roadmaps/filled-status
+
   return (
     <PageContainer
       //TODO: will be dynamic ass soon as the tab routing is fixed
@@ -169,6 +190,15 @@ export function RoadmapFill() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 w-full">
           <ComponentsList
             components={components?.data as unknown as Component[]}
+            statusLoading={
+              filledSubCompsState.isFetching ||
+              filledSubCompsState.isLoading ||
+              !(subComponents?.data as unknown as SubComponent[])
+            }
+            filledSubs={filledSubComponents}
+            numberOfSubs={
+              (subComponents?.data as unknown as SubComponent[])?.length || 0
+            }
             onClick={onComponentClickHandler}
             isLoading={componentsState.isFetching}
           />
@@ -206,9 +236,7 @@ export function RoadmapFill() {
               </div>
               <div className="justify-self-center absolute top-0 left-0 right-0 mx-auto z-10 w-full bg-dark-lighter/20 backdrop-blur-sm rounded-md rounded-b-none overflow-hidden px-2">
                 <Stepper
-                  steps={
-                    (subComponents?.data as unknown as SubComponent[]) || []
-                  }
+                  steps={filledSubComponents}
                   activeStep={activeSubComponentIndex}
                   onStepClick={onNavigateSubCompHandler}
                   isDisabled={

@@ -2,8 +2,11 @@ import 'reflect-metadata';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
 import { config } from 'dotenv';
+import * as path from 'path';
 
 config({ path: '.env' });
+
+const projectRoot = path.resolve(__dirname, '../../../..');
 
 export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   type: process.env.DATABASE_TYPE,
@@ -19,8 +22,20 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   dropSchema: false,
   keepConnectionAlive: true,
   logging: process.env.NODE_ENV !== 'production',
-  entities: ['dist/database/entities/*{.entity.js,.entity.ts}'],
-  migrations: ['dist/database/migrations/**/*{.ts,.js}'],
+  entities: [
+    'dist/database/entities/*{.entity.js,.entity.ts}',
+    path.join(
+      projectRoot,
+      'packages/server-media-upload/dist/src/entities/*.entity.js',
+    ),
+  ],
+  migrations: [
+    'dist/database/migrations/**/*{.ts,.js}',
+    // path.join(
+    //   projectRoot,
+    //   'packages/server-media-upload/dist/src/migrations/*.migration.js',
+    // ),
+  ],
   subscribers: ['dist/database/subscribers/*{.subscriber.js,.subscriber.ts}'],
   seeds: ['dist/database/seeders/**/*.js'],
   cli: {

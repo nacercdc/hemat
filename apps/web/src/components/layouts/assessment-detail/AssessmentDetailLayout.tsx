@@ -1,14 +1,14 @@
 "use client";
 
 import React, { Suspense, useCallback } from "react";
-import Loading from "~/app/(protected)/(dashboard)/loading";
 import { Skeleton, Tabs } from "@etm/web-ui-components";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { PageContainer } from "~/components/modules/components/PageContainer";
 import { cn } from "~/utils/cn.util";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 import type { Assessment } from "~/libs/models/assessment.model";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
+import Loading from "~/app/(protected)/(dashboard)/loading";
+import { AssessmentAccessProvider } from "~/components/modules/assessment/context/assessment-access/AssessmentAccessProvider";
 
 const TABS = [
   { value: "detail", label: "Detail" },
@@ -31,10 +31,13 @@ export function AssessmentDetailLayout({ children }: Props) {
   const assessmentId = params.id as string;
 
   const { data: assessment, ...assessmentState } = useFindById<
-    QueryManyResponse<Assessment>,
+    Assessment,
     unknown
   >({
     path: `/assessments/${assessmentId}`,
+    tqOptions: {
+      queryKey: ["assessment-detail"],
+    },
   });
 
   const currentTab = pathname.split("/").pop() as TabValue | undefined;
@@ -73,11 +76,15 @@ export function AssessmentDetailLayout({ children }: Props) {
           onTabClick={onTabClick}
         />
         <Suspense fallback={<Loading />}>
-          <div className={cn(showTabs && "-mt-8")}>{children}</div>
+          <div className={cn(showTabs && "-mt-8")}>{children}</div>{" "}
         </Suspense>
       </div>
     </PageContainer>
   );
 
-  return showTabs ? renderWithTabs : <>{children}</>;
+  return (
+    <AssessmentAccessProvider>
+      {showTabs ? renderWithTabs : children}{" "}
+    </AssessmentAccessProvider>
+  );
 }
