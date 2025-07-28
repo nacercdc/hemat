@@ -327,34 +327,31 @@ export class AssessmentGroupService {
         throw new NotFoundException('Group not found');
       }
       
-      // Validate all domains exist and belong to the assessment
-      const domains = await manager
+      // Validate domain exists and belongs to the assessment
+      const domain = await manager
         .getRepository(AssessmentDomain)
-        .findByIds(domainIds);
-      if (domains.length !== domainIds.length) {
-        throw new BadRequestException('One or more domains not found');
+        .findOne({ where: { id: domainIds[0] } });
+      if (!domain) {
+        throw new BadRequestException('Domain not found');
       }
-      for (const domain of domains) {
-        if (domain.assessmentId !== assessmentId) {
-          throw new BadRequestException(
-            'Domain does not belong to this assessment',
-          );
-        }
+      if (domain.assessmentId !== assessmentId) {
+        throw new BadRequestException(
+          'Domain does not belong to this assessment',
+        );
       }
       
-      // Validation: Check if domains are currently attached to the group
+      // Validation: Check if domain is currently attached to the group
       const currentDomainIds = (group.domains || []).map((d) => d.id);
-      const domainsToDetach = domains.filter((domain) => currentDomainIds.includes(domain.id));
-      if (domainsToDetach.length === 0) {
-        throw new BadRequestException('None of the provided domains are currently attached to this group');
+      if (!currentDomainIds.includes(domain.id)) {
+        throw new BadRequestException('The specified domain is not currently attached to this group');
       }
       
       this.logger.log(
-        `Detaching domains [${domainsToDetach.map(d => d.id).join(', ')}] from group ${groupId} in assessment ${assessmentId}`,
+        `Detaching domain ${domain.id} from group ${groupId} in assessment ${assessmentId}`,
       );
       
-      // Remove the domains from the group
-      group.domains = group.domains.filter((domain) => !domainIds.includes(domain.id));
+      // Remove the domain from the group
+      group.domains = group.domains.filter((d) => d.id !== domain.id);
       
       return await manager.getRepository(AssessmentGroup).save(group);
     });
