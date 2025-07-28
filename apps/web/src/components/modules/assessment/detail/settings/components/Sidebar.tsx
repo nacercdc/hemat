@@ -43,15 +43,18 @@ export function Sidebar<T extends Record<string, any>>({
     : [];
 
   return (
-    <div className="flex flex-col gap-3 w-full md:w-1/4 overflow-y-auto bg-basic-200/30 md:p-3 px-0 py-3 rounded-l-sm">
+    <div className="flex flex-row overflow-x-auto lg:flex-col gap-3 w-full lg:w-1/4 overflow-y-auto bg-basic-200/30 lg:p-3 px-0 py-3 rounded-l-sm">
       {sortedGroups.length > 0 ? (
         sortedGroups.map(([groupKey, items], groupIndex) => (
-          <div key={groupKey} className="flex flex-col gap-2">
+          <div
+            key={groupKey}
+            className="flex flex-row overflow-x-auto lg:flex-col gap-2"
+          >
             {items.map((item) => (
-              <div key={item.id} className="flex items-center gap-2 w-full">
+              <div key={item.id} className="flex items-center gap-2 w-full ">
                 <div
                   className={cn(
-                    "flex flex-1 items-center justify-between p-4 rounded-lg min-h-14 border border-basic-300 cursor-pointer",
+                    "flex flex-1  items-center justify-between p-4 rounded-lg min-h-14 border border-basic-300 cursor-pointer",
                     activeItem?.id === item.id &&
                       "bg-secondary-50/50 border border-secondary-500"
                   )}
@@ -76,12 +79,14 @@ export function Sidebar<T extends Record<string, any>>({
               </div>
             ))}
             {groupIndex < sortedGroups.length - 1 && (
-              <hr className="my-2 mr-8 border-dark-lighter/70 " />
+              <>
+                <hr className="my-2 mr-8 border-dark-lighter/70 lg:hidden" />
+                <div className="h-full hidden border-r-2 border-dark-lighter/70 lg:block" />
+              </>
             )}
           </div>
         ))
       ) : (
-        //TODO: Replace with empty placeholder when no items are found
         <div className="w-full h-full items-center justify-center flex text-center text-lg text-dark-light">
           No items found
         </div>

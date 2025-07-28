@@ -1,32 +1,24 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import {
   Button,
   ColorPickerRHF,
   InputRHF,
-  MultiSelectRHF,
   useToast,
 } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useCallback } from "react";
-import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
-import type { Language } from "~/libs/models/language.model";
 
 import { Fields } from "./Fields";
 import type {
   AssessmentMeasurementScale,
   AssessmentMeasurementScaleUpdate,
 } from "~/libs/models/assessment-measurement-scale.model";
-import {
-  DEFAULT_LANGUAGE_CODE,
-  DEFAULT_LANGUAGE_NAME,
-  DEFAULT_LANGUAGE_NATIVE,
-} from "~/constants";
+import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
+import type { Assessment } from "~/libs/models/assessment.model";
 
 export const assessmentMeasurementScaleFormSchema = z
   .object({
@@ -83,22 +75,19 @@ export type AssessmentMeasurementScaleFormData = z.infer<
 >;
 
 interface Props {
-  activeMeasurementScale: AssessmentMeasurementScale | null;
   assessmentId: string;
+  assessment?: Assessment;
+  activeMeasurementScale: AssessmentMeasurementScale | null;
   refetchMeasurementScales: () => void;
 }
 
 export function Content({
-  activeMeasurementScale,
+  assessment,
   assessmentId,
+  activeMeasurementScale,
   refetchMeasurementScales,
 }: Props) {
   const { toast } = useToast();
-  const { data: languages, isLoading: languagesLoading } = useFindAll<
-    QueryManyResponse<Language>
-  >({
-    path: "/languages",
-  });
   const { mutate: updateMeasurementScale, ...updateMeasurementScaleState } =
     usePutMutation<
       AssessmentMeasurementScale,
@@ -107,8 +96,9 @@ export function Content({
       `/assessments/${assessmentId}/measurement-scales/${activeMeasurementScale?.id}`
     );
 
-  const languageOptions: Language[] =
-    (languages?.data as unknown as Language[]) ?? [];
+  const nonDefaultLanguages = (assessment?.languages ?? []).filter(
+    (lang) => lang.code !== DEFAULT_LANGUAGE_CODE
+  );
 
   const getDefaultTranslations = useCallback(
     (measurementScale: AssessmentMeasurementScale | null) => {
@@ -119,7 +109,7 @@ export function Content({
         string,
         { name: string; description: string }
       > = {};
-      languageOptions.forEach((lang) => {
+      nonDefaultLanguages.forEach((lang) => {
         translations[lang.code] = {
           name:
             lang.code === DEFAULT_LANGUAGE_CODE
@@ -133,84 +123,31 @@ export function Content({
       });
       return translations;
     },
-    [languageOptions]
+    [nonDefaultLanguages]
   );
 
   const {
     control,
     handleSubmit,
     reset,
-    setValue,
     watch,
     formState: { errors },
   } = useForm<AssessmentMeasurementScaleFormData>({
     defaultValues: {
       name: activeMeasurementScale?.name ?? "",
       description: activeMeasurementScale?.description ?? "",
-      selectedLanguages: activeMeasurementScale?.translations
-        ? Object.keys(activeMeasurementScale.translations).map((code) => {
-            const lang = languageOptions.find((lang) => lang.code === code);
-            return lang ? lang : { name: "", code, native: "" };
-          })
-        : languageOptions.length > 0
-          ? [languageOptions[0]]
-          : [],
+      selectedLanguages: nonDefaultLanguages,
       translations: activeMeasurementScale?.translations ?? {},
     },
     resolver: zodResolver(assessmentMeasurementScaleFormSchema),
     mode: "all",
   });
 
-  const measurementScaleLanguages = activeMeasurementScale?.translations
-    ? Object.keys(activeMeasurementScale.translations).map((code) => {
-        const lang = languageOptions.find((lang) => lang.code === code);
-        return lang ? lang : { name: "", code, native: "" };
-      })
-    : languageOptions.length > 0
-      ? [languageOptions[0]]
-      : [];
-
-  const selectedLanguages = watch("selectedLanguages");
-  const defaultLanguage = languageOptions.find(
-    (lang) => lang.code === DEFAULT_LANGUAGE_CODE
-  ) || {
-    name: DEFAULT_LANGUAGE_NAME,
-    code: DEFAULT_LANGUAGE_CODE,
-    native: DEFAULT_LANGUAGE_NATIVE,
-  };
-
-  const onLanguageSelectHandler = useCallback(
-    (langs: Language[]) => {
-      langs.forEach((lang) => {
-        if (
-          !selectedLanguages.some((selected) => selected.code === lang.code)
-        ) {
-          const existingTranslation =
-            activeMeasurementScale?.translations?.[lang.code];
-
-          setValue(`translations.${lang.code}`, {
-            name:
-              existingTranslation?.name ??
-              (lang.code === DEFAULT_LANGUAGE_CODE
-                ? (watch("name") ?? "")
-                : ""),
-            description:
-              existingTranslation?.description ??
-              (lang.code === DEFAULT_LANGUAGE_CODE
-                ? (watch("description") ?? "")
-                : ""),
-          });
-        }
-      });
-    },
-    [selectedLanguages, activeMeasurementScale?.translations, setValue, watch]
-  );
-
   const onSubmitHandler = (values: AssessmentMeasurementScaleFormData) => {
     const filteredTranslations = Object.fromEntries(
       Object.entries(values.translations || {})
         .filter(([key]) =>
-          values.selectedLanguages?.some((lang) => lang.code === key)
+          nonDefaultLanguages?.some((lang) => lang.code === key)
         )
         .map(([key, value]) => [
           key,
@@ -251,40 +188,32 @@ export function Content({
       name: activeMeasurementScale?.name ?? "",
       description: activeMeasurementScale?.description ?? "",
       translations: getDefaultTranslations(activeMeasurementScale),
-      selectedLanguages:
-        measurementScaleLanguages.length > 0
-          ? measurementScaleLanguages
-          : [defaultLanguage],
+      selectedLanguages: nonDefaultLanguages,
     });
   }, [
     activeMeasurementScale,
     getDefaultTranslations,
-    measurementScaleLanguages,
+    nonDefaultLanguages,
     reset,
   ]);
 
   useEffect(() => {
-    if (languageOptions.length > 0) {
-      reset({
-        name: activeMeasurementScale?.name ?? "",
-        description: activeMeasurementScale?.description ?? "",
-        translations: getDefaultTranslations(activeMeasurementScale),
-        rate: activeMeasurementScale?.rate ?? 1,
-        color: activeMeasurementScale?.color ?? "#338E41",
-        selectedLanguages:
-          measurementScaleLanguages.length > 0
-            ? measurementScaleLanguages
-            : [defaultLanguage],
-      });
-    }
-  }, [activeMeasurementScale, languages, reset, getDefaultTranslations]);
+    reset({
+      name: activeMeasurementScale?.name ?? "",
+      description: activeMeasurementScale?.description ?? "",
+      translations: getDefaultTranslations(activeMeasurementScale),
+      rate: activeMeasurementScale?.rate ?? 1,
+      color: activeMeasurementScale?.color ?? "#338E41",
+      selectedLanguages: nonDefaultLanguages,
+    });
+  }, [activeMeasurementScale, assessment?.languages, reset]);
 
   if (!activeMeasurementScale) {
     return null;
   }
 
   return (
-    <div className="flex flex-col w-full md:w-3/4 h-fit bg-card border border-secondary-300 rounded-r-sm">
+    <div className="flex flex-col w-full lg:w-3/4 h-fit bg-card border border-secondary-300 rounded-r-sm">
       <form
         onSubmit={handleSubmit(onSubmitHandler)}
         className="flex flex-col gap-6 w-full flex-1 overflow-y-auto pb-20 p-4"
@@ -315,26 +244,13 @@ export function Content({
           </div>
           <Fields
             control={control}
-            selectedLanguages={selectedLanguages}
+            selectedLanguages={nonDefaultLanguages}
             watch={watch}
             errors={errors}
           />
-          <MultiSelectRHF
-            control={control}
-            name="selectedLanguages"
-            placeholder="Select Languages"
-            options={languageOptions}
-            valueKey="code"
-            labelKey="name"
-            displayLabel="Languages"
-            labelVariant="bold"
-            onChange={() => onLanguageSelectHandler}
-            size="lg"
-            loading={languagesLoading}
-          />
         </>
 
-        <div className="flex justify-end gap-8 items-center w-full bg-basic-200/30 p-4">
+        <div className="flex flex-col-reverse min-[400px]:flex-row justify-end gap-2 min-[400px]:gap-8 min-[400px]:items-center  items-end w-full bg-basic-200/30 p-4">
           <Button
             variant="outline"
             type="button"

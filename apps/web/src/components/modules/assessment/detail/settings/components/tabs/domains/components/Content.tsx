@@ -135,8 +135,6 @@ export function Content({
     mode: "all",
   });
 
-  const selectedLanguages = nonDefaultLanguages;
-
   const { mutate: updateDomain, ...updateDomainState } = usePutMutation<
     AssessmentDomain,
     AssessmentDomainUpdate
@@ -145,7 +143,9 @@ export function Content({
   const onSubmitHandler = (values: AssessmentDomainFormData) => {
     const filteredTranslations = Object.fromEntries(
       Object.entries(values.translations || {})
-        .filter(([key]) => selectedLanguages?.some((lang) => lang.code === key))
+        .filter(([key]) =>
+          nonDefaultLanguages?.some((lang) => lang.code === key)
+        )
         .map(([key, value]) => [
           key,
           {
@@ -163,7 +163,7 @@ export function Content({
           code: values.code,
           name: values.name,
           description: values.description,
-          translations: filteredTranslations, // only non-default languages
+          translations: filteredTranslations,
         },
         isProtected: true,
       },
@@ -207,18 +207,18 @@ export function Content({
   return (
     <form
       onSubmit={handleSubmit(onSubmitHandler)}
-      className="flex flex-col w-full md:w-3/4 h-full bg-card border border-secondary-300 rounded-r-sm gap-6 flex-1 overflow-y-auto pb-20 p-4"
+      className="flex flex-col w-full lg:w-3/4 h-full bg-card border border-secondary-300 rounded-r-sm gap-6 flex-1 overflow-y-auto pb-20 p-4"
     >
       <>
         <Fields
           control={control}
-          selectedLanguages={selectedLanguages}
+          selectedLanguages={nonDefaultLanguages}
           watch={watch}
           errors={errors}
         />
       </>
 
-      <div className="flex justify-end gap-8 items-center w-full bg-basic-200/30 p-4">
+      <div className="flex flex-col-reverse min-[400px]:flex-row justify-end gap-2 min-[400px]:gap-8 min-[400px]:items-center  items-end w-full bg-basic-200/30 p-4">
         <Button
           variant="outline"
           type="button"

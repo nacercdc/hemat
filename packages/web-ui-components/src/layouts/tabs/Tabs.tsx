@@ -24,7 +24,7 @@ export function Tabs<T extends string>({
 }: Props<T>) {
   return (
     <ShadcnTabs defaultValue={defaultValue} className="px-0">
-      <TabsList className="flex w-full gap-6 !bg-transparent justify-start mb-6">
+      <TabsList className="flex w-full gap-6 !bg-transparent justify-start mb-6 overflow-x-auto">
         {options.map((op) => (
           <TabsTrigger
             key={op.value}

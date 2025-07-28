@@ -40,12 +40,12 @@ export function Domain() {
   }, [domains]);
 
   return domainsState.isLoading ? (
-    <div className="flex flex-col md:flex-row min-h-full">
+    <div className="flex flex-col lg:flex-row min-h-full">
       <SidebarSkeleton itemCount={5} />
       <ContentSkeleton />
     </div>
   ) : domains?.data && domains.data.length > 0 ? (
-    <div className="flex flex-col md:flex-row min-h-full">
+    <div className="flex flex-col lg:flex-row min-h-full">
       <Sidebar<AssessmentDomain>
         list={domains?.data ?? []}
         activeItem={activeDomain}

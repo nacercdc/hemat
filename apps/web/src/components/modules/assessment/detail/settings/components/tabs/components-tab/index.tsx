@@ -40,12 +40,12 @@ export function ComponentTab() {
   }, [components]);
 
   return componentsState.isLoading ? (
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full">
       <SidebarSkeleton itemCount={5} />
       <ContentSkeleton />
     </div>
   ) : components?.data && components.data.length > 0 ? (
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full">
       <Sidebar<AssessmentComponent>
         list={components?.data ?? []}
         activeItem={activeComponent}

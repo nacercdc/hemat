@@ -1,11 +1,10 @@
 "use client";
 
-import { Button, MultiSelectRHF } from "@etm/web-ui-components";
+import { Button, Skeleton } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useCallback, useEffect } from "react";
-import type { Language } from "~/libs/models/language.model";
 import type { AssessmentSubComponent } from "~/libs/models/assessment-sub-component.model";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { TextAreaRHF, Accordion } from "@etm/web-ui-components";
@@ -14,6 +13,8 @@ import type {
   AssessmentSubComponentMeasurementScale,
   AssessmentSubComponentMeasurementScaleIncludable,
 } from "~/libs/models/assessment-sub-component.model";
+import type { Assessment } from "~/libs/models/assessment.model";
+import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 
 export const measurementFormSchema = z.object({
   measurements: z.array(
@@ -29,28 +30,16 @@ export const measurementFormSchema = z.object({
       ),
     })
   ),
-  selectedLanguages: z
-    .array(
-      z.object({
-        name: z.string(),
-        code: z.string(),
-        native: z.string(),
-      })
-    )
-    .min(1, { message: "At least one language is required" }),
 });
 
 export type MeasurementFormData = z.infer<typeof measurementFormSchema>;
 
 interface Props {
   activeSubComponent: AssessmentSubComponent | null;
-  languageOptions: Language[];
+  assessment?: Assessment;
 }
 
-export const MeasurementsForm = ({
-  activeSubComponent,
-  languageOptions,
-}: Props) => {
+export const MeasurementsForm = ({ activeSubComponent, assessment }: Props) => {
   const { data: measurements, isLoading: measurementsLoading } = useFindAll<
     AssessmentSubComponentMeasurementScale,
     AssessmentSubComponentMeasurementScaleIncludable
@@ -83,20 +72,20 @@ export const MeasurementsForm = ({
   } = useForm<MeasurementFormData>({
     defaultValues: {
       measurements: [],
-      selectedLanguages: [],
     },
     resolver: zodResolver(measurementFormSchema),
     mode: "all",
   });
 
-  const selectedLanguages = Array.isArray(watch("selectedLanguages"))
-    ? watch("selectedLanguages")
-    : [];
+  const assessmentLanguages = (assessment?.languages ?? []).filter(
+    (lang) => lang.code !== DEFAULT_LANGUAGE_CODE
+  );
+  const selectedLanguages = assessmentLanguages;
 
   const getDefaultMeasurementTranslations = useCallback(
     (existingTranslations: Record<string, { description: string }> = {}) => {
       const translations: Record<string, { description: string }> = {};
-      languageOptions.forEach((lang) => {
+      selectedLanguages.forEach((lang) => {
         translations[lang.code] = {
           description:
             existingTranslations[lang.code]?.description ||
@@ -107,7 +96,7 @@ export const MeasurementsForm = ({
       });
       return translations;
     },
-    [languageOptions]
+    [selectedLanguages]
   );
 
   useEffect(() => {
@@ -119,24 +108,17 @@ export const MeasurementsForm = ({
             measurement.translations
           ),
         })),
-        selectedLanguages:
-          languageOptions.length > 0
-            ? [
-                languageOptions.find((lang) => lang.code === "en") ||
-                  languageOptions[0],
-              ]
-            : [{ id: "", name: "", code: "en", native: "" }],
       });
     } else {
-      reset({ measurements: [], selectedLanguages: [] });
+      reset({ measurements: [] });
     }
-  }, [measurements, reset, getDefaultMeasurementTranslations, languageOptions]);
+  }, [measurements, reset, assessment?.languages]);
 
   const onSubmitHandler = (data: MeasurementFormData) => {
     data.measurements.forEach((measurement, index) => {
       const filteredTranslations = Object.fromEntries(
         Object.entries(measurement.translations).filter(([key]) =>
-          (data.selectedLanguages || []).some((lang) => lang.code === key)
+          (selectedLanguages || []).some((lang) => lang.code === key)
         )
       );
       updateMeasurement({
@@ -161,7 +143,15 @@ export const MeasurementsForm = ({
       </div>
       {/* TODO: Replace with empty place holder when no measurements are found */}
       {measurementsLoading ? (
-        <div>Loading measurement scales...</div>
+        <div className="flex flex-col gap-6 w-full">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <div className="flex h-16 gap-4 w-full items-center justify-end">
+            <Skeleton className="h-10 w-1/12 rounded-md" />
+          </div>
+        </div>
       ) : measurements?.data.length === 0 ? (
         <div>No measurement scales found for this sub-component.</div>
       ) : (
@@ -172,7 +162,7 @@ export const MeasurementsForm = ({
               {
                 value: `measurement-${index}-translations`,
                 trigger: (
-                  <div className="flex items-center gap-12 w-full font-medium">
+                  <div className="flex min-[400px]:items-center flex-col items-start w-full font-medium min-[400px]:flex-row min-[400px]:gap-12 ">
                     <span className="text-sm text-dark-light min-w-12">
                       {measurement.measurementScale?.name || "Measurement"}
                     </span>
@@ -191,7 +181,7 @@ export const MeasurementsForm = ({
                     {selectedLanguages.map((lang) => (
                       <div
                         key={lang.code}
-                        className="flex items-start justify-between py-2 gap-12"
+                        className="flex flex-col items-start py-2 min-[400px]:flex-row min-[400px]:gap-12 min-[400px]:justify-between"
                       >
                         <div className="text-sm font-medium min-w-12">{`${lang.code.toUpperCase()}:`}</div>
                         <div className="flex-1">
@@ -219,20 +209,6 @@ export const MeasurementsForm = ({
           />
         ))
       )}
-
-      <MultiSelectRHF
-        control={control}
-        name="selectedLanguages"
-        placeholder="Select Languages"
-        options={languageOptions}
-        valueKey="code"
-        labelKey="name"
-        displayLabel="Languages"
-        labelVariant="bold"
-        size="lg"
-        loading={false}
-        error={errors.selectedLanguages?.message}
-      />
       <div className="flex justify-end mt-4">
         <Button
           size="lg"

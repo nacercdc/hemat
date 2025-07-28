@@ -207,7 +207,7 @@ export function Content({
   return (
     <form
       onSubmit={handleSubmit(onSubmitHandler)}
-      className="flex flex-col w-full md:w-3/4 h-full bg-card border border-secondary-300 rounded-r-sm gap-6 flex-1 overflow-y-auto pb-20 p-4"
+      className="flex flex-col w-full lg:w-3/4 h-full bg-card border border-secondary-300 rounded-r-sm gap-6 flex-1 overflow-y-auto pb-20 p-4"
     >
       <>
         <Fields
@@ -218,7 +218,7 @@ export function Content({
         />
       </>
 
-      <div className="flex justify-end gap-8 items-center w-full bg-basic-200/30 p-4">
+      <div className="flex flex-col-reverse min-[400px]:flex-row justify-end gap-2 min-[400px]:gap-8 min-[400px]:items-center  items-end w-full bg-basic-200/30 p-4">
         <Button
           variant="outline"
           type="button"

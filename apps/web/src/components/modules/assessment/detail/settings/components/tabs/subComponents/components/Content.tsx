@@ -25,7 +25,7 @@ export function Content({
   });
 
   return (
-    <div className="flex flex-col w-full md:w-3/4 h-fit bg-card border border-secondary-300 rounded-r-sm">
+    <div className="flex flex-col w-full lg:w-3/4 h-fit bg-card border border-secondary-300 rounded-r-sm">
       {activeSubComponent && (
         <>
           <SubComponentForm
@@ -36,7 +36,7 @@ export function Content({
           />
           <MeasurementsForm
             activeSubComponent={activeSubComponent}
-            languageOptions={[]}
+            assessment={assessment}
           />
         </>
       )}

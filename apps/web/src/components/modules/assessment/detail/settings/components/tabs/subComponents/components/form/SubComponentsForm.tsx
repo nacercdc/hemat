@@ -15,7 +15,6 @@ import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import type { Assessment } from "~/libs/models/assessment.model";
 import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 
-// SubComponent Schema
 export const assessmentSubComponentFormSchema = z
   .object({
     name: z.string().min(1, { message: "Name is required" }),
@@ -179,6 +178,7 @@ export const SubComponentForm = ({
       selectedLanguages,
     });
   }, [activeSubComponent, getDefaultTranslations, reset, selectedLanguages]);
+
   useEffect(() => {
     reset({
       name: activeSubComponent?.name ?? "",
@@ -191,6 +191,7 @@ export const SubComponentForm = ({
   if (!activeSubComponent) {
     return null;
   }
+
   return (
     <form
       id="subComponent-form"
@@ -203,7 +204,7 @@ export const SubComponentForm = ({
         watch={watch}
         errors={errors}
       />
-      <div className="flex justify-end gap-4">
+      <div className="flex flex-col-reverse min-[400px]:flex-row justify-end gap-4 min-[400px]:gap-8 min-[400px]:items-center items-end ">
         <Button
           variant="outline"
           type="button"
@@ -214,7 +215,7 @@ export const SubComponentForm = ({
           Cancel
         </Button>
         <Button size="lg" type="submit" form="subComponent-form">
-          Save sub component
+          Save
         </Button>
       </div>
     </form>

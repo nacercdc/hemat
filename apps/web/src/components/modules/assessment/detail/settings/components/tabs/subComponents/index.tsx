@@ -31,12 +31,12 @@ export function SubComponents() {
   }, [subComponents]);
 
   return subComponentsState.isLoading ? (
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full">
       <SidebarSkeleton itemCount={5} />
       <ContentSkeleton />
     </div>
   ) : subComponents?.data && subComponents.data.length > 0 ? (
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full">
       <Sidebar<AssessmentSubComponent>
         list={subComponents?.data ?? []}
         activeItem={activeSubComponent}
