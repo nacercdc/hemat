@@ -12,6 +12,8 @@ import {
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -34,6 +36,7 @@ import {
   AccountResponseDto,
 } from '../dtos';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { MediaResponseDto } from '@etm/server-media-upload';
 
 @ApiBearerAuth()
 @ApiTags('Profiles')
@@ -72,9 +75,30 @@ export class ProfileController {
 
   @ApiOperation({
     summary: 'Update Profile Picture',
-    description: 'Update profile picture using file upload.',
+    description: 'Upload a new profile picture. This will replace any existing profile picture.',
   })
-  @ApiOkResponse({ description: 'Ok', type: AccountResponseDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Profile picture file (image format: JPG, PNG, GIF. Max size: 5MB)',
+        },
+      },
+      required: ['file'],
+    },
+  })
+  @ApiOkResponse({ 
+    description: 'Profile picture uploaded successfully', 
+    type: MediaResponseDto 
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid file format or size exceeded',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('profile-picture')
