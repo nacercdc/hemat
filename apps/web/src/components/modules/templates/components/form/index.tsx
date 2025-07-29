@@ -282,6 +282,7 @@ export function DomainComponentForm({
           labelVariant="bold"
           onChange={() => onLanguageSelectHandler}
           size="lg"
+          isModal={true}
           loading={languagesState.isLoading}
           error={errors.selectedLanguages?.message}
         />

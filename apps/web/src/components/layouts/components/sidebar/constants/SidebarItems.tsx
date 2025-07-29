@@ -41,7 +41,7 @@ export const groups = (
         depth: 0,
       },
       {
-        id: "domains",
+        id: "templates",
         label: "Templates",
         icon: (
           <Icon
@@ -49,7 +49,7 @@ export const groups = (
             className="!w-[18px] !h-[18px]"
           />
         ),
-        path: "/domains",
+        path: "/templates",
         permission: isLoading ? false : true,
         depth: 0,
       },
