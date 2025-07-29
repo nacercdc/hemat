@@ -222,6 +222,7 @@ export function DefaultFieldsForm({ subComponent, loading, onSubmit }: Props) {
         size="lg"
         loading={languagesState.isLoading}
         error={errors.selectedLanguages?.message}
+        isModal={true}
       />
       {/* English translation (default, not removable) */}
       <div className="rounded-md bg-layout-bg/30 p-4 mb-4 relative">
