@@ -1,26 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { Button, MultiSelectRHF, useToast } from "@etm/web-ui-components";
+import { Button, useToast } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useCallback } from "react";
-import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
-import type { Language } from "~/libs/models/language.model";
 
 import { Fields } from "./Fields";
 import type {
   AssessmentDomain,
   AssessmentDomainUpdate,
 } from "~/libs/models/assessment-domain.model";
-import {
-  DEFAULT_LANGUAGE_CODE,
-  DEFAULT_LANGUAGE_NAME,
-  DEFAULT_LANGUAGE_NATIVE,
-} from "~/constants";
+import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
+import type { Assessment } from "~/libs/models/assessment.model";
 
 export const assessmentDomainFormSchema = z
   .object({
@@ -84,25 +78,23 @@ export type AssessmentDomainFormData = z.infer<
 >;
 
 interface Props {
-  activeDomain: AssessmentDomain | null;
+  assessment?: Assessment;
   assessmentId: string;
   refetchDomains: () => void;
+  activeDomain: AssessmentDomain | null;
 }
 
-export function Content({ activeDomain, assessmentId, refetchDomains }: Props) {
+export function Content({
+  activeDomain,
+  assessment,
+  assessmentId,
+  refetchDomains,
+}: Props) {
   const { toast } = useToast();
-  const { data: languages, isLoading: languagesLoading } = useFindAll<
-    QueryManyResponse<Language>
-  >({
-    path: "/languages",
-  });
-  const { mutate: updateDomain, ...updateDomainState } = usePutMutation<
-    AssessmentDomain,
-    AssessmentDomainUpdate
-  >(`/assessments/${assessmentId}/domains/${activeDomain?.id}`);
 
-  const languageOptions: Language[] =
-    (languages?.data as unknown as Language[]) ?? [];
+  const nonDefaultLanguages = (assessment?.languages ?? []).filter(
+    (lang) => lang.code !== DEFAULT_LANGUAGE_CODE
+  );
 
   const getDefaultTranslations = useCallback(
     (domain: AssessmentDomain | null) => {
@@ -113,26 +105,22 @@ export function Content({ activeDomain, assessmentId, refetchDomains }: Props) {
         string,
         { name: string; description: string; code: string }
       > = {};
-      languageOptions.forEach((lang) => {
+      nonDefaultLanguages.forEach((lang) => {
         translations[lang.code] = {
-          name: lang.code === DEFAULT_LANGUAGE_CODE ? (domain?.name ?? "") : "",
-          description:
-            lang.code === DEFAULT_LANGUAGE_CODE
-              ? (domain?.description ?? "")
-              : "",
-          code: lang.code === DEFAULT_LANGUAGE_CODE ? (domain?.code ?? "") : "",
+          name: "",
+          description: "",
+          code: "",
         };
       });
       return translations;
     },
-    [languageOptions]
+    [nonDefaultLanguages]
   );
 
   const {
     control,
     handleSubmit,
     reset,
-    setValue,
     watch,
     formState: { errors },
   } = useForm<AssessmentDomainFormData>({
@@ -140,75 +128,23 @@ export function Content({ activeDomain, assessmentId, refetchDomains }: Props) {
       name: activeDomain?.name ?? "",
       description: activeDomain?.description ?? "",
       code: activeDomain?.code ?? "",
-      selectedLanguages: activeDomain?.translations
-        ? Object.keys(activeDomain.translations).map((code) => {
-            const lang = languageOptions.find((lang) => lang.code === code);
-            return lang ? lang : { name: "", code, native: "" };
-          })
-        : languageOptions.length > 0
-          ? [languageOptions[0]]
-          : [],
+      selectedLanguages: nonDefaultLanguages,
       translations: activeDomain?.translations ?? {},
     },
     resolver: zodResolver(assessmentDomainFormSchema),
     mode: "all",
   });
 
-  const domainLanguages = activeDomain?.translations
-    ? Object.keys(activeDomain.translations).map((code) => {
-        const lang = languageOptions.find((lang) => lang.code === code);
-        return lang ? lang : { name: "", code, native: "" };
-      })
-    : languageOptions.length > 0
-      ? [languageOptions[0]]
-      : [];
-
-  const selectedLanguages = watch("selectedLanguages");
-
-  const defaultLanguage = languageOptions.find(
-    (lang) => lang.code === DEFAULT_LANGUAGE_CODE
-  ) || {
-    name: DEFAULT_LANGUAGE_NAME,
-    code: DEFAULT_LANGUAGE_CODE,
-    native: DEFAULT_LANGUAGE_NATIVE,
-  };
-
-  const onLanguageSelectHandler = useCallback(
-    (langs: Language[]) => {
-      langs.forEach((lang) => {
-        if (
-          !selectedLanguages.some((selected) => selected.code === lang.code)
-        ) {
-          const existingTranslation = activeDomain?.translations?.[lang.code];
-
-          setValue(`translations.${lang.code}`, {
-            name:
-              existingTranslation?.name ??
-              (lang.code === DEFAULT_LANGUAGE_CODE
-                ? (watch("name") ?? "")
-                : ""),
-            description:
-              existingTranslation?.description ??
-              (lang.code === DEFAULT_LANGUAGE_CODE
-                ? (watch("description") ?? "")
-                : ""),
-            code:
-              existingTranslation?.code ??
-              (lang.code === DEFAULT_LANGUAGE_CODE
-                ? (watch("code") ?? "")
-                : ""),
-          });
-        }
-      });
-    },
-    [selectedLanguages, activeDomain?.translations, setValue, watch]
-  );
+  const { mutate: updateDomain, ...updateDomainState } = usePutMutation<
+    AssessmentDomain,
+    AssessmentDomainUpdate
+  >(`/assessments/${assessmentId}/domains/${activeDomain?.id}`);
 
   const onSubmitHandler = (values: AssessmentDomainFormData) => {
     const filteredTranslations = Object.fromEntries(
       Object.entries(values.translations || {})
         .filter(([key]) =>
-          values.selectedLanguages?.some((lang) => lang.code === key)
+          nonDefaultLanguages?.some((lang) => lang.code === key)
         )
         .map(([key, value]) => [
           key,
@@ -250,23 +186,19 @@ export function Content({ activeDomain, assessmentId, refetchDomains }: Props) {
       description: activeDomain?.description ?? "",
       code: activeDomain?.code ?? "",
       translations: getDefaultTranslations(activeDomain),
-      selectedLanguages:
-        domainLanguages.length > 0 ? domainLanguages : [defaultLanguage],
+      selectedLanguages: nonDefaultLanguages,
     });
-  }, [activeDomain, getDefaultTranslations, domainLanguages, reset]);
+  }, [activeDomain, getDefaultTranslations, nonDefaultLanguages, reset]);
 
   useEffect(() => {
-    if (languageOptions.length > 0) {
-      reset({
-        name: activeDomain?.name ?? "",
-        description: activeDomain?.description ?? "",
-        code: activeDomain?.code ?? "",
-        translations: getDefaultTranslations(activeDomain),
-        selectedLanguages:
-          domainLanguages.length > 0 ? domainLanguages : [defaultLanguage],
-      });
-    }
-  }, [activeDomain, languages, reset, getDefaultTranslations]);
+    reset({
+      name: activeDomain?.name ?? "",
+      description: activeDomain?.description ?? "",
+      code: activeDomain?.code ?? "",
+      translations: getDefaultTranslations(activeDomain),
+      selectedLanguages: nonDefaultLanguages,
+    });
+  }, [activeDomain, reset]);
 
   if (!activeDomain) {
     return null;
@@ -275,31 +207,18 @@ export function Content({ activeDomain, assessmentId, refetchDomains }: Props) {
   return (
     <form
       onSubmit={handleSubmit(onSubmitHandler)}
-      className="flex flex-col w-full md:w-3/4 h-full bg-card border border-secondary-300 rounded-r-sm gap-6 flex-1 overflow-y-auto pb-20 p-4"
+      className="flex flex-col w-full lg:w-3/4 h-full bg-card border border-secondary-300 rounded-r-sm gap-6 flex-1 overflow-y-auto pb-20 p-4"
     >
       <>
         <Fields
           control={control}
-          selectedLanguages={selectedLanguages}
+          selectedLanguages={nonDefaultLanguages}
           watch={watch}
           errors={errors}
         />
-        <MultiSelectRHF
-          control={control}
-          name="selectedLanguages"
-          placeholder="Select Languages"
-          options={languageOptions}
-          valueKey="code"
-          labelKey="name"
-          displayLabel="Languages"
-          labelVariant="bold"
-          onChange={() => onLanguageSelectHandler}
-          size="lg"
-          loading={languagesLoading}
-        />
       </>
 
-      <div className="flex justify-end gap-8 items-center w-full bg-basic-200/30 p-4">
+      <div className="flex flex-col-reverse min-[400px]:flex-row justify-end gap-2 min-[400px]:gap-8 min-[400px]:items-center  items-end w-full bg-basic-200/30 p-4">
         <Button
           variant="outline"
           type="button"

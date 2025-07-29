@@ -12,10 +12,20 @@ import { useParams } from "next/navigation";
 import { EmptyTableDataElement } from "~/components/modules/components/EmptyTableDataElement";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measurement-scale.model";
+import type {
+  Assessment,
+  AssessmentsIncludeAble,
+} from "~/libs/models/assessment.model";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 
 export function MeasurementScales() {
   const params = useParams();
   const { id: assessmentId } = params;
+
+  const { data: assessment } = useFindById<Assessment, AssessmentsIncludeAble>({
+    path: `assessments/${assessmentId as string}`,
+  });
+
   const { data: components, ...componentsState } =
     useFindAll<AssessmentMeasurementScale>({
       path: `/assessments/${assessmentId as string}/measurement-scales`,
@@ -30,12 +40,12 @@ export function MeasurementScales() {
   }, [components]);
 
   return componentsState.isLoading ? (
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full">
       <SidebarSkeleton itemCount={5} />
       <ContentSkeleton />
     </div>
   ) : components?.data && components.data.length > 0 ? (
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full">
       <Sidebar<AssessmentMeasurementScale>
         list={components?.data ?? []}
         activeItem={activeComponent}
@@ -46,6 +56,7 @@ export function MeasurementScales() {
       <Content
         activeMeasurementScale={activeComponent}
         assessmentId={assessmentId as string}
+        assessment={assessment}
         refetchMeasurementScales={componentsState.refetch}
       />
     </div>

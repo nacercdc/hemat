@@ -116,10 +116,17 @@ export function SubComponent({ subComponent }: Props) {
         data: {
           id: subComponent.id,
           name: values.name,
-          code: values.code,
           description: values.description,
           componentId: subComponent.componentId,
-          translations: values.translations ?? {},
+          translations: Object.fromEntries(
+            Object.entries(values.translations).map(([key, value]) => [
+              key,
+              {
+                name: value.name ?? "",
+                description: value.description ?? "",
+              },
+            ])
+          ),
         },
       },
       {

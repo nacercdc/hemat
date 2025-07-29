@@ -59,7 +59,7 @@ export function AssessmentDetailLayout({ children }: Props) {
       pageTitle={
         <>
           {!assessmentState.isFetching && (
-            <div>{(assessment as unknown as Assessment).name}</div>
+            <div>{(assessment as unknown as Assessment)?.name}</div>
           )}
           {assessmentState.isFetching && <Skeleton className="w-36 h-6" />}
         </>
