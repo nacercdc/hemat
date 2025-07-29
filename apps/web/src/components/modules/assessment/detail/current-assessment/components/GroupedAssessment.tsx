@@ -30,7 +30,7 @@ export function GroupedAssessment({
   const router = useRouter();
   const onDetailViewClickHandler = (domainId: string, groupId?: string) => {
     router.push(
-      `current-assessments/${domainId}/${groupId ? `&groupId=${groupId}` : ""}`
+      `current-assessments/${domainId}?${groupId ? `groupId=${groupId}` : ""}`
     );
   };
   const onFillClickHandler = (id: string, groupId?: string) => {

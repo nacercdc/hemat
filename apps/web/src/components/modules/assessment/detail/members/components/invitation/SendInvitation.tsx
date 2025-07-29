@@ -181,8 +181,36 @@ export function SendInvitation() {
             Add
           </Button>
         </div>
+        <div className="flex flex-col bg-card rounded-sm p-2">
+          {emails.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No emails added yet.
+            </p>
+          ) : (
+            emails.map((email) => (
+              <div key={email} className="flex justify-between">
+                <MemberInfo email={email} />
+                <MemberAction
+                  userId={email}
+                  refetch={() => removeEmailHandler(email)}
+                  optionsList={["Cancel Invitation"]}
+                />
+              </div>
+            ))
+          )}
 
-        {emails.length > 0 && (
+          <div className="flex justify-end mt-2">
+            <Button
+              type="button"
+              size="lg"
+              onClick={openInvitationModal}
+              disabled={emails.length === 0}
+            >
+              Send Invitation
+            </Button>
+          </div>
+        </div>
+        {/* {emails.length != 0 && (
           <div className="flex flex-col bg-card rounded-sm p-2">
             {emails.map((email) => (
               <div key={email} className="flex justify-between">
@@ -201,7 +229,7 @@ export function SendInvitation() {
               </Button>
             </div>
           </div>
-        )}
+        )} */}
         <InvitationSection
           assessmentGroups={assessmentGroups?.data}
           isLoading={assessmentGroupsState.isLoading}

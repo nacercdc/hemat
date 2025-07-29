@@ -29,7 +29,6 @@ export default function AssessmentDomainCard({
   access,
   groupTag,
   groupId,
-
   onDetailViewClickHandler,
   onFillClickHandler,
 }: Props) {

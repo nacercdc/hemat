@@ -25,10 +25,9 @@ import {
   PasswordMustIncludeTypes,
 } from "../../profile/components/tabs/change-password-tab";
 import type { Profile, RegisterProfile } from "~/libs/models/profile.model";
-import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import { formatDateToYYYYMMDD } from "@etm/utilities";
-import { Country } from "~/libs/models/country.model";
+import type { Country } from "~/libs/models/country.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 
 interface GenderType {
@@ -104,7 +103,7 @@ export default function Register() {
   const searchParams = useSearchParams();
   const invitationEmail = searchParams.get("email");
   const invitationIdFromURL = searchParams.get("invitationId");
-  const token = searchParams.get("token");
+  // const token = searchParams.get("token");
   const router = useRouter();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
@@ -121,11 +120,11 @@ export default function Register() {
   const { control, handleSubmit, watch } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
-      email: invitationEmail as string,
+      email: invitationEmail ? invitationEmail : "",
       firstName: "",
       lastName: "",
       jobTitle: "",
-      invitationId: invitationIdFromURL as string,
+      invitationId: invitationIdFromURL ? invitationIdFromURL : "",
     },
   });
   const password = watch("password") || "";
@@ -139,7 +138,7 @@ export default function Register() {
     registerProfile(
       {
         data: {
-          email: invitationEmail as string,
+          email: invitationEmail ? invitationEmail : "",
           title: values?.title?.id,
           firstName: values.firstName,
           lastName: values.lastName,

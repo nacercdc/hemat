@@ -195,6 +195,7 @@ export function CurrentAssessment() {
             domains={primaryDomainList}
             access={assessmentDetail?.access}
             assessmentId={assessmentId as string}
+            groupId={assessmentDetail?.access?.groupId}
           />
         )}
 
