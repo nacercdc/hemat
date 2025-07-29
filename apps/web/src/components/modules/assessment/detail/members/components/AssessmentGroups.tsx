@@ -63,6 +63,7 @@ export default function AssessmentGroups() {
       queryKey: ["domains"],
     },
   });
+  const assessmentDomains: Domain[] = assessmentDomainsRes?.data || [];
   const pathP =
     assessmentId && selectedGroupId
       ? `assessments/${assessmentId}/groups/${selectedGroupId}/domains`
@@ -71,9 +72,6 @@ export default function AssessmentGroups() {
     useFindAll<Domain>({
       path: pathP,
     });
-
-  const assessmentDomains: Domain[] = assessmentDomainsRes?.data || [];
-
   const assessmentGroupDomains = useMemo(() => {
     return assessmentGroupDomainsState.isSuccess &&
       Array.isArray(assessmentGroupDomainsRes)
@@ -135,38 +133,33 @@ export default function AssessmentGroups() {
     mutate: assessmentGroupDomainsDelete,
     ...assessmentGroupDomainsDeleteState
   } = useDeleteMutation<GroupDomainDelete>(
-    `assessments/${assessmentId}/groups/${selectedGroupId}/domains`
+    `assessments/${assessmentId}/groups/${selectedGroupId}/domain`
   );
+  const onAssignDomainToGroupDeleteHandler = (id: string) => {
+    assessmentGroupDomainsDelete(
+      { id },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            message:
+              "Domains have been detached from the this group successfully.",
+            variant: "success",
+          });
+          setSelectedDomainIds((prev) => prev.filter((d) => d !== id));
+          queryClient.invalidateQueries({
+            queryKey: ["groupDomains", assessmentId, selectedGroupId],
+          });
+        },
+      }
+    );
+  };
 
   useEffect(() => {
     if (assessmentGroup?.data && Array.isArray(assessmentGroup.data)) {
       setGroups(assessmentGroup.data);
     }
   }, [assessmentGroup?.data]);
-
-  const onAssignDomainToGroupDeleteHandler = () => {
-    assessmentGroupDomainsDelete(
-      {
-        // data: {
-        //   domainIds,
-        // },
-      },
-      {
-        onSuccess: () => {
-          toast({
-            title: "Success",
-            message: "Domains have been assigned successfully.",
-            variant: "success",
-          });
-          closeAssignDomainModalHandler();
-
-          queryClient.invalidateQueries({
-            queryKey: [ASSESSMENT_GROUPS_KEY],
-          });
-        },
-      }
-    );
-  };
 
   const onAssignDomainToGroupSubmitHandler = (id: string) => {
     assessmentGroupDomainsAssign(
@@ -182,9 +175,9 @@ export default function AssessmentGroups() {
             message: "Domains have been assigned successfully.",
             variant: "success",
           });
-          assignDomainModalRef.current?.closeModal();
+          setSelectedDomainIds((prev) => [...prev, id]);
           queryClient.invalidateQueries({
-            queryKey: [ASSESSMENT_GROUPS_KEY],
+            queryKey: ["groupDomains", assessmentId, selectedGroupId],
           });
         },
       }
@@ -226,7 +219,7 @@ export default function AssessmentGroups() {
                         openAssignDomainModalHandler(group.id);
                       }}
                     >
-                      Edit Domain
+                      Domain
                     </Button>
                   </div>
                 </div>
@@ -287,7 +280,7 @@ export default function AssessmentGroups() {
         )}
       </div>
 
-      <Modal ref={assignDomainModalRef} title="Assign Domains to Group">
+      <Modal ref={assignDomainModalRef} title="Modify Group Domains">
         <div className="px-8 py-4">
           {assessmentGroupDomainsState.isSuccess &&
           assessmentDomainsState.isSuccess ? (
@@ -302,7 +295,9 @@ export default function AssessmentGroups() {
                         <Icon
                           icon="material-symbols:close"
                           className="!w-8 !h-8  rounded-full p-1 cursor-pointer text-destructive bg-basic/10"
-                          onClick={() => onAssignDomainToGroupDeleteHandler()}
+                          onClick={() =>
+                            onAssignDomainToGroupDeleteHandler(domain.id)
+                          }
                         />
                       ) : (
                         <Icon
