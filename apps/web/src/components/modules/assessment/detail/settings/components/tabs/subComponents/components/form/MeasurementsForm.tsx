@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Skeleton } from "@etm/web-ui-components";
+import { Button, Skeleton, useToast } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,7 +14,11 @@ import type {
   AssessmentSubComponentMeasurementScaleIncludable,
 } from "~/libs/models/assessment-sub-component.model";
 import type { Assessment } from "~/libs/models/assessment.model";
-import { DEFAULT_LANGUAGE_CODE } from "~/constants";
+import {
+  DEFAULT_LANGUAGE_CODE,
+  DEFAULT_LANGUAGE_NAME,
+  DEFAULT_LANGUAGE_NATIVE,
+} from "~/constants";
 
 export const measurementFormSchema = z.object({
   measurements: z.array(
@@ -40,6 +44,8 @@ interface Props {
 }
 
 export const MeasurementsForm = ({ activeSubComponent, assessment }: Props) => {
+  const { toast } = useToast();
+
   const { data: measurements, isLoading: measurementsLoading } = useFindAll<
     AssessmentSubComponentMeasurementScale,
     AssessmentSubComponentMeasurementScaleIncludable
@@ -55,10 +61,10 @@ export const MeasurementsForm = ({ activeSubComponent, assessment }: Props) => {
     },
   });
 
-  const { mutate: updateMeasurement, ...updateMeasurementState } =
+  const { mutate: updateMeasurements, ...updateMeasurementState } =
     usePutMutation<
-      AssessmentSubComponentMeasurementScale,
-      AssessmentSubComponentMeasurementScale
+      AssessmentSubComponentMeasurementScale[],
+      AssessmentSubComponentMeasurementScale[]
     >(
       `/assessment-sub-components/${activeSubComponent?.id}/measurement-scales`
     );
@@ -89,7 +95,7 @@ export const MeasurementsForm = ({ activeSubComponent, assessment }: Props) => {
         translations[lang.code] = {
           description:
             existingTranslations[lang.code]?.description ||
-            (lang.code === "en"
+            (lang.code === DEFAULT_LANGUAGE_CODE
               ? existingTranslations.en?.description || ""
               : ""),
         };
@@ -115,22 +121,32 @@ export const MeasurementsForm = ({ activeSubComponent, assessment }: Props) => {
   }, [measurements, reset, assessment?.languages]);
 
   const onSubmitHandler = (data: MeasurementFormData) => {
-    data.measurements.forEach((measurement, index) => {
+    const measurementsData = data.measurements.map((measurement, index) => {
       const filteredTranslations = Object.fromEntries(
         Object.entries(measurement.translations).filter(([key]) =>
           (selectedLanguages || []).some((lang) => lang.code === key)
         )
       );
-      updateMeasurement({
-        data: {
-          description: measurement.description,
-          translations: filteredTranslations,
-          measurementScaleId:
-            measurements?.data[index]?.measurementScaleId ?? "",
-          subComponentId: activeSubComponent?.id ?? "",
-        },
-      });
+      return {
+        description: measurement.description,
+        translations: filteredTranslations,
+        measurementScaleId: measurements?.data[index]?.measurementScaleId ?? "",
+        subComponentId: activeSubComponent?.id ?? "",
+      };
     });
+
+    updateMeasurements(
+      { data: measurementsData },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Scale updated successfully",
+            message: "Sub component measurement scale updated successfully",
+            variant: "success",
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -169,37 +185,53 @@ export const MeasurementsForm = ({ activeSubComponent, assessment }: Props) => {
                     <span className="text-xs justify-start">
                       {selectedLanguages.length > 0 &&
                       selectedLanguages[0]?.code
-                        ? watch(
-                            `measurements.${index}.translations.${selectedLanguages[0].code}.description`
-                          ) || ""
+                        ? watch(`measurements.${index}.description`)
                         : ""}
                     </span>
                   </div>
                 ),
                 content: (
                   <div className="flex flex-col gap-4 bg-basic-200/30 border border-t-0 border-basic-300 rounded-b-lg px-6 py-4">
-                    {selectedLanguages.map((lang) => (
-                      <div
-                        key={lang.code}
-                        className="flex flex-col items-start py-2 min-[400px]:flex-row min-[400px]:gap-12 min-[400px]:justify-between"
-                      >
-                        <div className="text-sm font-medium min-w-12">{`${lang.code.toUpperCase()}:`}</div>
-                        <div className="flex-1">
-                          <TextAreaRHF
-                            control={control}
-                            name={`measurements.${index}.translations.${lang.code}.description`}
-                            placeholder={`Write description in ${lang.name || lang.native || lang.code}`}
-                            rows={4}
-                            labelVariant="bold"
-                            error={
-                              errors.measurements?.[index]?.translations?.[
-                                lang.code
-                              ]?.description?.message
-                            }
-                          />
+                    {/* Default Field for English */}
+                    <div className="flex-1">
+                      <TextAreaRHF
+                        control={control}
+                        name={`measurements.${index}.description`}
+                        placeholder={`Write description in ${DEFAULT_LANGUAGE_NAME || DEFAULT_LANGUAGE_NATIVE || DEFAULT_LANGUAGE_CODE}`}
+                        rows={4}
+                        labelVariant="bold"
+                        error={
+                          errors.measurements?.[index]?.translations?.[
+                            DEFAULT_LANGUAGE_CODE
+                          ]?.description?.message
+                        }
+                      />
+                    </div>
+                    {/* Translation Fields for non-English languages */}
+                    {selectedLanguages
+                      .filter((lang) => lang.code !== DEFAULT_LANGUAGE_CODE)
+                      .map((lang) => (
+                        <div
+                          key={lang.code}
+                          className="flex flex-col items-start py-2 min-[400px]:flex-row min-[400px]:gap-12 min-[400px]:justify-between"
+                        >
+                          <div className="text-sm font-medium min-w-12">{`${lang.code.toUpperCase()}:`}</div>
+                          <div className="flex-1">
+                            <TextAreaRHF
+                              control={control}
+                              name={`measurements.${index}.translations.${lang.code}.description`}
+                              placeholder={`Write description in ${lang.name || lang.native || lang.code}`}
+                              rows={4}
+                              labelVariant="bold"
+                              error={
+                                errors.measurements?.[index]?.translations?.[
+                                  lang.code
+                                ]?.description?.message
+                              }
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 ),
               },
