@@ -105,21 +105,6 @@ export const MeasurementsForm = ({ activeSubComponent, assessment }: Props) => {
     [selectedLanguages]
   );
 
-  useEffect(() => {
-    if (measurements?.data && measurements?.data.length > 0) {
-      reset({
-        measurements: measurements?.data.map((measurement) => ({
-          description: measurement.description,
-          translations: getDefaultMeasurementTranslations(
-            measurement.translations
-          ),
-        })),
-      });
-    } else {
-      reset({ measurements: [] });
-    }
-  }, [measurements, reset, assessment?.languages]);
-
   const onSubmitHandler = (data: MeasurementFormData) => {
     const measurementsData = data.measurements.map((measurement, index) => {
       const filteredTranslations = Object.fromEntries(
@@ -148,6 +133,21 @@ export const MeasurementsForm = ({ activeSubComponent, assessment }: Props) => {
       }
     );
   };
+
+  useEffect(() => {
+    if (measurements?.data && measurements?.data.length > 0) {
+      reset({
+        measurements: measurements?.data.map((measurement) => ({
+          description: measurement.description,
+          translations: getDefaultMeasurementTranslations(
+            measurement.translations
+          ),
+        })),
+      });
+    } else {
+      reset({ measurements: [] });
+    }
+  }, [measurements, reset, assessment?.languages]);
 
   return (
     <form

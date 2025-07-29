@@ -52,7 +52,6 @@ export function LanguageForm({
     <form
       onSubmit={handleSubmit((values) => {
         onSubmitLanguageForm(values);
-        reset();
       })}
       className="flex flex-col w-full min-h-20 bg-card rounded-xl relative"
     >
@@ -86,7 +85,12 @@ export function LanguageForm({
         />
       </div>
       <div className="flex justify-between items-center w-full bg-layout-bg p-4 rounded-b-lg px-8 mt-auto">
-        <Button variant="outline" type="button" onClick={onCancelHandler}>
+        <Button
+          variant="outline"
+          color="card"
+          type="button"
+          onClick={onCancelHandler}
+        >
           Cancel
         </Button>
         <Button size="lg" type="submit" loading={isLoading}>

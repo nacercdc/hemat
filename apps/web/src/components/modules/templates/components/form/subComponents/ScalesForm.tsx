@@ -273,6 +273,7 @@ export function ScalesForm({
           displayLabel="Languages"
           labelVariant="bold"
           size="lg"
+          isModal={true}
           loading={languagesState.isLoading}
           error={errors.selectedLanguages?.message}
         />

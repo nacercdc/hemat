@@ -70,7 +70,7 @@ export function UserForm({
   onSubmitUserFormHandler,
   onCloseModal,
 }: Props) {
-  const { control, handleSubmit, reset, watch } = useForm<UserFormData>({
+  const { control, handleSubmit, reset } = useForm<UserFormData>({
     defaultValues: {
       title: "Mrs",
       firstName: "",
@@ -81,8 +81,6 @@ export function UserForm({
     resolver: zodResolver(UserFormSchema),
     mode: "onChange",
   });
-
-  console.log(watch("roles"));
 
   const [permissionState, setPermissionState] = useState<
     Record<string, Record<PermissionType, boolean>>
