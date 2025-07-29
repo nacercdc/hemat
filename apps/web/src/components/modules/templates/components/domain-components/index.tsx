@@ -45,10 +45,17 @@ export function DomainComponents({ modalRef }: Props) {
       {
         data: {
           name: values.name,
-          code: values.code,
           description: values.description,
           domainId,
-          translations: values.translations,
+          translations: Object.fromEntries(
+            Object.entries(values.translations).map(([key, value]) => [
+              key,
+              {
+                name: value.name ?? "",
+                description: value.description ?? "",
+              },
+            ])
+          ),
         },
       },
       {

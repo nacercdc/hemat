@@ -16,6 +16,7 @@ import { SidebarSkeleton } from "../../SidebarSkeleton";
 export function SubComponents() {
   const params = useParams();
   const { id: assessmentId } = params;
+
   const { data: subComponents, ...subComponentsState } =
     useFindAll<AssessmentSubComponent>({
       path: `/assessments/${assessmentId as string}/sub-components`,
@@ -30,12 +31,12 @@ export function SubComponents() {
   }, [subComponents]);
 
   return subComponentsState.isLoading ? (
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full">
       <SidebarSkeleton itemCount={5} />
       <ContentSkeleton />
     </div>
   ) : subComponents?.data && subComponents.data.length > 0 ? (
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full">
       <Sidebar<AssessmentSubComponent>
         list={subComponents?.data ?? []}
         activeItem={activeSubComponent}
@@ -44,8 +45,8 @@ export function SubComponents() {
         displayKey="name"
       />
       <Content
-        activeSubComponent={activeSubComponent}
         assessmentId={assessmentId as string}
+        activeSubComponent={activeSubComponent}
         refetchSubComponents={subComponentsState.refetch}
       />
     </div>

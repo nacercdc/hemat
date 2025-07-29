@@ -29,7 +29,7 @@ export const PageHeader = React.forwardRef<HeaderRef, Props>(
     return (
       <div
         className={cn(
-          "flex items-center justify-between sticky top-0 z-20 bg-white pt-7",
+          "flex items-center justify-between sticky top-0 z-20 bg-white pt-7 max-[350px]:flex-col max-[350px]:items-start max-[350px]:gap-2",
           containerScrolled &&
             "-mx-7 px-7 border-b border-success-200 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]"
         )}

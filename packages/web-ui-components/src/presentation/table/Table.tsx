@@ -189,7 +189,7 @@ export function Table<TData extends object>({
             !(filterableColumns()?.[0] as FilterOptionsType[]).length && (
               <h2 className="text-lg font-bold">{`List of ${collectionName?.charAt(0).toUpperCase() + collectionName?.slice(1).toLowerCase()}`}</h2>
             )}
-          <div className="flex gap-5 items-center justify-between w-full">
+          <div className="flex gap-1 min-[400px]:gap-5 items-center justify-between w-full max-[400px]:flex-col-reverse max-[400px]:items-end">
             {(filterableColumns()?.[0] as FilterOptionsType[]).length > 0 && (
               <div className="max-w-sm w-full mt-2">
                 <Input
@@ -205,14 +205,14 @@ export function Table<TData extends object>({
                 />
               </div>
             )}
-            {toolbar}
+            <div>{toolbar}</div>
           </div>
         </div>
       ) : (
         <div className="flex mb-2"> {toolbar}</div>
       )}
       <div className="flex flex-col min-h-[650px] justify-between bg-transparent rounded-sm h-full">
-        <div className=" p-0 rounded-sm rounded-b-none border-[1px] border-basic-300">
+        <div className=" p-0 rounded-sm rounded-b-none border-[1px] border-basic-300 overflow-x-auto">
           <table className="w-full">
             <thead className="bg-basic-200 w-full">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -225,7 +225,8 @@ export function Table<TData extends object>({
                         "text-left py-4 px-2 font-bold text-[13px]",
                         "cursor-pointer",
                         header.id === "select" && "w-0",
-                        header.id === "Action" && "text-right"
+                        header.id === "Action" &&
+                          "text-right sticky right-0 bg-basic-200"
                       )}
                     >
                       {flexRender(
@@ -287,17 +288,24 @@ export function Table<TData extends object>({
                         index !== table.getRowModel().rows.length - 1,
                     })}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="py-0 px-2 text-sm font-medium"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    ))}
+                    {row.getVisibleCells().map((cell) => {
+                      const isActionColumn = cell.column.id === "Action";
+                      return (
+                        <td
+                          key={cell.id}
+                          className={cn(
+                            "py-0 px-2 text-sm font-medium",
+                            isActionColumn &&
+                              "text-right sticky right-0 bg-card z-10"
+                          )}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))
               )}

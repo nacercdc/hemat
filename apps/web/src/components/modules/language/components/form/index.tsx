@@ -8,7 +8,13 @@ import type { Language } from "~/libs/models/language.model";
 
 const LanguageFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
-  code: z.string().min(1, { message: "Code is required" }),
+  code: z
+    .string()
+    .min(2, { message: "Code must be at least 2 characters" })
+    .max(10, { message: "Code must be at most 10 characters" })
+    .refine((val) => !/\s/.test(val), {
+      message: "Code must not contain spaces",
+    }),
   native: z.string().min(1, { message: "Native is required" }),
 });
 
