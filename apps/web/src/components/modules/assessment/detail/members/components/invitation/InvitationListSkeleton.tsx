@@ -10,35 +10,33 @@ export default function InvitationListSkeleton() {
             <span className="font-semibold text-sm bg-gray-300 h-4 w-32 rounded"></span>
           </div> */}
 
-          {[...Array(2)].map((_, idx) => (
-            <div
-              key={idx}
-              className="relative border-2 rounded-lg px-4 pt-10 pb-4 bg-primary-50/20 border-primary-50"
-            >
-              <div className="absolute -top-3 left-4 bg-white py-2 px-4 text-sm font-bold border-2 border-primary-50 rounded w-3/4">
-                <div className="flex gap-6 items-center">
-                  <Skeleton className="w-24 h-4 rounded" />
-                  <Skeleton className="w-24 h-8 rounded-md" />
-                </div>
+          <div className=" border-2 rounded-lg px-4 pt-10 pb-4 bg-primary-50/20 border-primary-50">
+            <div className="flex flex-col gap-6 w-full">
+              <div className="flex gap-4 items-center w-full">
+                <Skeleton className="w-10/12 h-8 rounded" />
+                <Skeleton className="w-2/12 h-8 rounded-md" />
               </div>
+              <div className="flex gap-4 items-center w-full">
+                <Skeleton className="w-10/12 h-8 rounded" />
+                <Skeleton className="w-2/12 h-8 rounded-md" />
+              </div>
+            </div>
 
-              {[...Array(3)].map((__, i) => (
-                <div key={i} className="flex flex-col m-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className=" h-10  w-10 rounded-full" />
-                      <div className="flex flex-col">
-                        <Skeleton className="w-16 h-4" />
-                        <Skeleton className="w-16 h-3" />
-                      </div>
+            {[...Array(3)].map((__, i) => (
+              <div key={i} className="flex flex-col m-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className=" h-10  w-10 rounded-full" />
+                    <div className="flex flex-col gap-1 justify-start ">
+                      <Skeleton className="w-40 h-3" />
+                      <Skeleton className="w-40 h-3" />
+                      <Skeleton className="w-20 h-3" />
                     </div>
-
-                    <Skeleton className=" h-8 w-16" />
                   </div>
                 </div>
-              ))}
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
