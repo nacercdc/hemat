@@ -340,7 +340,7 @@ export default function Register() {
           disabled={registerProfileState.isPending}
           loading={registerProfileState.isPending}
         >
-          Rejecter
+          Register
         </Button>
       </div>
     </form>
