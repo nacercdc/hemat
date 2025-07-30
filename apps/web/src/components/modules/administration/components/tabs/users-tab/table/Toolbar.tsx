@@ -26,7 +26,7 @@ export default function Toolbar({ onStatusTypeCheck }: Props) {
   };
 
   return (
-    <div className="flex justify-between items-center gap-4">
+    <div className="flex justify-between items-center gap-4 max-[400px]:w-full">
       <CheckboxFilter<StatusType>
         title="Filter"
         options={StatusTypesOptions}

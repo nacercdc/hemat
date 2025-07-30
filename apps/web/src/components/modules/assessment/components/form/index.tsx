@@ -24,12 +24,15 @@ const languageSchema = z.object({
     .min(2, { message: "Language name is too short" })
     .max(50, { message: "Language name is too long" }),
 });
-const countrySchema = z.object({
-  code: z
-    .string()
-    .min(2, { message: "Country name is too short" })
-    .max(50, { message: "Country name is too long" }),
-});
+const countrySchema = z.object(
+  {
+    code: z
+      .string()
+      .min(2, { message: "Country name is too short" })
+      .max(50, { message: "Country name is too long" }),
+  },
+  { required_error: "Country is required" }
+);
 const AssessmentFormSchema = z
   .object({
     name: z

@@ -1,11 +1,10 @@
 "use client";
 
-import { Button, MultiSelectRHF, useToast } from "@etm/web-ui-components";
+import { Button, useToast } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useEffect, useCallback } from "react";
-import type { Language } from "~/libs/models/language.model";
 
 import { Fields } from "./SubComponentFields";
 import type {
@@ -13,8 +12,9 @@ import type {
   AssessmentSubComponentUpdate,
 } from "~/libs/models/assessment-sub-component.model";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
+import type { Assessment } from "~/libs/models/assessment.model";
+import { DEFAULT_LANGUAGE_CODE } from "~/constants";
 
-// SubComponent Schema
 export const assessmentSubComponentFormSchema = z
   .object({
     name: z.string().min(1, { message: "Name is required" }),
@@ -77,24 +77,43 @@ export type AssessmentSubComponentFormData = z.infer<
 >;
 
 interface Props {
-  languageOptions: Language[];
+  assessment?: Assessment;
   assessmentId: string;
   refetchSubComponents: () => void;
   activeSubComponent: AssessmentSubComponent | null;
 }
 
 export const SubComponentForm = ({
-  languageOptions,
+  assessment,
   assessmentId,
   activeSubComponent,
   refetchSubComponents,
 }: Props) => {
   const { toast } = useToast();
-  const { mutate: saveSubComponent } = usePutMutation<
-    AssessmentSubComponent,
-    AssessmentSubComponentUpdate
-  >(`/assessments/${assessmentId}/sub-components/${activeSubComponent?.id}`);
-
+  const assessmentLanguages = (assessment?.languages ?? []).filter(
+    (lang) => lang.code !== DEFAULT_LANGUAGE_CODE
+  );
+  const selectedLanguages = assessmentLanguages;
+  const getDefaultTranslations = useCallback(
+    (subComponent: AssessmentSubComponent | null) => {
+      if (subComponent?.translations) {
+        return subComponent.translations;
+      }
+      const translations: Record<
+        string,
+        { name: string; description: string; code: string }
+      > = {};
+      selectedLanguages.forEach((lang) => {
+        translations[lang.code] = {
+          name: "",
+          description: "",
+          code: "",
+        };
+      });
+      return translations;
+    },
+    [selectedLanguages]
+  );
   const {
     control,
     handleSubmit,
@@ -106,57 +125,20 @@ export const SubComponentForm = ({
       name: activeSubComponent?.name ?? "",
       description: activeSubComponent?.description ?? "",
       code: activeSubComponent?.code ?? "",
-      translations: {},
-      selectedLanguages: [],
+      selectedLanguages,
+      translations: activeSubComponent?.translations ?? {},
     },
     resolver: zodResolver(assessmentSubComponentFormSchema),
     mode: "all",
   });
-
-  const selectedLanguages = watch("selectedLanguages");
-
-  const getDefaultTranslations = useCallback(
-    (subComponent: AssessmentSubComponent | null) => {
-      const translations: Record<
-        string,
-        { name: string; description: string; code: string }
-      > = {};
-      languageOptions.forEach((lang) => {
-        translations[lang.code] = {
-          name: lang.code === "en" ? (subComponent?.name ?? "") : "",
-          description:
-            lang.code === "en" ? (subComponent?.description ?? "") : "",
-          code: lang.code === "en" ? (subComponent?.code ?? "") : "",
-        };
-      });
-      return translations;
-    },
-    [languageOptions]
-  );
-
-  const onCancelHandler = useCallback(() => {
-    const defaultLang = languageOptions.find((lang) => lang.code === "en") ||
-      languageOptions[0] || {
-        id: "",
-        name: "",
-        code: "en",
-        native: "",
-      };
-    reset({
-      name: activeSubComponent?.name ?? "",
-      description: activeSubComponent?.description ?? "",
-      code: activeSubComponent?.code ?? "",
-      translations: getDefaultTranslations(activeSubComponent),
-      selectedLanguages: languageOptions.length > 0 ? [defaultLang] : [],
-    });
-  }, [activeSubComponent, getDefaultTranslations, languageOptions, reset]);
-
+  const { mutate: saveSubComponent } = usePutMutation<
+    AssessmentSubComponent,
+    AssessmentSubComponentUpdate
+  >(`/assessments/${assessmentId}/sub-components/${activeSubComponent?.id}`);
   const onSubmitHandler = (values: AssessmentSubComponentFormData) => {
     const filteredTranslations = Object.fromEntries(
       Object.entries(values.translations || {})
-        .filter(([key]) =>
-          values.selectedLanguages?.some((lang) => lang.code === key)
-        )
+        .filter(([key]) => selectedLanguages?.some((lang) => lang.code === key))
         .map(([key, value]) => [
           key,
           {
@@ -187,21 +169,28 @@ export const SubComponentForm = ({
       }
     );
   };
+  const onCancelHandler = useCallback(() => {
+    reset({
+      name: activeSubComponent?.name ?? "",
+      description: activeSubComponent?.description ?? "",
+      code: activeSubComponent?.code ?? "",
+      translations: getDefaultTranslations(activeSubComponent),
+      selectedLanguages,
+    });
+  }, [activeSubComponent, getDefaultTranslations, reset, selectedLanguages]);
 
   useEffect(() => {
-    if (languageOptions.length > 0) {
-      const defaultLang =
-        languageOptions.find((lang) => lang.code === "en") ||
-        languageOptions[0];
-      reset({
-        name: activeSubComponent?.name ?? "",
-        description: activeSubComponent?.description ?? "",
-        code: activeSubComponent?.code ?? "",
-        translations: getDefaultTranslations(activeSubComponent),
-        selectedLanguages: defaultLang ? [defaultLang] : [],
-      });
-    }
-  }, [activeSubComponent, languageOptions, reset, getDefaultTranslations]);
+    reset({
+      name: activeSubComponent?.name ?? "",
+      description: activeSubComponent?.description ?? "",
+      code: activeSubComponent?.code ?? "",
+      translations: getDefaultTranslations(activeSubComponent),
+      selectedLanguages,
+    });
+  }, [activeSubComponent, reset, assessment?.languages]);
+  if (!activeSubComponent) {
+    return null;
+  }
 
   return (
     <form
@@ -215,20 +204,7 @@ export const SubComponentForm = ({
         watch={watch}
         errors={errors}
       />
-      <MultiSelectRHF
-        control={control}
-        name="selectedLanguages"
-        placeholder="Select Languages"
-        options={languageOptions}
-        valueKey="code"
-        labelKey="name"
-        displayLabel="Languages"
-        labelVariant="bold"
-        size="lg"
-        loading={false}
-        error={errors.selectedLanguages?.message}
-      />
-      <div className="flex justify-end gap-4">
+      <div className="flex flex-col-reverse min-[400px]:flex-row justify-end gap-4 min-[400px]:gap-8 min-[400px]:items-center items-end ">
         <Button
           variant="outline"
           type="button"
@@ -239,7 +215,7 @@ export const SubComponentForm = ({
           Cancel
         </Button>
         <Button size="lg" type="submit" form="subComponent-form">
-          Save sub component
+          Save
         </Button>
       </div>
     </form>
