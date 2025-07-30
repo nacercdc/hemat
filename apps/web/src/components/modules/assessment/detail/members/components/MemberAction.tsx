@@ -142,7 +142,7 @@ export default function MemberAction({
 
   const { data: assessmentGroups, ...assessmentGroupsState } =
     useFindAll<AssessmentGroup>({
-      path: assessmentId ? `/assessments/${assessmentId}/groups` : "",
+      path: `/assessments/${assessmentId}/groups`,
       tqOptions: {
         queryKey: [ASSESSMENT_GROUP_LIST_KEY, assessmentId],
         enabled: !!assessmentId,
