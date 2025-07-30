@@ -19,8 +19,7 @@ import {
   ApiTooManyRequestsResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AuthGuard, Abilities } from '@shared/modules';
-import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { AuthGuard } from '@shared/modules';
 import { ExceptionResponseDto, FindAllResponseDto } from '@shared/dtos';
 import { CountryService } from '../services/country.service';
 import { FindAllCountryDto } from '../dtos';
@@ -45,7 +44,6 @@ import { Country } from '@database/entities';
   description: 'Too Many Requests',
   type: ExceptionResponseDto,
 })
-@UseGuards(AuthGuard)
 @Controller('countries')
 export class CountryController {
   constructor(private readonly countryService: CountryService) {}
@@ -57,15 +55,6 @@ export class CountryController {
   @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Country> })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.READ,
-        subject: PermissionSubjectEnum.COUNTRY,
-      },
-    ],
-  })
   @Get()
   async findAll(@Query() query: FindAllCountryDto) {
     return this.countryService.findAll(query);
@@ -75,15 +64,6 @@ export class CountryController {
   @ApiOkResponse({ description: 'Ok', type: Country })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.READ,
-        subject: PermissionSubjectEnum.COUNTRY,
-      },
-    ],
-  })
   @Get(':code')
   async findOne(@Param('code') code: string) {
     return this.countryService.findOne(code);

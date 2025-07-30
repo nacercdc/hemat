@@ -54,7 +54,6 @@ import {
   description: 'Too Many Requests',
   type: ExceptionResponseDto,
 })
-@UseGuards(AuthGuard)
 @Controller('languages')
 export class LanguageController {
   constructor(private readonly languageService: LanguageService) {}
@@ -66,15 +65,6 @@ export class LanguageController {
   @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto<Language> })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.READ,
-        subject: PermissionSubjectEnum.LANGUAGE,
-      },
-    ],
-  })
   @Get()
   async findAll(@Query() query: FindAllLanguageDto) {
     return this.languageService.findAll(query);
@@ -84,15 +74,6 @@ export class LanguageController {
   @ApiOkResponse({ description: 'Ok', type: Language })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(HttpStatus.OK)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.READ,
-        subject: PermissionSubjectEnum.LANGUAGE,
-      },
-    ],
-  })
   @Get(':code')
   async findOne(@Param('code') code: string) {
     return this.languageService.findOne(code);
@@ -105,6 +86,7 @@ export class LanguageController {
     type: ExceptionResponseDto,
   })
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(AuthGuard)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -130,6 +112,7 @@ export class LanguageController {
     type: ExceptionResponseDto,
   })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -158,6 +141,7 @@ export class LanguageController {
     type: ExceptionResponseDto,
   })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   @Abilities({
     isAdmin: true,
     permissions: [
@@ -183,6 +167,7 @@ export class LanguageController {
     type: ExceptionResponseDto,
   })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
   @Abilities({
     isAdmin: true,
     permissions: [
