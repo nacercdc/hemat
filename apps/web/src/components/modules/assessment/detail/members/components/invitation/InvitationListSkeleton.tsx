@@ -6,10 +6,6 @@ export default function InvitationListSkeleton() {
     <div className="flex items-start flex-wrap justify-between gap-4 animate-pulse">
       <div className="lg:w-3/5 w-full flex flex-col p-2 bg-dark-lighter/5 rounded-sm">
         <div className="bg-white w-full flex flex-col gap-4 p-2 rounded-sm">
-          {/* <div className="flex justify-between p-2">
-            <span className="font-semibold text-sm bg-gray-300 h-4 w-32 rounded"></span>
-          </div> */}
-
           <div className=" border-2 rounded-lg px-4 pt-10 pb-4 bg-primary-50/20 border-primary-50">
             <div className="flex flex-col gap-6 w-full">
               <div className="flex gap-4 items-center w-full">

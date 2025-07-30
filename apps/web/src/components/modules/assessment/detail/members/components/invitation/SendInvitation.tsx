@@ -162,7 +162,7 @@ export function SendInvitation() {
             variant="outline"
             onClick={openTextFiledHandler}
           >
-            {addNewGroupName ? "Exist team" : "Create new"}
+            {addNewGroupName ? "Existing team" : "Create new"}
           </Button>
         </div>
         <div className="flex gap-3">
@@ -210,26 +210,7 @@ export function SendInvitation() {
             </Button>
           </div>
         </div>
-        {/* {emails.length != 0 && (
-          <div className="flex flex-col bg-card rounded-sm p-2">
-            {emails.map((email) => (
-              <div key={email} className="flex justify-between">
-                <MemberInfo email={email} />
-                <MemberAction
-                  userId={email}
-                  refetch={() => removeEmailHandler(email)}
-                  optionsList={["Cancel Invitation"]}
-                />
-              </div>
-            ))}
 
-            <div className="flex justify-end">
-              <Button type="button" size="lg" onClick={openInvitationModal}>
-                Send Invitation
-              </Button>
-            </div>
-          </div>
-        )} */}
         <InvitationSection
           assessmentGroups={assessmentGroups?.data}
           isLoading={assessmentGroupsState.isLoading}
