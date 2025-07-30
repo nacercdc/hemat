@@ -194,6 +194,8 @@ export function CurrentAssessment() {
             subtitle="Primary Assessment"
             domains={primaryDomainList}
             access={assessmentDetail?.access}
+            assessmentId={assessmentId as string}
+            groupId={assessmentDetail?.access?.groupId}
           />
         )}
 
@@ -207,6 +209,7 @@ export function CurrentAssessment() {
             subtitle="My Assessment"
             domains={myDomainList}
             access={assessmentDetail?.access}
+            assessmentId={assessmentId as string}
           />
         )}
 
@@ -222,6 +225,7 @@ export function CurrentAssessment() {
               title={group.name}
               subtitle={`${group.name}'s Assessment`}
               domains={group.domains}
+              assessmentId={assessmentId as string}
             />
           ))}
 

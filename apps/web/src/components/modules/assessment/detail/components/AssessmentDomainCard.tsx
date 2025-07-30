@@ -9,8 +9,8 @@ export type GroupTagType = "primary" | "my" | "rest" | "roadmaps";
 export interface Domain {
   id: string;
   name: string;
-  componentscount: number;
-  subcomponentscount: number;
+  componentsCount: number;
+  subComponentsCount: number;
   progress: number;
   fillAccess: AssessmentRoleType;
 }
@@ -20,7 +20,7 @@ interface Props {
   access?: Access;
   groupTag: GroupTagType;
   groupId?: string;
-  onDetailViewClickHandler: (id: string) => void;
+  onDetailViewClickHandler: (domainId: string, groupId?: string) => void;
   onFillClickHandler: (id: string, groupId?: string) => void;
 }
 
@@ -39,16 +39,16 @@ export default function AssessmentDomainCard({
     >
       <div
         className="flex flex-col gap-3 items-start text-wrap cursor-pointer"
-        onClick={() => onDetailViewClickHandler(domain.id)}
+        onClick={() => onDetailViewClickHandler(domain.id, groupId)}
       >
         <h3 className="text-sm font-bold">{domain.name}</h3>
         <div className="flex items-center">
           <span className="text-xs font-normal flex-wrap">Components :</span>
-          <span className="text-sm font-bold">{domain.componentscount}</span>
+          <span className="text-sm font-bold">{domain.componentsCount}</span>
         </div>
         <div className="flex items-center flex-wrap">
           <span className="text-xs font-normal">Sub-Components :</span>
-          <span className="text-sm font-bold">{domain.subcomponentscount}</span>
+          <span className="text-sm font-bold">{domain.subComponentsCount}</span>
         </div>
       </div>
 

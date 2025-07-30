@@ -46,3 +46,4 @@ export type DomainSortable = "created_at";
 
 export type DomainSorts = Sort<DomainSortable>[];
 export type DomainFilters = Filter<DomainFilterable>[];
+export type DomainIncludable = "components";
