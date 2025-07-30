@@ -203,7 +203,7 @@ export class UserService {
   async delete(id: string): Promise<User> {
     return this.dataSource.transaction(async (manager) => {
       const user = await manager.getRepository(User).findOne({
-        where: { id, isAdmin: true },
+        where: { id },
       });
 
       if (!user) {
