@@ -13,19 +13,20 @@ export function buildRequest<T = any>(
   method: Method,
   request: RequestConfig,
   data?: T,
-  requestInit?: RequestInit
+  requestInit?: RequestInit,
+  multipart?: boolean
 ): RequestInit {
   return {
     ...requestInit,
     ...request,
     method,
-    body: data ? prepareData(data) : null,
+    body: data ? prepareData(data, multipart) : null,
     headers: buildRequestHeaders(headers, request.headers),
   };
 }
 
-function prepareData(data?: any) {
-  return typeof data === "object" ? JSON.stringify(data) : data;
+function prepareData(data?: any, multipart = false) {
+  return typeof data === "object" && !multipart ? JSON.stringify(data) : data;
 }
 
 export async function retrieveResponseText(

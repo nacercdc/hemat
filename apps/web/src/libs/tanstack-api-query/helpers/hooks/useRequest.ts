@@ -30,6 +30,7 @@ interface Request<
   path: string;
   configs?: RequestConfig;
   isProtected?: boolean;
+  multipart?: boolean;
   data?: Entity;
   queries?: QueryManyRequest<Include, Filterable, Sortable>;
 }
@@ -68,7 +69,7 @@ export const useFetchRequest = ({ baseUrl, requestInit }: UseFetchRequest) => {
     const request = new Request(
       url,
       buildRequest<Entity>(
-        buildRequestHeaders(headers, {
+        buildRequestHeaders(options?.multipart ? new Headers() : headers, {
           Authorization: `Bearer ${session?.token}`,
         }),
         options.method,
@@ -76,7 +77,8 @@ export const useFetchRequest = ({ baseUrl, requestInit }: UseFetchRequest) => {
           headers: options?.configs?.headers,
         },
         options?.data,
-        requestInit
+        requestInit,
+        options?.multipart
       )
     );
 
