@@ -4,6 +4,7 @@ import {
   BadRequestException,
   ForbiddenException,
   UnprocessableEntityException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, In } from 'typeorm';
@@ -34,6 +35,8 @@ import { FileUploadService, Media } from '@etm/server-media-upload';
 
 @Injectable()
 export class AssessmentRoadmapService {
+  private readonly logger = new Logger(AssessmentRoadmapService.name);
+
   constructor(
     @InjectRepository(Roadmap) private roadmapRepository: Repository<Roadmap>,
     @InjectRepository(Assessment)
@@ -525,23 +528,40 @@ export class AssessmentRoadmapService {
     return { ids: uniqueIds, latest };
   }
 
-  /**
-   * Upload document for a sub-component roadmap entry
-   */
+  async getRoadmapInfo(userId: string, isAdmin: boolean = false): Promise<any[]> {
+    try {
+      // Single query with conditional JOIN
+      const queryBuilder = this.roadmapRepository
+        .createQueryBuilder('roadmap')
+        .leftJoinAndSelect('roadmap.assessment', 'assessment')
+        .leftJoinAndSelect('roadmap.user', 'user')
+        .orderBy('roadmap.createdAt', 'DESC');
+
+      if (!isAdmin) {
+        queryBuilder
+          .leftJoin('assessment_members', 'am', 'am.assessmentId = roadmap.assessmentId')
+          .where('am.userId = :userId', { userId });
+      }
+
+      return await queryBuilder.getMany();
+    } catch (err) {
+      this.logger.error('getRoadmapInfo:', err);
+      throw err;
+    }
+  }
+
   async uploadDocument(
     assessmentId: string,
     userId: string,
     subComponentRoadmapId: string,
     file: Express.Multer.File,
   ): Promise<Media> {
-    // Validate assessment and user membership
     await this.validateAssessment(assessmentId);
     const { role } = await this.validator.validateMembership(
       assessmentId,
       userId,
     );
 
-    // Find the sub-component roadmap entry
     const subComponentRoadmap = await this.dataSource
       .getRepository(AssessmentSubComponentRoadmap)
       .createQueryBuilder('scr')
@@ -554,18 +574,15 @@ export class AssessmentRoadmapService {
       throw new NotFoundException(`Sub-component roadmap entry ${subComponentRoadmapId} not found`);
     }
 
-    // Check if user has access to this roadmap
     if (role !== MemberRole.PRIMARY && subComponentRoadmap.roadmap.userId !== userId) {
       throw new ForbiddenException('You do not have permission to upload documents for this roadmap');
     }
 
-    // Delete existing document if any
     const existingMedias = await this.fileUploadService.getByEntity('assessment_sub_component_roadmaps', subComponentRoadmapId);
     if (existingMedias.length > 0) {
       await this.fileUploadService.delete(existingMedias[0].id);
     }
 
-    // Upload new document
     return this.fileUploadService.upload(
       file,
       'document',

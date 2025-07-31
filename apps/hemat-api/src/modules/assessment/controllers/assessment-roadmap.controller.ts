@@ -69,9 +69,71 @@ import { MediaResponseDto } from '@etm/server-media-upload';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('assessments/:assessmentId/roadmaps')
+@Controller('assessments')
 export class AssessmentRoadmapController {
   constructor(private readonly roadmapService: AssessmentRoadmapService) {}
+
+  @ApiOperation({
+    summary: 'Get all roadmap information',
+    description: 'Get all roadmap information with assessment and user objects, percentage, status, and timestamps. Admins can see all roadmaps, assessment users can only see their own roadmaps.',
+  })
+  @ApiOkResponse({
+    description: 'Ok',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          assessmentId: { type: 'string' },
+          userId: { type: 'string' },
+          isPrimary: { type: 'boolean' },
+          percentage: { type: 'number' },
+          status: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
+          assessment: { 
+            type: 'object',
+            description: 'Full assessment object'
+          },
+          user: { 
+            type: 'object',
+            description: 'Full user object'
+          }
+        }
+      }
+    }
+  })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ROADMAP,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @Get('roadmaps/info')
+  async getRoadmapInfo(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+    @Request() req: { user: AuthDto },
+  ): Promise<any[]> {
+    const { isAdmin, assessmentRole } = user;
+    
+    try {
+      // If admin or has assessment role, get all roadmaps
+      if (isAdmin || assessmentRole) {
+        return await this.roadmapService.getRoadmapInfo(req.user.id, true);
+      }
+      
+      // For regular users, get filtered roadmaps
+      return await this.roadmapService.getRoadmapInfo(req.user.id, false);
+    } catch (err) {
+      throw err;
+    }
+  }
 
   @ApiOperation({
     summary: 'Get filled status for roadmap sub-components',
@@ -131,7 +193,7 @@ export class AssessmentRoadmapController {
     ],
     requireAdmin: false,
   })
-  @Get('filled-status')
+  @Get(':assessmentId/roadmaps/filled-status')
   async getFilledStatus(
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
@@ -155,7 +217,7 @@ export class AssessmentRoadmapController {
       'Get roadmap progress per domain for the primary roadmap of an assessment (team leader)',
   })
   @ApiOkResponse({ description: 'Ok' })
-  @Get('progress')
+  @Get(':assessmentId/roadmaps/progress')
   async getProgress(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
@@ -188,7 +250,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Get()
+  @Get(':assessmentId/roadmaps')
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
@@ -214,7 +276,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Get(':id')
+  @Get(':assessmentId/roadmaps/:id')
   async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -247,7 +309,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Post()
+  @Post(':assessmentId/roadmaps')
   async create(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
@@ -281,7 +343,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Put(':id')
+  @Put(':assessmentId/roadmaps/:id')
   async update(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -314,7 +376,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Patch('submit')
+  @Patch(':assessmentId/roadmaps/submit')
   async submitAssessmentRoadmap(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
@@ -368,7 +430,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Post('sub-component/:id/document')
+  @Post(':assessmentId/roadmaps/sub-component/:id/document')
   @UseInterceptors(FileInterceptor('file'))
   async uploadDocument(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
