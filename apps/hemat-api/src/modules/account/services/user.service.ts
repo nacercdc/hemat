@@ -206,7 +206,7 @@ export class UserService {
         profile.id,
       );
 
-      profile.url = medias[0].url || null;
+      profile.url = medias?.[0]?.url || null;
     }
 
     return new AccountResponseDto({ ...account, profile });
