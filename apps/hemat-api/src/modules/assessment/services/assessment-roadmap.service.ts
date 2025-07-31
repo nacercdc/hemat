@@ -4,6 +4,7 @@ import {
   BadRequestException,
   ForbiddenException,
   UnprocessableEntityException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository, In } from 'typeorm';
@@ -30,15 +31,19 @@ import {
   FindOneRoadmapDto,
 } from '../dtos';
 import { RoadmapDomainProgress } from '../types/assessment-progress.type';
+import { FileUploadService, Media } from '@etm/server-media-upload';
 
 @Injectable()
 export class AssessmentRoadmapService {
+  private readonly logger = new Logger(AssessmentRoadmapService.name);
+
   constructor(
     @InjectRepository(Roadmap) private roadmapRepository: Repository<Roadmap>,
     @InjectRepository(Assessment)
     private assessmentRepository: Repository<Assessment>,
     private dataSource: DataSource,
     private validator: AssessmentRoadmapValidator,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   async findAll(
@@ -199,7 +204,6 @@ export class AssessmentRoadmapService {
           activities: payload.activities,
           responsible: payload.responsible,
           resources: payload.resources,
-          documentation: payload.documentation,
           gapAddressed: payload.gapAddressed,
           startTime: new Date(payload.startTime),
           endTime: new Date(payload.endTime),
@@ -215,7 +219,6 @@ export class AssessmentRoadmapService {
           activities: payload.activities,
           responsible: payload.responsible,
           resources: payload.resources,
-          documentation: payload.documentation,
           gapAddressed: payload.gapAddressed,
           startTime: new Date(payload.startTime),
           endTime: new Date(payload.endTime),
@@ -292,7 +295,6 @@ export class AssessmentRoadmapService {
         payload.activities ||
         payload.responsible ||
         payload.resources ||
-        payload.documentation ||
         payload.startTime ||
         payload.endTime ||
         payload.currentState ||
@@ -345,8 +347,6 @@ export class AssessmentRoadmapService {
           activities: payload.activities || subComponentRoadmap.activities,
           responsible: payload.responsible || subComponentRoadmap.responsible,
           resources: payload.resources || subComponentRoadmap.resources,
-          documentation:
-            payload.documentation || subComponentRoadmap.documentation,
           gapAddressed: payload.gapAddressed || subComponentRoadmap.gapAddressed,
           startTime: payload.startTime
             ? new Date(payload.startTime)
@@ -526,5 +526,68 @@ export class AssessmentRoadmapService {
       .getOne();
 
     return { ids: uniqueIds, latest };
+  }
+
+  async getRoadmapInfo(userId: string, isAdmin: boolean = false): Promise<any[]> {
+    try {
+      // Single query with conditional JOIN
+      const queryBuilder = this.roadmapRepository
+        .createQueryBuilder('roadmap')
+        .leftJoinAndSelect('roadmap.assessment', 'assessment')
+        .leftJoinAndSelect('roadmap.user', 'user')
+        .orderBy('roadmap.createdAt', 'DESC');
+
+      if (!isAdmin) {
+        queryBuilder
+          .leftJoin('assessment_members', 'am', 'am.assessmentId = roadmap.assessmentId')
+          .where('am.userId = :userId', { userId });
+      }
+
+      return await queryBuilder.getMany();
+    } catch (err) {
+      this.logger.error('getRoadmapInfo:', err);
+      throw err;
+    }
+  }
+
+  async uploadDocument(
+    assessmentId: string,
+    userId: string,
+    subComponentRoadmapId: string,
+    file: Express.Multer.File,
+  ): Promise<Media> {
+    await this.validateAssessment(assessmentId);
+    const { role } = await this.validator.validateMembership(
+      assessmentId,
+      userId,
+    );
+
+    const subComponentRoadmap = await this.dataSource
+      .getRepository(AssessmentSubComponentRoadmap)
+      .createQueryBuilder('scr')
+      .leftJoin('scr.roadmap', 'roadmap')
+      .where('scr.id = :subComponentRoadmapId', { subComponentRoadmapId })
+      .andWhere('roadmap.assessmentId = :assessmentId', { assessmentId })
+      .getOne();
+
+    if (!subComponentRoadmap) {
+      throw new NotFoundException(`Sub-component roadmap entry ${subComponentRoadmapId} not found`);
+    }
+
+    if (role !== MemberRole.PRIMARY && subComponentRoadmap.roadmap.userId !== userId) {
+      throw new ForbiddenException('You do not have permission to upload documents for this roadmap');
+    }
+
+    const existingMedias = await this.fileUploadService.getByEntity('assessment_sub_component_roadmaps', subComponentRoadmapId);
+    if (existingMedias.length > 0) {
+      await this.fileUploadService.delete(existingMedias[0].id);
+    }
+
+    return this.fileUploadService.upload(
+      file,
+      'document',
+      'assessment_sub_component_roadmaps',
+      subComponentRoadmapId,
+    );
   }
 }

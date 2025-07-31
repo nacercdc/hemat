@@ -26,6 +26,7 @@ import {
 } from '../dtos';
 import { MemberRole } from '@shared/enums';
 import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
+import { Media, FileUploadService } from '@etm/server-media-upload';
 
 @Injectable()
 export class AssessmentSubComponentService {
@@ -44,6 +45,7 @@ export class AssessmentSubComponentService {
     private subComponentRoadmapRepository: Repository<AssessmentSubComponentRoadmap>,
     @InjectRepository(Roadmap)
     private readonly roadmapRepository: Repository<Roadmap>,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   async create(
@@ -347,7 +349,7 @@ export class AssessmentSubComponentService {
     assessmentId: string,
     subComponentId: string,
     user: AssessmentAbilityDto,
-  ): Promise<AssessmentSubComponentRoadmap> {
+  ): Promise<AssessmentSubComponentRoadmap & { documentUrl?: string | null }> {
     // Find the user's primary roadmap for this assessment
     const roadmap = await this.roadmapRepository.findOne({
       where: { assessmentId, userId: user.id, isPrimary: true },
@@ -358,9 +360,19 @@ export class AssessmentSubComponentService {
     const roadmapAnswer = await this.subComponentRoadmapRepository.findOne({
       where: { roadmapId: roadmap.id, subComponentId },
     });
+
     if (!roadmapAnswer)
       throw new NotFoundException('No roadmap answer for this sub-component');
-    return roadmapAnswer;
+    
+    // Get the document URL if any documents exist
+    const medias = await this.fileUploadService.getByEntity(
+      'assessment_sub_component_roadmaps',
+      roadmapAnswer.id,
+    );
+
+    const documentUrl = medias.length > 0 ? medias[0].url : null;
+    
+    return { ...roadmapAnswer, documentUrl };
   }
 
   /**
