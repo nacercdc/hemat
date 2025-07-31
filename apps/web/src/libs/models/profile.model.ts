@@ -13,6 +13,7 @@ export interface Profile {
   phoneNumber: string;
   country: string;
   jobTitle: string;
+  url?: string;
 }
 
 export interface UpdateProfile {

@@ -20,6 +20,7 @@ export function useAddMutation<Entity, Mutate = Entity>(path: string) {
         path: fullPath,
         isProtected: request?.isProtected ?? true,
         data: request?.data,
+        multipart: request?.multipart,
         configs: {
           baseURL: request?.baseURL,
           headers: request?.headers,

@@ -23,6 +23,7 @@ import type { Profile, UpdateProfile } from "~/libs/models/profile.model";
 import { ProfileTabSkeleton } from "./ProfileTabSkeleton";
 import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "@etm/utilities";
 import type { Country } from "~/libs/models/country.model";
+import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 export const PERSONAL_TITLES = [
   "Mr.",
   "Mrs.",
@@ -97,6 +98,11 @@ export default function ProfileTab() {
     UpdateProfile
   >(`/profiles`);
 
+  const { mutate: updateProfilePic, ...updateProfilePicState } = useAddMutation<
+    Profile,
+    FormData
+  >(`/profiles/profile-picture`);
+
   const { control, handleSubmit, reset } = useForm<ProfileDetailFormData>({
     defaultValues: {
       firstName: "",
@@ -142,6 +148,29 @@ export default function ProfileTab() {
     );
   };
 
+  const onProfilePicSubmitHandler = () => {
+    const formData = new FormData();
+    if (!profilePic) return;
+    formData.append("file", profilePic);
+
+    updateProfilePic(
+      {
+        data: formData,
+        multipart: true,
+      },
+      {
+        onSuccess: () => {
+          currentUserState.refetch();
+          toast({
+            title: "Success",
+            message: "You profile picture has been updated successfully.",
+            variant: "success",
+          });
+        },
+      }
+    );
+  };
+
   useEffect(() => {
     if (currentUserState.isSuccess && currentUser) {
       reset({
@@ -176,7 +205,7 @@ export default function ProfileTab() {
     }
   }, [currentUserState.isSuccess, currentUserState.isRefetching, currentUser]);
 
-  if (currentUserState.isLoading) {
+  if (currentUserState.isLoading && currentUserState.isFetching) {
     return <ProfileTabSkeleton />;
   }
 
@@ -188,7 +217,7 @@ export default function ProfileTab() {
       <div className="flex items-center gap-3">
         <div className="relative">
           <AvatarInput
-            initialFilePreviewURL=""
+            initialFilePreviewURL={currentUser?.profile.url}
             onChange={onProfilePicChangeHandler}
             file={profilePic}
             ref={profilePicRef}
@@ -205,6 +234,14 @@ export default function ProfileTab() {
           <span className="text-lg font-bold">{currentUser?.name}</span>
           <span className="text-dark-light text-xs">{currentUser?.email}</span>
         </div>
+        <Button
+          type="button"
+          onClick={onProfilePicSubmitHandler}
+          disabled={!profilePic}
+          loading={updateProfilePicState.isPending}
+        >
+          Change
+        </Button>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <SelectRHF
