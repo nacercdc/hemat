@@ -30,6 +30,7 @@ import {
   FindOneRoadmapDto,
 } from '../dtos';
 import { RoadmapDomainProgress } from '../types/assessment-progress.type';
+import { FileUploadService, Media } from '@etm/server-media-upload';
 
 @Injectable()
 export class AssessmentRoadmapService {
@@ -39,6 +40,7 @@ export class AssessmentRoadmapService {
     private assessmentRepository: Repository<Assessment>,
     private dataSource: DataSource,
     private validator: AssessmentRoadmapValidator,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   async findAll(
@@ -199,7 +201,6 @@ export class AssessmentRoadmapService {
           activities: payload.activities,
           responsible: payload.responsible,
           resources: payload.resources,
-          documentation: payload.documentation,
           gapAddressed: payload.gapAddressed,
           startTime: new Date(payload.startTime),
           endTime: new Date(payload.endTime),
@@ -215,7 +216,6 @@ export class AssessmentRoadmapService {
           activities: payload.activities,
           responsible: payload.responsible,
           resources: payload.resources,
-          documentation: payload.documentation,
           gapAddressed: payload.gapAddressed,
           startTime: new Date(payload.startTime),
           endTime: new Date(payload.endTime),
@@ -292,7 +292,6 @@ export class AssessmentRoadmapService {
         payload.activities ||
         payload.responsible ||
         payload.resources ||
-        payload.documentation ||
         payload.startTime ||
         payload.endTime ||
         payload.currentState ||
@@ -345,8 +344,6 @@ export class AssessmentRoadmapService {
           activities: payload.activities || subComponentRoadmap.activities,
           responsible: payload.responsible || subComponentRoadmap.responsible,
           resources: payload.resources || subComponentRoadmap.resources,
-          documentation:
-            payload.documentation || subComponentRoadmap.documentation,
           gapAddressed: payload.gapAddressed || subComponentRoadmap.gapAddressed,
           startTime: payload.startTime
             ? new Date(payload.startTime)
@@ -526,5 +523,54 @@ export class AssessmentRoadmapService {
       .getOne();
 
     return { ids: uniqueIds, latest };
+  }
+
+  /**
+   * Upload document for a sub-component roadmap entry
+   */
+  async uploadDocument(
+    assessmentId: string,
+    userId: string,
+    subComponentRoadmapId: string,
+    file: Express.Multer.File,
+  ): Promise<Media> {
+    // Validate assessment and user membership
+    await this.validateAssessment(assessmentId);
+    const { role } = await this.validator.validateMembership(
+      assessmentId,
+      userId,
+    );
+
+    // Find the sub-component roadmap entry
+    const subComponentRoadmap = await this.dataSource
+      .getRepository(AssessmentSubComponentRoadmap)
+      .createQueryBuilder('scr')
+      .leftJoin('scr.roadmap', 'roadmap')
+      .where('scr.id = :subComponentRoadmapId', { subComponentRoadmapId })
+      .andWhere('roadmap.assessmentId = :assessmentId', { assessmentId })
+      .getOne();
+
+    if (!subComponentRoadmap) {
+      throw new NotFoundException(`Sub-component roadmap entry ${subComponentRoadmapId} not found`);
+    }
+
+    // Check if user has access to this roadmap
+    if (role !== MemberRole.PRIMARY && subComponentRoadmap.roadmap.userId !== userId) {
+      throw new ForbiddenException('You do not have permission to upload documents for this roadmap');
+    }
+
+    // Delete existing document if any
+    const existingMedias = await this.fileUploadService.getByEntity('assessment_sub_component_roadmaps', subComponentRoadmapId);
+    if (existingMedias.length > 0) {
+      await this.fileUploadService.delete(existingMedias[0].id);
+    }
+
+    // Upload new document
+    return this.fileUploadService.upload(
+      file,
+      'document',
+      'assessment_sub_component_roadmaps',
+      subComponentRoadmapId,
+    );
   }
 }

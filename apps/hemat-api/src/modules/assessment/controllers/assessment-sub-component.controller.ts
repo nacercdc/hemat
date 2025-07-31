@@ -461,9 +461,35 @@ export class AssessmentSubComponentController {
   @ApiOperation({
     summary: 'Get roadmap answer for a sub-component',
     description:
-      'Retrieve roadmap answer for a specific sub-component for the current user',
+      'Retrieve roadmap answer for a specific sub-component for the current user. Includes document URL if any document is uploaded.',
   })
-  @ApiOkResponse({ description: 'Ok', type: AssessmentSubComponentRoadmap })
+  @ApiOkResponse({ 
+    description: 'Ok', 
+    type: AssessmentSubComponentRoadmap,
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        roadmapId: { type: 'string' },
+        subComponentId: { type: 'string' },
+        measurementScaleId: { type: 'string' },
+        answerId: { type: 'string' },
+        target: { type: 'string' },
+        currentState: { type: 'number' },
+        activities: { type: 'string' },
+        responsible: { type: 'string' },
+        resources: { type: 'string' },
+        gapAddressed: { type: 'string' },
+        startTime: { type: 'string', format: 'date-time' },
+        endTime: { type: 'string', format: 'date-time' },
+        documentUrl: { 
+          type: 'string', 
+          nullable: true,
+          description: 'URL of the uploaded document (if any)'
+        }
+      }
+    }
+  })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -482,7 +508,7 @@ export class AssessmentSubComponentController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) subComponentId: string,
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
-  ): Promise<AssessmentSubComponentRoadmap> {
+  ): Promise<AssessmentSubComponentRoadmap & { documentUrl?: string | null }> {
     return this.assessmentSubComponentService.getSubComponentRoadmapAnswer(
       assessmentId,
       subComponentId,

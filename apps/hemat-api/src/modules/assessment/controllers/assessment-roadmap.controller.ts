@@ -13,6 +13,8 @@ import {
   Request,
   Patch,
   ForbiddenException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,6 +28,8 @@ import {
   ApiUnprocessableEntityResponse,
   ApiTooManyRequestsResponse,
   ApiNotFoundResponse,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { Roadmap } from '@database/entities';
 import { Abilities, AuthGuard, AuthDto } from '@shared/modules';
@@ -42,6 +46,8 @@ import { RoadmapDomainProgress } from '../types/assessment-progress.type';
 import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
 import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
 import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { MediaResponseDto } from '@etm/server-media-upload';
 
 @ApiTags('Roadmaps')
 @ApiBearerAuth()
@@ -317,5 +323,59 @@ export class AssessmentRoadmapController {
       assessmentId,
       req.user.id,
     );
+  }
+
+  @ApiOperation({
+    summary: 'Upload document for sub-component roadmap',
+    description: 'Upload a document file for a specific sub-component roadmap entry. This will replace any existing document.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Document file (PDF, DOC, DOCX, XLS, XLSX. Max size: 10MB)',
+        },
+      },
+      required: ['file'],
+    },
+  })
+  @ApiOkResponse({ 
+    description: 'Document uploaded successfully', 
+    type: MediaResponseDto 
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid file format or size exceeded',
+    type: ExceptionResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Sub-component roadmap entry not found',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden: You do not have permission to upload documents for this roadmap',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.UPDATE,
+        subject: PermissionSubjectEnum.ROADMAP,
+      },
+    ],
+  })
+  @Post('sub-component/:id/document')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadDocument(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) subComponentRoadmapId: string,
+    @Request() req: { user: AuthDto },
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.roadmapService.uploadDocument(assessmentId, req.user.id, subComponentRoadmapId, file);
   }
 }
