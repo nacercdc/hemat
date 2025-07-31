@@ -55,7 +55,7 @@ export const useFetchRequest = ({ baseUrl, requestInit }: UseFetchRequest) => {
       url.search = buildQueryString(options.queries);
     }
 
-    // setup session
+    // setup session test
     let session: SessionPayload | null = null;
 
     if (options?.isProtected) {
