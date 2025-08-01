@@ -83,7 +83,7 @@ export function NavBar() {
           align="end"
           trigger={
             <Avatar
-              src={"http://path-that-goes-no-where.com"}
+              src={currentUser?.profile.url || ""}
               alt="user_profile_image"
               fallback={getInitials(currentUser?.name)}
             />
@@ -92,7 +92,7 @@ export function NavBar() {
             <div className="flex flex-col gap-4">
               <div className="flex flex-row items-center gap-3 justify-between w-full">
                 <Avatar
-                  src={"http://path-that-goes-no-where.com"}
+                  src={currentUser?.profile.url || ""}
                   alt="user_profile_image"
                   fallback={getInitials(currentUser?.name)}
                 />
