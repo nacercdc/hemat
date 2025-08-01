@@ -79,28 +79,35 @@ export class AssessmentRoadmapController {
   })
   @ApiOkResponse({
     description: 'Ok',
+    type: FindAllResponseDto<Roadmap>,
     schema: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          assessmentId: { type: 'string' },
-          userId: { type: 'string' },
-          isPrimary: { type: 'boolean' },
-          percentage: { type: 'number' },
-          status: { type: 'string' },
-          createdAt: { type: 'string', format: 'date-time' },
-          updatedAt: { type: 'string', format: 'date-time' },
-          assessment: { 
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
             type: 'object',
-            description: 'Full assessment object'
-          },
-          user: { 
-            type: 'object',
-            description: 'Full user object'
+            properties: {
+              id: { type: 'string' },
+              assessmentId: { type: 'string' },
+              userId: { type: 'string' },
+              isPrimary: { type: 'boolean' },
+              percentage: { type: 'number' },
+              status: { type: 'string' },
+              createdAt: { type: 'string', format: 'date-time' },
+              updatedAt: { type: 'string', format: 'date-time' },
+              assessment: { 
+                type: 'object',
+                description: 'Full assessment object'
+              },
+              user: { 
+                type: 'object',
+                description: 'Full user object'
+              }
+            }
           }
-        }
+        },
+        total: { type: 'number', description: 'Total number of roadmaps' }
       }
     }
   })
@@ -119,7 +126,7 @@ export class AssessmentRoadmapController {
   async getRoadmapInfo(
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Request() req: { user: AuthDto },
-  ): Promise<any[]> {
+  ): Promise<FindAllResponseDto<Roadmap>> {
     const { isAdmin, assessmentRole } = user;
     
     try {
