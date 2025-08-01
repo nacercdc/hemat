@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, IsNull } from 'typeorm';
 import { Component, Domain, SubComponent } from '@database/entities';
 import { Filter, QueryService } from '@shared/services';
 import {
@@ -80,9 +80,43 @@ export class ComponentService {
 
       // Get the parent domain's code
       const domainCode = domain.code;
-      // Count existing components for this domain
-      const count = await manager.getRepository(Component).count({ where: { domain: { id: domain.id } } });
-      const code = `${domainCode}.${count + 1}`;
+      
+      // Get ALL existing component codes (including soft-deleted ones) to check for conflicts
+      const allComponents = await manager.getRepository(Component).find({
+        where: { domain: { id: domain.id } },
+        withDeleted: true,
+        select: ['code']
+      });
+      
+      // Extract component numbers from codes like "1.1", "1.2", etc.
+      const allComponentNumbers = allComponents
+        .map(c => {
+          const parts = c.code.split('.');
+          if (parts.length > 1 && parts[1]) {
+            const num = parseInt(parts[1]);
+            return isNaN(num) ? null : num;
+          }
+          return null;
+        })
+        .filter((num): num is number => num !== null);
+      
+      let nextComponentNumber = 1;
+      
+      if (allComponentNumbers.length > 0) {
+        // Find the first gap in the sequence, or use the next number after the highest
+        allComponentNumbers.sort((a, b) => a - b);
+        for (let i = 0; i < allComponentNumbers.length; i++) {
+          if (allComponentNumbers[i] !== i + 1) {
+            nextComponentNumber = i + 1;
+            break;
+          }
+        }
+        if (nextComponentNumber === 1) {
+          nextComponentNumber = Math.max(...allComponentNumbers) + 1;
+        }
+      }
+      
+      const code = `${domainCode}.${nextComponentNumber}`;
 
       // Set code in translations for each language if translations exist
       let translations = payload.translations;
