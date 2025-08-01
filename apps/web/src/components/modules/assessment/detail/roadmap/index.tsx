@@ -80,7 +80,7 @@ export function RoadmapDomainGroup() {
     <div className="flex flex-col  bg-layout-bg/15 rounded-md">
       <AssessmentFillHeader
         title="Current Roadmap"
-        subTitle="This fill by the team leader"
+        subTitle="This is filled by the primary user only"
         languages={assessmentDetail?.languages || []}
         onLanguageChangeHandler={(lang?: string) => setSelectedLanguage(lang)}
       />
