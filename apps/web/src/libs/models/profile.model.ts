@@ -14,6 +14,7 @@ export interface Profile {
   country: string;
   jobTitle: string;
   username: string;
+  url?: string;
 }
 
 export interface UpdateProfile {

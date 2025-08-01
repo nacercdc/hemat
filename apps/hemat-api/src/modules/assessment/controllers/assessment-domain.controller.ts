@@ -72,14 +72,22 @@ export class AssessmentDomainController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
   @UseGuards(AssessmentRoleGuard)
   @Get('assessments/:assessmentId/domains')
   async findAll(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query() query: FindAllAssessmentDomainDto,
   ): Promise<FindAllResponseDto<AssessmentDomain>> {
-    return this.assessmentDomainService.findAll({ ...query, assessmentId });
+    const { isAdmin, assessmentRole } = user;
+    if (isAdmin || assessmentRole) {
+      return this.assessmentDomainService.findAll({ ...query, assessmentId });
+    }
+    throw new ForbiddenException(
+      'You are not authorized to view domains for this assessment.',
+    );
   }
 
   @ApiOperation({
@@ -238,14 +246,22 @@ export class AssessmentDomainController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
   @UseGuards(AssessmentRoleGuard)
   @Get('assessments/:assessmentId/domains/:id')
   async findOne(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<AssessmentDomain> {
-    return this.assessmentDomainService.findOne(assessmentId, id);
+    const { isAdmin, assessmentRole } = user;
+    if (isAdmin || assessmentRole) {
+      return this.assessmentDomainService.findOne(assessmentId, id);
+    }
+    throw new ForbiddenException(
+      'You are not authorized to view this domain.',
+    );
   }
 
   @ApiOperation({

@@ -32,6 +32,7 @@ import {
   RegisterRequestDto,
 } from '../dtos';
 import { Request } from 'express';
+import { FileUploadService } from '@etm/server-media-upload';
 
 @Injectable()
 export class UserService {
@@ -43,6 +44,7 @@ export class UserService {
     private readonly dataSource: DataSource,
     private readonly authService: AuthService,
     private readonly configService: ConfigService<ConfigType>,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   public async register(
@@ -58,7 +60,7 @@ export class UserService {
 
     try {
       await this.dataSource.transaction(async function (manager) {
-        const { title, firstName, middleName, lastName, phoneNumber } = payload;
+        const { title, firstName, middleName, lastName, phoneNumber, username } = payload;
         const user = manager.create(User, {
           email: payload.email,
           password: payload.password,
@@ -106,6 +108,7 @@ export class UserService {
           firstName,
           middleName,
           lastName,
+          username,
           gender: payload.gender,
           dateOfBirth: payload.dateOfBirth,
           country: payload.country,
@@ -186,23 +189,28 @@ export class UserService {
   }
 
   public async me(auth: AuthDto): Promise<AccountResponseDto> {
-    const account = await this.userRepository
-      .findOne({
-        where: { id: auth.id },
-        relations: ['profile', 'roles.permissions', 'permissions'],
-      })
-      .catch((err) => {
-        this.loggerService.error('me:', err);
-        throw new InternalServerErrorException(
-          'Failed to fetch user information',
-        );
-      });
+    const account = await this.userRepository.findOne({
+      where: { id: auth.id },
+      relations: ['profile', 'roles.permissions', 'permissions'],
+    });
 
     if (!account) {
       throw new NotFoundException('Account not found.');
     }
 
-    return new AccountResponseDto(account);
+    const profile: (Profile & { url?: string | null }) | null =
+      account.profile || null;
+
+    if (profile) {
+      const medias = await this.fileUploadService.getByEntity(
+        'profiles',
+        profile.id,
+      );
+
+      profile.url = medias?.[0]?.url || null;
+    }
+
+    return new AccountResponseDto({ ...account, profile });
   }
 
   public async refreshToken(

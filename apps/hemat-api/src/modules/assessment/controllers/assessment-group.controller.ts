@@ -263,9 +263,9 @@ export class AssessmentGroupController {
   }
 
   @ApiOperation({
-    summary: 'Detach domains from a group',
+    summary: 'Detach domain from a group',
     description:
-      'Remove specific domains from a group. Only removes the specified domains, leaving other domains intact.',
+      'Remove a specific domain from a group. Only removes the specified domain, leaving other domains intact.',
   })
   @ApiOkResponse({ description: 'Ok', type: AssessmentGroup })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
@@ -281,17 +281,17 @@ export class AssessmentGroupController {
     requireAdmin: false,
   })
   @UseGuards(AuthGuard, AssessmentRoleGuard)
-  @Delete(':groupId/domains')
+  @Delete(':groupId/domain/:domainId')
   async detachDomains(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('groupId', new ParseUUIDPipe()) groupId: string,
-    @Body('domainIds') domainIds: string[],
+    @Param('domainId', new ParseUUIDPipe()) domainId: string,
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
   ): Promise<AssessmentGroup> {
     return this.assessmentGroupService.detachDomains(
       assessmentId,
       groupId,
-      domainIds,
+      [domainId],
       user,
     );
   }

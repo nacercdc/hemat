@@ -71,6 +71,20 @@ export class UserBaseRequestDto {
   lastName: string;
 
   @ApiPropertyOptional({
+    description: 'Username',
+    example: 'johndoe',
+    minLength: 3,
+    maxLength: 50,
+    type: String,
+  })
+  @Length(3, 50, { message: 'validation.username.length args: min:3 | max:50' })
+  @IsString({ message: 'validation.username.isString' })
+  @IsOptional()
+  @IsUnique({ tableName: 'profiles', columns: ['username'] })
+  @Type(() => String)
+  username?: string | null = null;
+
+  @ApiPropertyOptional({
     description: 'Gender',
     enum: GenderEnum,
     example: GenderEnum.MALE,

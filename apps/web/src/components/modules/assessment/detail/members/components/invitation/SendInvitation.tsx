@@ -21,7 +21,6 @@ import MemberRoleCard from "../../../components/MemberRoleCard";
 import MemberAction from "../MemberAction";
 import MemberInfo from "../MemberInfo";
 import InvitationSection from "./InvitationSection";
-import AssessmentGroupsSkeleton from "../form/AssessmentGroupsSkeleton";
 import InvitationListSkeleton from "./InvitationListSkeleton";
 
 export const groupSchema = z.object({
@@ -163,7 +162,7 @@ export function SendInvitation() {
             variant="outline"
             onClick={openTextFiledHandler}
           >
-            {addNewGroupName ? "Exist team" : "Create new"}
+            {addNewGroupName ? "Existing team" : "Create new"}
           </Button>
         </div>
         <div className="flex gap-3">
@@ -182,27 +181,36 @@ export function SendInvitation() {
             Add
           </Button>
         </div>
-
-        {emails.length > 0 && (
-          <div className="flex flex-col bg-card rounded-sm p-2">
-            {emails.map((email) => (
+        <div className="flex flex-col bg-card rounded-sm p-2">
+          {emails.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No emails added yet.
+            </p>
+          ) : (
+            emails.map((email) => (
               <div key={email} className="flex justify-between">
                 <MemberInfo email={email} />
                 <MemberAction
-                  id={email}
+                  userId={email}
                   refetch={() => removeEmailHandler(email)}
-                  optionsList={["Remove"]}
+                  optionsList={["Cancel Invitation"]}
                 />
               </div>
-            ))}
+            ))
+          )}
 
-            <div className="flex justify-end">
-              <Button type="button" size="lg" onClick={openInvitationModal}>
-                Send Invitation
-              </Button>
-            </div>
+          <div className="flex justify-end mt-2">
+            <Button
+              type="button"
+              size="lg"
+              onClick={openInvitationModal}
+              disabled={emails.length === 0}
+            >
+              Send Invitation
+            </Button>
           </div>
-        )}
+        </div>
+
         <InvitationSection
           assessmentGroups={assessmentGroups?.data}
           isLoading={assessmentGroupsState.isLoading}

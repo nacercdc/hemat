@@ -15,7 +15,7 @@ import GroupsList from "../components/GroupsList";
 import MemberRoleCard from "../components/MemberRoleCard";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 import { formatDateToYYYYMMDD } from "@etm/utilities";
-import {
+import type {
   AssessmentGroup,
   AssessmentGroupIncludeAble,
 } from "~/libs/models/assessment-member.model";
@@ -39,7 +39,7 @@ export function AssessmentOverview() {
     AssessmentGroup,
     AssessmentGroupIncludeAble
   >({
-    path: `/assessments/${assessmentId}/groups`,
+    path: `/assessments/${assessmentId as string}/groups`,
     queries: {
       include: ["members.user"],
     },

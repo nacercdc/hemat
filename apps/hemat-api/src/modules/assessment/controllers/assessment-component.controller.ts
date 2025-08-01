@@ -85,13 +85,22 @@ export class AssessmentComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
+  @UseGuards(AssessmentRoleGuard)
   @Get('assessments/:assessmentId/components')
   async findAll(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query() query: FindAllAssessmentComponentDto,
   ): Promise<FindAllResponseDto<AssessmentComponent>> {
-    return this.assessmentComponentService.findAll({ ...query, assessmentId });
+    const { isAdmin, assessmentRole } = user;
+    if (isAdmin || assessmentRole) {
+      return this.assessmentComponentService.findAll({ ...query, assessmentId });
+    }
+    throw new ForbiddenException(
+      'You are not authorized to view components for this assessment.',
+    );
   }
 
   @ApiOperation({
@@ -109,13 +118,22 @@ export class AssessmentComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
+  @UseGuards(AssessmentRoleGuard)
   @Get('assessments/:assessmentId/components/:id')
   async findOne(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
   ): Promise<AssessmentComponent> {
-    return this.assessmentComponentService.findOne(assessmentId, id);
+    const { isAdmin, assessmentRole } = user;
+    if (isAdmin || assessmentRole) {
+      return this.assessmentComponentService.findOne(assessmentId, id);
+    }
+    throw new ForbiddenException(
+      'You are not authorized to view this component.',
+    );
   }
 
   @ApiOperation({

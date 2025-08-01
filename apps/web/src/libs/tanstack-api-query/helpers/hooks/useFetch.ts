@@ -17,6 +17,7 @@ export interface Mutation<Entity> {
   data?: Entity;
   isProtected?: boolean;
   configs?: Omit<RequestConfig, "data">;
+  multipart?: boolean;
 }
 export default function useFetch() {
   const { request } = useFetchRequest({
@@ -45,6 +46,7 @@ export default function useFetch() {
       path: option.path,
       data: option.data as any,
       configs: option.configs,
+      multipart: option?.multipart,
     });
   }
 

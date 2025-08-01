@@ -58,10 +58,10 @@ export class DomainService {
 
     const [componentsCount, subComponentsCount] = await Promise.all([
       this.componentRepository.count({
-        where: { domainId: id },
+        where: { domainId: id, deletedAt: IsNull() },
       }),
       this.componentRepository.count({
-        where: { domainId: id, subComponents: { id: Not(IsNull()) } },
+        where: { domainId: id, subComponents: { id: Not(IsNull()), deletedAt: IsNull() } },
         relations: ['subComponents'],
       }),
     ]);
@@ -74,9 +74,36 @@ export class DomainService {
   }
 
   async create(payload: DomainCreateRequestDto): Promise<Domain> {
-    // Count existing domains for incremental code
-    const count = await this.domainRepository.count();
-    const code = (count + 1).toString();
+    // Get ALL existing domain codes (including soft-deleted ones) to check for conflicts
+    const allDomains = await this.domainRepository.find({
+      select: ['code'],
+      withDeleted: true,
+      order: { code: 'ASC' }
+    });
+    
+    // Convert all codes to numbers and find the next available one
+    const allCodes = allDomains
+      .map(d => parseInt(d.code))
+      .filter(code => !isNaN(code))
+      .sort((a, b) => a - b);
+    
+    let nextCode = 1;
+    
+    // Find the first gap in the sequence
+    for (let i = 0; i < allCodes.length; i++) {
+      if (allCodes[i] !== i + 1) {
+        nextCode = i + 1;
+        break;
+      }
+    }
+    
+    // If no gap found, use the next number after the highest
+    if (nextCode === 1 && allCodes.length > 0) {
+      nextCode = Math.max(...allCodes) + 1;
+    }
+    
+    const code = nextCode.toString();
+    
     // Set code in translations for each language if translations exist
     let translations = payload.translations;
     if (translations && typeof translations === 'object') {

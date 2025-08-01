@@ -33,6 +33,13 @@ export class ProfileResponseDto {
   lastName: string;
 
   @ApiPropertyOptional({
+    description: 'Username',
+    example: 'johndoe',
+    type: String,
+  })
+  username: string | null;
+
+  @ApiPropertyOptional({
     description: 'Gender',
     enum: GenderEnum,
     example: GenderEnum.MALE,
@@ -68,15 +75,23 @@ export class ProfileResponseDto {
   })
   phoneNumber?: string | null;
 
-  constructor(entity: Profile) {
+  @ApiPropertyOptional({
+    description: 'Picture URL',
+    type: String,
+  })
+  url?: string | null;
+
+  constructor(entity: Profile & { url?: string | null }) {
     this.id = entity.id;
     this.title = entity.title;
     this.firstName = entity.firstName;
     this.lastName = entity.lastName;
+    this.username = entity.username;
     this.gender = entity.gender;
     this.dateOfBirth = entity.dateOfBirth;
     this.country = entity.country;
     this.jobTitle = entity.jobTitle;
     this.phoneNumber = entity.phoneNumber;
+    this.url = entity.url;
   }
 }

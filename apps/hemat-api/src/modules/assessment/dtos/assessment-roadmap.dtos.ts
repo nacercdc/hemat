@@ -106,19 +106,6 @@ export class RoadmapCreateRequestDto {
   resources: string;
 
   @ApiProperty({
-    description: 'Documentation for the roadmap',
-    example: 'Project plan',
-    type: String,
-  })
-  @IsNotEmpty({ message: 'validation.documentation.isNotEmpty' })
-  @IsString({ message: 'validation.documentation.isString' })
-  @Length(1, 10000, {
-    message: 'validation.documentation.length args: min:1 | max:10000',
-  })
-  @Type(() => String)
-  documentation: string;
-
-  @ApiProperty({
     description: 'Start time of the roadmap',
     example: '2025-06-01T00:00:00.000Z',
     type: String,
@@ -257,19 +244,6 @@ export class RoadmapUpdateRequestDto {
   })
   @Type(() => String)
   resources?: string;
-
-  @ApiPropertyOptional({
-    description: 'Documentation for the roadmap',
-    example: 'Project plan',
-    type: String,
-  })
-  @IsOptional()
-  @IsString({ message: 'validation.documentation.isString' })
-  @Length(1, 10000, {
-    message: 'validation.documentation.length args: min:1 | max:10000',
-  })
-  @Type(() => String)
-  documentation?: string;
 
   @ApiPropertyOptional({
     description: 'Start time of the roadmap',

@@ -45,6 +45,7 @@ import { AssessmentAnswerValidator, AssessmentRoadmapValidator } from './utils';
 import { AssessmentRoleGuard } from './guards/assessment-role.guard';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AssessmentAnswerListener } from './listeners/assessment-answer.listener';
+import { MediaUploadModule } from '@etm/server-media-upload';
 
 @Module({
   imports: [
@@ -72,6 +73,17 @@ import { AssessmentAnswerListener } from './listeners/assessment-answer.listener
     ]),
     AuthModule,
     EventEmitterModule.forRoot(),
+    MediaUploadModule.register({
+      storage: 'gcs',
+      gcsConfig: {
+        projectId: 'ethiochicken-test-459516',
+        // keyFilename: './storage-gcs.json', // For local uncomment this line
+        bucket: 'hemat',
+      },
+      // destinationPath: 'uploads',
+      useUniqueFilenames: true,
+      maxFileSize: 10 * 1024 * 1024, // 10MB for documents
+    }),
   ],
   controllers: [
     AssessmentController,
@@ -92,6 +104,11 @@ import { AssessmentAnswerListener } from './listeners/assessment-answer.listener
     AssessmentRoleGuard,
     AssessmentAnswerListener,
   ],
-  exports: [AssessmentService, AssessmentMemberService, AssessmentRoleGuard, AssessmentSubComponentService],
+  exports: [
+    AssessmentService,
+    AssessmentMemberService,
+    AssessmentRoleGuard,
+    AssessmentSubComponentService,
+  ],
 })
 export class AssessmentModule {}

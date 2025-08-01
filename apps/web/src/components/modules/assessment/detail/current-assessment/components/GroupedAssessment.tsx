@@ -10,6 +10,7 @@ import type {
 import type { Access } from "~/libs/models/assessment.model";
 
 interface Props {
+  assessmentId: string;
   title: string;
   subtitle: string;
   domains: Domain[];
@@ -27,8 +28,10 @@ export function GroupedAssessment({
   access,
 }: Props) {
   const router = useRouter();
-  const onDetailViewClickHandler = (id: string) => {
-    router.push(`current-assessments/${id}`);
+  const onDetailViewClickHandler = (domainId: string, groupId?: string) => {
+    router.push(
+      `current-assessments/${domainId}?${groupId ? `groupId=${groupId}` : ""}`
+    );
   };
   const onFillClickHandler = (id: string, groupId?: string) => {
     router.push(
