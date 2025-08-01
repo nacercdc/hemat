@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
+import type { CountryCode } from "libphonenumber-js";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,11 +26,11 @@ import {
   PasswordMustIncludeTypes,
 } from "../../profile/components/tabs/change-password-tab";
 import type { Profile, RegisterProfile } from "~/libs/models/profile.model";
-import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import { formatDateToYYYYMMDD } from "@etm/utilities";
-import { Country } from "~/libs/models/country.model";
+import type { Country } from "~/libs/models/country.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import { serializeFormData } from "~/utils/object.util";
 
 interface GenderType {
   id: string;
@@ -40,32 +41,37 @@ const genderOptions: GenderType[] = [
   { id: "male", name: "Male" },
   { id: "female", name: "Female" },
 ];
-const GenderSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
+const GenderSchema = z.object(
+  {
+    id: z.string(),
+    name: z.string(),
+  },
+  { required_error: "Gender is required" }
+);
 const titleSchema = z.object({
   id: z.string(),
   name: z.string(),
 });
 
-const CountrySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
+const CountrySchema = z.object(
+  {
+    id: z.string(),
+    name: z.string(),
+  },
+  { required_error: "Country is required" }
+);
 
 const registerFormSchema = z
   .object({
     firstName: z.string().min(1, { message: "First name is required" }),
     lastName: z.string().min(1, { message: "Last name is required" }),
     title: titleSchema.optional(),
-    gender: GenderSchema.optional(),
+    gender: GenderSchema,
     jobTitle: z.string().min(1, { message: "Job title is required" }),
-    dateOfBirth: z.date().optional(),
-    country: CountrySchema.optional(),
+    dateOfBirth: z.date({ message: "Date of birth is required" }),
+    country: CountrySchema,
     phoneNumber: z
-      .string()
-      .optional()
+      .string({ message: "Phone number is required" })
       .refine((val: string | undefined) => !val || isValidPhoneNumber(val), {
         message: "Invalid phone number",
       }),
@@ -73,6 +79,7 @@ const registerFormSchema = z
       .string()
       .min(1, { message: "Email is required." })
       .email({ message: "Please provide a valid email address." }),
+    userName: z.string().min(1, { message: "User name is required." }),
     password: z
       .string()
       .min(1, { message: "New password is required" })
@@ -104,7 +111,6 @@ export default function Register() {
   const searchParams = useSearchParams();
   const invitationEmail = searchParams.get("email");
   const invitationIdFromURL = searchParams.get("invitationId");
-  const token = searchParams.get("token");
   const router = useRouter();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
@@ -112,6 +118,7 @@ export default function Register() {
 
   const { data: countries, ...countriesState } = useFindAll<Country>({
     path: "/countries",
+    isProtected: false,
   });
   const { mutate: registerProfile, ...registerProfileState } = useAddMutation<
     Profile,
@@ -121,11 +128,13 @@ export default function Register() {
   const { control, handleSubmit, watch } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
-      email: invitationEmail as string,
+      email: invitationEmail ?? "",
       firstName: "",
       lastName: "",
       jobTitle: "",
-      invitationId: invitationIdFromURL as string,
+      password: "",
+      confirmPassword: "",
+      invitationId: invitationIdFromURL ?? "",
     },
   });
   const password = watch("password") || "";
@@ -136,23 +145,25 @@ export default function Register() {
     setConfirmPasswordVisible((prev) => !prev);
   };
   const onRegisterHandler = (values: RegisterFormInputs) => {
+    const serializedData: RegisterProfile = serializeFormData({
+      email: invitationEmail ? invitationEmail : values.email,
+      title: values?.title?.id,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      gender: values?.gender?.id,
+      phoneNumber: values?.phoneNumber,
+      jobTitle: values.jobTitle,
+      country: values.country?.id,
+      invitationId: values.invitationId ?? null,
+      dateOfBirth: values?.dateOfBirth
+        ? formatDateToYYYYMMDD(values?.dateOfBirth)
+        : undefined,
+      password: values.password,
+    });
+
     registerProfile(
       {
-        data: {
-          email: invitationEmail as string,
-          title: values?.title?.id,
-          firstName: values.firstName,
-          lastName: values.lastName,
-          gender: values?.gender?.id,
-          phoneNumber: values?.phoneNumber,
-          jobTitle: values.jobTitle,
-          country: "USA", //TODO: the need the useFindAll should be public
-          invitationId: values.invitationId,
-          dateOfBirth: values?.dateOfBirth
-            ? formatDateToYYYYMMDD(values?.dateOfBirth)
-            : undefined,
-          password: values.password,
-        },
+        data: serializedData,
         isProtected: false,
       },
       {
@@ -180,7 +191,7 @@ export default function Register() {
   return (
     <form
       onSubmit={handleSubmit(onRegisterHandler)}
-      className="flex flex-col gap-8 h-full"
+      className="flex flex-col gap-8 h-fit overflow-y-auto"
     >
       <AuthCardHeader
         header="Register"
@@ -268,11 +279,15 @@ export default function Register() {
         <PhoneNumberInputRHF
           control={control}
           name="phoneNumber"
-          label="Phone Phone"
+          label="Phone number"
           labelSize="sm"
           labelVariant="medium"
           size="lg"
           placeholder="Enter your phone phone"
+          options={(countries?.data ?? []).map((country) => ({
+            label: country.name ?? "",
+            value: country.code as CountryCode,
+          }))}
         />
         <InputRHF
           label="Email"
@@ -280,11 +295,18 @@ export default function Register() {
           control={control}
           name="email"
           labelVariant="medium"
-          disabled
+          disabled={!!invitationIdFromURL}
         />
       </div>
 
       <div className="flex  gap-4">
+        <InputRHF
+          name="userName"
+          label="User name"
+          placeholder="Enter your username"
+          control={control}
+          labelVariant="medium"
+        />
         <InputRHF
           control={control}
           name="password"
@@ -341,7 +363,7 @@ export default function Register() {
           disabled={registerProfileState.isPending}
           loading={registerProfileState.isPending}
         >
-          Rejecter
+          Register
         </Button>
       </div>
     </form>

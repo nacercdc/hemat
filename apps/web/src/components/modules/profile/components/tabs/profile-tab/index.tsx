@@ -67,6 +67,7 @@ const ProfileDetailSchema = z.object({
   title: titleSchema.optional(),
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
+  userName: z.string().min(1, { message: "User name is required" }),
   phoneNumber: z
     .string()
     .optional()
@@ -101,6 +102,8 @@ export default function ProfileTab() {
     defaultValues: {
       firstName: "",
       lastName: "",
+      userName: "",
+      jobTitle: "",
       dateOfBirth: undefined,
     },
     resolver: zodResolver(ProfileDetailSchema),
@@ -115,6 +118,7 @@ export default function ProfileTab() {
     const updatedProfile: UpdateProfile = {
       firstName: values.firstName,
       lastName: values.lastName,
+      userName: values.userName,
       country: values.country?.id,
       title: values?.title?.id,
       jobTitle: values.jobTitle,
@@ -278,6 +282,14 @@ export default function ProfileTab() {
         />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 max-w-7xl">
+        <InputRHF
+          name="userName"
+          control={control}
+          label="User Name"
+          size="lg"
+          labelVariant="medium"
+          placeholder="Enter user name"
+        />
         <InputRHF
           name="jobTitle"
           control={control}
