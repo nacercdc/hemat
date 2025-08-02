@@ -24,15 +24,13 @@ const languageSchema = z.object({
     .min(2, { message: "Language name is too short" })
     .max(50, { message: "Language name is too long" }),
 });
-const countrySchema = z.object(
+const CountrySchema = z.object(
   {
-    code: z
-      .string()
-      .min(2, { message: "Country name is too short" })
-      .max(50, { message: "Country name is too long" }),
+    code: z.string(),
   },
   { required_error: "Country is required" }
 );
+
 const AssessmentFormSchema = z
   .object({
     name: z
@@ -41,7 +39,7 @@ const AssessmentFormSchema = z
       .max(50, { message: "Assessment name must be at most 50 characters" }),
     startDate: z.date(),
     endDate: z.date(),
-    country: countrySchema,
+    country: CountrySchema,
     organization: z
       .string()
       .max(100, {
@@ -97,7 +95,6 @@ export function AssessmentForm({
       name: "",
       startDate: new Date(),
       endDate: new Date(),
-      country: { code: "" },
       organization: "",
       languages: [],
       description: "",
@@ -194,6 +191,7 @@ export function AssessmentForm({
           options={(countries?.data as unknown as Country[]) ?? []}
           loading={countriesState.isLoading || countriesState.isFetching}
         />
+
         <InputRHF
           control={control}
           name="organization"

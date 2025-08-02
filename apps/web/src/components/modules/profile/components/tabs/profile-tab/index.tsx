@@ -12,6 +12,7 @@ import {
 } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { CountryCode } from "libphonenumber-js";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -68,6 +69,7 @@ const ProfileDetailSchema = z.object({
   title: titleSchema.optional(),
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
+  userName: z.string().min(1, { message: "User name is required" }),
   phoneNumber: z
     .string()
     .optional()
@@ -107,6 +109,8 @@ export default function ProfileTab() {
     defaultValues: {
       firstName: "",
       lastName: "",
+      userName: "",
+      jobTitle: "",
       dateOfBirth: undefined,
     },
     resolver: zodResolver(ProfileDetailSchema),
@@ -121,6 +125,7 @@ export default function ProfileTab() {
     const updatedProfile: UpdateProfile = {
       firstName: values.firstName,
       lastName: values.lastName,
+      username: values.userName,
       country: values.country?.id,
       title: values?.title?.id,
       jobTitle: values.jobTitle,
@@ -184,6 +189,7 @@ export default function ProfileTab() {
         jobTitle: currentUser.profile?.jobTitle ?? "",
         firstName: currentUser.profile?.firstName ?? "",
         lastName: currentUser.profile?.lastName ?? "",
+        userName: currentUser.profile?.username ?? "",
         country: currentUser.profile.country
           ? {
               id: currentUser.profile.country,
@@ -312,9 +318,21 @@ export default function ProfileTab() {
           labelVariant="medium"
           size="lg"
           placeholder="Enter your phone phone"
+          options={(countries?.data ?? []).map((country) => ({
+            label: country.name ?? "",
+            value: country.code as CountryCode,
+          }))}
         />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 max-w-7xl">
+        <InputRHF
+          name="userName"
+          control={control}
+          label="User Name"
+          size="lg"
+          labelVariant="medium"
+          placeholder="Enter user name"
+        />
         <InputRHF
           name="jobTitle"
           control={control}
