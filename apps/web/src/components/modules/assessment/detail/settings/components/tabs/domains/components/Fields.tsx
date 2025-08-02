@@ -72,6 +72,7 @@ export function Fields({ control, selectedLanguages, watch, errors }: Props) {
                     <Component
                       control={control}
                       name={key}
+                      disabled={key === "code"}
                       placeholder={placeholder({
                         code: DEFAULT_LANGUAGE_CODE,
                         name: "English",
@@ -90,6 +91,7 @@ export function Fields({ control, selectedLanguages, watch, errors }: Props) {
                       <div className="text-sm font-medium min-w-12">{`${lang.code.toUpperCase()}:`}</div>
                       <div className="flex-1">
                         <Component
+                          disabled={key === "code"}
                           control={control}
                           name={`translations.${lang.code}.${key}`}
                           placeholder={placeholder(lang)}

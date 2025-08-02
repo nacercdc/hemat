@@ -70,8 +70,9 @@ export function Fields({ control, selectedLanguages, watch, errors }: Props) {
                   {/* Default Field */}
                   <div className="flex-1">
                     <Component
-                      control={control}
                       name={key}
+                      control={control}
+                      disabled={key === "code"}
                       placeholder={placeholder({
                         code: DEFAULT_LANGUAGE_CODE,
                         name: "English",
@@ -91,6 +92,7 @@ export function Fields({ control, selectedLanguages, watch, errors }: Props) {
                       <div className="flex-1">
                         <Component
                           control={control}
+                          disabled={key === "code"}
                           name={`translations.${lang.code}.${key}`}
                           placeholder={placeholder(lang)}
                           {...props}
