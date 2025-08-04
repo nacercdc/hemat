@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 import { SelectedDomainContext } from "./selected-domain.context";
-import { Domain } from "~/libs/models/domain.model";
+import type { IDomainCardType } from "../../components/assessment-detail-section/DomainCardList";
 
 export function SelectedDomainProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [selectedDomain, setSelectedDomain] = useState<Domain | undefined>();
+  const [selectedDomain, setSelectedDomain] = useState<
+    IDomainCardType | undefined
+  >();
 
   return (
     <SelectedDomainContext.Provider

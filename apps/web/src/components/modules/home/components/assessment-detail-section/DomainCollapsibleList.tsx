@@ -1,12 +1,19 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { DomainCollapsible } from "./DomainCollapsible";
 import { cn } from "~/utils/cn.util";
 import { useSelectedDomain } from "../../context/selected-domain/useSelectedDomain";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { Domain } from "~/libs/models/domain.model";
-import { collapsibleItems } from "../../constants";
+import { Skeleton } from "@etm/web-ui-components";
 
+interface IComponent {
+  id: string;
+  componentId: string;
+  name: string;
+  averageRate: number;
+}
 export interface CollapsibleItem {
   icon: React.ReactNode;
   color: string;
@@ -20,19 +27,22 @@ export function DomainCollapsibleList() {
 
   const [openIndex, setOpenIndex] = useState<number>(-1);
 
-  const [filteredItems, setFilteredItems] = useState<CollapsibleItem[]>();
+  const { data: components, ...componentsState } = useFindAll<IComponent[]>({
+    path: `/dashboard/domains/${selectedDomainCtx?.selectedDomain?.id}/components/average-rate`,
+    isProtected: false,
+    tqOptions: {
+      enabled: !!selectedDomainCtx?.selectedDomain?.id,
+      queryKey: ["components", selectedDomainCtx?.selectedDomain?.id],
+    },
+  });
 
   const handleToggle = (index: number) => {
     setOpenIndex(openIndex === index ? -1 : index);
   };
 
-  useEffect(() => {
-    setFilteredItems(
-      collapsibleItems.filter(
-        (item) => item.domain.name === selectedDomainCtx?.selectedDomain?.name
-      )
-    );
-  }, [selectedDomainCtx?.selectedDomain]);
+  const isLoading = componentsState.isLoading || componentsState.isFetching;
+
+  if (isLoading) return <DomainCollapsibleListSkeleton />;
 
   return (
     <div
@@ -42,14 +52,14 @@ export function DomainCollapsibleList() {
       )}
     >
       {selectedDomainCtx?.selectedDomain &&
-        filteredItems?.map((item, index) => (
+        (components as unknown as IComponent[])?.map((item, index) => (
           <DomainCollapsible
-            key={index}
-            icon={<IconWrapper backColor={item.color}>{item.icon}</IconWrapper>}
-            title={item.title}
+            key={item.id + new Date().toString()}
+            icon={null}
+            title={item.name}
             isOpen={openIndex === index}
             onToggle={() => handleToggle(index)}
-            content={item.content}
+            id={item.componentId}
           />
         ))}
     </div>
@@ -68,6 +78,18 @@ export function IconWrapper({ children, backColor }: IconWrapperProps) {
       style={{ backgroundColor: `${backColor}` }}
     >
       {children}
+    </div>
+  );
+}
+
+function DomainCollapsibleListSkeleton() {
+  return (
+    <div className="px-16 2xl:px-52 pr-24 2xl:pr-64 w-full bg-[#FAFAFA]">
+      {Array.from({ length: 4 }, (_, i) => (
+        <div key={i} className="w-full my-3 mx-5">
+          <Skeleton className="rounded-sm w-full h-12" />
+        </div>
+      ))}
     </div>
   );
 }

@@ -1,9 +1,11 @@
-import React, { useContext, useState } from "react";
-import { Domain } from "~/libs/models/domain.model";
+import React from "react";
+import type { IDomainCardType } from "../../components/assessment-detail-section/DomainCardList";
 
 interface ISelectedDomain {
-  selectedDomain?: Domain;
-  setSelectedDomain: React.Dispatch<React.SetStateAction<Domain | undefined>>;
+  selectedDomain?: IDomainCardType;
+  setSelectedDomain: React.Dispatch<
+    React.SetStateAction<IDomainCardType | undefined>
+  >;
 }
 
 export const SelectedDomainContext = React.createContext<

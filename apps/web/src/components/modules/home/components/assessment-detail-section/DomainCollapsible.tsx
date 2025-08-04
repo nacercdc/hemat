@@ -4,13 +4,25 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "~/utils/cn.util";
-import { DomainComponentCard } from "./DomainComponentCard";
+import {
+  DomainComponentCard,
+  DomainComponentCardSkeleton,
+} from "./DomainComponentCard";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+
+interface ISubComponent {
+  id: string;
+  name: string;
+  description: string;
+  subComponentId: string;
+  averageRate: number;
+}
 
 interface Props {
   icon: React.ReactNode;
   title: string;
   isOpen: boolean;
-  content: { title: string; content: string; score: number }[];
+  id: string;
   onToggle: () => void;
 }
 
@@ -18,9 +30,20 @@ export function DomainCollapsible({
   icon,
   title,
   isOpen,
-  content,
+  id,
   onToggle,
 }: Props) {
+  const { data: subComponents, ...subComponentsState } = useFindAll<
+    ISubComponent[]
+  >({
+    path: `/dashboard/components/${id}/subcomponents/average-rate`,
+    isProtected: false,
+    tqOptions: {
+      queryKey: ["subcomponents", id],
+      enabled: isOpen,
+    },
+  });
+
   const variants = {
     open: {
       height: "auto",
@@ -43,6 +66,9 @@ export function DomainCollapsible({
       },
     },
   };
+
+  const isLoading =
+    subComponentsState.isLoading || subComponentsState.isFetching;
 
   return (
     <div className="w-full my-3 mx-5">
@@ -69,14 +95,18 @@ export function DomainCollapsible({
               isOpen ? "py-5 px-10" : "py-0 px-5"
             )}
           >
-            {content.map(({ content, score, title }, index) => (
-              <DomainComponentCard
-                key={index}
-                content={content}
-                score={score}
-                title={title}
-              />
-            ))}
+            {!isLoading &&
+              (subComponents as unknown as ISubComponent[])?.map(
+                ({ description, averageRate, name }, index) => (
+                  <DomainComponentCard
+                    key={index}
+                    content={description}
+                    score={averageRate}
+                    title={name}
+                  />
+                )
+              )}
+            {isLoading && <DomainComponentCardSkeleton />}
           </motion.div>
         )}
       </AnimatePresence>
