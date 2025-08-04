@@ -8,6 +8,7 @@ import type {
   Assessment,
   AssessmentFilterable,
   AssessmentSortable,
+  AssessmentSorts,
 } from "~/libs/models/assessment.model";
 import { AssessmentsTableColumns } from "./AssessmentsTableColumns";
 import { useRouter } from "next/navigation";
@@ -17,17 +18,10 @@ import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 export const ASSESSMENT_LIST_KEY = "assessment-list";
 export function AssessmentsTable() {
   const [search, setSearch] = useState("");
-  const [_sort, setSort] = useState<
-    {
-      direction: string;
-      field: string | number | symbol;
-    }[]
-  >([
-    {
-      direction: "desc",
-      field: "created_at",
-    },
-  ]);
+  const [sort, setSort] = useState<AssessmentSorts>({
+    ascending: "createdAt",
+  });
+
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: DEFAULT_PAGE_INDEX,
     pageSize: DEFAULT_PAGE_SIZE,
@@ -46,6 +40,7 @@ export function AssessmentsTable() {
       limit: pagination.pageSize,
       page: pagination.pageIndex + 1,
       search,
+      sorts: sort,
     },
     tqOptions: {
       queryKey: [ASSESSMENT_LIST_KEY],
@@ -53,12 +48,13 @@ export function AssessmentsTable() {
   });
 
   const onSortingChangeHandler = (sortingState: SortingState) => {
-    setSort(
-      sortingState.map((v) => ({
-        direction: v.desc ? "desc" : "asc",
-        field: v.id as keyof Assessment,
-      }))
-    );
+    const newSort: AssessmentSorts = {};
+    sortingState.forEach((v) => {
+      newSort[v.desc ? "descending" : "ascending"] =
+        `${v.id}` as AssessmentSortable;
+    });
+
+    setSort(newSort);
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,
       pageSize: DEFAULT_PAGE_SIZE,

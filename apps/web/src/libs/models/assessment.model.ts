@@ -3,7 +3,7 @@ import type { Group } from "./assessment-group.model";
 import type { Country } from "./country.model";
 import type { Domain } from "./domain.model";
 import type { Language } from "./language.model";
-import { User } from "./user.model";
+import type { User } from "./user.model";
 
 export interface Access {
   domains: Domain[];
@@ -79,5 +79,5 @@ export interface AssessmentDetail {
 export type AssessmentFilterable = "rate";
 export type AssessmentSortable = "createdAt" | "rate" | "name" | "color";
 export type AssessmentsIncludeAble = "user" | "country" | "members" | "groups";
-export type AssessmentSorts = Sort<AssessmentSortable>[];
+export type AssessmentSorts = Sort<AssessmentSortable>;
 export type AssessmentFilters = Filter<AssessmentFilterable>[];
