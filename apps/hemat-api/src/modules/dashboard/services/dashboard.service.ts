@@ -46,7 +46,9 @@ export class DashboardService {
   async getAverageDomainRatesByTemplate(
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
@@ -66,6 +68,9 @@ export class DashboardService {
         'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
         { years },
       );
+      console.log('Applied year filter:', years);
+    } else {
+      console.log('No year filter applied');
     }
     return qb
       .select('templateDomain.id', 'id')
@@ -85,7 +90,9 @@ export class DashboardService {
     templateDomainId: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
@@ -129,7 +136,9 @@ export class DashboardService {
     templateComponentId: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
@@ -184,7 +193,9 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
@@ -225,7 +236,9 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
@@ -271,7 +284,9 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
