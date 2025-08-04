@@ -46,11 +46,15 @@ jobs:
         id: set-matrix
         run: |
           matrix_json='{"app": []}'
-         
+          
+          echo "Scanning apps/ directory for subdirectories..."
           for dir in apps/*/ ; do
             folder_name=$(basename "$dir")
+            echo "Checking directory: $dir (basename: $folder_name)"
             if [ -d "$dir" ] && [ -f "$dir/deploy.conf" ]; then
-              target=$(grep '^TARGET=' "$dir/deploy.conf" | cut -d'=' -f2)
+              echo "Found deploy.conf in $dir"
+              target=$(grep '^TARGET=' "$dir/deploy.conf" | cut -d'=' -f2 || echo "not-found")
+              echo "TARGET for $folder_name: $target"
               
               entry=$(jq -n \
                 --arg name "$folder_name" \
@@ -59,6 +63,8 @@ jobs:
                 '{name: $name, target: $target, paths: $paths}')
               
               matrix_json=$(echo "$matrix_json" | jq ".app += [$entry]")
+            else
+              echo "No deploy.conf found in $dir or directory does not exist"
             fi
           done
           
@@ -69,8 +75,8 @@ jobs:
         shell: bash
 
   docker:
-    needs: generate-matrix
     if: ${{ fromJson(needs.generate-matrix.outputs.matrix).app != null && fromJson(needs.generate-matrix.outputs.matrix).app != '' }}
+    needs: generate-matrix
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     name: Build ${{ matrix.app.name }}
@@ -92,26 +98,38 @@ jobs:
       - name: Check changed files
         id: check-files
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }})
-            echo "Changed files: $CHANGED_FILES"
-            PATHS=$(echo "${{ env.WATCHED_PATHS }}" | tr ',' '\n')
-            MATCHED=false
-            for FILE in $CHANGED_FILES; do
-              for PATH in $PATHS; do
-                if [[ $FILE == $PATH || $FILE == $PATH/* ]]; then
-                  MATCHED=true
-                  break
-                fi
-              done
-              if [[ $MATCHED == true ]]; then
+          # Determine the base reference to compare against
+          BASE_REF="${{ github.base_ref }}"
+          if [[ -z "$BASE_REF" ]]; then
+            # Fallback to 'main' (or another default branch) if base_ref is empty
+            BASE_REF="main"
+          fi
+
+          # Ensure the base branch is fetched
+          git fetch origin $BASE_REF
+
+          # Compare changes between the base ref and the current commit
+          CHANGED_FILES=$(git diff --name-only origin/$BASE_REF..${{ github.sha }})
+          echo "Changed files: $CHANGED_FILES"
+
+          # Convert watched paths to a newline-separated list
+          PATHS=$(echo "${{ env.WATCHED_PATHS }}" | tr ',' '\n')
+          MATCHED=false
+
+          for FILE in $CHANGED_FILES; do
+            for PATH in $PATHS; do
+              if [[ $FILE == $PATH || $FILE == $PATH/* ]]; then
+                MATCHED=true
                 break
               fi
             done
-            echo "matched=$MATCHED" >> $GITHUB_OUTPUT
-          else
-            echo "matched=true" >> $GITHUB_OUTPUT # Run for push or workflow_dispatch
-          fi
+            if [[ $MATCHED == true ]]; then
+              break
+            fi
+          done
+
+          echo "matched=$MATCHED" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Authenticate to Google Cloud
         if: steps.check-files.outputs.matched == 'true'
