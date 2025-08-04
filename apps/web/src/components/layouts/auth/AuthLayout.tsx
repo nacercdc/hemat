@@ -16,8 +16,8 @@ export function AuthLayout({ children }: Props) {
   const isLogin = pathname === "/login";
 
   return (
-    <div className="flex flex-col min-h-screen w-full bg-white px-4 sm:px-6 md:px-10 py-6">
-      <div className="flex flex-col lg:flex-row items-start justify-between w-full flex-1 gap-6 mt-10">
+    <div className="flex flex-col h-[calc(100vh)] w-full bg-white px-4 sm:px-6 md:px-10 py-6 overflow-y-auto xxl:overflow-hidden">
+      <div className="flex flex-col lg:flex-row items-start justify-between w-full flex-1 gap-6 mt-10 ">
         <div
           className="flex justify-center lg:justify-start w-full lg:w-[20%] cursor-pointer"
           onClick={() => router.replace("/home")}

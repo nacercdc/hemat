@@ -62,6 +62,14 @@ export class FileUploadService {
     return media;
   }
 
+  async get(id: string): Promise<Media> {
+    return this.mediaService.findById(id);
+  }
+
+  async getByEntity(entityType: string, entityId: string): Promise<Media[]> {
+    return this.mediaService.findByEntityRelation(entityType, entityId);
+  }
+
   async delete(id: string): Promise<boolean> {
     const media = await this.mediaService.findById(id);
 

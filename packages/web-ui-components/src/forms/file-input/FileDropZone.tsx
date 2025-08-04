@@ -34,9 +34,11 @@ interface Props {
   maxFiles?: number;
   maxSizeMB?: number;
   message?: string;
+  disabledMessage?: string;
   accept?: string;
   dragAreaHeight?: number;
   showRejectedFiles?: boolean;
+  disabled?: boolean;
   onFilesChange?: (files: FileWithPreview[]) => void;
 }
 
@@ -46,15 +48,20 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
       maxFiles = 5,
       maxSizeMB = 10,
       message,
+      disabledMessage,
       accept,
       dragAreaHeight,
       showRejectedFiles = true,
+      disabled = false,
       onFilesChange,
     },
-    ref,
+    ref
   ) => {
     const [files, setFiles] = useState<FileWithPreview[]>([]);
     const [rejected, setRejected] = useState<RejectedFile[]>([]);
+
+    const isMaxFilesReached = files.length >= maxFiles;
+    const isDropzoneDisabled = disabled || isMaxFilesReached;
 
     useEffect(() => {
       return () => {
@@ -73,14 +80,17 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
     const onDrop = useCallback(
       (acceptedFiles: File[], rejectedFiles: RejectedFile[]) => {
         if (acceptedFiles?.length) {
+          const remainingSlots = maxFiles - files.length;
+          const filesToAdd = acceptedFiles.slice(0, remainingSlots);
+
           setFiles((previousFiles) => [
             ...previousFiles,
-            ...acceptedFiles.map((file) =>
+            ...filesToAdd.map((file) =>
               Object.assign(file, {
                 preview: file.type.startsWith("image/")
                   ? URL.createObjectURL(file)
                   : null,
-              }),
+              })
             ),
           ]);
         }
@@ -89,7 +99,7 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
           setRejected((previousFiles) => [...previousFiles, ...rejectedFiles]);
         }
       },
-      [],
+      [files.length, maxFiles]
     );
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -97,6 +107,7 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
       maxSize: maxSizeMB * 1024 * 1024,
       maxFiles,
       onDrop: onDrop as any,
+      disabled: isDropzoneDisabled,
     });
 
     const removeFile = (name: string) => {
@@ -132,17 +143,34 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
           {...getRootProps()}
           className={cn(
             "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors flex items-center justify-center bg-card",
-            isDragActive
+            isDragActive && !isDropzoneDisabled
               ? "border-primary bg-primary-50"
               : "border-dark-light hover:border-dark",
+            isDropzoneDisabled && "opacity-60 cursor-not-allowed bg-slate-50"
           )}
           style={{ height: `${dragAreaHeight}px` }}
         >
-          <input {...getInputProps()} accept={accept} />
+          <input
+            {...getInputProps()}
+            accept={accept}
+            disabled={isDropzoneDisabled}
+          />
           {
             <div className="flex flex-col items-center justify-center gap-2 text-sm">
-              <Icon icon="feather:upload" className="text-2xl text-dark" />
-              {isDragActive ? (
+              <Icon
+                icon="feather:upload"
+                className={cn(
+                  "text-2xl",
+                  isDropzoneDisabled ? "text-slate-400" : "text-dark"
+                )}
+              />
+              {isDropzoneDisabled ? (
+                <p className="font-medium text-destructive">
+                  {isMaxFilesReached
+                    ? `Maximum files (${maxFiles}) reached.`
+                    : `${disabledMessage || "File uploads are currently disabled."}`}
+                </p>
+              ) : isDragActive ? (
                 <p className="text-primary">Drop files here...</p>
               ) : (
                 <>
@@ -150,7 +178,7 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
                     {message ?? "Drag & drop files here, or click to browse"}
                   </p>
                   <p className="text-xs text-dark">
-                    (max - {maxSizeMB}MB per file)
+                    (Up to {maxFiles} files, max - {maxSizeMB}MB per file)
                   </p>
                 </>
               )}
@@ -258,5 +286,5 @@ export const FileDropZone = forwardRef<DropZoneRef, Props>(
         )}
       </div>
     );
-  },
+  }
 );

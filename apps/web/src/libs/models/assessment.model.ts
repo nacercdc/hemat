@@ -28,7 +28,7 @@ export type StatusType =
   | "Completed";
 
 export interface Assessment {
-  id: number;
+  id: string;
   name: string;
   user: User;
   country: Country;

@@ -18,7 +18,6 @@ export interface Domain {
 
 export interface DomainCreate {
   name: string;
-  code: string;
   description: string;
   translations: Record<
     string,
@@ -32,7 +31,6 @@ export interface DomainCreate {
 export interface DomainEdit {
   id: string;
   name: string;
-  code: string;
   description: string;
   translations: Record<
     string,
@@ -48,3 +46,4 @@ export type DomainSortable = "created_at";
 
 export type DomainSorts = Sort<DomainSortable>[];
 export type DomainFilters = Filter<DomainFilterable>[];
+export type DomainIncludable = "components";

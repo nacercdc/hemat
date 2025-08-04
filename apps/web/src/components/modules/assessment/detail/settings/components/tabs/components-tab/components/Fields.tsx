@@ -58,7 +58,7 @@ export function Fields({ control, selectedLanguages, watch, errors }: Props) {
             {
               value: `${key}-fields`,
               trigger: (
-                <div className="flex items-center gap-12 w-full font-medium">
+                <div className="flex min-[400px]:items-center flex-col items-start w-full font-medium min-[400px]:flex-row min-[400px]:gap-12 ">
                   <span className="text-sm text-dark-light min-w-12">
                     {label}
                   </span>
@@ -70,8 +70,9 @@ export function Fields({ control, selectedLanguages, watch, errors }: Props) {
                   {/* Default Field */}
                   <div className="flex-1">
                     <Component
-                      control={control}
                       name={key}
+                      control={control}
+                      disabled={key === "code"}
                       placeholder={placeholder({
                         code: DEFAULT_LANGUAGE_CODE,
                         name: "English",
@@ -85,12 +86,13 @@ export function Fields({ control, selectedLanguages, watch, errors }: Props) {
                   {selectedLanguages.map((lang) => (
                     <div
                       key={lang.code}
-                      className="flex items-start justify-between py-2 gap-12"
+                      className="flex flex-col items-start py-2 min-[400px]:flex-row min-[400px]:gap-12 min-[400px]:justify-between"
                     >
                       <div className="text-sm font-medium min-w-12">{`${lang.code.toUpperCase()}:`}</div>
                       <div className="flex-1">
                         <Component
                           control={control}
+                          disabled={key === "code"}
                           name={`translations.${lang.code}.${key}`}
                           placeholder={placeholder(lang)}
                           {...props}

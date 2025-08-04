@@ -202,16 +202,25 @@ export class AssessmentSubComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
+  @UseGuards(AssessmentRoleGuard)
   @Get()
   async findAll(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query() query: FindAllAssessmentSubComponentDto,
   ): Promise<FindAllResponseDto<AssessmentSubComponent>> {
-    return this.assessmentSubComponentService.findAll({
-      ...query,
-      assessmentId,
-    });
+    const { isAdmin, assessmentRole } = user;
+    if (isAdmin || assessmentRole) {
+      return this.assessmentSubComponentService.findAll({
+        ...query,
+        assessmentId,
+      });
+    }
+    throw new ForbiddenException(
+      'You are not authorized to view sub-components for this assessment.',
+    );
   }
 
   @ApiOperation({
@@ -285,14 +294,23 @@ export class AssessmentSubComponentController {
         subject: PermissionSubjectEnum.ASSESSMENT,
       },
     ],
+    requireAdmin: false,
   })
+  @UseGuards(AssessmentRoleGuard)
   @Get(':id')
   async findOne(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query() query: FindOneAssessmentSubComponentDto,
   ): Promise<AssessmentSubComponent> {
-    return this.assessmentSubComponentService.findOne(assessmentId, id, query);
+    const { isAdmin, assessmentRole } = user;
+    if (isAdmin || assessmentRole) {
+      return this.assessmentSubComponentService.findOne(assessmentId, id, query);
+    }
+    throw new ForbiddenException(
+      'You are not authorized to view this sub-component.',
+    );
   }
 
   @ApiOperation({
@@ -443,9 +461,35 @@ export class AssessmentSubComponentController {
   @ApiOperation({
     summary: 'Get roadmap answer for a sub-component',
     description:
-      'Retrieve roadmap answer for a specific sub-component for the current user',
+      'Retrieve roadmap answer for a specific sub-component for the current user. Includes document URL if any document is uploaded.',
   })
-  @ApiOkResponse({ description: 'Ok', type: AssessmentSubComponentRoadmap })
+  @ApiOkResponse({ 
+    description: 'Ok', 
+    type: AssessmentSubComponentRoadmap,
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        roadmapId: { type: 'string' },
+        subComponentId: { type: 'string' },
+        measurementScaleId: { type: 'string' },
+        answerId: { type: 'string' },
+        target: { type: 'string' },
+        currentState: { type: 'number' },
+        activities: { type: 'string' },
+        responsible: { type: 'string' },
+        resources: { type: 'string' },
+        gapAddressed: { type: 'string' },
+        startTime: { type: 'string', format: 'date-time' },
+        endTime: { type: 'string', format: 'date-time' },
+        documentUrl: { 
+          type: 'string', 
+          nullable: true,
+          description: 'URL of the uploaded document (if any)'
+        }
+      }
+    }
+  })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -464,7 +508,7 @@ export class AssessmentSubComponentController {
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) subComponentId: string,
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
-  ): Promise<AssessmentSubComponentRoadmap> {
+  ): Promise<AssessmentSubComponentRoadmap & { documentUrl?: string | null }> {
     return this.assessmentSubComponentService.getSubComponentRoadmapAnswer(
       assessmentId,
       subComponentId,

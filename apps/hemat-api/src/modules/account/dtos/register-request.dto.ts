@@ -13,6 +13,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { GenderEnum } from '@shared/enums';
+import { IsUnique } from '../../../shared/validators';
 
 export class RegisterRequestDto {
   @ApiProperty({
@@ -58,6 +59,18 @@ export class RegisterRequestDto {
   @IsNotEmpty({ message: 'validation.name.isNotEmpty' })
   @Type(() => String)
   lastName: string;
+
+  @ApiPropertyOptional({
+    description: "The user's username",
+    example: 'johndoe',
+    type: String,
+  })
+  @MaxLength(50)
+  @IsString({ message: 'validation.username.isString' })
+  @IsOptional()
+  @IsUnique({ tableName: 'profiles', columns: ['username'] })
+  @Type(() => String)
+  username: string | null = null;
 
   @ApiProperty({
     description: "The user's gender",

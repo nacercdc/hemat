@@ -104,14 +104,6 @@ export class AssessmentSubComponentRoadmap extends BaseEntity {
   resources: string;
 
   @ApiProperty({
-    description: 'Documentation for the roadmap',
-    example: 'Project plan',
-    type: String,
-  })
-  @Column({ type: 'text' })
-  documentation: string;
-
-  @ApiProperty({
     description: 'Gap addressed by the roadmap',
     example: 'Lack of cold chain equipment',
     type: String,

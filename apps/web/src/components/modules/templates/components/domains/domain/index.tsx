@@ -50,9 +50,16 @@ export function Domain({ domain }: Props) {
         data: {
           id: domain.id,
           name: values.name,
-          code: values.code,
           description: values.description,
-          translations: values.translations,
+          translations: Object.fromEntries(
+            Object.entries(values.translations).map(([key, value]) => [
+              key,
+              {
+                name: value.name ?? "",
+                description: value.description ?? "",
+              },
+            ])
+          ),
         },
       },
       {

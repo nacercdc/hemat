@@ -293,4 +293,67 @@ export class AssessmentGroupService {
     }
     return group.domains || [];
   }
+
+  /**
+   * Detach domains from a group
+   */
+  async detachDomains(
+    assessmentId: string,
+    groupId: string,
+    domainIds: string[],
+    user: AssessmentAbilityDto,
+  ): Promise<AssessmentGroup> {
+    if (!user) {
+      throw new BadRequestException('User context is missing');
+    }
+    this.logger.log(`detachDomains: userId=${user.id}, assessmentRole=${user.assessmentRole}, isAdmin=${user.isAdmin}`);
+    if (!user.isAdmin) {
+      // Enforce: Only admins or PRIMARYs can detach domains
+      // Accept both enum and string value for robustness
+      const role = String(user.assessmentRole);
+      if (role !== MemberRole.PRIMARY && role !== 'primary') {
+        throw new BadRequestException(
+          'Only admins or PRIMARYs can detach domains from a group',
+        );
+      }
+    }
+    return this.dataSource.transaction(async (manager) => {
+      // Validate group exists and belongs to assessment
+      const group = await manager.getRepository(AssessmentGroup).findOne({
+        where: { id: groupId, assessmentId },
+        relations: ['domains'],
+      });
+      if (!group) {
+        throw new NotFoundException('Group not found');
+      }
+      
+      // Validate domain exists and belongs to the assessment
+      const domain = await manager
+        .getRepository(AssessmentDomain)
+        .findOne({ where: { id: domainIds[0] } });
+      if (!domain) {
+        throw new BadRequestException('Domain not found');
+      }
+      if (domain.assessmentId !== assessmentId) {
+        throw new BadRequestException(
+          'Domain does not belong to this assessment',
+        );
+      }
+      
+      // Validation: Check if domain is currently attached to the group
+      const currentDomainIds = (group.domains || []).map((d) => d.id);
+      if (!currentDomainIds.includes(domain.id)) {
+        throw new BadRequestException('The specified domain is not currently attached to this group');
+      }
+      
+      this.logger.log(
+        `Detaching domain ${domain.id} from group ${groupId} in assessment ${assessmentId}`,
+      );
+      
+      // Remove the domain from the group
+      group.domains = group.domains.filter((d) => d.id !== domain.id);
+      
+      return await manager.getRepository(AssessmentGroup).save(group);
+    });
+  }
 }

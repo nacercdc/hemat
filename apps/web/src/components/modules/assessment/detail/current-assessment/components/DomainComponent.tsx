@@ -22,14 +22,14 @@ interface Component {
   sub_component: SubComponent[];
 }
 interface Props {
-  components: Component[];
+  components: Component;
 }
 
-export default function DomainComponent({ components: _ }: Props) {
+export default function DomainComponent({ components }: Props) {
   return (
     <div className="flex flex-col gap-4 bg-dark-lighter/5 rounded-sm p-4">
       <div className="flex gap-2 items-center  ">
-        <h1 className="font-bold text-sm">1.A.1 Component One </h1>
+        <h1 className="font-bold text-sm">{components.component_name} </h1>
         <span className="px-3 py-1  bg-primary  font-bold text-sm text-white rounded-sm">
           5
         </span>

@@ -4,15 +4,15 @@ import React, { useRef } from "react";
 
 import type { ModalRef } from "@etm/web-ui-components";
 import { PageContainer } from "../components/PageContainer";
-import ActiveListProvider from "../domains/providers/active-list/ActiveListProvider";
-import { useActiveList } from "../domains/providers/active-list/useActiveList";
+import ActiveListProvider from "./providers/active-list/ActiveListProvider";
+import { useActiveList } from "./providers/active-list/useActiveList";
 
-import { DomainCompCard } from "../domains/components/DomainCompCard";
-import { DomainsList } from "../domains/components/domains";
-import { DomainComponents } from "../domains/components/domain-components";
+import { DomainCompCard } from "./components/DomainCompCard";
+import { DomainsList } from "./components/domains";
+import { DomainComponents } from "./components/domain-components";
 import { DomainSubComponents } from "./components/domain-sub-components";
 
-export function Domains() {
+export function Templates() {
   return (
     <ActiveListProvider>
       <DomainListContent />
@@ -29,7 +29,7 @@ export function DomainListContent() {
     useActiveList();
 
   return (
-    <PageContainer pageTitle="Domains" includeBreadcrumb={false}>
+    <PageContainer pageTitle="Templates" includeBreadcrumb={false}>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-0">
         <DomainCompCard
           cardListType="Domain"

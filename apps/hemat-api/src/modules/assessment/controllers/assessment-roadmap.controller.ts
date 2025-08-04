@@ -13,6 +13,8 @@ import {
   Request,
   Patch,
   ForbiddenException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -26,6 +28,8 @@ import {
   ApiUnprocessableEntityResponse,
   ApiTooManyRequestsResponse,
   ApiNotFoundResponse,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { Roadmap } from '@database/entities';
 import { Abilities, AuthGuard, AuthDto } from '@shared/modules';
@@ -42,6 +46,8 @@ import { RoadmapDomainProgress } from '../types/assessment-progress.type';
 import { AssessmentRoleGuard } from '../guards/assessment-role.guard';
 import { AssessmentAbilityUser } from '../guards/assessment-ability-user.decorator';
 import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { MediaResponseDto } from '@etm/server-media-upload';
 
 @ApiTags('Roadmaps')
 @ApiBearerAuth()
@@ -63,9 +69,78 @@ import { AssessmentAbilityDto } from '../guards/assessment-ability.dto';
   type: ExceptionResponseDto,
 })
 @UseGuards(AuthGuard)
-@Controller('assessments/:assessmentId/roadmaps')
+@Controller('assessments')
 export class AssessmentRoadmapController {
   constructor(private readonly roadmapService: AssessmentRoadmapService) {}
+
+  @ApiOperation({
+    summary: 'Get all roadmap information',
+    description: 'Get all roadmap information with assessment and user objects, percentage, status, and timestamps. Admins can see all roadmaps, assessment users can only see their own roadmaps.',
+  })
+  @ApiOkResponse({
+    description: 'Ok',
+    type: FindAllResponseDto<Roadmap>,
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              assessmentId: { type: 'string' },
+              userId: { type: 'string' },
+              isPrimary: { type: 'boolean' },
+              percentage: { type: 'number' },
+              status: { type: 'string' },
+              createdAt: { type: 'string', format: 'date-time' },
+              updatedAt: { type: 'string', format: 'date-time' },
+              assessment: { 
+                type: 'object',
+                description: 'Full assessment object'
+              },
+              user: { 
+                type: 'object',
+                description: 'Full user object'
+              }
+            }
+          }
+        },
+        total: { type: 'number', description: 'Total number of roadmaps' }
+      }
+    }
+  })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ROADMAP,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @Get('roadmaps/info')
+  async getRoadmapInfo(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+    @Request() req: { user: AuthDto },
+  ): Promise<FindAllResponseDto<Roadmap>> {
+    const { isAdmin, assessmentRole } = user;
+    
+    try {
+      // If admin or has assessment role, get all roadmaps
+      if (isAdmin || assessmentRole) {
+        return await this.roadmapService.getRoadmapInfo(req.user.id, true);
+      }
+      
+      // For regular users, get filtered roadmaps
+      return await this.roadmapService.getRoadmapInfo(req.user.id, false);
+    } catch (err) {
+      throw err;
+    }
+  }
 
   @ApiOperation({
     summary: 'Get filled status for roadmap sub-components',
@@ -125,7 +200,7 @@ export class AssessmentRoadmapController {
     ],
     requireAdmin: false,
   })
-  @Get('filled-status')
+  @Get(':assessmentId/roadmaps/filled-status')
   async getFilledStatus(
     @AssessmentAbilityUser() user: AssessmentAbilityDto,
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
@@ -149,7 +224,7 @@ export class AssessmentRoadmapController {
       'Get roadmap progress per domain for the primary roadmap of an assessment (team leader)',
   })
   @ApiOkResponse({ description: 'Ok' })
-  @Get('progress')
+  @Get(':assessmentId/roadmaps/progress')
   async getProgress(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
@@ -182,7 +257,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Get()
+  @Get(':assessmentId/roadmaps')
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
@@ -208,7 +283,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Get(':id')
+  @Get(':assessmentId/roadmaps/:id')
   async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -241,7 +316,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Post()
+  @Post(':assessmentId/roadmaps')
   async create(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
@@ -275,7 +350,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Put(':id')
+  @Put(':assessmentId/roadmaps/:id')
   async update(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -308,7 +383,7 @@ export class AssessmentRoadmapController {
       },
     ],
   })
-  @Patch('submit')
+  @Patch(':assessmentId/roadmaps/submit')
   async submitAssessmentRoadmap(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Request() req: { user: AuthDto },
@@ -317,5 +392,59 @@ export class AssessmentRoadmapController {
       assessmentId,
       req.user.id,
     );
+  }
+
+  @ApiOperation({
+    summary: 'Upload document for sub-component roadmap',
+    description: 'Upload a document file for a specific sub-component roadmap entry. This will replace any existing document.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Document file (PDF, DOC, DOCX, XLS, XLSX. Max size: 10MB)',
+        },
+      },
+      required: ['file'],
+    },
+  })
+  @ApiOkResponse({ 
+    description: 'Document uploaded successfully', 
+    type: MediaResponseDto 
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid file format or size exceeded',
+    type: ExceptionResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Sub-component roadmap entry not found',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden: You do not have permission to upload documents for this roadmap',
+    type: ExceptionResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.UPDATE,
+        subject: PermissionSubjectEnum.ROADMAP,
+      },
+    ],
+  })
+  @Post(':assessmentId/roadmaps/sub-component/:id/document')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadDocument(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('id', new ParseUUIDPipe()) subComponentRoadmapId: string,
+    @Request() req: { user: AuthDto },
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.roadmapService.uploadDocument(assessmentId, req.user.id, subComponentRoadmapId, file);
   }
 }

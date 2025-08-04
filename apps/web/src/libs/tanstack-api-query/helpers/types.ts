@@ -115,4 +115,5 @@ export interface RequestConfig {
   headers?: RequestHeaders;
   isProtected?: boolean;
   id?: string;
+  multipart?: boolean;
 }

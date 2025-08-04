@@ -12,6 +12,7 @@ import {
 } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { CountryCode } from "libphonenumber-js";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -23,6 +24,7 @@ import type { Profile, UpdateProfile } from "~/libs/models/profile.model";
 import { ProfileTabSkeleton } from "./ProfileTabSkeleton";
 import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "@etm/utilities";
 import type { Country } from "~/libs/models/country.model";
+import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 export const PERSONAL_TITLES = [
   "Mr.",
   "Mrs.",
@@ -67,6 +69,7 @@ const ProfileDetailSchema = z.object({
   title: titleSchema.optional(),
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
+  userName: z.string().min(1, { message: "User name is required" }),
   phoneNumber: z
     .string()
     .optional()
@@ -97,10 +100,17 @@ export default function ProfileTab() {
     UpdateProfile
   >(`/profiles`);
 
+  const { mutate: updateProfilePic, ...updateProfilePicState } = useAddMutation<
+    Profile,
+    FormData
+  >(`/profiles/profile-picture`);
+
   const { control, handleSubmit, reset } = useForm<ProfileDetailFormData>({
     defaultValues: {
       firstName: "",
       lastName: "",
+      userName: "",
+      jobTitle: "",
       dateOfBirth: undefined,
     },
     resolver: zodResolver(ProfileDetailSchema),
@@ -115,6 +125,7 @@ export default function ProfileTab() {
     const updatedProfile: UpdateProfile = {
       firstName: values.firstName,
       lastName: values.lastName,
+      username: values.userName,
       country: values.country?.id,
       title: values?.title?.id,
       jobTitle: values.jobTitle,
@@ -142,6 +153,29 @@ export default function ProfileTab() {
     );
   };
 
+  const onProfilePicSubmitHandler = () => {
+    const formData = new FormData();
+    if (!profilePic) return;
+    formData.append("file", profilePic);
+
+    updateProfilePic(
+      {
+        data: formData,
+        multipart: true,
+      },
+      {
+        onSuccess: () => {
+          currentUserState.refetch();
+          toast({
+            title: "Success",
+            message: "You profile picture has been updated successfully.",
+            variant: "success",
+          });
+        },
+      }
+    );
+  };
+
   useEffect(() => {
     if (currentUserState.isSuccess && currentUser) {
       reset({
@@ -155,6 +189,7 @@ export default function ProfileTab() {
         jobTitle: currentUser.profile?.jobTitle ?? "",
         firstName: currentUser.profile?.firstName ?? "",
         lastName: currentUser.profile?.lastName ?? "",
+        userName: currentUser.profile?.username ?? "",
         country: currentUser.profile.country
           ? {
               id: currentUser.profile.country,
@@ -176,7 +211,7 @@ export default function ProfileTab() {
     }
   }, [currentUserState.isSuccess, currentUserState.isRefetching, currentUser]);
 
-  if (currentUserState.isLoading) {
+  if (currentUserState.isLoading && currentUserState.isFetching) {
     return <ProfileTabSkeleton />;
   }
 
@@ -188,7 +223,7 @@ export default function ProfileTab() {
       <div className="flex items-center gap-3">
         <div className="relative">
           <AvatarInput
-            initialFilePreviewURL=""
+            initialFilePreviewURL={currentUser?.profile.url}
             onChange={onProfilePicChangeHandler}
             file={profilePic}
             ref={profilePicRef}
@@ -205,6 +240,14 @@ export default function ProfileTab() {
           <span className="text-lg font-bold">{currentUser?.name}</span>
           <span className="text-dark-light text-xs">{currentUser?.email}</span>
         </div>
+        <Button
+          type="button"
+          onClick={onProfilePicSubmitHandler}
+          disabled={!profilePic}
+          loading={updateProfilePicState.isPending}
+        >
+          Change
+        </Button>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <SelectRHF
@@ -275,9 +318,21 @@ export default function ProfileTab() {
           labelVariant="medium"
           size="lg"
           placeholder="Enter your phone phone"
+          options={(countries?.data ?? []).map((country) => ({
+            label: country.name ?? "",
+            value: country.code as CountryCode,
+          }))}
         />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 max-w-7xl">
+        <InputRHF
+          name="userName"
+          control={control}
+          label="User Name"
+          size="lg"
+          labelVariant="medium"
+          placeholder="Enter user name"
+        />
         <InputRHF
           name="jobTitle"
           control={control}

@@ -29,6 +29,7 @@ export interface Props<T>
   extends Omit<SelectProps<T>, "defaultValue" | "onSelect">,
     VariantProps<typeof selectVariants> {
   values?: T[];
+  isModal: boolean;
   onSelect: (value?: T[]) => void;
 }
 export function MultiSelect<T>({
@@ -49,6 +50,7 @@ export function MultiSelect<T>({
   placeholder = "Select language",
   searchPlaceholder = "Search...",
   emptyText = "No results found.",
+  isModal = false,
   onOpenChange,
   onSelect,
 }: Props<T>) {
@@ -96,7 +98,7 @@ export function MultiSelect<T>({
       variant={labelVariant}
       size={labelSize}
     >
-      <Popover open={open} onOpenChange={onOpenChangeHandler}>
+      <Popover open={open} onOpenChange={onOpenChangeHandler} modal={isModal}>
         <PopoverTrigger asChild className="flex items-center w-full">
           <Button
             ref={buttonRef}

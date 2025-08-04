@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, IsNull } from 'typeorm';
 import { SubComponent, Component, MeasurementScale } from '@database/entities';
 import { Filter, QueryService } from '@shared/services';
 import {
@@ -77,9 +77,43 @@ export class SubComponentService {
 
       // Get the parent component's code
       const componentCode = component.code;
-      // Count existing subcomponents for this component
-      const count = await manager.getRepository(SubComponent).count({ where: { component: { id: component.id } } });
-      const code = `${componentCode}.${count + 1}`;
+      
+      // Get ALL existing sub-component codes (including soft-deleted ones) to check for conflicts
+      const allSubComponents = await manager.getRepository(SubComponent).find({
+        where: { component: { id: component.id } },
+        withDeleted: true,
+        select: ['code']
+      });
+      
+      // Extract sub-component numbers from codes like "1.1.1", "1.1.2", etc.
+      const allSubComponentNumbers = allSubComponents
+        .map(sc => {
+          const parts = sc.code.split('.');
+          if (parts.length > 2 && parts[2]) {
+            const num = parseInt(parts[2]);
+            return isNaN(num) ? null : num;
+          }
+          return null;
+        })
+        .filter((num): num is number => num !== null);
+      
+      let nextSubComponentNumber = 1;
+      
+      if (allSubComponentNumbers.length > 0) {
+        // Find the first gap in the sequence, or use the next number after the highest
+        allSubComponentNumbers.sort((a, b) => a - b);
+        for (let i = 0; i < allSubComponentNumbers.length; i++) {
+          if (allSubComponentNumbers[i] !== i + 1) {
+            nextSubComponentNumber = i + 1;
+            break;
+          }
+        }
+        if (nextSubComponentNumber === 1) {
+          nextSubComponentNumber = Math.max(...allSubComponentNumbers) + 1;
+        }
+      }
+      
+      const code = `${componentCode}.${nextSubComponentNumber}`;
 
       // Set code in translations for each language if translations exist
       let translations = payload.translations;

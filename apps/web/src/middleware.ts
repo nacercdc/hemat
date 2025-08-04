@@ -12,9 +12,12 @@ export function middleware(request: NextRequest) {
   const { nextUrl, cookies } = request;
   const pathname = nextUrl.pathname;
   const token = cookies.get("token")?.value;
+  const invitationId = nextUrl.searchParams.get("invitationId");
 
   const isPublicRoute = isPublic(pathname);
-
+  if (invitationId) {
+    return isPublicRoute ? NextResponse.next() : redirectTo(REGISTER, nextUrl);
+  }
   if (!token) {
     return isPublicRoute ? NextResponse.next() : redirectTo(LOGIN, nextUrl);
   }

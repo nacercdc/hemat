@@ -12,10 +12,20 @@ import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { useParams } from "next/navigation";
 import { EmptyTableDataElement } from "~/components/modules/components/EmptyTableDataElement";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
+import type {
+  Assessment,
+  AssessmentsIncludeAble,
+} from "~/libs/models/assessment.model";
 
 export function ComponentTab() {
   const params = useParams();
   const { id: assessmentId } = params;
+
+  const { data: assessment } = useFindById<Assessment, AssessmentsIncludeAble>({
+    path: `assessments/${assessmentId as string}`,
+  });
+
   const { data: components, ...componentsState } =
     useFindAll<AssessmentComponent>({
       path: `/assessments/${assessmentId as string}/components`,
@@ -30,12 +40,12 @@ export function ComponentTab() {
   }, [components]);
 
   return componentsState.isLoading ? (
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full">
       <SidebarSkeleton itemCount={5} />
       <ContentSkeleton />
     </div>
   ) : components?.data && components.data.length > 0 ? (
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full">
       <Sidebar<AssessmentComponent>
         list={components?.data ?? []}
         activeItem={activeComponent}
@@ -46,6 +56,7 @@ export function ComponentTab() {
       <Content
         activeComponent={activeComponent}
         assessmentId={assessmentId as string}
+        assessment={assessment}
         refetchComponents={componentsState.refetch}
       />
     </div>

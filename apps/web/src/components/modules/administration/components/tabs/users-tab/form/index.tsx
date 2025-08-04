@@ -200,6 +200,7 @@ export function UserForm({
           labelVariant="medium"
           valueKey="id"
           labelKey="name"
+          isModal={true}
           options={(roles?.data as unknown as Role[]) || []}
           placeholder="Select user's roles"
           onOpenChange={() => rolesState.refetch}

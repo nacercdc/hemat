@@ -85,7 +85,7 @@ export function TablePagination<TData>({
   };
 
   return (
-    <div className="flex items-center justify-between bg-tbaccent px-2 rounded-md">
+    <div className="flex flex-col overflow-x-auto min-[400px]:overflow-hidden min-[400px]:flex-row items-center justify-between bg-tbaccent px-8 min-[400px]:px-2 rounded-md">
       <Pagination className="mx-0 w-auto">
         <PaginationContent>
           <PaginationItem>
@@ -155,7 +155,7 @@ export function TablePagination<TData>({
             ))}
           </SelectContent>
         </Select>
-        <p className="text-xs font-bold">{`1-${pageSize < totalItems ? pageSize : totalItems} of ${totalItems}`}</p>
+        <p className="text-xs font-bold text-nowrap">{`1-${pageSize < totalItems ? pageSize : totalItems} of ${totalItems}`}</p>
       </div>
     </div>
   );
