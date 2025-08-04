@@ -3,7 +3,8 @@
 import { Tooltip } from "@etm/web-ui-components";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { AnimatedCounter } from "./AnimatedCounter";
+import { AssessedCountries } from "./AssessedCountries";
+import { MeasurementScales } from "./MeasurementScales";
 
 export function OverallStats() {
   const [isHovered, setIsHovered] = useState(false);
@@ -213,123 +214,10 @@ export function OverallStats() {
                   }
             }
           >
-            <div className="flex flex-col justify-center items-center h-full gap-2">
-              <span className="text-5xl text-[#E8D8A6] font-bold">
-                <AnimatedCounter from={0} to={45} duration={4} delay={2} />
-              </span>
-              <span className="rounded-md text-xs text-center text-white bg-[#E8D8A6]/25 p-1">
-                Countries
-              </span>
-              <span className="text-xs text-white text-wrap text-center">
-                Assessment <br />
-                Collected
-              </span>
-            </div>
+            <AssessedCountries />
           </motion.div>
         </div>
-        <div className="flex gap-4">
-          <Tooltip
-            content={
-              <div className="flex flex-col gap-1">
-                <span className="font-bold">Initial:</span>
-                <span className="text-xs text-wrap">
-                  Digital health systems are largely unstructured and informal.
-                  There is minimal awareness of digital health principles,
-                  leading to inconsistent practices and a lack of strategic
-                  planning. Organizations may have rudimentary technology but
-                  lack integration or comprehensive policies.
-                </span>
-              </div>
-            }
-            color="dark"
-            trigger={
-              <div className="text-white w-8 h-6 rounded-sm font-semibold bg-[#FF0101] text-center cursor-context-menu">
-                1
-              </div>
-            }
-          />
-          <Tooltip
-            content={
-              <div className="flex flex-col gap-1">
-                <span className="font-bold">Developing:</span>
-                <span className="text-xs text-wrap">
-                  Basic capabilities are being established, but practices are
-                  fragmented and inconsistent. Documents, processes, guidelines,
-                  and/or strategies, etc are being developed. The need for
-                  standardized processes and automated functional capabilities
-                  is known. There are efforts to document current processes.
-                </span>
-              </div>
-            }
-            color="dark"
-            trigger={
-              <div className="text-dark w-8 h-6 rounded-sm font-semibold bg-[#FFC000] text-center cursor-context-menu">
-                2
-              </div>
-            }
-          />
-          <Tooltip
-            content={
-              <div className="flex flex-col gap-1">
-                <span className="font-bold">Defined:</span>
-                <span className="text-xs text-wrap">
-                  There are approved documented and structured approaches with
-                  defined processes, guidelines, strategies, and/or policies in
-                  place. Documents, processes, procedures, etc are aligned and
-                  integrated with relevant guidelines, strategies, and/or
-                  policies. There is increased collaboration and knowledge
-                  sharing.
-                </span>
-              </div>
-            }
-            color="dark"
-            trigger={
-              <div className="text-dark w-8 h-6 rounded-sm font-semibold bg-[#FFFD02] text-center cursor-context-menu">
-                3
-              </div>
-            }
-          />
-          <Tooltip
-            content={
-              <div className="flex flex-col gap-1">
-                <span className="font-bold">Optimized:</span>
-                <span className="text-xs text-wrap">
-                  Activities are conducted using established processes. There is
-                  a plan to periodically review and update processes, practices,
-                  and/or strategies for continuous improvement and stakeholder
-                  engagement.
-                </span>
-              </div>
-            }
-            color="dark"
-            trigger={
-              <div className="text-white w-8 h-6 rounded-sm font-semibold bg-[#00B0F0] text-center cursor-context-menu">
-                4
-              </div>
-            }
-          />
-          <Tooltip
-            content={
-              <div className="flex flex-col gap-1">
-                <span className="font-bold">Managed:</span>
-                <span className="text-xs text-wrap">
-                  The system uses experiences and feedback to correct problems
-                  and continuously improve processes and capabilities.
-                  Requirements/goals have been developed and a feedback process
-                  is in place to ensure that they are met. Continuous
-                  improvement with advanced technologies and a culture of
-                  innovation.
-                </span>
-              </div>
-            }
-            color="dark"
-            trigger={
-              <div className="text-white w-8 h-6 rounded-sm font-semibold bg-[#11B050] text-center cursor-context-menu">
-                5
-              </div>
-            }
-          />
-        </div>
+        <MeasurementScales />
       </div>
     </div>
   );
