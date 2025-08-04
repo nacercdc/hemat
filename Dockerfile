@@ -41,7 +41,20 @@ ARG APP_NAME
 
 WORKDIR /app
 
-COPY --from=builder --chown=nestjs:nodejs /app ./
+COPY --from=builder --chown=nestjs:nodejs /app/.yarn ./.yarn
+COPY --from=builder --chown=nestjs:nodejs /app/apps/${APP_NAME}/ ./apps/${APP_NAME}/
+COPY --from=builder --chown=nestjs:nodejs /app/packages/ ./packages/
+COPY --from=builder --chown=nestjs:nodejs /app/scripts/ ./scripts/
+COPY --from=builder --chown=nestjs:nodejs /app/tooling/ ./tooling/
+COPY --from=builder --chown=nestjs:nodejs /app/turbo/ ./turbo/
+COPY --from=builder --chown=nestjs:nodejs /app/.watchmanconfig ./.watchmanconfig
+COPY --from=builder --chown=nestjs:nodejs /app/.yarnrc.yml ./.yarnrc.yml
+COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nestjs:nodejs /app/yarn.lock ./yarn.lock
+COPY --from=builder --chown=nestjs:nodejs /app/turbo.json ./turbo.json
+COPY --from=builder --chown=nestjs:nodejs /app/vitest.config.mts ./vitest.config.mts
+
+RUN yarn workspaces focus ${APP_NAME} --production
 
 EXPOSE 3000
 
