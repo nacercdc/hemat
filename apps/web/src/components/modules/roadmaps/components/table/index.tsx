@@ -4,57 +4,61 @@ import { Icon } from "@iconify/react";
 import type { PaginationState, SortingState } from "@etm/web-ui-components";
 import { Table as ETMTable } from "@etm/web-ui-components";
 import { EmptyTableDataElement } from "~/components/modules/components/EmptyTableDataElement";
-import type {
-  Assessment,
-  AssessmentFilterable,
-  AssessmentSortable,
-  AssessmentSorts,
-} from "~/libs/models/assessment.model";
-import { AssessmentsTableColumns } from "./AssessmentsTableColumns";
-import { useRouter } from "next/navigation";
+
 import { useState } from "react";
 import { DEFAULT_PAGE_INDEX, DEFAULT_PAGE_SIZE } from "~/constants";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-export const ASSESSMENT_LIST_KEY = "assessment-list";
-export function AssessmentsTable() {
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<AssessmentSorts>({
-    ascending: "createdAt",
-  });
+import type {
+  RoadmapList,
+  RoadmapListFilterable,
+  RoadmapListIncludable,
+  RoadmapListSortable,
+} from "~/libs/models/roadmap.model";
+import { RoadmapsTableColumns } from "./RoadmapsTableColumns";
+export const ROADMAP_LIST_KEY = "all-roadmap-list";
 
+export function RoadmapsTable() {
+  const [search, setSearch] = useState("");
+  const [_sort, setSort] = useState<
+    {
+      direction: string;
+      field: string | number | symbol;
+    }[]
+  >([
+    {
+      direction: "desc",
+      field: "created_at",
+    },
+  ]);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: DEFAULT_PAGE_INDEX,
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  const router = useRouter();
-
-  const { data: assessments, ...assessmentsState } = useFindAll<
-    Assessment,
-    unknown,
-    AssessmentFilterable,
-    AssessmentSortable
+  const { data: roadmaps, ...roadmapsState } = useFindAll<
+    RoadmapList,
+    RoadmapListIncludable,
+    RoadmapListFilterable,
+    RoadmapListSortable
   >({
-    path: "/assessments",
+    path: "/assessments/roadmaps/info",
     queries: {
       limit: pagination.pageSize,
       page: pagination.pageIndex + 1,
       search,
-      sorts: sort,
     },
     tqOptions: {
-      queryKey: [ASSESSMENT_LIST_KEY],
+      queryKey: [ROADMAP_LIST_KEY],
     },
   });
 
   const onSortingChangeHandler = (sortingState: SortingState) => {
-    const newSort: AssessmentSorts = {};
-    sortingState.forEach((v) => {
-      newSort[v.desc ? "descending" : "ascending"] =
-        `${v.id}` as AssessmentSortable;
-    });
-
-    setSort(newSort);
+    setSort(
+      sortingState.map((v) => ({
+        direction: v.desc ? "desc" : "asc",
+        field: v.id as keyof RoadmapList,
+      }))
+    );
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,
       pageSize: DEFAULT_PAGE_SIZE,
@@ -76,22 +80,18 @@ export function AssessmentsTable() {
           className="w-16 h-16"
         />
       }
-      title="No Assessment Found"
-      body="You can add a new assessment by clicking the button below."
-      actionText="Add Assessment"
-      action={() => {
-        router.push("/assessment/create");
-      }}
+      title="No roadmap Found"
+      body="No roadmaps to show."
     />
   );
 
   return (
     <div className="h-full bg-card pt-4 rounded-md">
-      <ETMTable<Assessment>
-        columns={AssessmentsTableColumns}
-        data={assessments?.data}
-        totalItems={assessments?.total ?? DEFAULT_PAGE_SIZE}
-        isLoading={assessmentsState.isLoading}
+      <ETMTable<RoadmapList>
+        columns={RoadmapsTableColumns}
+        data={roadmaps?.data}
+        totalItems={roadmaps?.total ?? DEFAULT_PAGE_SIZE}
+        isLoading={roadmapsState.isLoading}
         onSortingChange={onSortingChangeHandler}
         onSearchFilterChange={onSearchFilterChangeHandler}
         onPaginationChange={setPagination}

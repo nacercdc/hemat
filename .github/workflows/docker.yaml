@@ -41,24 +41,46 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for git diff
 
       - name: Generate matrix from apps directory
         id: set-matrix
         run: |
           matrix_json='{"app": []}'
-         
+          
+          echo "Determining changed files..."
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.head_ref }})
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          fi
+          
+          echo "Scanning apps/ directory for subdirectories..."
           for dir in apps/*/ ; do
             folder_name=$(basename "$dir")
+            echo "Checking directory: $dir (basename: $folder_name)"
+            
             if [ -d "$dir" ] && [ -f "$dir/deploy.conf" ]; then
-              target=$(grep '^TARGET=' "$dir/deploy.conf" | cut -d'=' -f2)
+              echo "Found deploy.conf in $dir"
+              target=$(grep '^TARGET=' "$dir/deploy.conf" | cut -d'=' -f2 || echo "not-found")
+              echo "TARGET for $folder_name: $target"
               
-              entry=$(jq -n \
-                --arg name "$folder_name" \
-                --arg target "$target" \
-                --arg paths "apps/$folder_name/**,.github/workflows/**,Dockerfile,package.json,yarn.lock" \
-                '{name: $name, target: $target, paths: $paths}')
-              
-              matrix_json=$(echo "$matrix_json" | jq ".app += [$entry]")
+              # Check if any changed files are in the app's directory or related files
+              if echo "$CHANGED_FILES" | grep -E "^apps/$folder_name/|^.github/workflows/|^Dockerfile$|^package.json$|^yarn.lock$" > /dev/null; then
+                echo "Changes detected for $folder_name"
+                entry=$(jq -n \
+                  --arg name "$folder_name" \
+                  --arg target "$target" \
+                  --arg paths "apps/$folder_name/**,.github/workflows/**,Dockerfile,package.json,yarn.lock" \
+                  '{name: $name, target: $target, paths: $paths}')
+                
+                matrix_json=$(echo "$matrix_json" | jq ".app += [$entry]")
+              else
+                echo "No relevant changes for $folder_name"
+              fi
+            else
+              echo "No deploy.conf found in $dir or directory does not exist"
             fi
           done
           
@@ -69,8 +91,8 @@ jobs:
         shell: bash
 
   docker:
-    needs: generate-matrix
     if: ${{ fromJson(needs.generate-matrix.outputs.matrix).app != null && fromJson(needs.generate-matrix.outputs.matrix).app != '' }}
+    needs: generate-matrix
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     name: Build ${{ matrix.app.name }}
@@ -82,55 +104,26 @@ jobs:
       ARTIFACT_REGISTRY_REPO: ${{ inputs.image_prefix }}-repo
       IMAGE_PREFIX: ${{ inputs.image_prefix }}
       WATCHED_PATHS: ${{ matrix.app.paths }}
-    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Needed for git diff
 
-      - name: Check changed files
-        id: check-files
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }})
-            echo "Changed files: $CHANGED_FILES"
-            PATHS=$(echo "${{ env.WATCHED_PATHS }}" | tr ',' '\n')
-            MATCHED=false
-            for FILE in $CHANGED_FILES; do
-              for PATH in $PATHS; do
-                if [[ $FILE == $PATH || $FILE == $PATH/* ]]; then
-                  MATCHED=true
-                  break
-                fi
-              done
-              if [[ $MATCHED == true ]]; then
-                break
-              fi
-            done
-            echo "matched=$MATCHED" >> $GITHUB_OUTPUT
-          else
-            echo "matched=true" >> $GITHUB_OUTPUT # Run for push or workflow_dispatch
-          fi
-
       - name: Authenticate to Google Cloud
-        if: steps.check-files.outputs.matched == 'true'
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
 
       - name: Configure Docker for Artifact Registry
-        if: steps.check-files.outputs.matched == 'true'
         run: gcloud auth configure-docker ${{ env.ARTIFACT_REGISTRY_REGION }}-${{ env.ARTIFACT_REGISTRY_HOST }}
 
       - name: Set up Docker Buildx
-        if: steps.check-files.outputs.matched == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Determine Docker Image Tag
         id: vars
-        if: steps.check-files.outputs.matched == 'true'
         run: |
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
             TAG="pr-${{ github.event.pull_request.number }}-${GITHUB_SHA:0:7}"
@@ -144,11 +137,9 @@ jobs:
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build and Push Docker Image
-        if: steps.check-files.outputs.matched == 'true'
         run: |
           IMAGE="${{ env.ARTIFACT_REGISTRY_REGION }}-${{ env.ARTIFACT_REGISTRY_HOST }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_PREFIX }}-${{ matrix.app.name }}:${{ steps.vars.outputs.tag }}"
           echo "Building ${{ matrix.app.name }}..."
-
           docker buildx build \
             --build-arg APP_NAME=${{ matrix.app.name }} \
             --target ${{ matrix.app.target }} \
@@ -158,13 +149,12 @@ jobs:
             .
 
       - name: Save Matrix Outputs
-        if: steps.check-files.outputs.matched == 'true'
         run: |
           echo "{\"image\":\"${{ env.ARTIFACT_REGISTRY_REGION }}-${{ env.ARTIFACT_REGISTRY_HOST }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_PREFIX }}-${{ matrix.app.name }}:${{ steps.vars.outputs.tag }}\",\"tag\":\"${{ steps.vars.outputs.tag }}\"}" > output-${{ matrix.app.name }}.json
           cat output-${{ matrix.app.name }}.json
 
       - name: Upload Matrix Outputs
-        if: always() && steps.check-files.outputs.matched == 'true'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: matrix-output-${{ matrix.app.name }}

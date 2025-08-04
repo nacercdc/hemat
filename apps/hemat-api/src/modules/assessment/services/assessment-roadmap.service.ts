@@ -528,7 +528,7 @@ export class AssessmentRoadmapService {
     return { ids: uniqueIds, latest };
   }
 
-  async getRoadmapInfo(userId: string, isAdmin: boolean = false): Promise<any[]> {
+  async getRoadmapInfo(userId: string, isAdmin: boolean = false): Promise<FindAllResponseDto<Roadmap>> {
     try {
       // Single query with conditional JOIN
       const queryBuilder = this.roadmapRepository
@@ -543,7 +543,9 @@ export class AssessmentRoadmapService {
           .where('am.userId = :userId', { userId });
       }
 
-      return await queryBuilder.getMany();
+      const [data, total] = await queryBuilder.getManyAndCount();
+      
+      return { data, total };
     } catch (err) {
       this.logger.error('getRoadmapInfo:', err);
       throw err;

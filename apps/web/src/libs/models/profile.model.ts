@@ -13,6 +13,7 @@ export interface Profile {
   phoneNumber: string;
   country: string;
   jobTitle: string;
+  username: string;
   url?: string;
 }
 
@@ -25,6 +26,7 @@ export interface UpdateProfile {
   phoneNumber?: string;
   country?: string;
   jobTitle?: string;
+  username: string;
 }
 
 export interface RegisterProfile {
@@ -39,4 +41,5 @@ export interface RegisterProfile {
   invitationId: string;
   password: string;
   email: string;
+  username: string;
 }

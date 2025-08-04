@@ -1,5 +1,6 @@
 "use client";
 
+import type { Dispatch, SetStateAction } from "react";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   DateTimePickerRHF,
@@ -24,6 +25,8 @@ import type {
 import type { Answer, AnswerIncludable } from "~/libs/models/answer.model";
 import type { SubComponent } from "~/libs/models/subComponent.model";
 import { useParams } from "next/navigation";
+import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import { RoadmapDocUpload } from "./RoadmapDocUpload";
 
 export const SubCompRoadmapFormID = "SubCompRoadmapForm";
 
@@ -82,15 +85,19 @@ export type MeasurementScaleType = z.infer<typeof MeasurementScaleSchema>;
 interface Props {
   subComponent?: SubComponent;
   isLoading?: boolean;
-  onSubmitHandler: (values: RoadmapFormData & { answerId: string }) => void;
+  onRoadmapSubmitHandler: () => void;
+  onSubmitting: Dispatch<SetStateAction<boolean>>;
 }
 
 export function SubCompRoadmapForm({
   subComponent,
   isLoading = false,
-  onSubmitHandler,
+  onRoadmapSubmitHandler,
+  onSubmitting,
 }: Props) {
   const params = useParams();
+
+  const [roadmapAnswerId, setRoadmapAnswerId] = useState<string | null>(null);
 
   const { control, reset, handleSubmit } = useForm<RoadmapFormData>({
     defaultValues: {
@@ -107,6 +114,19 @@ export function SubCompRoadmapForm({
 
   const [activeMeasurementScale, setActiveMeasurementScale] =
     useState<MeasurementScaleType>();
+
+  const { mutate: answerRoadmap, ...answerRoadmapState } = useAddMutation<
+    { id: string; name: string },
+    Omit<RoadmapFormData, "startTime" | "endTime"> & {
+      assessmentId: string;
+      measurementScaleId: string;
+      subComponentId: string;
+      answerId: string;
+      startTime: string;
+      endTime: string;
+      documentation: string; //delete me ASAP
+    }
+  >(`assessments/${params.id as string}/roadmaps`);
 
   const { data: measurementScales, ...measurementScalesState } = useFindAll<
     QueryManyResponse<MeasurementScaleType>
@@ -175,6 +195,31 @@ export function SubCompRoadmapForm({
     setActiveMeasurementScale(undefined);
   };
 
+  const onSubmitHandler = (values: RoadmapFormData & { answerId: string }) => {
+    if (subComponent) onSubmitting(true);
+    answerRoadmap(
+      {
+        data: {
+          ...values,
+          measurementScaleId: values.measurementScale.id,
+          assessmentId: params.id as string,
+          subComponentId: subComponent.id,
+          answerId: values.answerId,
+          startTime: new Date(values.startTime).toISOString(),
+          endTime: new Date(values.endTime).toISOString(),
+          documentation: "documentation", //delete me ASAP
+        },
+      },
+      {
+        onSuccess: () => {
+          onSubmitting(false);
+          subCompRoadmapAnswerState.refetch();
+          onRoadmapSubmitHandler();
+        },
+      }
+    );
+  };
+
   useEffect(() => {
     const answer = subCompRoadmapAnswer as unknown as RoadmapAnswer;
 
@@ -182,6 +227,7 @@ export function SubCompRoadmapForm({
       const formattedScale = formattedMeasurementScales.find(
         (scale) => scale.id === answer.measurementScaleId
       );
+      setRoadmapAnswerId(answer.id);
       reset({
         startTime: new Date(answer.startTime),
         endTime: new Date(answer.endTime),
@@ -195,6 +241,7 @@ export function SubCompRoadmapForm({
         },
       });
     } else {
+      setRoadmapAnswerId(null);
       reset({
         startTime: new Date(),
         endTime: new Date(),
@@ -316,7 +363,26 @@ export function SubCompRoadmapForm({
           placeholder="Enter resources used here"
         />
 
-        <div className="text-sm font-bold">Document uploader goes here!!</div>
+        <div className="flex flex-col gap-2">
+          {(subCompRoadmapAnswer as unknown as RoadmapAnswer)?.documentUrl && (
+            <a
+              href={
+                (subCompRoadmapAnswer as unknown as RoadmapAnswer)?.documentUrl
+              }
+              target="_blank"
+              className="w-fit flex flex-col gap-1 items-center cursor-pointer"
+            >
+              <Icon icon="proicons:document" className="w-8 h-8" />
+              <span className="text-xs font-bold hover:underline">
+                Document
+              </span>
+            </a>
+          )}
+          <RoadmapDocUpload
+            roadmapAnswerId={roadmapAnswerId}
+            refetchAnswer={subCompRoadmapAnswerState.refetch}
+          />
+        </div>
       </div>
     </form>
   );

@@ -46,12 +46,19 @@ export class ProfileCreateRequestDto {
   @Type(() => String)
   lastName: string;
 
-  @ApiProperty({
-    description: 'Email address',
-    example: 'john.doe@hiemat.org',
+  @ApiPropertyOptional({
+    description: 'Username',
+    example: 'johndoe',
     type: String,
   })
-  @ApiProperty({
+  @Length(3, 50, { message: 'validation.username.length args: min:3 | max:50' })
+  @IsString({ message: 'validation.username.isString' })
+  @IsOptional()
+  @IsUnique({ tableName: 'profiles', columns: ['username'] })
+  @Type(() => String)
+  username?: string;
+
+  @ApiPropertyOptional({
     description: 'Gender',
     enum: GenderEnum,
     example: GenderEnum.MALE,
@@ -62,7 +69,7 @@ export class ProfileCreateRequestDto {
   @Type(() => String)
   gender?: GenderEnum;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Birth date',
     example: '2000-10-25',
     type: Date,

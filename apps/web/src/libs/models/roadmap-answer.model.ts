@@ -12,6 +12,7 @@ export interface RoadmapAnswer {
   measurementScaleId: string;
   subComponentId: string;
   componentId: string;
+  documentUrl?: string;
   domainId: string;
   createdAt: string;
   updatedAt: string;
