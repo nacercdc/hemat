@@ -7,19 +7,35 @@ import { cn } from "~/utils/cn.util";
 import { Button } from "@etm/web-ui-components";
 import { MeasurementScaleCard } from "./MeasurementScaleCard";
 import type { Variants } from "framer-motion";
-import type { CollapsibleItem as DomainComponent } from "./DomainToolsCollapsible";
+import type { ITemplateComponent } from "./DomainToolsCollapsible";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import type { MeasurementScale } from "~/libs/models/answer.model";
 
+interface ITemplateSubComponent {
+  id: string;
+  name: string;
+  description: string;
+  measurementScales: MeasurementScale[];
+}
 interface Props {
-  domainComponent: DomainComponent;
+  component: ITemplateComponent;
   isOpen: boolean;
   onToggle: () => void;
 }
 
 export function DomainComponentCollapsible({
-  domainComponent,
+  component,
   isOpen,
   onToggle,
 }: Props) {
+  const { data: subComponents, ...subComponentsState } = useFindAll<
+    ITemplateSubComponent[]
+  >({
+    path: `/dashboard/template/components/${component?.id}/subcomponents`,
+    isProtected: false,
+    tqOptions: { enabled: isOpen },
+  });
+
   const variants: Variants = {
     open: {
       height: "auto",
@@ -65,6 +81,10 @@ export function DomainComponentCollapsible({
     },
   };
 
+  if (subComponentsState.isLoading || subComponentsState.isFetching) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="min-w-max relative">
       <div className="absolute top-1 -left-4">
@@ -75,7 +95,7 @@ export function DomainComponentCollapsible({
       </div>
       <div className="ml-4 w-full">
         <Button variant="ghost" onClick={onToggle} size="xl">
-          <span className="text-dark font-normal">{domainComponent.title}</span>
+          <span className="text-dark font-normal">{component?.name}</span>
         </Button>
         <AnimatePresence>
           {isOpen && (
@@ -89,34 +109,39 @@ export function DomainComponentCollapsible({
                 isOpen ? "py-5 px-10" : "py-0"
               )}
             >
-              {domainComponent.content.map((dComp) => (
-                <motion.div
-                  key={dComp.title}
-                  variants={contentVariants}
-                  initial="closed"
-                  animate="open"
-                  exit="closed"
-                  className="relative w-full"
-                >
-                  <div className="absolute -top-3 -left-6">
-                    <Icon
-                      icon="clarity:child-arrow-line"
-                      className="w-8 h-8 text-[#FFC000]"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-3 pl-3 w-full">
-                    <span className="text-xs font-bold">{dComp.title}</span>
-                    <p className="text-dark-light text-xs ml-2 text-wrap max-w-[800px]">
-                      {dComp.content}
-                    </p>
-                    <div className="flex gap-4 ml-2 w-full overflow-x-auto">
-                      {[1, 2, 3, 4, 5].map((curIndex) => (
-                        <MeasurementScaleCard scale={curIndex} key={curIndex} />
-                      ))}
+              {(subComponents as unknown as ITemplateSubComponent[])?.map(
+                (sub) => (
+                  <motion.div
+                    key={sub.name}
+                    variants={contentVariants}
+                    initial="closed"
+                    animate="open"
+                    exit="closed"
+                    className="relative w-full"
+                  >
+                    <div className="absolute -top-3 -left-6">
+                      <Icon
+                        icon="clarity:child-arrow-line"
+                        className="w-8 h-8 text-[#FFC000]"
+                      />
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                    <div className="flex flex-col gap-3 pl-3 w-full">
+                      <span className="text-xs font-bold">{sub.name}</span>
+                      <p className="text-dark-light text-xs ml-2 text-wrap max-w-[800px]">
+                        {sub.name}
+                      </p>
+                      <div className="flex gap-4 ml-2 w-full overflow-x-auto">
+                        {[1, 2, 3, 4, 5].map((curIndex) => (
+                          <MeasurementScaleCard
+                            scale={curIndex}
+                            key={curIndex}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              )}
             </motion.div>
           )}
         </AnimatePresence>

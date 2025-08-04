@@ -2,18 +2,31 @@
 
 import React, { useState } from "react";
 import { DomainToolsCollapsible } from "./DomainToolsCollapsible";
-import { Domains } from "../../constants";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+
+export interface ITemplateDomain {
+  id: string;
+  name: string;
+}
 
 export function DomainToolsCollapsibleList() {
   const [openIndex, setOpenIndex] = useState<number>(-1);
+
+  const { data: templateDomains, ...templateDomainsState } = useFindAll<
+    ITemplateDomain[]
+  >({ path: "/dashboard/domains/average-rate", isProtected: false });
 
   const handleToggle = (index: number) => {
     setOpenIndex(openIndex === index ? -1 : index);
   };
 
+  if (templateDomainsState.isLoading || templateDomainsState.isFetching) {
+    return <div>Loading ...</div>;
+  }
+
   return (
     <div className="w-full flex flex-col gap-2">
-      {Domains?.map((item, index) => (
+      {(templateDomains as unknown as ITemplateDomain[])?.map((item, index) => (
         <DomainToolsCollapsible
           key={index}
           domain={item}

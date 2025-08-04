@@ -1,13 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "~/utils/cn.util";
 import { DomainComponentCollapsibleList } from "./DomainComponentCollapsibleList";
-import { collapsibleItems } from "../../constants";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { Domain } from "~/libs/models/domain.model";
+import type { ITemplateDomain } from "./DomainToolsCollapsibleList";
 
+export interface ITemplateComponent {
+  id: string;
+  name: string;
+}
 export interface CollapsibleItem {
   icon: React.ReactNode;
   color: string;
@@ -19,13 +24,19 @@ export interface CollapsibleItem {
 const BorderColor = "#00B0F0";
 
 interface Props {
-  domain: Domain;
+  domain: ITemplateDomain;
   isOpen: boolean;
   onToggle: () => void;
 }
 
 export function DomainToolsCollapsible({ domain, isOpen, onToggle }: Props) {
-  const [domainComponents, setDomainComponents] = useState<CollapsibleItem[]>();
+  const { data: components, ...componentsState } = useFindAll<
+    ITemplateComponent[]
+  >({
+    path: `/dashboard/template/domains/${domain.id}/components`,
+    isProtected: false,
+    tqOptions: { enabled: isOpen },
+  });
 
   const variants = {
     open: {
@@ -49,14 +60,6 @@ export function DomainToolsCollapsible({ domain, isOpen, onToggle }: Props) {
       },
     },
   };
-
-  useEffect(() => {
-    if (domain) {
-      setDomainComponents(
-        collapsibleItems.filter((cItem) => cItem.domain.name === domain.name)
-      );
-    }
-  }, [domain]);
 
   return (
     <div className="w-full">
@@ -83,7 +86,9 @@ export function DomainToolsCollapsible({ domain, isOpen, onToggle }: Props) {
           >
             {
               <DomainComponentCollapsibleList
-                domainComponents={domainComponents || []}
+                domainComponents={
+                  (components as unknown as ITemplateComponent[]) || []
+                }
               />
             }
           </motion.div>

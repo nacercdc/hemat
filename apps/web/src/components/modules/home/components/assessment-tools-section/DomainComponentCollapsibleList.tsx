@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { DomainComponentCollapsible } from "./DomainComponentCollapsible";
-import type { CollapsibleItem as DomainComponent } from "./DomainToolsCollapsible";
+import type { ITemplateComponent } from "./DomainToolsCollapsible";
 
 interface Props {
-  domainComponents: DomainComponent[];
+  domainComponents: ITemplateComponent[];
 }
 
 export function DomainComponentCollapsibleList({ domainComponents }: Props) {
@@ -38,10 +38,10 @@ export function DomainComponentCollapsibleList({ domainComponents }: Props) {
       initial="hidden"
       animate="visible"
     >
-      {domainComponents.map((item, index) => (
+      {domainComponents?.map((item, index) => (
         <motion.div key={index} variants={itemVariants} className="w-full">
           <DomainComponentCollapsible
-            domainComponent={item}
+            component={item}
             isOpen={openIndex === index}
             onToggle={() => handleToggle(index)}
           />
