@@ -41,7 +41,7 @@ ARG APP_NAME
 
 WORKDIR /app
 
-COPY --from=builder --chown=nestjs:nodejs . .
+COPY --from=builder --chown=nestjs:nodejs /app ./
 
 EXPOSE 3000
 
