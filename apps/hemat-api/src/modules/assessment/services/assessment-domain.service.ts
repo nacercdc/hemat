@@ -563,10 +563,12 @@ export class AssessmentDomainService {
 
     return {
       id: domain.id,
+      code: domain.code,
       name: getTranslated(domain, 'name', domain.name),
       description: getTranslated(domain, 'description', domain.description),
       components: (domain.components || []).map((component) => ({
         id: component.id,
+        code: component.code,
         name: getTranslated(component, 'name', component.name),
         description: getTranslated(component, 'description', component.description),
         subComponents: (Array.isArray(component.subComponents) ? component.subComponents : component.subComponents ? [component.subComponents] : []).map((subComponent) => {
@@ -585,13 +587,15 @@ export class AssessmentDomainService {
                 ? subComponent.answers
                 : null);
 
-          if (!answer)
+          if (!answer) {
             return {
               id: subComponent.id,
+              code: subComponent.code,
               name: getTranslated(subComponent, 'name', subComponent.name),
               description: getTranslated(subComponent, 'description', subComponent.description),
               answer: null,
             };
+          }
 
           const evidenceCompressed = CompressionUtil.compressText(answer.evidence, {
             minSizeToCompress: 1000,
@@ -604,23 +608,16 @@ export class AssessmentDomainService {
 
           return {
             id: subComponent.id,
+            code: subComponent.code,
             name: getTranslated(subComponent, 'name', subComponent.name),
             description: getTranslated(subComponent, 'description', subComponent.description),
             answer: {
               id: answer.id,
-              measurementScale: answer.measurementScale
-                ? {
-                    id: answer.measurementScale.id,
-                    name: answer.measurementScale.translations && answer.measurementScale.translations[language] && answer.measurementScale.translations[language].name
-                      ? answer.measurementScale.translations[language].name
-                      : answer.measurementScale.name,
-                    rate: answer.measurementScale.rate,
-                  }
-                : null,
-              evidence: evidenceCompressed.data,
-              reference: referenceCompressed.data,
+              evidence: evidenceCompressed.isCompressed ? evidenceCompressed.data : answer.evidence,
+              reference: referenceCompressed.isCompressed ? referenceCompressed.data : answer.reference,
               notes: answer.notes,
               isCompressed: evidenceCompressed.isCompressed || referenceCompressed.isCompressed,
+              measurementScale: answer.measurementScale,
             },
           };
         }),
