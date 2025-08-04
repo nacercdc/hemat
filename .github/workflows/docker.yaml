@@ -94,61 +94,21 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Needed for git diff
-
-      - name: Check changed files
-        id: check-files
-        run: |
-          # Determine the base reference to compare against
-          BASE_REF="${{ github.base_ref }}"
-          if [[ -z "$BASE_REF" ]]; then
-            # Fallback to 'main' (or another default branch) if base_ref is empty
-            BASE_REF="main"
-          fi
-
-          # Ensure the base branch is fetched
-          git fetch origin $BASE_REF
-
-          # Compare changes between the base ref and the current commit
-          CHANGED_FILES=$(git diff --name-only origin/$BASE_REF..${{ github.sha }})
-          echo "Changed files: $CHANGED_FILES"
-
-          # Convert watched paths to a newline-separated list
-          PATHS=$(echo "${{ env.WATCHED_PATHS }}" | tr ',' '\n')
-          MATCHED=false
-
-          for FILE in $CHANGED_FILES; do
-            for PATH in $PATHS; do
-              if [[ $FILE == $PATH || $FILE == $PATH/* ]]; then
-                MATCHED=true
-                break
-              fi
-            done
-            if [[ $MATCHED == true ]]; then
-              break
-            fi
-          done
-
-          echo "matched=$MATCHED" >> $GITHUB_OUTPUT
-        shell: bash
-
+        
       - name: Authenticate to Google Cloud
-        if: steps.check-files.outputs.matched == 'true'
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
 
       - name: Configure Docker for Artifact Registry
-        if: steps.check-files.outputs.matched == 'true'
         run: gcloud auth configure-docker ${{ env.ARTIFACT_REGISTRY_REGION }}-${{ env.ARTIFACT_REGISTRY_HOST }}
 
       - name: Set up Docker Buildx
-        if: steps.check-files.outputs.matched == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Determine Docker Image Tag
         id: vars
-        if: steps.check-files.outputs.matched == 'true'
         run: |
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
             TAG="pr-${{ github.event.pull_request.number }}-${GITHUB_SHA:0:7}"
@@ -162,7 +122,6 @@ jobs:
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build and Push Docker Image
-        if: steps.check-files.outputs.matched == 'true'
         run: |
           IMAGE="${{ env.ARTIFACT_REGISTRY_REGION }}-${{ env.ARTIFACT_REGISTRY_HOST }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_PREFIX }}-${{ matrix.app.name }}:${{ steps.vars.outputs.tag }}"
           echo "Building ${{ matrix.app.name }}..."
@@ -176,13 +135,12 @@ jobs:
             .
 
       - name: Save Matrix Outputs
-        if: steps.check-files.outputs.matched == 'true'
         run: |
           echo "{\"image\":\"${{ env.ARTIFACT_REGISTRY_REGION }}-${{ env.ARTIFACT_REGISTRY_HOST }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_PREFIX }}-${{ matrix.app.name }}:${{ steps.vars.outputs.tag }}\",\"tag\":\"${{ steps.vars.outputs.tag }}\"}" > output-${{ matrix.app.name }}.json
           cat output-${{ matrix.app.name }}.json
 
       - name: Upload Matrix Outputs
-        if: always() && steps.check-files.outputs.matched == 'true'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: matrix-output-${{ matrix.app.name }}
