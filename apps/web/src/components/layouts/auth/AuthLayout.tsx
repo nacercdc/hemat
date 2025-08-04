@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { LanguageSelector } from "~/components/ui/language-selector/LanguageSelector";
+import { cn } from "~/utils/cn.util";
 
 interface Props {
   children: React.ReactNode;
@@ -12,8 +13,11 @@ interface Props {
 export function AuthLayout({ children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-
   const isLogin = pathname === "/login";
+
+  const contentWidth = isLogin
+    ? "sm:w-[90%] md:w-[70%] lg:w-[70%] xl:w-[55%] 2xl:w-[50%]"
+    : "w-full";
 
   return (
     <div className="flex flex-col min-h-screen w-full bg-white px-4 sm:px-6 md:px-10 py-6">
@@ -32,18 +36,12 @@ export function AuthLayout({ children }: Props) {
         </div>
 
         <div
-          className={`flex justify-center w-full  ${
-            isLogin ? "lg:w-[60%]" : ""
-          }`}
+          className={cn(`flex justify-center w-full`, {
+            "lg:w-[60%]": isLogin,
+          })}
         >
-          <div
-            className={`flex flex-col gap-6 w-full ${
-              isLogin
-                ? "sm:w-[90%] md:w-[70%] lg:w-[70%] xl:w-[50%] 2xl:w-[40%]"
-                : ""
-            }`}
-          >
-            <div className="flex flex-col gap-0 text-center lg:text-left">
+          <div className={`flex flex-col gap-6 w-full ${contentWidth}`}>
+            <div className="flex flex-col text-center lg:text-left">
               <span className="font-bold text-lg sm:text-xl">
                 Welcome to Africa CDC
               </span>
@@ -54,7 +52,7 @@ export function AuthLayout({ children }: Props) {
               </span>
             </div>
 
-            <div className="relative pt-8 pb-8 px-6 sm:px-8 bg-white rounded-lg border border-basic-200 flex flex-col gap-6 shadow-sm ">
+            <div className="relative pt-8 pb-8 px-6 sm:px-8 bg-white rounded-lg border border-basic-200 shadow-sm">
               <Image
                 src="/images/head-board.png"
                 width={0}

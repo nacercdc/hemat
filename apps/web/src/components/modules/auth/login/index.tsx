@@ -128,16 +128,17 @@ export default function Login() {
         </Button>
       </div>
 
-      <div className="z-40 flex justify-between">
+      <div className="flex flex-col justify-between gap-8">
         <Button
           type="submit"
           disabled={loginState.isPending}
           loading={loginState.isPending}
+          full
         >
           Sign in
         </Button>
 
-        <div className="flex flex-row gap-4">
+        <div className="flex flex-row gap-1">
           <span className="text-sm">Do not have an account?</span>
           <Link href={"/register"} className="underline text-sm text-info-500">
             Register
