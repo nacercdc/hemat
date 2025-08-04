@@ -39,33 +39,20 @@ const genderOptions: GenderType[] = [
   { id: "male", name: "Male" },
   { id: "female", name: "Female" },
 ];
-const GenderSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
-const titleSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
-
-const CountrySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-});
 
 const registerFormSchema = z
   .object({
     firstName: z.string().min(1, { message: "First name is required" }),
     lastName: z.string().min(1, { message: "Last name is required" }),
-    title: titleSchema.optional(),
-    gender: GenderSchema.optional(),
+    title: z.object({ id: z.string(), name: z.string() }).optional(),
+    gender: z.object({ id: z.string(), name: z.string() }).optional(),
     jobTitle: z.string().min(1, { message: "Job title is required" }),
     dateOfBirth: z.date().optional(),
-    country: CountrySchema.optional(),
+    country: z.object({ id: z.string(), name: z.string() }).optional(),
     phoneNumber: z
       .string()
       .optional()
-      .refine((val: string | undefined) => !val || isValidPhoneNumber(val), {
+      .refine((val) => !val || isValidPhoneNumber(val), {
         message: "Invalid phone number",
       }),
     email: z
@@ -76,14 +63,13 @@ const registerFormSchema = z
       .string()
       .min(1, { message: "New password is required" })
       .refine(
-        (value) => {
-          const strength = checkPasswordStrength(
+        (value) =>
+          checkPasswordStrength(
             value,
             PasswordMinLength,
             PasswordMustIncludeTypes
-          );
-          return strength === PasswordMustIncludeTypes.length + 1;
-        },
+          ) ===
+          PasswordMustIncludeTypes.length + 1,
         {
           message: "Password is not strong enough. Please improve it.",
         }
@@ -97,21 +83,24 @@ const registerFormSchema = z
     message: "Passwords must match",
     path: ["confirmPassword"],
   });
+
 type RegisterFormInputs = z.infer<typeof registerFormSchema>;
 
 export default function Register() {
   const searchParams = useSearchParams();
   const invitationEmail = searchParams.get("email");
   const invitationIdFromURL = searchParams.get("invitationId");
-  // const token = searchParams.get("token");
   const router = useRouter();
+  const toast = useToast();
+
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-  const toast = useToast();
 
   const { data: countries, ...countriesState } = useFindAll<Country>({
     path: "/countries",
+    isProtected: false,
   });
+
   const { mutate: registerProfile, ...registerProfileState } = useAddMutation<
     Profile,
     RegisterProfile
@@ -120,32 +109,29 @@ export default function Register() {
   const { control, handleSubmit, watch } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
-      email: invitationEmail ? invitationEmail : "",
+      email: invitationEmail ?? "",
       firstName: "",
       lastName: "",
       jobTitle: "",
-      invitationId: invitationIdFromURL ? invitationIdFromURL : "",
+      invitationId: invitationIdFromURL ?? "",
+      country: undefined,
     },
   });
-  const password = watch("password") || "";
-  const onSetPasswordVisibleHandler = () => {
-    setPasswordVisible((prev) => !prev);
-  };
-  const onSetConfirmPasswordVisibleHandler = () => {
-    setConfirmPasswordVisible((prev) => !prev);
-  };
+
+  const password = watch("password") ?? "";
+
   const onRegisterHandler = (values: RegisterFormInputs) => {
     registerProfile(
       {
         data: {
-          email: invitationEmail ? invitationEmail : "",
+          email: invitationEmail ?? "",
           title: values?.title?.id,
           firstName: values.firstName,
           lastName: values.lastName,
           gender: values?.gender?.id,
           phoneNumber: values?.phoneNumber,
           jobTitle: values.jobTitle,
-          country: "USA", //TODO: the need the useFindAll should be public
+          country: values.country?.id,
           invitationId: values.invitationId,
           dateOfBirth: values?.dateOfBirth
             ? formatDateToYYYYMMDD(values?.dateOfBirth)
@@ -179,13 +165,14 @@ export default function Register() {
   return (
     <form
       onSubmit={handleSubmit(onRegisterHandler)}
-      className="flex flex-col gap-8 h-full"
+      className="flex flex-col gap-8 h-full overflow-y-auto w-full"
     >
       <AuthCardHeader
         header="Register"
         subHeader="Enter your detail to register Africa CDC"
       />
-      <div className="flex  gap-4">
+
+      <div className="flex flex-col lg:flex-row gap-4">
         <SelectRHF
           name="title"
           control={control}
@@ -194,10 +181,7 @@ export default function Register() {
           labelVariant="medium"
           valueKey="id"
           labelKey="name"
-          options={PERSONAL_TITLES.map((title) => ({
-            id: title,
-            name: title,
-          }))}
+          options={PERSONAL_TITLES.map((title) => ({ id: title, name: title }))}
           placeholder="Select title"
         />
         <InputRHF
@@ -207,7 +191,6 @@ export default function Register() {
           name="firstName"
           labelVariant="medium"
         />
-
         <InputRHF
           label="Last Name"
           placeholder="Enter last name"
@@ -216,7 +199,8 @@ export default function Register() {
           labelVariant="medium"
         />
       </div>
-      <div className="flex gap-4">
+
+      <div className="flex flex-col lg:flex-row gap-4">
         <SelectRHF
           name="gender"
           control={control}
@@ -247,12 +231,12 @@ export default function Register() {
           iconDirection="right"
         />
       </div>
-      <div className="flex gap-4">
+
+      <div className="flex flex-col lg:flex-row gap-4">
         <SelectRHF
           name="country"
           control={control}
           displayLabel="Country"
-          size="lg"
           labelVariant="medium"
           valueKey="id"
           labelKey="name"
@@ -267,11 +251,11 @@ export default function Register() {
         <PhoneNumberInputRHF
           control={control}
           name="phoneNumber"
-          label="Phone Phone"
+          label="Phone Number"
           labelSize="sm"
           labelVariant="medium"
           size="lg"
-          placeholder="Enter your phone phone"
+          placeholder="Enter your phone number"
         />
         <InputRHF
           label="Email"
@@ -279,11 +263,10 @@ export default function Register() {
           control={control}
           name="email"
           labelVariant="medium"
-          disabled
         />
       </div>
 
-      <div className="flex  gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         <InputRHF
           control={control}
           name="password"
@@ -295,28 +278,29 @@ export default function Register() {
           rightNode={
             <PasswordVisibilityToggler
               visible={passwordVisible}
-              onToggle={onSetPasswordVisibleHandler}
+              onToggle={() => setPasswordVisible((prev) => !prev)}
             />
           }
         />
         <InputRHF
           control={control}
           name="confirmPassword"
-          label="Confirm password"
-          placeholder="Enter confirm password"
+          label="Confirm Password"
+          placeholder="Confirm password"
           size="lg"
           labelVariant="medium"
           type={confirmPasswordVisible ? "text" : "password"}
           rightNode={
             <PasswordVisibilityToggler
               visible={confirmPasswordVisible}
-              onToggle={onSetConfirmPasswordVisibleHandler}
+              onToggle={() => setConfirmPasswordVisible((prev) => !prev)}
             />
           }
         />
       </div>
+
       <div>
-        <div className="flex flex-col gap-0">
+        <div className="flex flex-col gap-1">
           <span className="font-bold text-lg">Password Strength</span>
           <span className="text-basic-500 text-sm">
             Password strength check
@@ -328,10 +312,11 @@ export default function Register() {
           mustIncludeTypes={PasswordMustIncludeTypes}
         />
       </div>
-      <div className="flex  gap-4 justify-between z-40">
-        <div className="flex flex-row gap-4">
-          <span className="text-sm">Do you have an account?</span>
-          <Link href={"/login"} className="underline text-sm text-info-500">
+
+      <div className="flex flex-col-reverse lg:flex-row gap-4 justify-between z-40">
+        <div className="text-sm">
+          Already have an account?{" "}
+          <Link href="/login" className="underline text-info-500">
             Login
           </Link>
         </div>
