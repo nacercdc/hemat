@@ -640,6 +640,87 @@ export class AssessmentDomainService {
     return this.getDomainWithAnswersBase(assessmentId, domainId, { isPrimary: true }, language);
   }
 
+  async getDomainWithRoadmap(assessmentId: string, domainId: string, language: string = 'en') {
+    const domainEntity = await this.findDomainOrThrow(assessmentId, domainId);
+
+    let query = this.assessmentDomainRepository
+      .createQueryBuilder('domain')
+      .leftJoinAndSelect('domain.components', 'component')
+      .leftJoinAndSelect('component.subComponents', 'subComponent')
+      .leftJoinAndSelect(
+        'subComponent.roadmaps',
+        'subcomponentroadmap',
+      )
+      .leftJoinAndSelect('subcomponentroadmap.roadmap', 'roadmap')
+      .where('domain.id = :domainId', { domainId })
+      .andWhere('domain.assessmentId = :assessmentId', { assessmentId });
+
+    const rows = await query.getMany();
+    const domain = rows.length > 0 ? rows[0] : domainEntity;
+
+    // Use translations if available
+    const getTranslated = (obj: any, key: string, fallback: string) => {
+      if (obj.translations && obj.translations[language] && obj.translations[language][key]) {
+        return obj.translations[language][key];
+      }
+      return fallback;
+    };
+
+    return {
+      id: domain.id,
+      code: domain.code,
+      name: getTranslated(domain, 'name', domain.name),
+      description: getTranslated(domain, 'description', domain.description),
+      components: (domain.components || []).map((component) => ({
+        id: component.id,
+        code: component.code,
+        name: getTranslated(component, 'name', component.name),
+        description: getTranslated(component, 'description', component.description),
+        subComponents: (Array.isArray(component.subComponents) ? component.subComponents : component.subComponents ? [component.subComponents] : []).map((subComponent) => {
+          const roadmap = Array.isArray(subComponent.roadmaps)
+            ? subComponent.roadmaps.find((r: any) =>
+                r.roadmap &&
+                r.roadmap.assessmentId === assessmentId
+              )
+            : (subComponent.roadmaps &&
+                subComponent.roadmaps.roadmap &&
+                subComponent.roadmaps.roadmap.assessmentId === assessmentId
+                ? subComponent.roadmaps
+                : null);
+
+          if (!roadmap) {
+            return {
+              id: subComponent.id,
+              code: subComponent.code,
+              name: getTranslated(subComponent, 'name', subComponent.name),
+              description: getTranslated(subComponent, 'description', subComponent.description),
+              roadmap: null,
+            };
+          }
+
+          return {
+            id: subComponent.id,
+            code: subComponent.code,
+            name: getTranslated(subComponent, 'name', subComponent.name),
+            description: getTranslated(subComponent, 'description', subComponent.description),
+            roadmap: {
+              id: roadmap.id,
+              target: roadmap.target,
+              currentState: roadmap.currentState,
+              activities: roadmap.activities,
+              responsible: roadmap.responsible,
+              resources: roadmap.resources,
+              gapAddressed: roadmap.gapAddressed,
+              startTime: roadmap.startTime,
+              endTime: roadmap.endTime,
+              measurementScale: roadmap.measurementScale,
+            },
+          };
+        }),
+      })),
+    };
+  }
+
   /**
    * Utility: Check if a group has at least one domain attached
    */

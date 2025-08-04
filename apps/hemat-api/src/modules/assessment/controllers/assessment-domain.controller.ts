@@ -420,4 +420,41 @@ export class AssessmentDomainController {
     }
     throw new ForbiddenException('You do not have access to primary answers');
   }
+
+  @ApiOperation({
+    summary: 'Get domain with roadmap',
+    description:
+      'Fetch a domain with its components, subcomponents, and roadmap information for a given assessment',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Object })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @Abilities({
+    isAdmin: true,
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.ASSESSMENT,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @UseGuards(AssessmentRoleGuard)
+  @Get('assessments/:assessmentId/domains/:domainId/roadmap')
+  async getDomainWithRoadmap(
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Param('domainId', new ParseUUIDPipe()) domainId: string,
+    @Query('language') language?: string,
+  ) {
+    const { isAdmin, assessmentRole } = user;
+    if (isAdmin || assessmentRole) {
+      return this.assessmentDomainService.getDomainWithRoadmap(
+        assessmentId,
+        domainId,
+        language,
+      );
+    }
+    throw new ForbiddenException('You do not have access to roadmap data');
+  }
 }
