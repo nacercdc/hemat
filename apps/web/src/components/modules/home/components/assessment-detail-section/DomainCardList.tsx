@@ -2,9 +2,9 @@
 
 import React, { useMemo } from "react";
 import { DomainCard } from "./DomainCard";
-// import { domainScores } from "../../constants";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { cn } from "~/utils/cn.util";
+import { Skeleton } from "@etm/web-ui-components";
 
 type DomainCardType = "single" | "summary";
 
@@ -41,7 +41,7 @@ export function DomainCardList() {
   }, [averageRatedDomains]);
 
   if (isLoading) {
-    return <div>Loading ...</div>;
+    return <DomainCardListSkeleton />;
   }
 
   return (
@@ -53,6 +53,28 @@ export function DomainCardList() {
     >
       {domainCards?.map((domainCard) => (
         <DomainCard key={domainCard.name} domain={domainCard} />
+      ))}
+    </div>
+  );
+}
+
+function DomainCardListSkeleton() {
+  return (
+    <div className="flex overflow-x-auto justify-between gap-4 rounded-sm">
+      {Array.from({ length: 4 }, (_, i) => (
+        <div
+          key={i}
+          className="flex flex-col p-2 justify-between h-28 w-72 rounded-sm border-[1px] border-dark-lighter/20"
+        >
+          <Skeleton className="rounded-sm h-3 w-36" />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Skeleton className="rounded-sm h-3 w-36" />
+              <Skeleton className="rounded-sm h-6 w-6" />
+            </div>
+            <Skeleton className="rounded-sm h-3 w-44" />
+          </div>
+        </div>
       ))}
     </div>
   );

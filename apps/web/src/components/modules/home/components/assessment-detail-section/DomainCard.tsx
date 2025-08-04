@@ -16,7 +16,7 @@ type Scales =
 
 // TODO: will be removed as soon as we fetch measurement scales from API
 export const ScalesMap: Record<number, { label: Scales; color: string }> = {
-  0: { label: "No Assessment", color: "#FF010112" },
+  0: { label: "No Assessment", color: "#FF0101" },
   1: { label: "Initial", color: "#FF0101" },
   2: { label: "Developing", color: "#FFC000" },
   3: { label: "Defined", color: "#FFFD02" },
@@ -47,7 +47,7 @@ export function DomainCard({ domain }: Props) {
       )}
       style={{
         borderColor: `${ScalesMap[domain.averageRate]?.color}`,
-        backgroundColor: `${selectedDomainCtx?.selectedDomain?.name === name ? `${ScalesMap[domain.averageRate]?.color}30` : "#fff"}`,
+        backgroundColor: `${selectedDomainCtx?.selectedDomain?.name === domain.name ? `${ScalesMap[domain.averageRate]?.color}30` : "#fff"}`,
       }}
     >
       {/* {domain.type !== "summary" && icon} */}
@@ -68,8 +68,7 @@ export function DomainCard({ domain }: Props) {
             <div
               className={cn(
                 "flex items-center justify-center rounded-sm text-white w-5 h-5 text-xs font-medium",
-                (domain.averageRate === 3 || domain.averageRate === 0) &&
-                  "text-black"
+                domain.averageRate === 3 && "text-black"
               )}
               style={{
                 backgroundColor: `${ScalesMap[domain.averageRate]?.color}`,
