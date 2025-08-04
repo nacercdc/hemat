@@ -8,7 +8,7 @@ interface Props {
 export default function ScaleAction({ roadmap }: Props) {
   const router = useRouter();
   const onGotoDetailRoadmapHandler = () => {
-    router.push(`/assessment/${roadmap.assessmentId}/roadmap/${roadmap.id}`);
+    router.push(`/assessment/${roadmap.assessmentId}/roadmap`);
   };
 
   return (
