@@ -32,15 +32,6 @@ export default function DetailRoadmapResponse() {
     router.back();
   }, [router]);
 
-  const { data: domainRoadmap, ...domainRoadmapState } = useFindById<
-    RoadmapDomain,
-    DomainIncludable
-  >({
-    path: `assessments/${assessmentId}/domains/${domainId}/roadmap${selectedLanguage ? `?language=${selectedLanguage.code}` : ""}`,
-
-    tqOptions: { enabled: !!assessmentId && !!domainId },
-  });
-
   const { data: assessment, ..._assessmentState } = useFindById<
     Assessment,
     AssessmentsIncludeAble
@@ -49,6 +40,15 @@ export default function DetailRoadmapResponse() {
     queries: {
       include: ["user"],
     },
+  });
+
+  const { data: domainRoadmap, ...domainRoadmapState } = useFindById<
+    RoadmapDomain,
+    DomainIncludable
+  >({
+    path: `assessments/${assessmentId}/domains/${domainId}/roadmap${selectedLanguage ? `?language=${selectedLanguage.code}` : ""}`,
+
+    tqOptions: { enabled: !!assessmentId && !!domainId },
   });
 
   const allSubComponents = domainRoadmap?.components.flatMap(

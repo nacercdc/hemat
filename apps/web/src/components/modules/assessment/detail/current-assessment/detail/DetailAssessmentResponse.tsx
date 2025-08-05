@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { PageContainer } from "~/components/modules/components/PageContainer";
 
 import type { DomainIncludable } from "~/libs/models/domain.model";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 import { DomainDetailSkeleton } from "./DomainDetailSkeleton";
+import type { Language } from "~/libs/models/language.model";
+import { Select } from "@etm/web-ui-components";
+import type {
+  Assessment,
+  AssessmentsIncludeAble,
+} from "~/libs/models/assessment.model";
 
 export interface Domain {
   id: string;
@@ -69,6 +75,7 @@ function calculateAverageRate(subComponents: SubComponent[]): number | null {
 export default function DetailAssessmentResponse() {
   const router = useRouter();
   const params = useParams<{ id: string; currentAssessmentId: string }>();
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>();
 
   const domainId = params?.currentAssessmentId;
   const assessmentId = params?.id;
@@ -77,15 +84,22 @@ export default function DetailAssessmentResponse() {
     router.back();
   }, [router]);
 
+  const { data: assessment, ..._assessmentState } = useFindById<
+    Assessment,
+    AssessmentsIncludeAble
+  >({
+    path: `assessments/${assessmentId}`,
+    queries: {
+      include: ["user"],
+    },
+  });
+
   const { data: assessmentGroups, ...assessmentGroupsState } = useFindById<
     Domain,
     DomainIncludable
   >({
-    path: `assessments/${assessmentId}/domains/${domainId}/answers`,
-    queries: {
-      include: ["components"],
-    },
-    tqOptions: {},
+    path: `assessments/${assessmentId}/domains/${domainId}/answers${selectedLanguage ? `?language=${selectedLanguage.code}` : ""}`,
+    tqOptions: { enabled: !!assessmentId && !!domainId },
   });
 
   const domain = assessmentGroups;
@@ -101,6 +115,19 @@ export default function DetailAssessmentResponse() {
           <h1 className="font-bold text-lg">
             Domain: {assessmentGroups?.name}
           </h1>
+        </div>
+      }
+      actionNodes={
+        <div className="flex">
+          <Select<Language>
+            placeholder="Language"
+            options={assessment?.languages ?? []}
+            valueKey="code"
+            labelKey="name"
+            onSelect={(lang?: Language) => setSelectedLanguage(lang)}
+            value={selectedLanguage}
+            size="md"
+          />
         </div>
       }
       includeBreadcrumb={false}
@@ -120,11 +147,10 @@ export default function DetailAssessmentResponse() {
                   <span
                     className="px-3 py-1 text-white text-sm font-bold rounded-sm"
                     style={{
-                      backgroundColor:
-                        ScalesMap[Math.round(averageRate)]?.color || "#ccc",
+                      backgroundColor: ScalesMap[averageRate]?.color || "#ccc",
                     }}
                   >
-                    {Math.round(averageRate)}
+                    {averageRate}
                   </span>
                 )}
               </div>

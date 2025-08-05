@@ -42,14 +42,14 @@ const AssessmentFormSchema = z
     country: CountrySchema,
     organization: z
       .string()
+      .min(1, { message: "Organization must be at least 1 character" })
       .max(100, {
         message: "Organization name must be at most 100 characters",
-      })
-      .optional(),
+      }),
     description: z
       .string()
-      .max(500, { message: "Description must be at most 500 characters" })
-      .optional(),
+      .min(1, { message: "Description must be at least 1 character" })
+      .max(500, { message: "Description must be at most 500 characters" }),
     languages: z
       .array(languageSchema)
       .min(1, { message: "Please select at least one language" }),
@@ -109,7 +109,6 @@ export function AssessmentForm({
       startDate: values.startDate,
       endDate: values.endDate,
     });
-    reset();
   };
 
   const onCancelHandler = () => {
@@ -195,7 +194,7 @@ export function AssessmentForm({
         <InputRHF
           control={control}
           name="organization"
-          label={"Organization(Optional)"}
+          label={"Organization"}
           placeholder="Organization Name"
           size="xl"
           labelVariant="bold"
