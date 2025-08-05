@@ -366,4 +366,19 @@ export class DashboardController {
   async getAverageRateForPrimaryAnswersGrouped() {
     return this.assessmentSubComponentService.getAverageRateForPrimaryAnswersGrouped();
   }
+
+  @ApiOperation({ summary: 'Get all countries with subregion and assessment status' })
+  @ApiOkResponse({
+    description: 'Array of countries with code, subregion, and assessment status',
+    schema: {
+      example: [
+        { code: 'ET', subregion: 'Eastern Africa', assessmentStatus: 'COMPLETED' },
+        { code: 'NG', subregion: 'Western Africa', assessmentStatus: 'DRAFT' },
+      ],
+    },
+  })
+  @Get('countries')
+  async getCountriesWithSubregionAndAssessmentStatus() {
+    return this.dashboardService.getCountriesWithSubregionAndAssessmentStatus();
+  }
 } 
