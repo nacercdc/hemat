@@ -1,19 +1,10 @@
+import { formatDateToYYYYMMDD } from "@etm/utilities";
 import { Badge } from "@etm/web-ui-components";
 import React from "react";
-export interface SubComponent {
-  code: string;
-  name: string;
-  current_state: number;
-  target: number;
-  gap_address: string;
-  strategic_invitation: string;
-  who_responsible: string;
-  resource_used: string;
-  upload_document: string;
-}
+import type { RoadmapSubComponent } from "~/libs/models/roadmap.model";
 
 interface Props {
-  subComponent: SubComponent;
+  subComponent: RoadmapSubComponent;
 }
 
 export default function SubComponentRoadmapList({ subComponent }: Props) {
@@ -29,44 +20,85 @@ export default function SubComponentRoadmapList({ subComponent }: Props) {
         <div className="flex gap-6 text-xs">
           <div className="flex flex-col gap-2">
             <span>Current State</span>
-            <Badge text={`${subComponent.current_state}`} variant={"info"} />
+            <Badge
+              text={`${subComponent.roadmap?.currentState}`}
+              variant={"info"}
+            />
           </div>
           <div className="flex flex-col gap-2">
             <span>Target</span>
-            <Badge text={`${subComponent.target}`} variant={"warning"} />
+            <Badge
+              text={`${subComponent.roadmap?.target}`}
+              variant={"warning"}
+            />
           </div>
         </div>
+
         <div className="flex flex-col gap-2 text-sm">
           <div className="flex flex-col gap-2 ">
-            <span className="font-semibold text-xs">Timeline</span>
-            <p className="text-xs">{subComponent.gap_address}</p>
+            <span className="font-semibold text-xs ">Timeline</span>
+            <div className="flex flex-wrap w-full gap-4 text-xs">
+              <p>
+                {subComponent.roadmap?.startTime
+                  ? formatDateToYYYYMMDD(subComponent.roadmap?.startTime ?? "")
+                  : "-"}
+              </p>
+              <p>-</p>
+              <p>
+                {subComponent.roadmap?.endTime
+                  ? formatDateToYYYYMMDD(subComponent.roadmap?.endTime ?? "")
+                  : "-"}
+              </p>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 ">
             <span className="font-semibold text-xs">Gap Addressed</span>
-            <p className="text-xs">{subComponent.gap_address}</p>
+            <p>
+              <span
+                className="text-xs"
+                dangerouslySetInnerHTML={{
+                  __html: subComponent.roadmap?.gapAddressed ?? "-",
+                }}
+              />
+            </p>
           </div>
           <div className="flex flex-col gap-2 ">
             <span className="font-semibold text-xs">
               Strategic Initiatives / Activities
             </span>
-            <p className="text-xs">{subComponent.strategic_invitation}</p>
+            <p>
+              <span
+                className="text-xs"
+                dangerouslySetInnerHTML={{
+                  __html: subComponent.roadmap?.activities ?? "-",
+                }}
+              />
+            </p>
           </div>
           <div className="flex flex-col gap-2 ">
             <span className="font-semibold text-xs">Who is responsible?</span>
-            <p className="text-xs">{subComponent.who_responsible}</p>
+            <p>
+              <span
+                className="text-xs"
+                dangerouslySetInnerHTML={{
+                  __html: subComponent.roadmap?.responsible ?? "-",
+                }}
+              />
+            </p>
           </div>
           <div className="flex flex-col gap-2 ">
             <span className="font-semibold text-xs">
               What resources are needed?
             </span>
-            <p className="text-xs">{subComponent.resource_used}</p>
-          </div>
-          <div className="flex flex-col gap-2 ">
-            <span className="font-semibold text-xs">
-              Documentation / Means of verification
-            </span>
-            <p className="text-xs">{subComponent.upload_document}</p>
+            <p>
+              <span
+                className="text-xs"
+                dangerouslySetInnerHTML={{
+                  __html: subComponent.roadmap?.resources ?? "-",
+                }}
+              />
+            </p>
           </div>
         </div>
       </div>

@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
-import DomainComponent from "../components/DomainComponent";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { PageContainer } from "~/components/modules/components/PageContainer";
 
 import type { DomainIncludable } from "~/libs/models/domain.model";
@@ -70,11 +69,9 @@ function calculateAverageRate(subComponents: SubComponent[]): number | null {
 export default function DetailAssessmentResponse() {
   const router = useRouter();
   const params = useParams<{ id: string; currentAssessmentId: string }>();
-  const searchParams = useSearchParams();
 
   const domainId = params?.currentAssessmentId;
   const assessmentId = params?.id;
-  const groupId = searchParams.get("groupId");
 
   const onBackHandler = useCallback(() => {
     router.back();
@@ -84,7 +81,7 @@ export default function DetailAssessmentResponse() {
     Domain,
     DomainIncludable
   >({
-    path: `assessments/${assessmentId as string}/domains/${domainId as string}/answers`,
+    path: `assessments/${assessmentId}/domains/${domainId}/answers`,
     queries: {
       include: ["components"],
     },

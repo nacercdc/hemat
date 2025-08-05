@@ -8,6 +8,40 @@ export interface Roadmap {
   deletedAt: string;
 }
 
+export interface RoadmapDomain {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  components: RoadmapComponent[];
+}
+
+export interface RoadmapComponent {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  subComponents: RoadmapSubComponent[];
+}
+
+export interface RoadmapSubComponent {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
+  roadmap?: {
+    id: string;
+    target: number;
+    currentState: number;
+    activities: string;
+    responsible: string;
+    resources: string;
+    gapAddressed: string;
+    startTime: string;
+    endTime: string;
+  };
+}
+
 export interface RoadmapList {
   id: string;
   assessmentId: string;
