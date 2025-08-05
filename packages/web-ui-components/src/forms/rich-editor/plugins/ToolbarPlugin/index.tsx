@@ -181,6 +181,7 @@ function dropDownActiveClass(active: boolean) {
 }
 
 function BlockFormatDropDown({
+  isModal = false,
   editor,
   blockType,
   disabled = false,
@@ -189,9 +190,11 @@ function BlockFormatDropDown({
   rootType: keyof typeof rootTypeToRootName;
   editor: LexicalEditor;
   disabled?: boolean;
+  isModal?: boolean;
 }): JSX.Element {
   return (
     <DropDown
+      isModal={isModal}
       disabled={disabled}
       buttonClassName="toolbar-item block-controls"
       buttonIcon={getBlockTypeIcon(blockType)}
@@ -338,12 +341,14 @@ function FontDropDown({
   editor,
   value,
   style,
+  isModal = false,
   disabled = false,
 }: {
   editor: LexicalEditor;
   value: string;
   style: string;
   disabled?: boolean;
+  isModal?: boolean;
 }): JSX.Element {
   const handleClick = useCallback(
     (option: string) => {
@@ -366,6 +371,7 @@ function FontDropDown({
 
   return (
     <DropDown
+      isModal={isModal}
       disabled={disabled}
       buttonClassName={"toolbar-item " + style}
       buttonIcon={
@@ -397,16 +403,19 @@ function ElementFormatDropdown({
   value,
   isRTL,
   disabled = false,
+  isModal = false,
 }: {
   editor: LexicalEditor;
   value: ElementFormatType;
   isRTL: boolean;
   disabled: boolean;
+  isModal?: boolean;
 }) {
   const formatOption = ELEMENT_FORMAT_OPTIONS[value || "left"];
 
   return (
     <DropDown
+      isModal={isModal}
       disabled={disabled}
       buttonLabel={formatOption.name}
       buttonIcon={formatOption.icon}
@@ -472,8 +481,10 @@ export default function ToolbarPlugin({
   editor,
   activeEditor,
   setActiveEditor,
+  isModal = false,
 }: {
   editor: LexicalEditor;
+  isModal?: boolean;
   activeEditor: LexicalEditor;
   setActiveEditor: Dispatch<LexicalEditor>;
 }): React.ReactNode {
@@ -724,6 +735,7 @@ export default function ToolbarPlugin({
         activeEditor === editor && (
           <>
             <BlockFormatDropDown
+              isModal={isModal}
               disabled={!isEditable}
               blockType={toolbarState.blockType}
               rootType={toolbarState.rootType}
@@ -734,6 +746,7 @@ export default function ToolbarPlugin({
         )}
       {toolbarState.blockType === "code" ? (
         <DropDown
+          isModal={isModal}
           disabled={!isEditable}
           buttonClassName="toolbar-item code-language"
           buttonLabel={getLanguageFriendlyName(toolbarState.codeLanguage)}
@@ -756,6 +769,7 @@ export default function ToolbarPlugin({
       ) : (
         <>
           <FontDropDown
+            isModal={isModal}
             disabled={!isEditable}
             style={"font-family"}
             value={toolbarState.fontFamily}
@@ -831,6 +845,7 @@ export default function ToolbarPlugin({
             </button>
           )}
           <DropDown
+            isModal={isModal}
             disabled={!isEditable}
             buttonClassName="toolbar-item spaced"
             buttonIcon={
@@ -976,6 +991,7 @@ export default function ToolbarPlugin({
             <>
               <Divider />
               <DropDown
+                isModal={isModal}
                 disabled={!isEditable}
                 buttonClassName="toolbar-item spaced"
                 buttonIcon={
@@ -1013,6 +1029,7 @@ export default function ToolbarPlugin({
         value={toolbarState.elementFormat}
         editor={activeEditor}
         isRTL={toolbarState.isRTL}
+        isModal={isModal}
       />
 
       {modal}

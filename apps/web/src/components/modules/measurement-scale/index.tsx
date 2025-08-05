@@ -59,6 +59,7 @@ export default function MeasurementScale() {
       limit: pagination.pageSize,
       page: pagination.pageIndex + 1,
       search,
+      sorts: { ascending: "rate" },
     },
   });
 
