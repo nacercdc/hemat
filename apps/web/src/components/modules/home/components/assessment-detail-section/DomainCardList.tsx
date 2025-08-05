@@ -5,6 +5,7 @@ import { DomainCard } from "./DomainCard";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { cn } from "~/utils/cn.util";
 import { Skeleton } from "@etm/web-ui-components";
+import { useSelectedFilterYear } from "../../context/selected-filter-year/useSelectedFilterYear";
 
 type DomainCardType = "single" | "summary";
 
@@ -20,9 +21,20 @@ export interface IDomainCardType extends AverageRatedDomain {
 }
 
 export function DomainCardList() {
+  const selectedYearCtx = useSelectedFilterYear();
+
   const { data: averageRatedDomains, ...averageRatedDomainsState } = useFindAll<
-    AverageRatedDomain[]
-  >({ path: "/dashboard/domains/average-rate", isProtected: false });
+    AverageRatedDomain[],
+    unknown,
+    { year: number }
+  >({
+    path: "/dashboard/domains/average-rate",
+    queries: {
+      filters: [{ year: `${selectedYearCtx?.selectedFilterYear?.value}` }],
+    },
+    isProtected: false,
+    tqOptions: { queryKey: ["domains", selectedYearCtx?.selectedFilterYear] },
+  });
 
   const isLoading =
     averageRatedDomainsState.isLoading || averageRatedDomainsState.isFetching;

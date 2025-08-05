@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { SelectedDomainContext } from "./selected-domain.context";
 import type { IDomainCardType } from "../../components/assessment-detail-section/DomainCardList";
+import type { YearOption } from "../../components/assessment-detail-section/SectionHeader";
 
 export function SelectedDomainProvider({
   children,
@@ -13,9 +14,18 @@ export function SelectedDomainProvider({
     IDomainCardType | undefined
   >();
 
+  const [selectedFilterYear, setSelectedFilterYear] = useState<
+    YearOption | undefined
+  >();
+
   return (
     <SelectedDomainContext.Provider
-      value={{ selectedDomain, setSelectedDomain }}
+      value={{
+        selectedDomain,
+        selectedFilterYear,
+        setSelectedDomain,
+        setSelectedFilterYear,
+      }}
     >
       {children}
     </SelectedDomainContext.Provider>
