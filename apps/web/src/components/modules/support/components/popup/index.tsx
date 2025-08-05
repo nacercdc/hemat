@@ -93,6 +93,7 @@ export default function HelpSupportWidget({ onClose }: Props) {
             />
 
             <ETMEditorRHF
+              isModal={true}
               control={control}
               name="description"
               label="Description"

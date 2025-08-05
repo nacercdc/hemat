@@ -143,6 +143,7 @@ export default function DropDown({
   buttonIconClassName,
   children,
   stopCloseOnClickSelf,
+  isModal = false,
 }: {
   disabled?: boolean;
   buttonAriaLabel?: string;
@@ -152,6 +153,7 @@ export default function DropDown({
   buttonLabel?: React.ReactNode;
   children: ReactNode;
   stopCloseOnClickSelf?: boolean;
+  isModal?: boolean;
 }): JSX.Element {
   const dropDownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -192,7 +194,11 @@ export default function DropDown({
             return;
           }
         }
-        if (!button.contains(target)) {
+
+        if (
+          !button.contains(target) &&
+          !dropDownRef.current?.contains(target)
+        ) {
           setShowDropDown(false);
         }
       };
@@ -226,8 +232,14 @@ export default function DropDown({
     };
   }, [buttonRef, dropDownRef, showDropDown]);
 
+  const dropdownMenu = (
+    <DropDownItems dropDownRef={dropDownRef} onClose={handleClose}>
+      {children}
+    </DropDownItems>
+  );
+
   return (
-    <>
+    <div style={{ position: "relative" }}>
       <button
         type="button"
         disabled={disabled}
@@ -247,12 +259,7 @@ export default function DropDown({
       </button>
 
       {showDropDown &&
-        createPortal(
-          <DropDownItems dropDownRef={dropDownRef} onClose={handleClose}>
-            {children}
-          </DropDownItems>,
-          document.body
-        )}
-    </>
+        (isModal ? dropdownMenu : createPortal(dropdownMenu, document.body))}
+    </div>
   );
 }
