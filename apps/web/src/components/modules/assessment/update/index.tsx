@@ -61,7 +61,7 @@ export default function UpdateAssessment() {
   };
 
   return (
-    <PageContainer pageTitle="New Assessment" includeBreadcrumb={false}>
+    <PageContainer pageTitle="Edit Assessment" includeBreadcrumb={false}>
       <AssessmentForm
         assessmentId={assessmentId as string}
         isLoading={updateAssessmentState.isPending}

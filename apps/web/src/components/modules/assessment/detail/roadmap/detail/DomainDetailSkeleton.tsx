@@ -15,7 +15,6 @@ export const DomainDetailSkeleton: React.FC = () => {
         </div>
       }
       includeBreadcrumb={false}
-      onBack={() => {}}
     >
       <div className="flex flex-col gap-6 rounded-sm p-4">
         {Array.from({ length: 3 }).map((_, componentIndex) => (
