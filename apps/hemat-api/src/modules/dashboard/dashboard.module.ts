@@ -7,9 +7,10 @@ import { Domain } from '../../database/entities/domain.entity';
 import { Assessment } from '../../database/entities/assessment.entity';
 import { TemplateModule } from '../template/template.module';
 import { AssessmentModule } from '../assessment/assessment.module';
+import { MeasurementScaleModule } from '../measurement-scale/measurement-scale.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Country, Domain, Assessment]), TemplateModule, AssessmentModule],
+  imports: [TypeOrmModule.forFeature([Country, Domain, Assessment]), TemplateModule, AssessmentModule, MeasurementScaleModule],
   controllers: [DashboardController],
   providers: [DashboardService],
   exports: [DashboardService],

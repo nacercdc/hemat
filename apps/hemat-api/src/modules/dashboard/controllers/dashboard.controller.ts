@@ -9,6 +9,10 @@ import { Inject } from '@nestjs/common';
 import { SubComponentMeasurementScaleService } from '../../template/services/sub-component-mesurment-scale.service';
 import { BadRequestException } from '@nestjs/common';
 import { AssessmentSubComponentService } from '../../assessment/services/assessment-sub-component.service';
+import { MeasurementScaleService } from '../../measurement-scale/services/measurement-scale.service';
+import { FindAllMeasurementScaleDto } from '../../measurement-scale/dtos';
+import { FindAllResponseDto } from '@shared/dtos';
+import { MeasurementScale } from '@database/entities';
 
 @ApiTags('Dashboard')
 @Controller('dashboard')
@@ -21,6 +25,7 @@ export class DashboardController {
     @Inject(SubComponentMeasurementScaleService)
     private readonly subComponentMeasurementScaleService: SubComponentMeasurementScaleService,
     private readonly assessmentSubComponentService: AssessmentSubComponentService,
+    private readonly measurementScaleService: MeasurementScaleService,
   ) {}
 
   @ApiOperation({ summary: 'Get total countries count' })
@@ -342,6 +347,19 @@ export class DashboardController {
       measurementScaleId: msc.measurementScaleId,
       description: msc.description,
     };
+  }
+
+  @ApiOperation({
+    summary: 'Find all measurement scales',
+    description: 'Get all measurement scales with pagination (no authentication required)',
+  })
+  @ApiOkResponse({
+    description: 'Ok',
+    type: FindAllResponseDto<MeasurementScale>,
+  })
+  @Get('measurement-scales')
+  async findAllMeasurementScales(@Query() query: FindAllMeasurementScaleDto) {
+    return this.measurementScaleService.findAll(query);
   }
 
   @Get('answers/average-rate')
