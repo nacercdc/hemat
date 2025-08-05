@@ -339,14 +339,37 @@ export class DashboardService {
       .execute();
   }
 
-  async getCountriesWithSubregionAndAssessmentStatus(): Promise<any[]> {
+  async getCountriesWithSubregionAndAssessmentStatus(
+    query?: {
+      subregion?: string;
+      assessmentStatus?: AssessmentStatus;
+      countryCode?: string;
+    }
+  ): Promise<any[]> {
     // Get all countries
-    const countries = await this.domainRepository.manager.getRepository(Country).find();
+    let countriesQuery = this.domainRepository.manager.getRepository(Country).createQueryBuilder('country');
+    
+    // Apply filters
+    if (query?.subregion) {
+      countriesQuery = countriesQuery.andWhere('country.subregion = :subregion', { subregion: query.subregion });
+    }
+    if (query?.countryCode) {
+      countriesQuery = countriesQuery.andWhere('country.code = :countryCode', { countryCode: query.countryCode });
+    }
+    
+    const countries = await countriesQuery.getMany();
+    
     // For each country, get the latest assessment status (if any)
-    const assessments = await this.assessmentRepository.find({
-      select: ['countryCode', 'status', 'createdAt'],
-      order: { createdAt: 'DESC' },
-    });
+    let assessmentsQuery = this.assessmentRepository.createQueryBuilder('assessment')
+      .select(['assessment.countryCode', 'assessment.status', 'assessment.createdAt'])
+      .orderBy('assessment.createdAt', 'DESC');
+    
+    if (query?.assessmentStatus) {
+      assessmentsQuery = assessmentsQuery.andWhere('assessment.status = :status', { status: query.assessmentStatus });
+    }
+    
+    const assessments = await assessmentsQuery.getMany();
+    
     // Map country code to latest assessment status
     const latestStatusMap = new Map<string, AssessmentStatus>();
     for (const assessment of assessments) {
@@ -354,6 +377,7 @@ export class DashboardService {
         latestStatusMap.set(assessment.countryCode, assessment.status);
       }
     }
+    
     return countries.map((country) => ({
       code: country.code,
       subregion: country.subregion,
