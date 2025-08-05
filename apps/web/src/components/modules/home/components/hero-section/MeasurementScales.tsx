@@ -8,7 +8,11 @@ import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measur
 export function MeasurementScales() {
   const { data: measurementScales, ...measurementScalesState } = useFindAll<{
     data: AssessmentMeasurementScale[];
-  }>({ path: "/dashboard/measurement-scales", isProtected: false });
+  }>({
+    path: "/dashboard/measurement-scales",
+    isProtected: false,
+    queries: { sorts: { ascending: "rate" } },
+  });
 
   const isLoading =
     measurementScalesState.isLoading || measurementScalesState.isFetching;

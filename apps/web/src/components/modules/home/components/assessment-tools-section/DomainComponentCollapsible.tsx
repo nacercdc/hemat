@@ -9,13 +9,13 @@ import { MeasurementScaleCard } from "./MeasurementScaleCard";
 import type { Variants } from "framer-motion";
 import type { ITemplateComponent } from "./DomainToolsCollapsible";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { MeasurementScale } from "~/libs/models/answer.model";
+import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measurement-scale.model";
 
 interface ITemplateSubComponent {
   id: string;
   name: string;
   description: string;
-  measurementScales: MeasurementScale[];
+  measurementScales: AssessmentMeasurementScale[];
 }
 interface Props {
   component: ITemplateComponent;
@@ -37,8 +37,12 @@ export function DomainComponentCollapsible({
   });
 
   const { data: measurementScales, ...measurementScalesState } = useFindAll<{
-    data: MeasurementScale[];
-  }>({ path: "/dashboard/measurement-scales", isProtected: false });
+    data: AssessmentMeasurementScale[];
+  }>({
+    path: "/dashboard/measurement-scales",
+    isProtected: false,
+    queries: { sorts: { ascending: "rate" } },
+  });
 
   const variants: Variants = {
     open: {
@@ -141,13 +145,15 @@ export function DomainComponentCollapsible({
                         </p>
                         <div className="flex gap-4 ml-2 w-full overflow-x-auto">
                           {(
-                            measurementScales?.data as unknown as MeasurementScale[]
+                            measurementScales?.data as unknown as AssessmentMeasurementScale[]
                           )?.map((measurementScale) => (
                             <MeasurementScaleCard
                               id={measurementScale.id}
                               subComponentId={sub.id}
                               scale={measurementScale.rate}
                               key={measurementScale.name}
+                              color={measurementScale.color}
+                              label={measurementScale.name}
                             />
                           ))}
                         </div>

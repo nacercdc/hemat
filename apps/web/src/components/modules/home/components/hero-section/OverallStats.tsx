@@ -16,17 +16,6 @@ interface TooltipData {
   color: string;
 }
 
-const DOMAIN_COLORS = [
-  "#FFFD02",
-  "#00B0F0",
-  "#11B050",
-  "#FFC000",
-  "#FF5733",
-  "#C70039",
-  "#900C3F",
-  "#581845",
-];
-
 const getContrastColor = (hex: string) => {
   if (hex.startsWith("#")) {
     hex = hex.slice(1);
@@ -75,7 +64,7 @@ export function OverallStats() {
   const isLoading =
     averageRatedDomainsState.isLoading || averageRatedDomainsState.isFetching;
 
-  const measurementScaleLoading =
+  const _measurementScaleLoading =
     measurementScalesState.isLoading || measurementScalesState.isFetching;
 
   useEffect(() => {

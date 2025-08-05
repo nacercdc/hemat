@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Icon } from "@iconify/react";
 import { Tooltip } from "@etm/web-ui-components";
-import { ScalesMap } from "../assessment-detail-section/DomainCard";
 import { useFindById } from "~/libs/tanstack-api-query/hooks/useFindById";
 
 interface IScaleDescription {
@@ -17,9 +16,17 @@ interface Props {
   id: string;
   subComponentId: string;
   scale: number;
+  color: string;
+  label: string;
 }
 
-export function MeasurementScaleCard({ id, subComponentId, scale }: Props) {
+export function MeasurementScaleCard({
+  id,
+  subComponentId,
+  scale,
+  color,
+  label,
+}: Props) {
   const [scaleHovered, setScaleHovered] = useState(false);
 
   const { data: scaleDescription, ...scaleDescriptionState } =
@@ -44,12 +51,12 @@ export function MeasurementScaleCard({ id, subComponentId, scale }: Props) {
     <div
       className="flex items-center gap-3 justify-between border-l-[1.5px] p-2.5 rounded-sm"
       style={{
-        borderColor: `${ScalesMap[scale]?.color}`,
-        backgroundColor: `${ScalesMap[scale]?.color}20`,
+        borderColor: `${color}`,
+        backgroundColor: `${color}20`,
       }}
     >
       <div className="flex items-center gap-1 text-xs">
-        <span>{ScalesMap[scale]?.label}</span>
+        <span>{label}</span>
         <span>{`(${scale})`}</span>
       </div>
       <Tooltip
