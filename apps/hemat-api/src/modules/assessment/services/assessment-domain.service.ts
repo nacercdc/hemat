@@ -663,6 +663,12 @@ export class AssessmentDomainService {
       return fallback;
     };
 
+    function toNumberOrNull(val: any): number | null {
+      if (val === null || val === undefined) return null;
+      const n = Number(val);
+      return isNaN(n) ? null : n;
+    }
+
     return {
       id: domain.id,
       code: domain.code,
@@ -702,7 +708,7 @@ export class AssessmentDomainService {
             description: getTranslated(subComponent, 'description', subComponent.description),
             roadmap: {
               id: roadmap.id,
-              target: roadmap.target,
+              target: toNumberOrNull(roadmap.target),
               currentState: roadmap.currentState,
               activities: roadmap.activities,
               responsible: roadmap.responsible,
