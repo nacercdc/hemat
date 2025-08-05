@@ -7,7 +7,7 @@ import Image from "next/image";
 export function FooterSection() {
   return (
     <div className="flex flex-col gap-11 w-full px-10 2xl:px-48 py-12 bg-[#273E35]">
-      <div className="w-full grid grid-cols-1 2xl:grid-cols-3 gap-11 items-center">
+      <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-11 items-center ">
         <div className="flex flex-col gap-4">
           <Image
             src="/images/acdc-logo-white.svg"
@@ -46,10 +46,10 @@ export function FooterSection() {
           </a>
         </div>
 
-        <div className="flex flex-col gap-4 items-end text-white">
+        <div className="flex flex-col gap-4 lg:items-end text-white items-start">
           <h3 className="text-2xl font-bold">Contact us</h3>
           <span className="text-sm font-bold">Phone: +251911111111</span>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col lg:items-end items-start">
             <span className="text-sm font-bold">Tel: +251911111111</span>
             <a
               href="https://communications@africacdc.org"
@@ -58,7 +58,7 @@ export function FooterSection() {
             >
               communications@africacdc.org
             </a>
-            <span className="text-sm font-bold">
+            <span className="text-sm font-bold text-end text-nowrap">
               Visit Africa CDC on the{" "}
               <a
                 href="https://au.int/africacdc"
