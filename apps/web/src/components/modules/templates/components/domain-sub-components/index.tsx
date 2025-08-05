@@ -66,10 +66,17 @@ export function DomainSubComponents({ modalRef }: Props) {
         {
           data: {
             name: values.name,
-            code: values.code,
             description: values.description,
             componentId: componentId,
-            translations: values.translations ?? {},
+            translations: Object.fromEntries(
+              Object.entries(values.translations).map(([key, value]) => [
+                key,
+                {
+                  name: value.name ?? "",
+                  description: value.description ?? "",
+                },
+              ])
+            ),
           },
         },
         {
