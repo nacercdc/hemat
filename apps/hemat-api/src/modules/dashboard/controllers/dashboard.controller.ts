@@ -367,7 +367,10 @@ export class DashboardController {
     return this.assessmentSubComponentService.getAverageRateForPrimaryAnswersGrouped();
   }
 
-  @ApiOperation({ summary: 'Get all countries with subregion and assessment status' })
+  @ApiOperation({ 
+    summary: 'Get all countries with subregion and assessment status',
+    description: 'Fetch countries with optional filtering by subregion, assessment status, and country code'
+  })
   @ApiOkResponse({
     description: 'Array of countries with code, subregion, and assessment status',
     schema: {
@@ -378,7 +381,15 @@ export class DashboardController {
     },
   })
   @Get('countries')
-  async getCountriesWithSubregionAndAssessmentStatus() {
-    return this.dashboardService.getCountriesWithSubregionAndAssessmentStatus();
+  async getCountriesWithSubregionAndAssessmentStatus(
+    @Query('subregion') subregion?: string,
+    @Query('assessmentStatus') assessmentStatus?: string,
+    @Query('countryCode') countryCode?: string,
+  ) {
+    return this.dashboardService.getCountriesWithSubregionAndAssessmentStatus({
+      subregion,
+      assessmentStatus: assessmentStatus as any,
+      countryCode,
+    });
   }
 } 
