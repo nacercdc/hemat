@@ -5,6 +5,7 @@ import { Domain } from '../../../database/entities/domain.entity';
 import { Assessment } from '../../../database/entities/assessment.entity';
 import { AssessmentStatus } from '../../../shared/enums/assesement.enum';
 import { DashboardQueryDto } from '../dtos/dashboard-query.dto';
+import { Country } from '../../../database/entities/country.entity';
 
 @Injectable()
 export class DashboardService {
@@ -336,5 +337,27 @@ export class DashboardService {
       .addGroupBy('subComponent.name')
       .addGroupBy('subComponent.description')
       .execute();
+  }
+
+  async getCountriesWithSubregionAndAssessmentStatus(): Promise<any[]> {
+    // Get all countries
+    const countries = await this.domainRepository.manager.getRepository(Country).find();
+    // For each country, get the latest assessment status (if any)
+    const assessments = await this.assessmentRepository.find({
+      select: ['countryCode', 'status', 'createdAt'],
+      order: { createdAt: 'DESC' },
+    });
+    // Map country code to latest assessment status
+    const latestStatusMap = new Map<string, AssessmentStatus>();
+    for (const assessment of assessments) {
+      if (!latestStatusMap.has(assessment.countryCode)) {
+        latestStatusMap.set(assessment.countryCode, assessment.status);
+      }
+    }
+    return countries.map((country) => ({
+      code: country.code,
+      subregion: country.subregion,
+      assessmentStatus: latestStatusMap.get(country.code) || null,
+    }));
   }
 } 
