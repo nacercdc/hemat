@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -13,10 +14,20 @@ import { geoCentroid } from "d3-geo";
 import africa from "./africa.geo.json";
 import { Select, Tooltip } from "@etm/web-ui-components";
 import { cn } from "~/utils/cn.util";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { AssessmentStatus } from "~/libs/models/assessment-component.model";
 
 interface Country {
   name: string;
+  code: string;
+  subregion: string;
+  assessmentStatus:
+    | "completed"
+    | "closed"
+    | "in_progress"
+    | "ready"
+    | "pending"
+    | "draft";
   center: [number, number];
 }
 
@@ -80,13 +91,20 @@ export const Map = () => {
     zoom: 3,
   });
 
-  const [countries, setCountries] = useState<Country[]>([]);
+  const [mapCountries, setMapCountries] = useState<Partial<Country>[]>([]);
 
-  const [selectedCountry, setSelectedCountry] = useState<Country>();
+  const [selectedCountry, setSelectedCountry] = useState<Partial<Country>>();
 
   const [selectedRegion, setSelectedRegion] = useState<Region>();
 
   const [selectedStatus, setSelectedStatus] = useState<ProgressStatus>();
+
+  const { data: countryStatuses, ...countryStatusesState } = useFindAll<
+    Country[]
+  >({
+    path: `/dashboard/countries`,
+    isProtected: false,
+  });
 
   const getColor = (name: string, region: string) => {
     if (fetchedAssessmentData[name] && selectedRegion) {
@@ -110,11 +128,11 @@ export const Map = () => {
   };
 
   const handleSelect = (value?: string) => {
-    const selected = countries.find((c) => c.name === value);
+    const selected = mapCountries.find((c) => c.name === value);
 
     if (selected) {
       setPosition({
-        coordinates: selected.center,
+        coordinates: selected.center!,
         zoom: 12,
       });
       setSelectedCountry(selected);
@@ -165,10 +183,10 @@ export const Map = () => {
     const processed = africa.features.map((feature: any) => {
       const name = feature.properties.name;
       const center = geoCentroid(feature);
-      return { name, center } as Country;
+      return { name, center } as Partial<Country>;
     });
 
-    setCountries(processed);
+    setMapCountries(processed);
   }, []);
 
   if (!isMounted) {
@@ -257,8 +275,8 @@ export const Map = () => {
       </ComposableMap>
       {/* Filter Section */}
       <div className="w-64 mb-4 absolute top-10 left-10 2xl:left-48 z-20">
-        <Select<Country>
-          options={countries}
+        <Select<Partial<Country>>
+          options={mapCountries}
           onSelect={(c) => handleSelect(c?.name)}
           labelKey="name"
           valueKey="name"
