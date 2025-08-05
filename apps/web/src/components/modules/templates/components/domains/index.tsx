@@ -92,7 +92,7 @@ export function DomainsList({ modalRef }: Props) {
       ) : (
         !domainsState.isLoading && <DomainsEmptyPlaceHolder />
       )}
-      <Modal title={`Add Domain`}>
+      <Modal ref={modalRef} title={`Add Domain`}>
         <DomainComponentForm
           onSubmitHandler={onAddItemSubmitHandler}
           onCloseModal={() => modalRef.current?.closeModal()}
