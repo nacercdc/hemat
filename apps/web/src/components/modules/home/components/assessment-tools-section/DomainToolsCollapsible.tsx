@@ -86,6 +86,9 @@ export function DomainToolsCollapsible({ domain, isOpen, onToggle }: Props) {
           >
             {
               <DomainComponentCollapsibleList
+                isLoading={
+                  componentsState.isLoading || componentsState.isFetching
+                }
                 domainComponents={
                   (components as unknown as ITemplateComponent[]) || []
                 }

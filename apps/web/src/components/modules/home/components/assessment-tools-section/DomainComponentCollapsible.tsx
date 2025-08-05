@@ -4,7 +4,7 @@ import React from "react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "~/utils/cn.util";
-import { Button } from "@etm/web-ui-components";
+import { Button, Skeleton } from "@etm/web-ui-components";
 import { MeasurementScaleCard } from "./MeasurementScaleCard";
 import type { Variants } from "framer-motion";
 import type { ITemplateComponent } from "./DomainToolsCollapsible";
@@ -35,6 +35,10 @@ export function DomainComponentCollapsible({
     isProtected: false,
     tqOptions: { enabled: isOpen },
   });
+
+  const { data: measurementScales, ...measurementScalesState } = useFindAll<{
+    data: MeasurementScale[];
+  }>({ path: "/dashboard/measurement-scales", isProtected: false });
 
   const variants: Variants = {
     open: {
@@ -81,9 +85,13 @@ export function DomainComponentCollapsible({
     },
   };
 
-  if (subComponentsState.isLoading || subComponentsState.isFetching) {
-    return <div>Loading...</div>;
-  }
+  const measurementScalesLoading =
+    measurementScalesState.isLoading || measurementScalesState.isFetching;
+
+  const subComponentsLoading =
+    subComponentsState.isLoading || subComponentsState.isFetching;
+
+  const isLoading = subComponentsLoading || measurementScalesLoading;
 
   return (
     <div className="min-w-max relative">
@@ -109,43 +117,67 @@ export function DomainComponentCollapsible({
                 isOpen ? "py-5 px-10" : "py-0"
               )}
             >
-              {(subComponents as unknown as ITemplateSubComponent[])?.map(
-                (sub) => (
-                  <motion.div
-                    key={sub.name}
-                    variants={contentVariants}
-                    initial="closed"
-                    animate="open"
-                    exit="closed"
-                    className="relative w-full"
-                  >
-                    <div className="absolute -top-3 -left-6">
-                      <Icon
-                        icon="clarity:child-arrow-line"
-                        className="w-8 h-8 text-[#FFC000]"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-3 pl-3 w-full">
-                      <span className="text-xs font-bold">{sub.name}</span>
-                      <p className="text-dark-light text-xs ml-2 text-wrap max-w-[800px]">
-                        {sub.name}
-                      </p>
-                      <div className="flex gap-4 ml-2 w-full overflow-x-auto">
-                        {[1, 2, 3, 4, 5].map((curIndex) => (
-                          <MeasurementScaleCard
-                            scale={curIndex}
-                            key={curIndex}
-                          />
-                        ))}
+              {!isLoading &&
+                (subComponents as unknown as ITemplateSubComponent[])?.map(
+                  (sub) => (
+                    <motion.div
+                      key={sub.name}
+                      variants={contentVariants}
+                      initial="closed"
+                      animate="open"
+                      exit="closed"
+                      className="relative w-full"
+                    >
+                      <div className="absolute -top-3 -left-6">
+                        <Icon
+                          icon="clarity:child-arrow-line"
+                          className="w-8 h-8 text-[#FFC000]"
+                        />
                       </div>
-                    </div>
-                  </motion.div>
-                )
-              )}
+                      <div className="flex flex-col gap-3 pl-3 w-full">
+                        <span className="text-xs font-bold">{sub.name}</span>
+                        <p className="text-dark-light text-xs ml-2 text-wrap max-w-[800px]">
+                          {sub.description}
+                        </p>
+                        <div className="flex gap-4 ml-2 w-full overflow-x-auto">
+                          {(
+                            measurementScales?.data as unknown as MeasurementScale[]
+                          )?.map((measurementScale) => (
+                            <MeasurementScaleCard
+                              id={measurementScale.id}
+                              subComponentId={sub.id}
+                              scale={measurementScale.rate}
+                              key={measurementScale.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )
+                )}
+              {isLoading && <DomainCompCollapsibleSkeleton />}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+    </div>
+  );
+}
+
+function DomainCompCollapsibleSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      {Array.from({ length: 3 }, (_, i) => (
+        <div key={i} className="flex flex-col gap-2">
+          <Skeleton className="h-3 w-10" />
+          <Skeleton className="h-3 w-16" />
+          <div className="flex gap-2">
+            {Array.from({ length: 5 }, (_, j) => (
+              <Skeleton key={j} className="w-24 h-9 rounded-sm" />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

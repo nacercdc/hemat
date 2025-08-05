@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { DomainToolsCollapsible } from "./DomainToolsCollapsible";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import { Skeleton } from "@etm/web-ui-components";
 
 export interface ITemplateDomain {
   id: string;
@@ -21,7 +22,7 @@ export function DomainToolsCollapsibleList() {
   };
 
   if (templateDomainsState.isLoading || templateDomainsState.isFetching) {
-    return <div>Loading ...</div>;
+    return <DomainToolsListSkeleton />;
   }
 
   return (
@@ -50,6 +51,16 @@ export function IconWrapper({ children, backColor }: IconWrapperProps) {
       style={{ backgroundColor: `${backColor}` }}
     >
       {children}
+    </div>
+  );
+}
+
+function DomainToolsListSkeleton() {
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      {Array.from({ length: 4 }, (_, i) => (
+        <Skeleton key={i} className="h-16 rounded-sm"></Skeleton>
+      ))}
     </div>
   );
 }
