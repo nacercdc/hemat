@@ -62,34 +62,34 @@ export const groups = (
         depth: 0,
       },
 
-      {
-        id: "logs",
-        label: "Logs",
-        icon: (
-          <Icon
-            icon="radix-icons:activity-log"
-            className="!w-[22x] !h-[22x] pr-1"
-          />
-        ),
-        permission: [true].some(Boolean),
-        depth: 0,
-        children: [
-          {
-            id: "activity",
-            label: "Activity",
-            path: "/activity",
-            permission: true,
-            depth: 1,
-          },
-          {
-            id: "sms",
-            label: "SMS",
-            path: "/sms",
-            permission: true,
-            depth: 1,
-          },
-        ],
-      },
+      // {
+      //   id: "logs",
+      //   label: "Logs",
+      //   icon: (
+      //     <Icon
+      //       icon="radix-icons:activity-log"
+      //       className="!w-[22x] !h-[22x] pr-1"
+      //     />
+      //   ),
+      //   permission: [true].some(Boolean),
+      //   depth: 0,
+      //   children: [
+      //     {
+      //       id: "activity",
+      //       label: "Activity",
+      //       path: "/activity",
+      //       permission: true,
+      //       depth: 1,
+      //     },
+      //     {
+      //       id: "sms",
+      //       label: "SMS",
+      //       path: "/sms",
+      //       permission: true,
+      //       depth: 1,
+      //     },
+      //   ],
+      // },
       {
         id: "settings",
         label: "Settings",
@@ -110,14 +110,6 @@ export const groups = (
             id: "language",
             label: "Language",
             path: "/language",
-            permission: true,
-            depth: 1,
-          },
-
-          {
-            id: "backup",
-            label: "Backup",
-            path: "/backup",
             permission: true,
             depth: 1,
           },
