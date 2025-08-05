@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import {
   ComposableMap,
@@ -11,12 +11,12 @@ import {
   ZoomableGroup,
 } from "react-simple-maps";
 import { geoCentroid } from "d3-geo";
-import africa from "./africa.geo.json";
 import { Select, Tooltip } from "@etm/web-ui-components";
 import { cn } from "~/utils/cn.util";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import africa from "./africa.geo.json";
+import africanCountries from "./africa-country-names.json";
 import type { AssessmentStatus } from "~/libs/models/assessment-component.model";
-
 interface Country {
   name: string;
   code: string;
@@ -59,26 +59,21 @@ const progressStatusOptions: {
   { id: "Planned", name: "Planned" },
 ];
 
-// TODO: To be replaced with real data from API call
-const fetchedAssessmentData: Record<
-  string,
-  { progress: AssessmentStatus; color: string }
-> = {
-  Ethiopia: { progress: "Completed", color: colorMap.Completed },
-  Egypt: { progress: "Completed", color: colorMap.Completed },
-  Kenya: { progress: "In Progress", color: colorMap["In Progress"] },
-  Chad: { progress: "Planned", color: colorMap.Planned },
-  Sudan: { progress: "Planned", color: colorMap.Planned },
-  "South Africa": {
-    progress: "Not Yet Assessed",
-    color: colorMap["Not Yet Assessed"],
-  },
+//TODO: change as soon as api is changed
+const statusMap = {
+  completed: "Completed",
+  draft: "In Progress", //Needs review
+  pending: "Planned", //Needs review
+  ready: "Planned", //Needs review
+  planned: "Planned",
+  closed: "Completed", //Needs review
+  in_progress: "In Progress", //Needs review
 };
 
 type ProgressStatus = (typeof progressStatusOptions)[number];
 type Region = (typeof regionOptions)[number];
 
-export const Map = () => {
+export const AfricaMap = () => {
   const [isMounted, setIsMounted] = useState(false);
 
   const [isDragging, setIsDragging] = useState(false);
@@ -99,12 +94,33 @@ export const Map = () => {
 
   const [selectedStatus, setSelectedStatus] = useState<ProgressStatus>();
 
-  const { data: countryStatuses, ...countryStatusesState } = useFindAll<
-    Country[]
-  >({
+  const { data: countryStatuses } = useFindAll<Country[]>({
     path: `/dashboard/countries`,
     isProtected: false,
   });
+
+  const fetchedAssessmentData = useMemo(() => {
+    const statusLookup = new Map(
+      (countryStatuses as unknown as Country[])?.map((item) => [
+        item.code,
+        item.assessmentStatus,
+      ])
+    );
+
+    const result: Record<string, { progress: string; color: string }> = {};
+    Object.entries(africanCountries).forEach(([code, name]) => {
+      const apiStatus = statusLookup.get(code);
+
+      const progress = apiStatus ? statusMap[apiStatus] : "Not Yet Assessed";
+
+      result[name] = {
+        progress: progress,
+        color: colorMap[progress as AssessmentStatus],
+      };
+    });
+
+    return result;
+  }, [countryStatuses]);
 
   const getColor = (name: string, region: string) => {
     if (fetchedAssessmentData[name] && selectedRegion) {

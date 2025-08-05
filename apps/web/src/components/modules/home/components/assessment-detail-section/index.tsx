@@ -5,7 +5,7 @@ import { SectionHeader } from "./SectionHeader";
 import { DomainCardList } from "./DomainCardList";
 import { DomainCollapsibleList } from "./DomainCollapsibleList";
 import { SelectedDomainProvider } from "../../context/selected-domain/SelectedDomainProvider";
-import { Map } from "./Map";
+import { AfricaMap } from "./Map";
 import { AnimatedSection, scaleIn, slideInLeft } from "../AnimatedSection";
 
 export function AssessmentDetailSection() {
@@ -20,7 +20,7 @@ export function AssessmentDetailSection() {
         </AnimatedSection>
         <DomainCollapsibleList />
         <AnimatedSection animation={scaleIn} className="">
-          <Map />
+          <AfricaMap />
         </AnimatedSection>
       </div>
     </SelectedDomainProvider>
