@@ -2,14 +2,13 @@
 
 import MetricsContainer from "./components/MetricsContainer";
 import MetricsCard, { MetricsCardSkeleton } from "./components/MetricsCard";
-import type { Scale } from "~/libs/models/scale.model";
-import { Map } from "./components/Map";
 import { CountriesAccordion } from "./components/CountriesAccordion";
-import { FilterSection } from "./components/FilterSection";
 import { PageContainer } from "../components/PageContainer";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measurement-scale.model";
 import { OverallDomainMetricsSection } from "./components/OverallDomainMetricsSection";
+import { AfricaMap } from "../home/components/assessment-detail-section/Map";
+import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measurement-scale.model";
+import type { Scale } from "~/libs/models/scale.model";
 
 export default function Dashboard() {
   const { data: measurementScales, ...measurementScalesState } = useFindAll<{
@@ -80,19 +79,14 @@ export default function Dashboard() {
           />
         </MetricsContainer>
 
-        <FilterSection
+        {/* <FilterSection
           countryOptions={countryOptions}
           onDomainSelect={onDomainSelectHandler}
           onCountrySelect={onCountrySelectHandler}
-        />
+        /> */}
 
         <div className="p-4 bg-layout-bg/15 rounded-md">
-          <Map
-            countryStatuses={fetchedData}
-            onCountryClick={onCountryClickHandler}
-            width="100%"
-            height={600}
-          />
+          <AfricaMap />
         </div>
         <div className="mt-4 bg-layout-bg/15 p-4 rounded-md h-14">
           <CountriesAccordion countryStatuses={fetchedData} />
