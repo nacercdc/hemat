@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { DomainCard } from "./DomainCard";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { cn } from "~/utils/cn.util";
@@ -23,6 +23,9 @@ export interface IDomainCardType extends AverageRatedDomain {
 export function DomainCardList() {
   const selectedYearCtx = useSelectedFilterYear();
 
+  // TODO: tobe removed onces the api is fixed
+  const [uniqueDomains, setUniqueDomains] = useState();
+
   const { data: averageRatedDomains, ...averageRatedDomainsState } = useFindAll<
     AverageRatedDomain[],
     unknown,
@@ -43,8 +46,13 @@ export function DomainCardList() {
     const averagedDomains =
       averageRatedDomains as unknown as AverageRatedDomain[];
 
-    if (averagedDomains?.length) {
-      return averagedDomains.map((averagedDomain) => ({
+    const uniqueDomainsMap = new Map(
+      averagedDomains.map((domain) => [domain.id, domain])
+    );
+    const uniqueDomains = [...uniqueDomainsMap.values()];
+
+    if (uniqueDomains?.length) {
+      return uniqueDomains.map((averagedDomain) => ({
         ...averagedDomain,
         icon: null,
         type: "single" as DomainCardType,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DomainCollapsible } from "./DomainCollapsible";
 import { cn } from "~/utils/cn.util";
 import { useSelectedDomain } from "../../context/selected-domain/useSelectedDomain";
@@ -27,6 +27,8 @@ export function DomainCollapsibleList() {
 
   const [openIndex, setOpenIndex] = useState<number>(-1);
 
+  const [uniqueComponents, setUniqueComponents] = useState<IComponent[]>();
+
   const { data: components, ...componentsState } = useFindAll<IComponent[]>({
     path: `/dashboard/domains/${selectedDomainCtx?.selectedDomain?.id}/components/average-rate`,
     isProtected: false,
@@ -42,6 +44,18 @@ export function DomainCollapsibleList() {
 
   const isLoading = componentsState.isLoading || componentsState.isFetching;
 
+  // TODO: To be removed
+  useEffect(() => {
+    const uniqueComponentsMap = new Map(
+      (components as unknown as IComponent[])?.map((domain) => [
+        domain.id,
+        domain,
+      ])
+    );
+
+    setUniqueComponents([...uniqueComponentsMap.values()]);
+  }, [components]);
+
   if (isLoading) return <DomainCollapsibleListSkeleton />;
 
   return (
@@ -52,7 +66,7 @@ export function DomainCollapsibleList() {
       )}
     >
       {selectedDomainCtx?.selectedDomain &&
-        (components as unknown as IComponent[])?.map((item, index) => (
+        uniqueComponents?.map((item, index) => (
           <DomainCollapsible
             key={item.id + new Date().toString()}
             icon={null}
