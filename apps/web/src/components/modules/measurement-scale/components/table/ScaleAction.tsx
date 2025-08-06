@@ -52,7 +52,10 @@ export default function ScaleAction({ scale, onRefetch }: Props) {
   const onSubmitScaleFormHandler = (data: ScaleCreate) => {
     updateScale(
       {
-        data,
+        data: {
+          ...data,
+          id: scale.id,
+        },
         isProtected: true,
       },
       {

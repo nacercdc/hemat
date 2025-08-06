@@ -7,7 +7,7 @@ import { Button, TextAreaRHF, MultiSelectRHF } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Language } from "~/libs/models/language.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import type { Scale } from "~/libs/models/scale.model";
+import type { Scale, ScaleSortable } from "~/libs/models/scale.model";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useEffect } from "react";
 import type { SubComponent } from "~/libs/models/subComponent.model";
@@ -96,8 +96,13 @@ export function ScalesForm({
   initialSelectedLanguages,
   onBack,
 }: Props) {
-  const { data: scales, ...scalesState } = useFindAll<Scale>({
+  const { data: scales, ...scalesState } = useFindAll<Scale, ScaleSortable>({
     path: "/measurement-scales",
+    queries: {
+      sorts: {
+        ascending: "rate",
+      },
+    },
     tqOptions: {
       enabled: true,
     },
