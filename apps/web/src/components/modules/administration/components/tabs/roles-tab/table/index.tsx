@@ -40,8 +40,8 @@ export function RolesTable({ modules, permissions }: Props) {
   >({
     path: "/roles",
     queries: {
-      limit: pagination.pageSize,
-      page: pagination.pageIndex + 1,
+      take: pagination.pageSize,
+      skip: pagination.pageIndex + 1,
       include: ["permissions"],
       sorts: sort,
       search,

@@ -133,8 +133,8 @@ export function SubCompRoadmapForm({
   >({
     path: `/assessments/${params.id as string}/measurement-scales`,
     queries: {
-      limit: 100,
-      page: 1,
+      take: 100,
+      skip: 1,
     },
   });
 
