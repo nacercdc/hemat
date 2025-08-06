@@ -70,18 +70,11 @@ export function OverallStats() {
   useEffect(() => {
     const domains = averageRatedDomains as unknown as AverageRatedDomain[];
     if (domains?.length) {
-      const uniqueDomainsMap = new Map(
-        domains.map((domain) => [domain.id, domain])
-      );
-      const uniqueDomains = [...uniqueDomainsMap.values()];
-
-      const validDomains = uniqueDomains.filter(
-        (domain) => domain.averageRate !== 0
-      );
+      const validDomains = domains.filter((domain) => domain.averageRate !== 0);
 
       const availableCirclesCount = 3;
 
-      const newTooltipData = validDomains.map((domain) => ({
+      const newTooltipData = validDomains?.map((domain) => ({
         domain,
         circleIndex: Math.floor(Math.random() * availableCirclesCount),
         angle: Math.random() * 360,
