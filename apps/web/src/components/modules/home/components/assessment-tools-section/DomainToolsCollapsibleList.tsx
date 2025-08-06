@@ -15,7 +15,7 @@ export function DomainToolsCollapsibleList() {
 
   const { data: templateDomains, ...templateDomainsState } = useFindAll<
     ITemplateDomain[]
-  >({ path: "/dashboard/domains/average-rate", isProtected: false });
+  >({ path: "/dashboard/template/domains", isProtected: false });
 
   const handleToggle = (index: number) => {
     setOpenIndex(openIndex === index ? -1 : index);
