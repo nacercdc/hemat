@@ -2,7 +2,7 @@
 import type { Domain } from "~/libs/models/domain.model";
 import type { DomainScore } from "../components/assessment-detail-section/DomainCardList";
 import { Icon } from "@iconify/react";
-import type { CollapsibleItem } from "../components/assessment-detail-section/DomainCollapsibleList";
+import type { CollapsibleItem } from "../components/assessment-detail-section/ComponentCollapsibleList";
 
 export const PartnersImages = [
   {

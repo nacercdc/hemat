@@ -3,7 +3,7 @@
 import React from "react";
 import { SectionHeader } from "./SectionHeader";
 import { DomainCardList } from "./DomainCardList";
-import { DomainCollapsibleList } from "./DomainCollapsibleList";
+import { ComponentCollapsibleList } from "./ComponentCollapsibleList";
 import { SelectedDomainProvider } from "../../context/selected-domain/SelectedDomainProvider";
 import { AfricaMap } from "./Map";
 import { AnimatedSection, scaleIn, slideInLeft } from "../AnimatedSection";
@@ -20,7 +20,7 @@ export function AssessmentDetailSection() {
               <DomainCardList />
             </div>
           </AnimatedSection>
-          <DomainCollapsibleList />
+          <ComponentCollapsibleList />
           <AnimatedSection animation={scaleIn} className="">
             <AfricaMap />
           </AnimatedSection>

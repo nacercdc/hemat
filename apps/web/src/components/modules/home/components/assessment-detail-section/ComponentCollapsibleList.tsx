@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { DomainCollapsible } from "./DomainCollapsible";
+import { ComponentCollapsible } from "./ComponentCollapsible";
 import { cn } from "~/utils/cn.util";
 import { useSelectedDomain } from "../../context/selected-domain/useSelectedDomain";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
@@ -10,10 +10,10 @@ import { Skeleton } from "@etm/web-ui-components";
 
 interface IComponent {
   id: string;
-  componentId: string;
   name: string;
   averageRate: number;
 }
+
 export interface CollapsibleItem {
   icon: React.ReactNode;
   color: string;
@@ -22,7 +22,7 @@ export interface CollapsibleItem {
   content: { title: string; content: string; score: number }[];
 }
 
-export function DomainCollapsibleList() {
+export function ComponentCollapsibleList() {
   const selectedDomainCtx = useSelectedDomain();
 
   const [openIndex, setOpenIndex] = useState<number>(-1);
@@ -53,7 +53,7 @@ export function DomainCollapsibleList() {
     >
       {selectedDomainCtx?.selectedDomain &&
         (components as unknown as IComponent[])?.map((item, index) => (
-          <DomainCollapsible
+          <ComponentCollapsible
             key={item.id + new Date().toString()}
             icon={null}
             title={item.name}
