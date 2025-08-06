@@ -281,7 +281,11 @@ export default function Register() {
           labelSize="sm"
           labelVariant="medium"
           size="lg"
-          placeholder="Enter your phone number"
+          placeholder="Enter your phone phone"
+          options={(countries?.data ?? []).map((country) => ({
+            label: country.name ?? "",
+            value: country.code as CountryCode,
+          }))}
         />
         <InputRHF
           label="Email"
@@ -293,7 +297,7 @@ export default function Register() {
         />
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex  gap-4">
         <InputRHF
           name="userName"
           label="User name"
