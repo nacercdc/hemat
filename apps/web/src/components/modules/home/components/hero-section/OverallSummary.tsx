@@ -1,6 +1,7 @@
 import React from "react";
-import { Icon } from "@iconify/react";
 import { Button } from "@etm/web-ui-components";
+import { ActiveCountries } from "./ActiveCountries";
+import { TotalDomains } from "./TotalDomains";
 
 export function OverallSummary() {
   return (
@@ -32,29 +33,8 @@ export function OverallSummary() {
         </Button>
       </div>
       <div className="flex gap-10">
-        <div className="flex items-center gap-3">
-          <div className="bg-white/10 w-8 h-8 rounded-lg flex items-center justify-center">
-            <Icon icon="la:map" className="!w-6 !h-6" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-bold text-[#F2D98C]">42</span>
-            <span className="text-white/65 font-medium text-sm">
-              Active Countries
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="bg-white/10 w-8 h-8 rounded-lg flex items-center justify-center">
-            <Icon
-              icon="material-symbols:domain-rounded"
-              className="!w-6 !h-6"
-            />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-bold text-[#F2D98C]">4</span>
-            <span className="text-white/65 font-medium text-sm">Domain</span>
-          </div>
-        </div>
+        <ActiveCountries />
+        <TotalDomains />
       </div>
     </div>
   );

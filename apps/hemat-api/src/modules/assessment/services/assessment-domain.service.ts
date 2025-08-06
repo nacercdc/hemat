@@ -563,10 +563,12 @@ export class AssessmentDomainService {
 
     return {
       id: domain.id,
+      code: domain.code,
       name: getTranslated(domain, 'name', domain.name),
       description: getTranslated(domain, 'description', domain.description),
       components: (domain.components || []).map((component) => ({
         id: component.id,
+        code: component.code,
         name: getTranslated(component, 'name', component.name),
         description: getTranslated(component, 'description', component.description),
         subComponents: (Array.isArray(component.subComponents) ? component.subComponents : component.subComponents ? [component.subComponents] : []).map((subComponent) => {
@@ -585,13 +587,15 @@ export class AssessmentDomainService {
                 ? subComponent.answers
                 : null);
 
-          if (!answer)
+          if (!answer) {
             return {
               id: subComponent.id,
+              code: subComponent.code,
               name: getTranslated(subComponent, 'name', subComponent.name),
               description: getTranslated(subComponent, 'description', subComponent.description),
               answer: null,
             };
+          }
 
           const evidenceCompressed = CompressionUtil.compressText(answer.evidence, {
             minSizeToCompress: 1000,
@@ -604,23 +608,16 @@ export class AssessmentDomainService {
 
           return {
             id: subComponent.id,
+            code: subComponent.code,
             name: getTranslated(subComponent, 'name', subComponent.name),
             description: getTranslated(subComponent, 'description', subComponent.description),
             answer: {
               id: answer.id,
-              measurementScale: answer.measurementScale
-                ? {
-                    id: answer.measurementScale.id,
-                    name: answer.measurementScale.translations && answer.measurementScale.translations[language] && answer.measurementScale.translations[language].name
-                      ? answer.measurementScale.translations[language].name
-                      : answer.measurementScale.name,
-                    rate: answer.measurementScale.rate,
-                  }
-                : null,
-              evidence: evidenceCompressed.data,
-              reference: referenceCompressed.data,
+              evidence: evidenceCompressed.isCompressed ? evidenceCompressed.data : answer.evidence,
+              reference: referenceCompressed.isCompressed ? referenceCompressed.data : answer.reference,
               notes: answer.notes,
               isCompressed: evidenceCompressed.isCompressed || referenceCompressed.isCompressed,
+              measurementScale: answer.measurementScale,
             },
           };
         }),
@@ -638,6 +635,93 @@ export class AssessmentDomainService {
 
   async getDomainWithPrimaryAnswers(assessmentId: string, domainId: string, language: string = 'en') {
     return this.getDomainWithAnswersBase(assessmentId, domainId, { isPrimary: true }, language);
+  }
+
+  async getDomainWithRoadmap(assessmentId: string, domainId: string, language: string = 'en') {
+    const domainEntity = await this.findDomainOrThrow(assessmentId, domainId);
+
+    let query = this.assessmentDomainRepository
+      .createQueryBuilder('domain')
+      .leftJoinAndSelect('domain.components', 'component')
+      .leftJoinAndSelect('component.subComponents', 'subComponent')
+      .leftJoinAndSelect(
+        'subComponent.roadmaps',
+        'subcomponentroadmap',
+      )
+      .leftJoinAndSelect('subcomponentroadmap.roadmap', 'roadmap')
+      .where('domain.id = :domainId', { domainId })
+      .andWhere('domain.assessmentId = :assessmentId', { assessmentId });
+
+    const rows = await query.getMany();
+    const domain = rows.length > 0 ? rows[0] : domainEntity;
+
+    // Use translations if available
+    const getTranslated = (obj: any, key: string, fallback: string) => {
+      if (obj.translations && obj.translations[language] && obj.translations[language][key]) {
+        return obj.translations[language][key];
+      }
+      return fallback;
+    };
+
+    function toNumberOrNull(val: any): number | null {
+      if (val === null || val === undefined) return null;
+      const n = Number(val);
+      return isNaN(n) ? null : n;
+    }
+
+    return {
+      id: domain.id,
+      code: domain.code,
+      name: getTranslated(domain, 'name', domain.name),
+      description: getTranslated(domain, 'description', domain.description),
+      components: (domain.components || []).map((component) => ({
+        id: component.id,
+        code: component.code,
+        name: getTranslated(component, 'name', component.name),
+        description: getTranslated(component, 'description', component.description),
+        subComponents: (Array.isArray(component.subComponents) ? component.subComponents : component.subComponents ? [component.subComponents] : []).map((subComponent) => {
+          const roadmap = Array.isArray(subComponent.roadmaps)
+            ? subComponent.roadmaps.find((r: any) =>
+                r.roadmap &&
+                r.roadmap.assessmentId === assessmentId
+              )
+            : (subComponent.roadmaps &&
+                subComponent.roadmaps.roadmap &&
+                subComponent.roadmaps.roadmap.assessmentId === assessmentId
+                ? subComponent.roadmaps
+                : null);
+
+          if (!roadmap) {
+            return {
+              id: subComponent.id,
+              code: subComponent.code,
+              name: getTranslated(subComponent, 'name', subComponent.name),
+              description: getTranslated(subComponent, 'description', subComponent.description),
+              roadmap: null,
+            };
+          }
+
+          return {
+            id: subComponent.id,
+            code: subComponent.code,
+            name: getTranslated(subComponent, 'name', subComponent.name),
+            description: getTranslated(subComponent, 'description', subComponent.description),
+            roadmap: {
+              id: roadmap.id,
+              target: toNumberOrNull(roadmap.target),
+              currentState: roadmap.currentState,
+              activities: roadmap.activities,
+              responsible: roadmap.responsible,
+              resources: roadmap.resources,
+              gapAddressed: roadmap.gapAddressed,
+              startTime: roadmap.startTime,
+              endTime: roadmap.endTime,
+              measurementScale: roadmap.measurementScale,
+            },
+          };
+        }),
+      })),
+    };
   }
 
   /**

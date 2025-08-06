@@ -3,13 +3,18 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { DomainComponentCollapsible } from "./DomainComponentCollapsible";
-import type { CollapsibleItem as DomainComponent } from "./DomainToolsCollapsible";
+import type { ITemplateComponent } from "./DomainToolsCollapsible";
+import { Skeleton } from "@etm/web-ui-components";
 
 interface Props {
-  domainComponents: DomainComponent[];
+  domainComponents: ITemplateComponent[];
+  isLoading?: boolean;
 }
 
-export function DomainComponentCollapsibleList({ domainComponents }: Props) {
+export function DomainComponentCollapsibleList({
+  domainComponents,
+  isLoading = false,
+}: Props) {
   const [openIndex, setOpenIndex] = useState<number>(-1);
 
   const handleToggle = (index: number) => {
@@ -31,6 +36,10 @@ export function DomainComponentCollapsibleList({ domainComponents }: Props) {
     visible: { opacity: 1, x: 0, transition: { duration: 0.5 } },
   };
 
+  if (isLoading) {
+    return <DomainComponentSkeleton />;
+  }
+
   return (
     <motion.div
       className="w-full flex flex-col gap-4"
@@ -38,10 +47,10 @@ export function DomainComponentCollapsibleList({ domainComponents }: Props) {
       initial="hidden"
       animate="visible"
     >
-      {domainComponents.map((item, index) => (
+      {domainComponents?.map((item, index) => (
         <motion.div key={index} variants={itemVariants} className="w-full">
           <DomainComponentCollapsible
-            domainComponent={item}
+            component={item}
             isOpen={openIndex === index}
             onToggle={() => handleToggle(index)}
           />
@@ -63,6 +72,16 @@ export function IconWrapper({ children, backColor }: IconWrapperProps) {
       style={{ backgroundColor: `${backColor}` }}
     >
       {children}
+    </div>
+  );
+}
+
+function DomainComponentSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      {Array.from({ length: 5 }, (_, i) => (
+        <Skeleton key={i} className="w-[50%] h-5 rounded-sm" />
+      ))}
     </div>
   );
 }

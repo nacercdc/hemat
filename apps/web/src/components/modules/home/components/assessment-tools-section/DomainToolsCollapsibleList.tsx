@@ -2,18 +2,32 @@
 
 import React, { useState } from "react";
 import { DomainToolsCollapsible } from "./DomainToolsCollapsible";
-import { Domains } from "../../constants";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import { Skeleton } from "@etm/web-ui-components";
+
+export interface ITemplateDomain {
+  id: string;
+  name: string;
+}
 
 export function DomainToolsCollapsibleList() {
   const [openIndex, setOpenIndex] = useState<number>(-1);
+
+  const { data: templateDomains, ...templateDomainsState } = useFindAll<
+    ITemplateDomain[]
+  >({ path: "/dashboard/template/domains", isProtected: false });
 
   const handleToggle = (index: number) => {
     setOpenIndex(openIndex === index ? -1 : index);
   };
 
+  if (templateDomainsState.isLoading || templateDomainsState.isFetching) {
+    return <DomainToolsListSkeleton />;
+  }
+
   return (
     <div className="w-full flex flex-col gap-2">
-      {Domains?.map((item, index) => (
+      {(templateDomains as unknown as ITemplateDomain[])?.map((item, index) => (
         <DomainToolsCollapsible
           key={index}
           domain={item}
@@ -37,6 +51,16 @@ export function IconWrapper({ children, backColor }: IconWrapperProps) {
       style={{ backgroundColor: `${backColor}` }}
     >
       {children}
+    </div>
+  );
+}
+
+function DomainToolsListSkeleton() {
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      {Array.from({ length: 4 }, (_, i) => (
+        <Skeleton key={i} className="h-16 rounded-sm"></Skeleton>
+      ))}
     </div>
   );
 }

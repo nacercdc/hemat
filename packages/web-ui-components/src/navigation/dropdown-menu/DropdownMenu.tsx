@@ -49,6 +49,7 @@ interface Props {
   size?: Size;
   placeholder?: string;
   trigger?: React.ReactNode;
+  isModal?: boolean;
 }
 export function DropdownMenu({
   align = "center",
@@ -59,6 +60,7 @@ export function DropdownMenu({
   size = "md",
   placeholder = "Select an option",
   trigger,
+  isModal = false,
 }: Props) {
   const renderMenuItems = (items: DropdownMenuOption[]) => {
     return items.map((item) => {
@@ -98,7 +100,7 @@ export function DropdownMenu({
     });
   };
   return (
-    <ShadcnDropdownMenu>
+    <ShadcnDropdownMenu modal={isModal}>
       {trigger && (
         <DropdownMenuTrigger asChild className="cursor-pointer">
           {trigger && (

@@ -1,30 +1,41 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import { Progress } from "@etm/web-ui-components";
-import React from "react";
 import { cn } from "~/utils/cn.util";
 import { useSelectedDomain } from "../../context/selected-domain/useSelectedDomain";
-import { Domains } from "../../constants";
-
-type Scales = "Initial" | "Developing" | "Defined" | "Managed" | "Optimized";
-
-export const ScalesMap: Record<number, { label: Scales; color: string }> = {
-  1: { label: "Initial", color: "#FF0101" },
-  2: { label: "Developing", color: "#FFC000" },
-  3: { label: "Defined", color: "#FFFD02" },
-  4: { label: "Managed", color: "#00B0F0" },
-  5: { label: "Optimized", color: "#11B050" },
-};
+import type { IDomainCardType } from "./DomainCardList";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measurement-scale.model";
 
 interface Props {
-  domainType: "summary" | "single";
-  icon: React.ReactNode;
-  name: string;
-  result: number;
+  domain: IDomainCardType;
 }
 
-export function DomainCard({ domainType, icon, name, result }: Props) {
+export function DomainCard({ domain }: Props) {
   const selectedDomainCtx = useSelectedDomain();
+
+  const [activeMeasurementScale, setActiveMeasurementScale] =
+    useState<AssessmentMeasurementScale>();
+
+  const { data: measurementScales } = useFindAll<{
+    data: AssessmentMeasurementScale[];
+  }>({
+    path: `/dashboard/measurement-scales`,
+    isProtected: false,
+    queries: { sorts: { ascending: "rate" } },
+  });
+
+  useEffect(() => {
+    const mScales =
+      measurementScales?.data as unknown as AssessmentMeasurementScale[];
+
+    if (mScales?.length) {
+      setActiveMeasurementScale(
+        mScales.find((mScale) => mScale.rate === domain.averageRate)
+      );
+    }
+  }, [domain.averageRate, measurementScales?.data]);
 
   return (
     <div
@@ -33,44 +44,47 @@ export function DomainCard({ domainType, icon, name, result }: Props) {
           selectedDomainCtx?.setSelectedDomain(undefined);
           return;
         }
-        selectedDomainCtx?.setSelectedDomain(
-          Domains.find((domain) => domain.name === name)
-        );
+        selectedDomainCtx?.setSelectedDomain(domain);
       }}
       className={cn(
         "flex gap-2 rounded-md bg-white min-w-72 max-w-min h-28 p-4 cursor-pointer",
-        domainType === "summary" && "border-t-2",
-        domainType === "single" && "border-l-2"
+        domain.type === "summary" && "border-t-2",
+        domain.type === "single" && "border-l-2"
       )}
       style={{
-        borderColor: `${ScalesMap[result]?.color}`,
-        backgroundColor: `${selectedDomainCtx?.selectedDomain?.name === name ? `${ScalesMap[result]?.color}30` : "#fff"}`,
+        borderColor: `${activeMeasurementScale?.color}`,
+        backgroundColor: `${selectedDomainCtx?.selectedDomain?.name === domain.name ? `${activeMeasurementScale?.color}30` : "#fff"}`,
       }}
     >
-      {domainType !== "summary" && icon}
+      {/* {domain.type !== "summary" && icon} */}
       <div className="flex flex-col justify-between gap-2 w-full">
         <span
           className={cn(
             "text-xs font-medium",
-            domainType === "summary" && "font-bold text-2xl"
+            domain.type === "summary" && "font-bold text-2xl"
           )}
         >
-          {name}
+          {domain.name}
         </span>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex items-center gap-2">
-            <span className="text-xs">{ScalesMap[result]?.label}</span>
+            <span className="text-xs">{activeMeasurementScale?.name}</span>
             <div
               className={cn(
                 "flex items-center justify-center rounded-sm text-white w-5 h-5 text-xs font-medium",
-                result === 3 && "text-black"
+                domain.averageRate === 3 && "text-black"
               )}
-              style={{ backgroundColor: `${ScalesMap[result]?.color}` }}
+              style={{
+                backgroundColor: `${activeMeasurementScale?.color}`,
+              }}
             >
-              {result}
+              {domain.averageRate ? domain.averageRate : "?"}
             </div>
           </div>
-          <Progress color={`${ScalesMap[result]?.color}`} value={result * 20} />
+          <Progress
+            color={`${activeMeasurementScale?.color}`}
+            value={domain.averageRate * 20}
+          />
         </div>
       </div>
     </div>

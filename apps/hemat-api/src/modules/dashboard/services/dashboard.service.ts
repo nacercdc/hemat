@@ -5,6 +5,7 @@ import { Domain } from '../../../database/entities/domain.entity';
 import { Assessment } from '../../../database/entities/assessment.entity';
 import { AssessmentStatus } from '../../../shared/enums/assesement.enum';
 import { DashboardQueryDto } from '../dtos/dashboard-query.dto';
+import { Country } from '../../../database/entities/country.entity';
 
 @Injectable()
 export class DashboardService {
@@ -46,7 +47,9 @@ export class DashboardService {
   async getAverageDomainRatesByTemplate(
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
@@ -66,18 +69,19 @@ export class DashboardService {
         'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
         { years },
       );
+      console.log('Applied year filter:', years);
+    } else {
+      console.log('No year filter applied');
     }
     return qb
       .select('templateDomain.id', 'id')
       .addSelect('templateDomain.name', 'name')
-      .addSelect('subComponentAnswers.domainId', 'domainId')
       .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateDomain.id')
       .addGroupBy('templateDomain.name')
-      .addGroupBy('subComponentAnswers.domainId')
       .execute();
   }
 
@@ -85,7 +89,9 @@ export class DashboardService {
     templateDomainId: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
@@ -114,14 +120,12 @@ export class DashboardService {
     return qb
       .select('templateComponent.id', 'id')
       .addSelect('templateComponent.name', 'name')
-      .addSelect('assessmentComponent.id', 'componentId')
       .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.componentId = assessmentComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.componentId = assessmentComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateComponent.id')
       .addGroupBy('templateComponent.name')
-      .addGroupBy('assessmentComponent.id')
       .execute();
   }
 
@@ -129,11 +133,14 @@ export class DashboardService {
     templateComponentId: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
       .leftJoin('assessmentDomains.components', 'assessmentComponent')
+      .leftJoin('assessmentComponent.templateComponent', 'templateComponent')
       .leftJoin('assessmentComponent.subComponents', 'subComponent')
       .leftJoin('subComponent.templateSubComponent', 'templateSubComponent')
       .leftJoin('assessment.answers', 'answers')
@@ -142,12 +149,13 @@ export class DashboardService {
       .where('assessment.deletedAt IS NULL')
       .andWhere('assessmentDomains.deletedAt IS NULL')
       .andWhere('assessmentComponent.deletedAt IS NULL')
+      .andWhere('templateComponent.deletedAt IS NULL')
       .andWhere('subComponent.deletedAt IS NULL')
       .andWhere('answers.deletedAt IS NULL')
       .andWhere('answers.isPrimary = :isPrimary', { isPrimary: true })
       .andWhere('subComponentAnswers.deletedAt IS NULL')
       .andWhere('measurementScale.deletedAt IS NULL')
-      .andWhere('assessmentComponent.id = :templateComponentId', {
+      .andWhere('templateComponent.id = :templateComponentId', {
         templateComponentId,
       });
     if (years && years.length > 0) {
@@ -157,26 +165,16 @@ export class DashboardService {
       );
     }
     return qb
-      .select('COALESCE(templateSubComponent.id, subComponent.id)', 'id')
+      .select('templateSubComponent.id', 'id')
+      .addSelect('templateSubComponent.name', 'name')
+      .addSelect('templateSubComponent.description', 'description')
       .addSelect(
-        'COALESCE(templateSubComponent.name, subComponent.name)',
-        'name',
-      )
-      .addSelect(
-        'COALESCE(templateSubComponent.description, subComponent.description)',
-        'description',
-      )
-      .addSelect('subComponent.id', 'subComponentId')
-      .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.subComponentId = subComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.subComponentId = subComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateSubComponent.id')
       .addGroupBy('templateSubComponent.name')
       .addGroupBy('templateSubComponent.description')
-      .addGroupBy('subComponent.id')
-      .addGroupBy('subComponent.name')
-      .addGroupBy('subComponent.description')
       .execute();
   }
 
@@ -184,7 +182,9 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
@@ -209,14 +209,12 @@ export class DashboardService {
     return qb
       .select('templateDomain.id', 'id')
       .addSelect('templateDomain.name', 'name')
-      .addSelect('subComponentAnswers.domainId', 'domainId')
       .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateDomain.id')
       .addGroupBy('templateDomain.name')
-      .addGroupBy('subComponentAnswers.domainId')
       .execute();
   }
 
@@ -225,7 +223,9 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
@@ -255,14 +255,12 @@ export class DashboardService {
     return qb
       .select('templateComponent.id', 'id')
       .addSelect('templateComponent.name', 'name')
-      .addSelect('assessmentComponent.id', 'componentId')
       .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.componentId = assessmentComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.componentId = assessmentComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateComponent.id')
       .addGroupBy('templateComponent.name')
-      .addGroupBy('assessmentComponent.id')
       .execute();
   }
 
@@ -271,11 +269,14 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years;
+    // Handle both single year and multiple years
+    const years = query.years || (query.year ? [query.year] : undefined);
+    
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
       .leftJoin('assessmentDomains.components', 'assessmentComponent')
+      .leftJoin('assessmentComponent.templateComponent', 'templateComponent')
       .leftJoin('assessmentComponent.subComponents', 'subComponent')
       .leftJoin('subComponent.templateSubComponent', 'templateSubComponent')
       .leftJoin('assessment.answers', 'answers')
@@ -284,12 +285,13 @@ export class DashboardService {
       .where('assessment.deletedAt IS NULL')
       .andWhere('assessmentDomains.deletedAt IS NULL')
       .andWhere('assessmentComponent.deletedAt IS NULL')
+      .andWhere('templateComponent.deletedAt IS NULL')
       .andWhere('subComponent.deletedAt IS NULL')
       .andWhere('answers.deletedAt IS NULL')
       .andWhere('answers.isPrimary = :isPrimary', { isPrimary: true })
       .andWhere('subComponentAnswers.deletedAt IS NULL')
       .andWhere('measurementScale.deletedAt IS NULL')
-      .andWhere('assessmentComponent.id = :templateComponentId', {
+      .andWhere('templateComponent.id = :templateComponentId', {
         templateComponentId,
       })
       .andWhere('assessment.countryCode = :countryCode', { countryCode });
@@ -300,26 +302,62 @@ export class DashboardService {
       );
     }
     return qb
-      .select('COALESCE(templateSubComponent.id, subComponent.id)', 'id')
+      .select('templateSubComponent.id', 'id')
+      .addSelect('templateSubComponent.name', 'name')
+      .addSelect('templateSubComponent.description', 'description')
       .addSelect(
-        'COALESCE(templateSubComponent.name, subComponent.name)',
-        'name',
-      )
-      .addSelect(
-        'COALESCE(templateSubComponent.description, subComponent.description)',
-        'description',
-      )
-      .addSelect('subComponent.id', 'subComponentId')
-      .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.subComponentId = subComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.subComponentId = subComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateSubComponent.id')
       .addGroupBy('templateSubComponent.name')
       .addGroupBy('templateSubComponent.description')
-      .addGroupBy('subComponent.id')
-      .addGroupBy('subComponent.name')
-      .addGroupBy('subComponent.description')
       .execute();
+  }
+
+  async getCountriesWithSubregionAndAssessmentStatus(
+    query?: {
+      subregion?: string;
+      assessmentStatus?: AssessmentStatus;
+      countryCode?: string;
+    }
+  ): Promise<any[]> {
+    // Get all countries
+    let countriesQuery = this.domainRepository.manager.getRepository(Country).createQueryBuilder('country');
+    
+    // Apply filters
+    if (query?.subregion) {
+      countriesQuery = countriesQuery.andWhere('country.subregion = :subregion', { subregion: query.subregion });
+    }
+    if (query?.countryCode) {
+      countriesQuery = countriesQuery.andWhere('country.code = :countryCode', { countryCode: query.countryCode });
+    }
+    
+    const countries = await countriesQuery.getMany();
+    
+    // For each country, get the latest assessment status (if any)
+    let assessmentsQuery = this.assessmentRepository.createQueryBuilder('assessment')
+      .select(['assessment.countryCode', 'assessment.status', 'assessment.createdAt'])
+      .orderBy('assessment.createdAt', 'DESC');
+    
+    if (query?.assessmentStatus) {
+      assessmentsQuery = assessmentsQuery.andWhere('assessment.status = :status', { status: query.assessmentStatus });
+    }
+    
+    const assessments = await assessmentsQuery.getMany();
+    
+    // Map country code to latest assessment status
+    const latestStatusMap = new Map<string, AssessmentStatus>();
+    for (const assessment of assessments) {
+      if (!latestStatusMap.has(assessment.countryCode)) {
+        latestStatusMap.set(assessment.countryCode, assessment.status);
+      }
+    }
+    
+    return countries.map((country) => ({
+      code: country.code,
+      subregion: country.subregion,
+      assessmentStatus: latestStatusMap.get(country.code) || null,
+    }));
   }
 } 

@@ -21,7 +21,7 @@ export function AssessmentRoadmap({ domains, access }: Props) {
 
   return (
     <div className="flex flex-col sm:flex-row gap-6 ">
-      {domains.map((domain) => (
+      {domains?.map((domain) => (
         <AssessmentDomainCard
           key={domain.id}
           domain={domain}

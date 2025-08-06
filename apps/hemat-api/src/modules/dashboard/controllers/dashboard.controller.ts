@@ -9,6 +9,10 @@ import { Inject } from '@nestjs/common';
 import { SubComponentMeasurementScaleService } from '../../template/services/sub-component-mesurment-scale.service';
 import { BadRequestException } from '@nestjs/common';
 import { AssessmentSubComponentService } from '../../assessment/services/assessment-sub-component.service';
+import { MeasurementScaleService } from '../../measurement-scale/services/measurement-scale.service';
+import { FindAllMeasurementScaleDto } from '../../measurement-scale/dtos';
+import { FindAllResponseDto } from '@shared/dtos';
+import { MeasurementScale } from '@database/entities';
 
 @ApiTags('Dashboard')
 @Controller('dashboard')
@@ -21,6 +25,7 @@ export class DashboardController {
     @Inject(SubComponentMeasurementScaleService)
     private readonly subComponentMeasurementScaleService: SubComponentMeasurementScaleService,
     private readonly assessmentSubComponentService: AssessmentSubComponentService,
+    private readonly measurementScaleService: MeasurementScaleService,
   ) {}
 
   @ApiOperation({ summary: 'Get total countries count' })
@@ -344,8 +349,47 @@ export class DashboardController {
     };
   }
 
+  @ApiOperation({
+    summary: 'Find all measurement scales',
+    description: 'Get all measurement scales with pagination (no authentication required)',
+  })
+  @ApiOkResponse({
+    description: 'Ok',
+    type: FindAllResponseDto<MeasurementScale>,
+  })
+  @Get('measurement-scales')
+  async findAllMeasurementScales(@Query() query: FindAllMeasurementScaleDto) {
+    return this.measurementScaleService.findAll(query);
+  }
+
   @Get('answers/average-rate')
   async getAverageRateForPrimaryAnswersGrouped() {
     return this.assessmentSubComponentService.getAverageRateForPrimaryAnswersGrouped();
+  }
+
+  @ApiOperation({ 
+    summary: 'Get all countries with subregion and assessment status',
+    description: 'Fetch countries with optional filtering by subregion, assessment status, and country code'
+  })
+  @ApiOkResponse({
+    description: 'Array of countries with code, subregion, and assessment status',
+    schema: {
+      example: [
+        { code: 'ET', subregion: 'Eastern Africa', assessmentStatus: 'COMPLETED' },
+        { code: 'NG', subregion: 'Western Africa', assessmentStatus: 'DRAFT' },
+      ],
+    },
+  })
+  @Get('countries')
+  async getCountriesWithSubregionAndAssessmentStatus(
+    @Query('subregion') subregion?: string,
+    @Query('assessmentStatus') assessmentStatus?: string,
+    @Query('countryCode') countryCode?: string,
+  ) {
+    return this.dashboardService.getCountriesWithSubregionAndAssessmentStatus({
+      subregion,
+      assessmentStatus: assessmentStatus as any,
+      countryCode,
+    });
   }
 } 

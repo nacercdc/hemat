@@ -1,9 +1,34 @@
 "use client";
 
-import { DropdownMenu } from "@etm/web-ui-components";
 import React from "react";
+import { Select } from "@etm/web-ui-components";
+import { useSelectedFilterYear } from "../../context/selected-filter-year/useSelectedFilterYear";
+
+//TODO: just sample will be replaced by real data
+export interface YearOption {
+  label: number;
+  value: number;
+}
+
+const yearOptions: YearOption[] = [
+  {
+    label: 2025,
+    value: 2025,
+  },
+];
 
 export function SectionHeader() {
+  const selectedYearCtx = useSelectedFilterYear();
+
+  const handleSelect = (value?: number) => {
+    const selected = yearOptions.find((c) => c.label === value);
+
+    if (selected) {
+      selectedYearCtx?.setSelectedFilterYear(selected);
+    } else {
+      selectedYearCtx?.setSelectedFilterYear(undefined);
+    }
+  };
   return (
     <div className="flex justify-between items-center">
       <div className="flex flex-col">
@@ -13,15 +38,13 @@ export function SectionHeader() {
         </span>
       </div>
       <div>
-        <DropdownMenu
-          label="Select Year"
-          placeholder="Filter By Year"
-          align="end"
-          options={[
-            { label: 2024, value: "2024" },
-            { label: 2025, value: "2025" },
-          ]}
-          size="lg"
+        <Select<YearOption>
+          options={yearOptions}
+          onSelect={(c) => handleSelect(c?.value)}
+          labelKey="label"
+          valueKey="value"
+          value={selectedYearCtx?.selectedFilterYear}
+          placeholder="Filter by Year"
         />
       </div>
     </div>

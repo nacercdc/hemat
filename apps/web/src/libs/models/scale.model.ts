@@ -16,6 +16,7 @@ export interface Scale {
 }
 
 export interface ScaleCreate {
+  id?: string;
   name: string;
   rate: number;
   color: string;

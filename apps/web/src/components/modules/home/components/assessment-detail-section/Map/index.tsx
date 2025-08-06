@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import {
   ComposableMap,
@@ -10,13 +11,23 @@ import {
   ZoomableGroup,
 } from "react-simple-maps";
 import { geoCentroid } from "d3-geo";
-import africa from "./africa.geo.json";
 import { Select, Tooltip } from "@etm/web-ui-components";
 import { cn } from "~/utils/cn.util";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
+import africa from "./africa.geo.json";
+import africanCountries from "./africa-country-names.json";
 import type { AssessmentStatus } from "~/libs/models/assessment-component.model";
-
 interface Country {
   name: string;
+  code: string;
+  subregion: string;
+  assessmentStatus:
+    | "completed"
+    | "closed"
+    | "in_progress"
+    | "ready"
+    | "pending"
+    | "draft";
   center: [number, number];
 }
 
@@ -24,7 +35,7 @@ const colorMap: Record<AssessmentStatus, string> = {
   Completed: "#49B773",
   "In Progress": "#4E8EC9",
   Planned: "#EEDD6A",
-  "Not Yet Assessed": "#FF0101",
+  "Not Yet Assessed": "#ccc",
 };
 
 const regionOptions: {
@@ -48,26 +59,21 @@ const progressStatusOptions: {
   { id: "Planned", name: "Planned" },
 ];
 
-// TODO: To be replaced with real data from API call
-const fetchedAssessmentData: Record<
-  string,
-  { progress: AssessmentStatus; color: string }
-> = {
-  Ethiopia: { progress: "Completed", color: colorMap.Completed },
-  Egypt: { progress: "Completed", color: colorMap.Completed },
-  Kenya: { progress: "In Progress", color: colorMap["In Progress"] },
-  Chad: { progress: "Planned", color: colorMap.Planned },
-  Sudan: { progress: "Planned", color: colorMap.Planned },
-  "South Africa": {
-    progress: "Not Yet Assessed",
-    color: colorMap["Not Yet Assessed"],
-  },
+//TODO: change as soon as api is changed
+const statusMap = {
+  completed: "Completed",
+  draft: "In Progress", //Needs review
+  pending: "Planned", //Needs review
+  ready: "Planned", //Needs review
+  planned: "Planned",
+  closed: "Completed", //Needs review
+  in_progress: "In Progress", //Needs review
 };
 
 type ProgressStatus = (typeof progressStatusOptions)[number];
 type Region = (typeof regionOptions)[number];
 
-export const Map = () => {
+export const AfricaMap = () => {
   const [isMounted, setIsMounted] = useState(false);
 
   const [isDragging, setIsDragging] = useState(false);
@@ -80,13 +86,41 @@ export const Map = () => {
     zoom: 3,
   });
 
-  const [countries, setCountries] = useState<Country[]>([]);
+  const [mapCountries, setMapCountries] = useState<Partial<Country>[]>([]);
 
-  const [selectedCountry, setSelectedCountry] = useState<Country>();
+  const [selectedCountry, setSelectedCountry] = useState<Partial<Country>>();
 
   const [selectedRegion, setSelectedRegion] = useState<Region>();
 
   const [selectedStatus, setSelectedStatus] = useState<ProgressStatus>();
+
+  const { data: countryStatuses } = useFindAll<Country[]>({
+    path: `/dashboard/countries`,
+    isProtected: false,
+  });
+
+  const fetchedAssessmentData = useMemo(() => {
+    const statusLookup = new Map(
+      (countryStatuses as unknown as Country[])?.map((item) => [
+        item.code,
+        item.assessmentStatus,
+      ])
+    );
+
+    const result: Record<string, { progress: string; color: string }> = {};
+    Object.entries(africanCountries).forEach(([code, name]) => {
+      const apiStatus = statusLookup.get(code);
+
+      const progress = apiStatus ? statusMap[apiStatus] : "Not Yet Assessed";
+
+      result[name] = {
+        progress: progress,
+        color: colorMap[progress as AssessmentStatus],
+      };
+    });
+
+    return result;
+  }, [countryStatuses]);
 
   const getColor = (name: string, region: string) => {
     if (fetchedAssessmentData[name] && selectedRegion) {
@@ -110,11 +144,11 @@ export const Map = () => {
   };
 
   const handleSelect = (value?: string) => {
-    const selected = countries.find((c) => c.name === value);
+    const selected = mapCountries.find((c) => c.name === value);
 
     if (selected) {
       setPosition({
-        coordinates: selected.center,
+        coordinates: selected.center!,
         zoom: 12,
       });
       setSelectedCountry(selected);
@@ -165,10 +199,10 @@ export const Map = () => {
     const processed = africa.features.map((feature: any) => {
       const name = feature.properties.name;
       const center = geoCentroid(feature);
-      return { name, center } as Country;
+      return { name, center } as Partial<Country>;
     });
 
-    setCountries(processed);
+    setMapCountries(processed);
   }, []);
 
   if (!isMounted) {
@@ -257,8 +291,8 @@ export const Map = () => {
       </ComposableMap>
       {/* Filter Section */}
       <div className="w-64 mb-4 absolute top-10 left-10 2xl:left-48 z-20">
-        <Select<Country>
-          options={countries}
+        <Select<Partial<Country>>
+          options={mapCountries}
           onSelect={(c) => handleSelect(c?.name)}
           labelKey="name"
           valueKey="name"
@@ -266,7 +300,7 @@ export const Map = () => {
           placeholder="Select by Country"
         />
       </div>
-      <div className="w-64 mb-4 absolute top-24 lg:top-10 right-80 left-10 lg:left-auto z-20 flex gap-4">
+      <div className="w-64 mb-4 absolute top-24 xl:top-10 right-80 left-10 xl:left-auto z-20 flex gap-4">
         <Select<Region>
           options={regionOptions}
           onSelect={(r) => onRegionSelectHandler(r)}
@@ -285,7 +319,7 @@ export const Map = () => {
         />
       </div>
       {/* Controls Section */}
-      <div className="flex flex-col absolute top-1/2 left-10 lg:left-auto lg:right-48 -translate-y-1/2 w-fit gap-2 z-20">
+      <div className="flex flex-col absolute top-1/2 left-10 xl:left-auto xl:right-48 -translate-y-1/2 w-fit gap-2 z-20">
         <button
           onClick={onZoomInHandler}
           className="w-8 h-8 bg-white border-basic-300 border-[1px] flex justify-center items-center rounded-md"

@@ -2,7 +2,12 @@ import React from "react";
 import { OverallSummary } from "./OverallSummary";
 import { OverallStats } from "./OverallStats";
 import { Partners } from "./Partners";
-import { AnimatedSection, fadeInUp, slideInLeft } from "../AnimatedSection";
+import {
+  AnimatedSection,
+  fadeInUp,
+  slideInLeft,
+  slideInRight,
+} from "../AnimatedSection";
 
 export default function HeroSection() {
   return (
@@ -14,7 +19,9 @@ export default function HeroSection() {
         <AnimatedSection animation={slideInLeft} className="flex">
           <OverallSummary />
         </AnimatedSection>
-        <OverallStats />
+        <AnimatedSection animation={slideInRight} className="flex">
+          <OverallStats />
+        </AnimatedSection>
       </div>
       <div className="flex items-center justify-center w-full bg-white">
         <AnimatedSection animation={fadeInUp} className="flex">

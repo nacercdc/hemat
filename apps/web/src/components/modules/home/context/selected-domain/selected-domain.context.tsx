@@ -1,9 +1,16 @@
-import React, { useContext, useState } from "react";
-import { Domain } from "~/libs/models/domain.model";
+import React from "react";
+import type { IDomainCardType } from "../../components/assessment-detail-section/DomainCardList";
+import type { YearOption } from "../../components/assessment-detail-section/SectionHeader";
 
 interface ISelectedDomain {
-  selectedDomain?: Domain;
-  setSelectedDomain: React.Dispatch<React.SetStateAction<Domain | undefined>>;
+  selectedFilterYear?: YearOption;
+  selectedDomain?: IDomainCardType;
+  setSelectedDomain: React.Dispatch<
+    React.SetStateAction<IDomainCardType | undefined>
+  >;
+  setSelectedFilterYear: React.Dispatch<
+    React.SetStateAction<YearOption | undefined>
+  >;
 }
 
 export const SelectedDomainContext = React.createContext<

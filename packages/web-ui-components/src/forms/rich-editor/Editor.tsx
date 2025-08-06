@@ -43,6 +43,7 @@ export interface EditorProps {
   error?: string;
   isEnabled?: boolean;
   placeholder?: string;
+  isModal?: boolean;
   onChange?: (state: string) => void;
 }
 
@@ -58,6 +59,7 @@ export const Editor = forwardRef<EditorRef, EditorProps>(
       description,
       error,
       isEnabled = true,
+      isModal = false,
       placeholder = "Start typing...",
       onChange,
     },
@@ -114,6 +116,7 @@ export const Editor = forwardRef<EditorRef, EditorProps>(
           )}
         >
           <ToolbarPlugin
+            isModal={isModal}
             editor={editor}
             activeEditor={activeEditor}
             setActiveEditor={setActiveEditor}
