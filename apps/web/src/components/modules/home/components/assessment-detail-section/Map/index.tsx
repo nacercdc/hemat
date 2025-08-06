@@ -300,7 +300,7 @@ export const AfricaMap = () => {
           placeholder="Select by Country"
         />
       </div>
-      <div className="w-64 mb-4 absolute top-24 lg:top-10 right-80 left-10 lg:left-auto z-20 flex gap-4">
+      <div className="w-64 mb-4 absolute top-24 xl:top-10 right-80 left-10 xl:left-auto z-20 flex gap-4">
         <Select<Region>
           options={regionOptions}
           onSelect={(r) => onRegionSelectHandler(r)}
@@ -319,7 +319,7 @@ export const AfricaMap = () => {
         />
       </div>
       {/* Controls Section */}
-      <div className="flex flex-col absolute top-1/2 left-10 lg:left-auto lg:right-48 -translate-y-1/2 w-fit gap-2 z-20">
+      <div className="flex flex-col absolute top-1/2 left-10 xl:left-auto xl:right-48 -translate-y-1/2 w-fit gap-2 z-20">
         <button
           onClick={onZoomInHandler}
           className="w-8 h-8 bg-white border-basic-300 border-[1px] flex justify-center items-center rounded-md"
