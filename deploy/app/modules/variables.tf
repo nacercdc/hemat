@@ -126,14 +126,14 @@ variable "sidecar" {
 
 variable "scaling" {
   type = object({
-    min_instance_count = number
-    scaling_mode = string
-    manual_instance_count = number
+    min_instance_count = optional(number, 0)
+    scaling_mode = optional(string, "AUTOMATIC")
+    manual_instance_count = optional(number, 0)
   })
   default = {
     min_instance_count = 0
-    scaling_mode = "MANUAL"
-    manual_instance_count = 1
+    scaling_mode = "AUTOMATIC"
+    manual_instance_count = 0
   }
 }
 
