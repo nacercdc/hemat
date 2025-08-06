@@ -21,6 +21,6 @@ export function PageSubTitle({ assessmentId, domainId }: Props) {
     return <Skeleton className="max-w-80 w-full h-7 rounded-sm" />;
   }
   return (
-    <span className="text-xl font-bold">{`${(domain as unknown as Domain).name} / Components`}</span>
+    <span className="text-xl font-bold">{`${(domain as unknown as Domain)?.name} / Components`}</span>
   );
 }

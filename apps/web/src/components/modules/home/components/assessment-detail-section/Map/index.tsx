@@ -35,7 +35,7 @@ const colorMap: Record<AssessmentStatus, string> = {
   Completed: "#49B773",
   "In Progress": "#4E8EC9",
   Planned: "#EEDD6A",
-  "Not Yet Assessed": "#FF0101",
+  "Not Yet Assessed": "#ccc",
 };
 
 const regionOptions: {
