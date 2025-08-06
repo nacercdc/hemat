@@ -76,14 +76,12 @@ export class DashboardService {
     return qb
       .select('templateDomain.id', 'id')
       .addSelect('templateDomain.name', 'name')
-      .addSelect('subComponentAnswers.domainId', 'domainId')
       .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateDomain.id')
       .addGroupBy('templateDomain.name')
-      .addGroupBy('subComponentAnswers.domainId')
       .execute();
   }
 
@@ -122,14 +120,12 @@ export class DashboardService {
     return qb
       .select('templateComponent.id', 'id')
       .addSelect('templateComponent.name', 'name')
-      .addSelect('assessmentComponent.id', 'componentId')
       .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.componentId = assessmentComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.componentId = assessmentComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateComponent.id')
       .addGroupBy('templateComponent.name')
-      .addGroupBy('assessmentComponent.id')
       .execute();
   }
 
@@ -144,6 +140,7 @@ export class DashboardService {
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
       .leftJoin('assessmentDomains.components', 'assessmentComponent')
+      .leftJoin('assessmentComponent.templateComponent', 'templateComponent')
       .leftJoin('assessmentComponent.subComponents', 'subComponent')
       .leftJoin('subComponent.templateSubComponent', 'templateSubComponent')
       .leftJoin('assessment.answers', 'answers')
@@ -152,12 +149,13 @@ export class DashboardService {
       .where('assessment.deletedAt IS NULL')
       .andWhere('assessmentDomains.deletedAt IS NULL')
       .andWhere('assessmentComponent.deletedAt IS NULL')
+      .andWhere('templateComponent.deletedAt IS NULL')
       .andWhere('subComponent.deletedAt IS NULL')
       .andWhere('answers.deletedAt IS NULL')
       .andWhere('answers.isPrimary = :isPrimary', { isPrimary: true })
       .andWhere('subComponentAnswers.deletedAt IS NULL')
       .andWhere('measurementScale.deletedAt IS NULL')
-      .andWhere('assessmentComponent.id = :templateComponentId', {
+      .andWhere('templateComponent.id = :templateComponentId', {
         templateComponentId,
       });
     if (years && years.length > 0) {
@@ -167,26 +165,16 @@ export class DashboardService {
       );
     }
     return qb
-      .select('COALESCE(templateSubComponent.id, subComponent.id)', 'id')
+      .select('templateSubComponent.id', 'id')
+      .addSelect('templateSubComponent.name', 'name')
+      .addSelect('templateSubComponent.description', 'description')
       .addSelect(
-        'COALESCE(templateSubComponent.name, subComponent.name)',
-        'name',
-      )
-      .addSelect(
-        'COALESCE(templateSubComponent.description, subComponent.description)',
-        'description',
-      )
-      .addSelect('subComponent.id', 'subComponentId')
-      .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.subComponentId = subComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.subComponentId = subComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateSubComponent.id')
       .addGroupBy('templateSubComponent.name')
       .addGroupBy('templateSubComponent.description')
-      .addGroupBy('subComponent.id')
-      .addGroupBy('subComponent.name')
-      .addGroupBy('subComponent.description')
       .execute();
   }
 
@@ -221,14 +209,12 @@ export class DashboardService {
     return qb
       .select('templateDomain.id', 'id')
       .addSelect('templateDomain.name', 'name')
-      .addSelect('subComponentAnswers.domainId', 'domainId')
       .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateDomain.id')
       .addGroupBy('templateDomain.name')
-      .addGroupBy('subComponentAnswers.domainId')
       .execute();
   }
 
@@ -269,14 +255,12 @@ export class DashboardService {
     return qb
       .select('templateComponent.id', 'id')
       .addSelect('templateComponent.name', 'name')
-      .addSelect('assessmentComponent.id', 'componentId')
       .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.componentId = assessmentComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.componentId = assessmentComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateComponent.id')
       .addGroupBy('templateComponent.name')
-      .addGroupBy('assessmentComponent.id')
       .execute();
   }
 
@@ -292,6 +276,7 @@ export class DashboardService {
       .createQueryBuilder('assessment')
       .leftJoin('assessment.domains', 'assessmentDomains')
       .leftJoin('assessmentDomains.components', 'assessmentComponent')
+      .leftJoin('assessmentComponent.templateComponent', 'templateComponent')
       .leftJoin('assessmentComponent.subComponents', 'subComponent')
       .leftJoin('subComponent.templateSubComponent', 'templateSubComponent')
       .leftJoin('assessment.answers', 'answers')
@@ -300,12 +285,13 @@ export class DashboardService {
       .where('assessment.deletedAt IS NULL')
       .andWhere('assessmentDomains.deletedAt IS NULL')
       .andWhere('assessmentComponent.deletedAt IS NULL')
+      .andWhere('templateComponent.deletedAt IS NULL')
       .andWhere('subComponent.deletedAt IS NULL')
       .andWhere('answers.deletedAt IS NULL')
       .andWhere('answers.isPrimary = :isPrimary', { isPrimary: true })
       .andWhere('subComponentAnswers.deletedAt IS NULL')
       .andWhere('measurementScale.deletedAt IS NULL')
-      .andWhere('assessmentComponent.id = :templateComponentId', {
+      .andWhere('templateComponent.id = :templateComponentId', {
         templateComponentId,
       })
       .andWhere('assessment.countryCode = :countryCode', { countryCode });
@@ -316,26 +302,16 @@ export class DashboardService {
       );
     }
     return qb
-      .select('COALESCE(templateSubComponent.id, subComponent.id)', 'id')
+      .select('templateSubComponent.id', 'id')
+      .addSelect('templateSubComponent.name', 'name')
+      .addSelect('templateSubComponent.description', 'description')
       .addSelect(
-        'COALESCE(templateSubComponent.name, subComponent.name)',
-        'name',
-      )
-      .addSelect(
-        'COALESCE(templateSubComponent.description, subComponent.description)',
-        'description',
-      )
-      .addSelect('subComponent.id', 'subComponentId')
-      .addSelect(
-        'COALESCE((AVG(CASE WHEN subComponentAnswers.subComponentId = subComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.subComponentId = subComponent.id THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRate',
       )
       .groupBy('templateSubComponent.id')
       .addGroupBy('templateSubComponent.name')
       .addGroupBy('templateSubComponent.description')
-      .addGroupBy('subComponent.id')
-      .addGroupBy('subComponent.name')
-      .addGroupBy('subComponent.description')
       .execute();
   }
 
