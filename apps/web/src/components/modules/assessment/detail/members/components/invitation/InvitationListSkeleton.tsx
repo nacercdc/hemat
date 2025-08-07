@@ -12,10 +12,6 @@ export default function InvitationListSkeleton() {
                 <Skeleton className="w-10/12 h-8 rounded" />
                 <Skeleton className="w-2/12 h-8 rounded-md" />
               </div>
-              <div className="flex gap-4 items-center w-full">
-                <Skeleton className="w-10/12 h-8 rounded" />
-                <Skeleton className="w-2/12 h-8 rounded-md" />
-              </div>
             </div>
 
             {[...Array(3)].map((__, i) => (

@@ -9,20 +9,15 @@ import InvitationListSkeleton from "./InvitationListSkeleton";
 interface Props {
   assessmentGroups: AssessmentGroup[] | undefined;
   isLoading: boolean;
-  emails: string[];
 }
 
 export default function InvitationSection({
   assessmentGroups,
   isLoading,
-  emails,
 }: Props) {
-  const noInvitations =
-    (assessmentGroups?.length ?? 0) === 0 && emails.length === 0;
-
-  if (noInvitations) {
+  if (assessmentGroups?.length === 0) {
     return (
-      <div className="flex flex-col gap-4 items-center align-middle">
+      <div className="flex flex-col gap-4 items-center align-middle p-8">
         <Icon icon="mdi:users-add" className="!w-8 !h-8" />
         <span className="text-xm font-semibold">No Invited Participants</span>
       </div>

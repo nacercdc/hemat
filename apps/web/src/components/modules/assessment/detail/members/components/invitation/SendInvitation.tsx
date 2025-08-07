@@ -64,7 +64,7 @@ export function SendInvitation() {
       },
       resolver: zodResolver(addAssessmentInvitationSchema),
     });
-  const { mutate: sendInvitation, ...sendInvitationState } = useAddMutation<
+  const { mutate: sendInvitation, ..._sendInvitationState } = useAddMutation<
     MemberInvitationGroup[]
   >(`assessments/${assessmentId}/invitations`);
   const { data: assessmentGroups, ...assessmentGroupsState } = useFindAll<
@@ -134,38 +134,6 @@ export function SendInvitation() {
     <div className="flex items-start flex-wrap justify-between gap-4">
       <div className="lg:w-3/5 w-full flex flex-col gap-3 p-2 bg-dark-lighter/5 rounded-sm">
         <div className="flex gap-3">
-          {assessmentGroups?.data?.length != 0 && !addNewGroupName && (
-            <SelectRHF<AssessmentGroup, AddAssessmentInvitationFormData>
-              control={control}
-              name="group"
-              labelKey="name"
-              placeholder="Select team"
-              valueKey="id"
-              options={assessmentGroups?.data ?? []}
-            />
-          )}
-          {addNewGroupName && (
-            <InputRHF
-              name="newGroup"
-              control={control}
-              placeholder="Write name of the team"
-            />
-          )}
-
-          <Button
-            type="button"
-            leftNode={
-              <Icon icon={"ic:baseline-groups"} className="!w-5 !h-5" />
-            }
-            size="lg"
-            color="primaryLight"
-            variant="outline"
-            onClick={openTextFiledHandler}
-          >
-            {addNewGroupName ? "Existing team" : "Create new"}
-          </Button>
-        </div>
-        <div className="flex gap-3">
           <InputRHF
             name="email"
             control={control}
@@ -214,7 +182,6 @@ export function SendInvitation() {
         <InvitationSection
           assessmentGroups={assessmentGroups?.data}
           isLoading={assessmentGroupsState.isLoading}
-          emails={emails}
         />
       </div>
 
@@ -231,27 +198,71 @@ export function SendInvitation() {
         />
       </div>
 
-      <Modal ref={sendInvitationModalRef}>
-        <div className="flex flex-col gap-4 items-center p-4">
-          <div className="w-fit bg-primary-50 flex items-center p-4 rounded-full">
-            <Icon
-              icon={"material-symbols:forward-to-inbox-outline-rounded"}
-              className="!w-8 !h-8 text-primary-300"
-            />
+      <Modal ref={sendInvitationModalRef} title="Create Team">
+        <div className="flex flex-col p-3">
+          <div className="flex gap-3 items-end bg-red-500">
+            {assessmentGroups?.data?.length != 0 && !addNewGroupName && (
+              <SelectRHF<AssessmentGroup, AddAssessmentInvitationFormData>
+                control={control}
+                displayLabel="Team name"
+                name="group"
+                labelKey="name"
+                placeholder="Select team"
+                valueKey="id"
+                options={assessmentGroups?.data ?? []}
+              />
+            )}
+            {addNewGroupName && (
+              <InputRHF
+                label="Team name"
+                name="newGroup"
+                control={control}
+                placeholder="Write name of the team"
+              />
+            )}
+            <div className="mb-2">
+              <Button
+                type="button"
+                leftNode={
+                  <Icon icon={"ic:baseline-groups"} className="!w-5 !h-5" />
+                }
+                size="lg"
+                color="primaryLight"
+                variant="outline"
+                onClick={openTextFiledHandler}
+              >
+                {addNewGroupName ? "Existing team" : "Create new"}
+              </Button>
+            </div>
           </div>
-          <div>
-            Are you sure you want to send invitations to this list of users?
-          </div>
+          <div className="flex flex-col bg-card rounded-sm ">
+            {emails.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No emails added yet.
+              </p>
+            ) : (
+              emails.map((email) => (
+                <div key={email} className="flex justify-between">
+                  <MemberInfo email={email} />
+                  <MemberAction
+                    userId={email}
+                    refetch={() => removeEmailHandler(email)}
+                    optionsList={["Cancel Invitation"]}
+                  />
+                </div>
+              ))
+            )}
 
-          <div>
-            <Button
-              type="submit"
-              size="lg"
-              onClick={onInvitationSubmitHandler}
-              loading={sendInvitationState.isPending}
-            >
-              Yes send invitation
-            </Button>
+            <div className="flex justify-end mt-2">
+              <Button
+                type="button"
+                size="lg"
+                onClick={onInvitationSubmitHandler}
+                disabled={emails.length === 0}
+              >
+                Send Invitation
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>
