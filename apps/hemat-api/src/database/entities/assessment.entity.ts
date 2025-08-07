@@ -25,6 +25,7 @@ import { AssessmentGroup } from './assessment-group.entity';
 import { Language } from './language.entity';
 import { Answer } from './answer.entity';
 import { Roadmap } from './roadmap.entity';
+import { AssessmentDownload } from './assessment-download.entity';
 
 @Entity('assessments')
 export class Assessment extends BaseEntityWithSoftDelete {
@@ -156,6 +157,13 @@ export class Assessment extends BaseEntityWithSoftDelete {
     (assessmentGroup) => assessmentGroup.assessment,
   )
   groups: AssessmentGroup[] | null;
+
+  @ApiProperty({
+    description: 'Downloads associated with this assessment',
+    type: () => [AssessmentDownload],
+  })
+  @OneToMany(() => AssessmentDownload, (download) => download.assessment)
+  downloads: AssessmentDownload[];
 
   @OneToMany(() => Answer, (answers) => answers.assessment)
   answers: Answer[] | null;

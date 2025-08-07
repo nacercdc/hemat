@@ -51,14 +51,6 @@ export class Profile extends BaseEntityWithSoftDelete {
   lastName: string;
 
   @ApiPropertyOptional({
-    description: 'Username',
-    example: 'johndoe',
-    type: String,
-  })
-  @Column({ type: 'varchar', length: 50, unique: true, nullable: true })
-  username: string | null;
-
-  @ApiPropertyOptional({
     description: 'Phone number',
     example: '+251900000000',
     type: String,
@@ -76,14 +68,6 @@ export class Profile extends BaseEntityWithSoftDelete {
   gender: GenderEnum | null;
 
   @ApiPropertyOptional({
-    description: 'Birth date',
-    type: Date,
-    example: '2000-10-25',
-  })
-  @Column({ type: 'date', nullable: true })
-  dateOfBirth: Date | null;
-
-  @ApiPropertyOptional({
     description: 'Country',
     example: 'Ethiopia',
     type: String,
@@ -97,4 +81,12 @@ export class Profile extends BaseEntityWithSoftDelete {
   })
   @Column({ type: 'varchar', nullable: true })
   jobTitle: string;
+
+  @ApiPropertyOptional({
+    description: 'Profession of the user',
+    example: 'Medical Doctor',
+    type: String,
+  })
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  profession: string | null;
 }

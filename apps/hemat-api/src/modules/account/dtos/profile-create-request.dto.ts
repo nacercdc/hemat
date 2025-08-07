@@ -47,18 +47,6 @@ export class ProfileCreateRequestDto {
   lastName: string;
 
   @ApiPropertyOptional({
-    description: 'Username',
-    example: 'johndoe',
-    type: String,
-  })
-  @Length(3, 50, { message: 'validation.username.length args: min:3 | max:50' })
-  @IsString({ message: 'validation.username.isString' })
-  @IsOptional()
-  @IsUnique({ tableName: 'profiles', columns: ['username'] })
-  @Type(() => String)
-  username?: string;
-
-  @ApiPropertyOptional({
     description: 'Gender',
     enum: GenderEnum,
     example: GenderEnum.MALE,
@@ -68,15 +56,6 @@ export class ProfileCreateRequestDto {
   @IsOptional()
   @Type(() => String)
   gender?: GenderEnum;
-
-  @ApiPropertyOptional({
-    description: 'Birth date',
-    example: '2000-10-25',
-    type: Date,
-  })
-  @IsOptional()
-  @Type(() => Date)
-  dateOfBirth?: Date;
 
   @ApiProperty({
     description: 'Country',
@@ -88,15 +67,25 @@ export class ProfileCreateRequestDto {
   @Type(() => String)
   country?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Job title of the user',
     example: 'Team Lead',
     type: String,
   })
   @IsString({ message: 'validation.jobTitle.isString' })
-  @IsNotEmpty({ message: 'validation.jobTitle.isNotEmpty' })
+  @IsOptional()
   @Type(() => String)
-  jobTitle: string;
+  jobTitle?: string;
+
+  @ApiPropertyOptional({
+    description: 'Profession of the user',
+    example: 'Medical Doctor',
+    type: String,
+  })
+  @IsString({ message: 'validation.profession.isString' })
+  @IsOptional()
+  @Type(() => String)
+  profession?: string;
 
   @ApiPropertyOptional({
     description: 'Phone number',
@@ -106,5 +95,6 @@ export class ProfileCreateRequestDto {
   @IsString({ message: 'validation.phoneNumber.isString' })
   @IsOptional()
   @Type(() => String)
+  @IsUnique({ tableName: 'profiles', columns: ['phoneNumber'] })
   phoneNumber?: string;
 }
