@@ -33,13 +33,6 @@ export class ProfileResponseDto {
   lastName: string;
 
   @ApiPropertyOptional({
-    description: 'Username',
-    example: 'johndoe',
-    type: String,
-  })
-  username: string | null;
-
-  @ApiPropertyOptional({
     description: 'Gender',
     enum: GenderEnum,
     example: GenderEnum.MALE,
@@ -48,25 +41,25 @@ export class ProfileResponseDto {
   gender: GenderEnum | null;
 
   @ApiPropertyOptional({
-    description: 'Birth date',
-    example: '2000-10-25',
-    type: Date,
-  })
-  dateOfBirth: Date | null;
-
-  @ApiPropertyOptional({
     description: 'Country',
     example: 'Ethiopia',
     type: String,
   })
   country: string | null;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Job title',
     example: 'Team Lead',
     type: String,
   })
-  jobTitle: string;
+  jobTitle: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Profession',
+    example: 'Medical Doctor',
+    type: String,
+  })
+  profession: string | null;
 
   @ApiPropertyOptional({
     description: 'Phone number',
@@ -86,11 +79,10 @@ export class ProfileResponseDto {
     this.title = entity.title;
     this.firstName = entity.firstName;
     this.lastName = entity.lastName;
-    this.username = entity.username;
     this.gender = entity.gender;
-    this.dateOfBirth = entity.dateOfBirth;
     this.country = entity.country;
     this.jobTitle = entity.jobTitle;
+    this.profession = entity.profession;
     this.phoneNumber = entity.phoneNumber;
     this.url = entity.url;
   }

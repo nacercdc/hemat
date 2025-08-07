@@ -8,6 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigType } from '@config/types';
 import { User, Role, Profile, Permission } from '@database/entities';
 import { Filter, QueryService } from '@shared/services';
@@ -21,6 +22,7 @@ import {
 import { FindAllResponseDto } from '@shared/dtos';
 import { LanguageEnum } from '@shared/enums';
 import { UserStatusEnum } from '@shared/enums';
+import { USER_EVENTS } from '../events/user.events';
 
 @Injectable()
 export class UserService {
@@ -31,6 +33,7 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     private readonly dataSource: DataSource,
     private readonly configService: ConfigService<ConfigType>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async findAll(query: FindAllUserDto): Promise<FindAllResponseDto<User>> {
@@ -96,13 +99,18 @@ export class UserService {
           title: payload.title,
           firstName: payload.firstName,
           lastName: payload.lastName,
-          username: payload.username,
           gender: payload.gender,
-          dateOfBirth: payload.dateOfBirth,
           country: payload.country,
         });
 
         await manager.getRepository(Profile).save(profile);
+        
+        // Emit user created event for email notification
+        this.eventEmitter.emit(USER_EVENTS.CREATED, {
+          email: savedUser.email,
+          password: generatedPassword,
+        });
+        
         return { ...savedUser };
       } catch (err) {
         this.logger.error('create:', err);
@@ -151,9 +159,7 @@ export class UserService {
             title: payload.title,
             firstName: payload.firstName,
             lastName: payload.lastName,
-            username: payload.username,
             gender: payload.gender,
-            dateOfBirth: payload.dateOfBirth,
             country: payload.country,
           },
         );

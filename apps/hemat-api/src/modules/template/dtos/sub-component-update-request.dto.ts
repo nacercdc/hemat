@@ -23,7 +23,8 @@ export class SubComponentUpdateRequestDto {
   id: string;
 
   @ApiProperty({
-    description: 'Unique code of the sub-component (auto-generated, do not send on update)',
+    description:
+      'Unique code of the sub-component (auto-generated, do not send on update)',
     example: '1.1.1',
     minLength: 1,
     maxLength: 50,
@@ -59,13 +60,13 @@ export class SubComponentUpdateRequestDto {
     description: 'Description of the sub-component',
     example: 'Sub-component for vaccine distribution',
     minLength: 1,
-    maxLength: 500,
+    maxLength: 1000,
     type: String,
   })
   @IsOptional()
   @IsString({ message: 'validation.description.isString' })
-  @Length(1, 500, {
-    message: 'validation.description.length args: min:1 | max:500',
+  @Length(1, 1000, {
+    message: 'validation.description.length args: min:1 | max:1000',
   })
   @Type(() => String)
   description?: string;
@@ -85,18 +86,19 @@ export class SubComponentUpdateRequestDto {
   componentId?: string;
 
   @ApiPropertyOptional({
-    description: 'Translations for the sub-component. The code field inside each language is auto-generated and read-only.',
+    description:
+      'Translations for the sub-component. The code field inside each language is auto-generated and read-only.',
     example: {
       en: {
         name: 'Vaccine Distribution',
         description: 'Sub-component for vaccine distribution',
-        code: '1.1.1'
+        code: '1.1.1',
       },
       fr: {
         name: 'Distribution de vaccins',
         description: 'Sous-composant pour la distribution de vaccins',
-        code: '1.1.1'
-      }
+        code: '1.1.1',
+      },
     },
     type: Object,
   })

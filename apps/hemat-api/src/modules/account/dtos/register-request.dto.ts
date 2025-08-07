@@ -60,18 +60,6 @@ export class RegisterRequestDto {
   @Type(() => String)
   lastName: string;
 
-  @ApiPropertyOptional({
-    description: "The user's username",
-    example: 'johndoe',
-    type: String,
-  })
-  @MaxLength(50)
-  @IsString({ message: 'validation.username.isString' })
-  @IsOptional()
-  @IsUnique({ tableName: 'profiles', columns: ['username'] })
-  @Type(() => String)
-  username: string | null = null;
-
   @ApiProperty({
     description: "The user's gender",
     example: GenderEnum.MALE,
@@ -80,15 +68,6 @@ export class RegisterRequestDto {
   @IsEnum(GenderEnum, { message: 'validation.gender.isEnum' })
   @IsNotEmpty({ message: 'validation.gender.isNotEmpty' })
   gender: GenderEnum;
-
-  @ApiProperty({
-    description: "The user's date of birth",
-    example: '1990-01-01',
-    type: String,
-  })
-  @IsDateString({}, { message: 'validation.dateOfBirth.isDateString' })
-  @IsNotEmpty({ message: 'validation.dateOfBirth.isNotEmpty' })
-  dateOfBirth: string;
 
   @ApiProperty({
     description: "The user's country",
@@ -109,6 +88,16 @@ export class RegisterRequestDto {
   @IsNotEmpty({ message: 'validation.jobTitle.isNotEmpty' })
   @Type(() => String)
   jobTitle: string;
+
+  @ApiPropertyOptional({
+    description: "The user's profession",
+    example: 'Medical Doctor',
+    type: String,
+  })
+  @IsString({ message: 'validation.profession.isString' })
+  @IsOptional()
+  @Type(() => String)
+  profession: string | null = null;
 
   @ApiProperty({
     description: "The user's email address",
@@ -135,22 +124,23 @@ export class RegisterRequestDto {
   password: string;
 
   @ApiPropertyOptional({
-    description: "The user's email address",
-    example: 'john.doe@hiemat.org',
-    type: String,
-  })
-  @IsUUID(undefined, { message: 'validation.email.isEmail' })
-  @IsOptional()
-  @Type(() => String)
-  invitationId: string | null = null;
-
-  @ApiPropertyOptional({
     description: "The user's phone number",
     example: '+251900000000',
     type: String,
   })
   @IsString({ message: 'validation.phoneNumber.isString' })
   @IsOptional()
+  @IsUnique({ tableName: 'profiles', columns: ['phoneNumber'] })
   @Type(() => String)
-  phoneNumber?: string;
+  phoneNumber: string | null = null;
+
+  @ApiPropertyOptional({
+    description: 'Invitation ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    type: String,
+  })
+  @IsUUID('4', { message: 'validation.invitationId.isUUID' })
+  @IsOptional()
+  @Type(() => String)
+  invitationId: string | null = null;
 }
