@@ -2,19 +2,26 @@
 
 import { motion } from "framer-motion";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import HelpSupportWidget from "../popup";
 
 export default function HelpSupportButton() {
   const [open, setOpen] = useState<boolean>(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpen((prev) => !prev);
+  };
 
   return (
     <>
       <motion.button
+        ref={buttonRef}
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        onClick={() => setOpen(!open)}
+        onClick={handleToggle}
         className="fixed bottom-6 right-6 flex flex-col items-center gap-1 z-50"
       >
         <div className="relative">
@@ -29,7 +36,6 @@ export default function HelpSupportButton() {
               ease: "easeOut",
             }}
           />
-
           <div className="relative z-10 bg-white rounded-full p-4 shadow-md">
             <Icon
               icon="material-symbols-light:contact-support-outline-rounded"
@@ -38,7 +44,7 @@ export default function HelpSupportButton() {
           </div>
         </div>
       </motion.button>
-      {open && <HelpSupportWidget onClose={() => setOpen(false)} />}
+      {open && <HelpSupportWidget buttonRef={buttonRef} />}
     </>
   );
 }

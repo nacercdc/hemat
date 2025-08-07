@@ -74,7 +74,7 @@ export function OverallStats() {
 
       const availableCirclesCount = 3;
 
-      const newTooltipData = validDomains.map((domain) => ({
+      const newTooltipData = validDomains?.map((domain) => ({
         domain,
         circleIndex: Math.floor(Math.random() * availableCirclesCount),
         angle: Math.random() * 360,

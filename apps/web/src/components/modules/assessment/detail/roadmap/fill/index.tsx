@@ -37,7 +37,7 @@ export function RoadmapFill() {
   const { data: components, ...componentsState } = useFindAll<
     QueryManyResponse<{ id: string; name: string }>
   >({
-    path: `/assessmentDomains/${params.roadMapId as string}/components`,
+    path: `/assessmentDomains/${params.roadmapDomainId as string}/components`,
     queries: {
       take: 100,
       skip: 1,
@@ -146,7 +146,7 @@ export function RoadmapFill() {
       <div className="flex flex-col gap-5 h-full w-full">
         <div className="flex w-full h-12 bg-basic-200 rounded-md px-5 py-3">
           <PageSubTitle
-            domainId={params.roadMapId as string}
+            domainId={params.roadmapDomainId as string}
             assessmentId={params.id as string}
           />
         </div>

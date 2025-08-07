@@ -21,6 +21,8 @@ import type {
   Assessment,
   AssessmentFilterable,
 } from "~/libs/models/assessment.model";
+import { PageTitle } from "./components/PageTitle";
+import { PageSubTitle } from "./components/PageSubTitle";
 
 export interface FilledStatus {
   ids: string[];
@@ -91,7 +93,7 @@ export function CurrentAssessmentFill() {
   const { data: filledSubComps, ...filledSubCompsState } = useFindById<
     QueryManyResponse<FilledStatus>
   >({
-    path: `/assessments/${params.id as string}/sub-components/filled-status?${searchParams.get("groupId") ? `groupId=${searchParams.get("groupId")}&` : ""}isPrimary=${searchParams.get("as") === "primary"}`,
+    path: `/assessments/${params.id as string}/sub-components/filled-status?${searchParams.get("as") === "primary" ? `isPrimary=true` : ""}${!(searchParams.get("as") === "primary") && searchParams.get("groupId") ? `groupId=${searchParams.get("groupId")}` : ""}`,
     tqOptions: {
       staleTime: 0,
     },
@@ -212,15 +214,16 @@ export function CurrentAssessmentFill() {
 
   return (
     <PageContainer
-      //TODO: will be dynamic ass soon as the tab routing is fixed
-      pageTitle={`${"Assessment 1"} / Fill`}
+      pageTitle={<PageTitle assessmentId={params.id as string} />}
       includeBreadcrumb={false}
       onBack={onGoBackClickHandler}
     >
       <div className="flex flex-col gap-5 h-full w-full">
         <div className="flex w-full h-12 bg-basic-200 rounded-md px-5 py-3">
-          {/* TODO: substitute this with real domain data */}
-          <span className="text-xl font-bold">{`${"Domain 1"} / Components`}</span>
+          <PageSubTitle
+            domainId={params.currentAssessmentId as string}
+            assessmentId={params.id as string}
+          />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 w-full">
           <ComponentsList

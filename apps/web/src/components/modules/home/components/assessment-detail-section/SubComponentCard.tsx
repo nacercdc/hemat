@@ -7,7 +7,7 @@ interface Props {
   score: number;
 }
 
-export function DomainComponentCard({ title, content, score }: Props) {
+export function SubComponentCard({ title, content, score }: Props) {
   return (
     <div className="h-64 flex flex-col justify-between rounded-sm border-dark-lighter/20 border-[1px] bg-white">
       <div className="flex flex-col gap-4">

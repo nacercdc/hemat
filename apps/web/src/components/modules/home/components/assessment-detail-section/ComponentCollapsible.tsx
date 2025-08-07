@@ -5,9 +5,9 @@ import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "~/utils/cn.util";
 import {
-  DomainComponentCard,
+  SubComponentCard,
   DomainComponentCardSkeleton,
-} from "./DomainComponentCard";
+} from "./SubComponentCard";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 
 interface ISubComponent {
@@ -26,7 +26,7 @@ interface Props {
   onToggle: () => void;
 }
 
-export function DomainCollapsible({
+export function ComponentCollapsible({
   icon,
   title,
   isOpen,
@@ -98,7 +98,7 @@ export function DomainCollapsible({
             {!isLoading &&
               (subComponents as unknown as ISubComponent[])?.map(
                 ({ description, averageRate, name }, index) => (
-                  <DomainComponentCard
+                  <SubComponentCard
                     key={index}
                     content={description}
                     score={averageRate}

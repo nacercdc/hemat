@@ -2,8 +2,11 @@ import React from "react";
 import { Button } from "@etm/web-ui-components";
 import { ActiveCountries } from "./ActiveCountries";
 import { TotalDomains } from "./TotalDomains";
+import { useRouter } from "next/navigation";
 
 export function OverallSummary() {
+  const router = useRouter();
+
   return (
     <div className="xl:flex-col w-full text-white xl:justify-between hidden xl:flex">
       <div className="flex flex-col gap-5">
@@ -26,9 +29,16 @@ export function OverallSummary() {
       </div>
       <div className="flex flex-col gap-1">
         <span className="font-medium text-sm text-white/75">
-          Lest get started
+          Let's get started
         </span>
-        <Button size="xl" color="light">
+        <Button
+          size="xl"
+          color="light"
+          variant="outline"
+          onClick={() => {
+            router.push("/register");
+          }}
+        >
           Register
         </Button>
       </div>
