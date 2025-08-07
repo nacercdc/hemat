@@ -23,12 +23,6 @@ import MemberInfo from "../MemberInfo";
 import InvitationSection from "./InvitationSection";
 import InvitationListSkeleton from "./InvitationListSkeleton";
 
-export const groupSchema = z.object({
-  id: z
-    .string()
-    .min(1, { message: "Select the group that you want to invite" })
-    .max(50, { message: "Group name is too long" }),
-});
 
 const addAssessmentInvitationSchema = z.object({
   newGroup: z.string().optional(),
@@ -37,9 +31,17 @@ const addAssessmentInvitationSchema = z.object({
     .email({ message: "Enter a valid email" })
     .min(1, { message: "Email is required" }),
   group: z.object({
-    id: z.string().min(1, { message: "Select the group that you invite" }),
+    id: z.string().min(1, { message: "Select a group or create one." }),
   }),
-});
+}).superRefine((data, ctx) => {
+      if (!data.group || !data.newGroup) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Create a group",
+          path: ["group"],
+        });
+      };
+    })
 
 export type AddAssessmentInvitationFormData = z.infer<
   typeof addAssessmentInvitationSchema
@@ -53,7 +55,7 @@ export function SendInvitation() {
   const { toast } = useToast();
   const sendInvitationModalRef = useRef<ModalRef>(null);
 
-  const { control, getValues, setValue, trigger } =
+  const { control, getValues, setValue, trigger,formState:{errors} } =
     useForm<AddAssessmentInvitationFormData>({
       defaultValues: {
         email: "",
@@ -64,7 +66,8 @@ export function SendInvitation() {
       },
       resolver: zodResolver(addAssessmentInvitationSchema),
     });
-  const { mutate: sendInvitation, ..._sendInvitationState } = useAddMutation<
+
+  const { mutate: sendInvitation, ...sendInvitationState } = useAddMutation<
     MemberInvitationGroup[]
   >(`assessments/${assessmentId}/invitations`);
   const { data: assessmentGroups, ...assessmentGroupsState } = useFindAll<
@@ -133,51 +136,20 @@ export function SendInvitation() {
   return (
     <div className="flex items-start flex-wrap justify-between gap-4">
       <div className="lg:w-3/5 w-full flex flex-col gap-3 p-2 bg-dark-lighter/5 rounded-sm">
-        <div className="flex gap-3">
-          <InputRHF
-            name="email"
-            control={control}
-            placeholder="Enter the email addresses of the participants you want to invite "
-          />
-          <Button
-            leftNode={<Icon icon={"mdi:user-add"} className="!w-5 !h-5" />}
-            size="lg"
-            color="primaryLight"
-            variant="outline"
-            onClick={addEmailHandler}
-          >
-            Add
-          </Button>
-        </div>
-        <div className="flex flex-col bg-card rounded-sm p-2">
-          {emails.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No emails added yet.
-            </p>
-          ) : (
-            emails.map((email) => (
-              <div key={email} className="flex justify-between">
-                <MemberInfo email={email} />
-                <MemberAction
-                  userId={email}
-                  refetch={() => removeEmailHandler(email)}
-                  optionsList={["Cancel Invitation"]}
-                />
-              </div>
-            ))
-          )}
-
-          <div className="flex justify-end mt-2">
+          <div className="flex justify-between mt-2">
+            <h1 className="text-lg font-semibold">Invited participants</h1>
             <Button
               type="button"
               size="lg"
+              color="primaryLight"
+            variant="outline"
               onClick={openInvitationModal}
-              disabled={emails.length === 0}
+              
             >
               Send Invitation
             </Button>
           </div>
-        </div>
+      
 
         <InvitationSection
           assessmentGroups={assessmentGroups?.data}
@@ -199,8 +171,8 @@ export function SendInvitation() {
       </div>
 
       <Modal ref={sendInvitationModalRef} title="Create Team">
-        <div className="flex flex-col p-3">
-          <div className="flex gap-3 items-end bg-red-500">
+        <div className="flex flex-col py-3 px-8">
+          <div className="flex gap-3 items-end">
             {assessmentGroups?.data?.length != 0 && !addNewGroupName && (
               <SelectRHF<AssessmentGroup, AddAssessmentInvitationFormData>
                 control={control}
@@ -209,7 +181,9 @@ export function SendInvitation() {
                 labelKey="name"
                 placeholder="Select team"
                 valueKey="id"
+                inModal={true}
                 options={assessmentGroups?.data ?? []}
+               error={errors.group?.message}
               />
             )}
             {addNewGroupName && (
@@ -235,6 +209,22 @@ export function SendInvitation() {
               </Button>
             </div>
           </div>
+           <div className="flex gap-3 mb-4">
+          <InputRHF
+            name="email"
+            control={control}
+            placeholder="Enter the email addresses of the participants you want to invite "
+          />
+          <Button
+            leftNode={<Icon icon={"mdi:user-add"} className="!w-5 !h-5" />}
+            size="lg"
+            color="primaryLight"
+            variant="outline"
+            onClick={addEmailHandler}
+          >
+            Add
+          </Button>
+        </div>
           <div className="flex flex-col bg-card rounded-sm ">
             {emails.length === 0 ? (
               <p className="text-sm text-muted-foreground">
@@ -258,7 +248,7 @@ export function SendInvitation() {
                 type="button"
                 size="lg"
                 onClick={onInvitationSubmitHandler}
-                disabled={emails.length === 0}
+                disabled={emails.length === 0 || sendInvitationState.isPending}
               >
                 Send Invitation
               </Button>
