@@ -14,6 +14,7 @@ export interface Profile {
   country: string;
   jobTitle: string;
   username: string;
+  profession?: string;
   url?: string;
 }
 

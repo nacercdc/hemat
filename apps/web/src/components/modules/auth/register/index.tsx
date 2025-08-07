@@ -10,7 +10,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
   checkPasswordStrength,
-  DateTimePickerRHF,
   InputRHF,
   PasswordStrengthIndicator,
   PhoneNumberInputRHF,
@@ -27,7 +26,6 @@ import {
 } from "../../profile/components/tabs/change-password-tab";
 import type { Profile, RegisterProfile } from "~/libs/models/profile.model";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
-import { formatDateToYYYYMMDD } from "@etm/utilities";
 import type { Country } from "~/libs/models/country.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { serializeFormData } from "~/utils/object.util";
@@ -64,11 +62,11 @@ const CountrySchema = z.object(
 const registerFormSchema = z
   .object({
     firstName: z.string().min(1, { message: "First name is required" }),
+    middleName: z.string().optional(),
     lastName: z.string().min(1, { message: "Last name is required" }),
     title: titleSchema.optional(),
     gender: GenderSchema,
     jobTitle: z.string().min(1, { message: "Job title is required" }),
-    dateOfBirth: z.date({ message: "Date of birth is required" }),
     country: CountrySchema,
     phoneNumber: z
       .string({ message: "Phone number is required" })
@@ -79,7 +77,7 @@ const registerFormSchema = z
       .string()
       .min(1, { message: "Email is required." })
       .email({ message: "Please provide a valid email address." }),
-    userName: z.string().min(1, { message: "User name is required." }),
+    profession: z.string().min(1, { message: "Profession is required." }),
     password: z
       .string()
       .min(1, { message: "New password is required" })
@@ -133,9 +131,10 @@ export default function Register() {
       email: invitationEmail ?? "",
       firstName: "",
       lastName: "",
+      middleName: "",
       jobTitle: "",
       password: "",
-      userName: "",
+      profession: "",
       confirmPassword: "",
       invitationId: invitationIdFromURL ?? "",
     },
@@ -148,16 +147,14 @@ export default function Register() {
       email: invitationEmail ? invitationEmail : values.email,
       title: values?.title?.id,
       firstName: values.firstName,
+      middleName: values.middleName,
       lastName: values.lastName,
-      username: values.userName,
+      profession: values.profession,
       gender: values?.gender?.id,
       phoneNumber: values?.phoneNumber,
       jobTitle: values.jobTitle,
       country: values.country?.id,
       invitationId: values.invitationId ?? null,
-      dateOfBirth: values?.dateOfBirth
-        ? formatDateToYYYYMMDD(values?.dateOfBirth)
-        : undefined,
       password: values.password,
     });
 
@@ -199,22 +196,33 @@ export default function Register() {
       />
 
       <div className="flex flex-col lg:flex-row gap-4">
-        <SelectRHF
-          name="title"
-          control={control}
-          displayLabel="Title"
-          size="lg"
-          labelVariant="medium"
-          valueKey="id"
-          labelKey="name"
-          options={PERSONAL_TITLES.map((title) => ({ id: title, name: title }))}
-          placeholder="Select title"
-        />
+        <div>
+          <SelectRHF
+            name="title"
+            control={control}
+            displayLabel="Title"
+            labelVariant="medium"
+            valueKey="id"
+            labelKey="name"
+            options={PERSONAL_TITLES.map((title) => ({
+              id: title,
+              name: title,
+            }))}
+            placeholder="Select title"
+          />
+        </div>
         <InputRHF
           label="First Name"
           placeholder="Enter first name"
           control={control}
           name="firstName"
+          labelVariant="medium"
+        />
+        <InputRHF
+          label="Middle Name"
+          placeholder="Enter middle name"
+          control={control}
+          name="middleName"
           labelVariant="medium"
         />
         <InputRHF
@@ -239,22 +247,19 @@ export default function Register() {
           placeholder="Select gender"
         />
         <InputRHF
+          name="profession"
+          label="Profession"
+          placeholder="Enter your profession"
+          control={control}
+          labelVariant="medium"
+        />
+        <InputRHF
           name="jobTitle"
           control={control}
           label="Job title"
           size="lg"
           labelVariant="medium"
           placeholder="Enter job title"
-        />
-        <DateTimePickerRHF
-          name="dateOfBirth"
-          control={control}
-          showTime={false}
-          labelVariant="medium"
-          label="Date of birth"
-          size="lg"
-          placeholder="Enter your date of birth"
-          iconDirection="right"
         />
       </div>
 
@@ -274,6 +279,14 @@ export default function Register() {
           onOpenChange={() => countriesState.refetch()}
           loading={countriesState.isLoading || countriesState.isFetching}
         />
+        <InputRHF
+          label="Email"
+          placeholder="Enter your email"
+          control={control}
+          name="email"
+          labelVariant="medium"
+          disabled={!!invitationIdFromURL}
+        />
         <PhoneNumberInputRHF
           control={control}
           name="phoneNumber"
@@ -287,24 +300,9 @@ export default function Register() {
             value: country.code as CountryCode,
           }))}
         />
-        <InputRHF
-          label="Email"
-          placeholder="Enter your email"
-          control={control}
-          name="email"
-          labelVariant="medium"
-          disabled={!!invitationIdFromURL}
-        />
       </div>
 
-      <div className="flex  gap-4">
-        <InputRHF
-          name="userName"
-          label="User name"
-          placeholder="Enter your username"
-          control={control}
-          labelVariant="medium"
-        />
+      <div className="flex flex-col lg:flex-row gap-4">
         <InputRHF
           control={control}
           name="password"
