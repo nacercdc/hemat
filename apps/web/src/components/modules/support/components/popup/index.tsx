@@ -98,6 +98,7 @@ export default function HelpSupportWidget({ onClose, buttonRef }: Props) {
               name="description"
               label="Description"
               placeholder="Description"
+              size="md"
             />
           </div>
           <div className="flex justify-end mt-4">
