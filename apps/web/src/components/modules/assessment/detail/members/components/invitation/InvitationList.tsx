@@ -13,7 +13,7 @@ export default function InvitationList({ assessmentGroups }: Props) {
   return (
     <div className="w-full">
       <div className="grid grid-cols-[40%_1fr_1fr] gap-6 w-full  items-center font-semibold text-sm p-2 ">
-        <div>Invited participants</div>
+        <div>Email</div>
         <div className="hidden md:block text-right">Date</div>
         <div className="hidden md:block text-right">Status</div>
       </div>

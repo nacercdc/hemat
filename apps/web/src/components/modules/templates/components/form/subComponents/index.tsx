@@ -63,7 +63,6 @@ export function SubComponentForm({
 
   const onScalesSubmitHandler = (data: ScalesFormData) => {
     onScalesSubmit(data);
-    setCurrentStep(1);
   };
 
   useEffect(() => {

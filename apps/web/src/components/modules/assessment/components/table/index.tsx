@@ -38,7 +38,7 @@ export function AssessmentsTable() {
     path: "/assessments",
     queries: {
       take: pagination.pageSize,
-      skip: pagination.pageIndex + 1,
+      skip: pagination.pageIndex,
       search,
       sorts: sort,
     },

@@ -35,7 +35,7 @@ export function SupportTable() {
     path: "/support",
     queries: {
       take: pagination.pageSize,
-      skip: pagination.pageIndex + 1,
+      skip: pagination.pageIndex,
       sorts: sort,
       search,
     },

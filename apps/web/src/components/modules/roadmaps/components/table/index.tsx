@@ -44,7 +44,7 @@ export function RoadmapsTable() {
     path: "/assessments/roadmaps/info",
     queries: {
       take: pagination.pageSize,
-      skip: pagination.pageIndex + 1,
+      skip: pagination.pageIndex,
       search,
     },
     tqOptions: {
