@@ -37,8 +37,8 @@ export function AssessmentsTable() {
   >({
     path: "/assessments",
     queries: {
-      limit: pagination.pageSize,
-      page: pagination.pageIndex + 1,
+      take: pagination.pageSize,
+      skip: pagination.pageIndex + 1,
       search,
       sorts: sort,
     },
@@ -57,14 +57,14 @@ export function AssessmentsTable() {
     setSort(newSort);
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,
-      pageSize: DEFAULT_PAGE_SIZE,
+      pageSize: pagination.pageSize,
     });
   };
   const onSearchFilterChangeHandler = (value: string) => {
     setSearch(value);
     setPagination({
       pageIndex: DEFAULT_PAGE_INDEX,
-      pageSize: DEFAULT_PAGE_SIZE,
+      pageSize: pagination.pageSize,
     });
   };
 

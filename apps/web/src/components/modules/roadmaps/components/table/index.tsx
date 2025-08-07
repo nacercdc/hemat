@@ -43,8 +43,8 @@ export function RoadmapsTable() {
   >({
     path: "/assessments/roadmaps/info",
     queries: {
-      limit: pagination.pageSize,
-      page: pagination.pageIndex + 1,
+      take: pagination.pageSize,
+      skip: pagination.pageIndex + 1,
       search,
     },
     tqOptions: {

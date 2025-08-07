@@ -61,8 +61,8 @@ export function SupportDetail() {
   >({
     path: `/support/${params.id}/replies`,
     queries: {
-      limit: 100,
-      page: 1,
+      take: 100,
+      skip: 1,
     },
     tqOptions: { queryKey: ["/support/replies"], enabled: !!support },
   });

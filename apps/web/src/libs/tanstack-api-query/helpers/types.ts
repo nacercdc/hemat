@@ -101,8 +101,8 @@ export interface QueryManyRequest<Include, Filterable, Sortable>
   filters?: Filter<Filterable>[];
   sorts?: Sort<Sortable>;
   search?: string;
-  limit?: number;
-  page?: number;
+  take?: number;
+  skip?: number;
 }
 
 export interface QueryManyResponse<Entity> {

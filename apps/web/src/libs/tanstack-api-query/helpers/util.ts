@@ -87,12 +87,12 @@ export function buildQueryString<
       );
   }
 
-  if (query.page !== undefined) {
-    params.set("page", query.page.toString());
+  if (query.skip !== undefined) {
+    params.set("skip", query.skip.toString());
   }
 
-  if (query.limit !== undefined) {
-    params.set("limit", query.limit.toString());
+  if (query.take !== undefined) {
+    params.set("take", query.take.toString());
   }
 
   return params.toString() ? `?${params.toString()}` : "";
