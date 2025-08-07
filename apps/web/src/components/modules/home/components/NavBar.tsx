@@ -27,7 +27,14 @@ export function NavBar() {
         >
           <span className="font-bold">Sign In</span>
         </Button>
-        <Button variant="outline" color="light" size="lg">
+        <Button
+          variant="outline"
+          color="light"
+          size="lg"
+          onClick={() => {
+            router.push("/register");
+          }}
+        >
           <span className="font-bold">Register</span>
         </Button>
       </div>

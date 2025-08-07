@@ -48,9 +48,9 @@ export function FooterSection() {
 
         <div className="flex flex-col gap-4 lg:items-end text-white items-start">
           <h3 className="text-2xl font-bold">Contact us</h3>
-          <span className="text-sm font-bold">Phone: +251911111111</span>
+          <span className="text-sm font-bold">Phone: +251 11 551 7700</span>
           <div className="flex flex-col lg:items-end items-start">
-            <span className="text-sm font-bold">Tel: +251911111111</span>
+            <span className="text-sm font-bold">Tel: +251 11 551 7844</span>
             <a
               href="https://communications@africacdc.org"
               target="_blank"
@@ -61,7 +61,7 @@ export function FooterSection() {
             <span className="text-sm font-bold text-end text-nowrap">
               Visit Africa CDC on the{" "}
               <a
-                href="https://au.int/africacdc"
+                href="https://africacdc.org/"
                 target="_blank"
                 className="underline"
               >
