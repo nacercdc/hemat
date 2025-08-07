@@ -57,7 +57,7 @@ export function Language() {
     path: "/languages",
     queries: {
       take: pagination.pageSize,
-      skip: pagination.pageIndex + 1,
+      skip: pagination.pageIndex,
       search,
     },
   });
