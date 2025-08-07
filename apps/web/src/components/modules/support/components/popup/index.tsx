@@ -31,14 +31,15 @@ const supportSchema = z.object({
 
 export type SupportFormData = z.infer<typeof supportSchema>;
 interface Props {
-  onClose: () => void;
+  onClose?: (e: MouseEvent) => void;
+  buttonRef: React.RefObject<HTMLButtonElement | null>;
 }
-export default function HelpSupportWidget({ onClose }: Props) {
+export default function HelpSupportWidget({ onClose, buttonRef }: Props) {
   const { toast } = useToast();
 
   const widgetRef = useRef<HTMLDivElement>(null);
 
-  useOutsideClick(onClose, widgetRef);
+  useOutsideClick(widgetRef, onClose, buttonRef);
 
   const { control, handleSubmit } = useForm<SupportFormData>({
     defaultValues: {
@@ -91,7 +92,6 @@ export default function HelpSupportWidget({ onClose }: Props) {
               label="Title"
               placeholder="Title"
             />
-
             <ETMEditorRHF
               isModal={true}
               control={control}

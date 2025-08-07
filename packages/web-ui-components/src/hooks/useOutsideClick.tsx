@@ -1,14 +1,20 @@
 "use client";
+
 import { useEffect } from "react";
 
 export function useOutsideClick(
-  handler: () => void,
-  ref: React.RefObject<HTMLElement | null>
+  ref: React.RefObject<HTMLElement | null>,
+  handler?: (e: MouseEvent) => void,
+  buttonRef?: React.RefObject<HTMLElement | null>
 ) {
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (ref?.current && !ref.current.contains(event.target as Node)) {
-        handler();
+      if (
+        ref?.current &&
+        !ref.current.contains(event.target as Node) &&
+        !buttonRef?.current?.contains(event.target as Node)
+      ) {
+        handler?.(event);
       }
     }
 
@@ -16,5 +22,5 @@ export function useOutsideClick(
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [ref, handler]);
+  }, [ref, buttonRef, handler]);
 }
