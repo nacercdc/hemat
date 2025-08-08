@@ -31,13 +31,13 @@ export class SubComponentMeasurementScaleDto {
       'Description of the sub-component and measurement scale combination',
     example: 'This scale indicates a basic level of implementation.',
     minLength: 1,
-    maxLength: 500,
+    maxLength: 1000,
     type: String,
   })
   @IsNotEmpty({ message: 'validation.description.isNotEmpty' })
   @IsString({ message: 'validation.description.isString' })
-  @Length(1, 500, {
-    message: 'validation.description.length args: min:1 | max:500',
+  @Length(1, 1000, {
+    message: 'validation.description.length args: min:1 | max:1000',
   })
   @Type(() => String)
   description: string;
@@ -63,14 +63,14 @@ export class UpdateSubComponentMeasurementScaleDto {
       'Description of the sub-component and measurement scale combination',
     example: 'This scale indicates a basic level of implementation.',
     minLength: 1,
-    maxLength: 500,
+    maxLength: 1000,
     type: String,
     required: false,
   })
   @IsOptional()
   @IsString({ message: 'validation.description.isString' })
-  @Length(1, 500, {
-    message: 'validation.description.length args: min:1 | max:500',
+  @Length(1, 1000, {
+    message: 'validation.description.length args: min:1 | max:1000',
   })
   @Type(() => String)
   description?: string;

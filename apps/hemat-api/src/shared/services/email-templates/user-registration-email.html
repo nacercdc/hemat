@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Your Africa CDC Account Credentials</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: linear-gradient(135deg, #e8f0fe 0%, #f4f8fb 100%);
+        color: #222;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        /* Subtle pattern overlay */
+        background-image: url('https://www.transparenttextures.com/patterns/cubes.png'), linear-gradient(135deg, #e8f0fe 0%, #f4f8fb 100%);
+      }
+      .container {
+        max-width: 600px;
+        margin: 48px auto;
+        background: rgba(255,255,255,0.98);
+        box-shadow: 0 8px 32px rgba(32, 104, 48, 0.10);
+        border-radius: 18px;
+        overflow: hidden;
+      }
+      .header {
+        padding: 32px 32px 0 32px;
+        text-align: left;
+      }
+      .header img {
+        height: 48px;
+        width: auto;
+        display: block;
+      }
+      .content {
+        padding: 32px;
+        text-align: left;
+      }
+      h1 {
+        font-size: 26px;
+        font-weight: bold;
+        color: #206830;
+        margin-bottom: 18px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 14px 32px;
+        background: linear-gradient(90deg, #FFD100 0%, #FFEE80 100%);
+        color: #00703C;
+        text-decoration: none;
+        border-radius: 7px;
+        font-size: 16px;
+        font-weight: 700;
+        margin: 24px 0 0 0;
+        box-shadow: 0 2px 8px rgba(32, 104, 48, 0.08);
+        transition: background 0.2s, color 0.2s;
+      }
+      .btn:hover {
+        background: #00703C;
+        color: #fff;
+      }
+      .text-content {
+        font-size: 15px;
+        color: #444;
+        line-height: 1.7;
+        margin: 18px 0;
+      }
+      .text-content p {
+        margin: 10px 0;
+      }
+      .text-content .bold {
+        font-weight: bold;
+      }
+      .credentials-box {
+        background: linear-gradient(90deg, #f4f8fb 0%, #e8f0fe 100%);
+        border-radius: 10px;
+        padding: 22px 0;
+        margin: 24px 0 16px 0;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(32, 104, 48, 0.04);
+      }
+      .credentials-box .label {
+        font-size: 13px;
+        color: #888;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .credentials-box .value {
+        font-size: 20px;
+        color: #00703C;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+      .signature {
+        margin-top: 36px;
+        font-size: 15px;
+      }
+      .signature .bold {
+        font-weight: 600;
+      }
+      .footer {
+        background: #00703C;
+        color: #fff;
+        padding: 24px 32px;
+        font-size: 13px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .footer img {
+        height: 28px;
+        width: auto;
+      }
+      .footer-content {
+        text-align: left;
+        line-height: 1.6;
+      }
+      .footer-content p {
+        margin: 8px 0;
+      }
+      .icons {
+        margin: 8px 0;
+      }
+      .icons a {
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0 8px;
+        text-decoration: none;
+      }
+      .icons a:hover {
+        color: #fff;
+      }
+      .footer-content .copyright {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .icon {
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="content">
+        <h1>Welcome to Africa CDC</h1>
+        <div class="text-content">
+          <p class="bold">Hello,</p>
+          <p>
+            Your account has been successfully created. Here is your temporary password:
+          </p>
+        </div>
+        <div class="credentials-box">
+          <div class="label">Temporary Password</div>
+          <div class="value">{{password}}</div>
+        </div>
+        <a class="btn" href="https://africacdc.org/login">Login to Your Account</a>
+        <div class="text-content">
+          <p>
+            <strong>Important:</strong> For your security, please log in and change your password as soon as possible.
+          </p>
+          <p>
+            If you have any questions or need assistance, please don't hesitate to contact our support team.
+          </p>
+        </div>
+        <div class="signature">
+          <p class="bold">Best Regards,</p>
+          <p>Africa CDC Team</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html> 

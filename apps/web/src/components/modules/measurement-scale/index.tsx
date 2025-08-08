@@ -56,8 +56,8 @@ export default function MeasurementScale() {
   >({
     path: "/measurement-scales",
     queries: {
-      limit: pagination.pageSize,
-      page: pagination.pageIndex + 1,
+      take: pagination.pageSize,
+      skip: pagination.pageIndex,
       search,
       sorts: { ascending: "rate" },
     },

@@ -1,16 +1,14 @@
 "use client";
 
-import {
-  $applyNodeReplacement,
-  $isTextNode,
+import type {
   DOMConversion,
   DOMConversionMap,
   DOMConversionOutput,
   NodeKey,
-  TextNode,
   SerializedTextNode,
   LexicalNode,
 } from "lexical";
+import { $applyNodeReplacement, $isTextNode, TextNode } from "lexical";
 
 export class ExtendedTextNode extends TextNode {
   constructor(text: string, key?: NodeKey) {
@@ -65,7 +63,7 @@ export class ExtendedTextNode extends TextNode {
   }
 }
 
-export function $createExtendedTextNode(text: string = ""): ExtendedTextNode {
+export function $createExtendedTextNode(text = ""): ExtendedTextNode {
   return $applyNodeReplacement(new ExtendedTextNode(text));
 }
 

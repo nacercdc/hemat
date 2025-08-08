@@ -168,12 +168,14 @@ export function InsertImageDialog({
           <Button
             data-test-id="image-modal-option-url"
             onClick={() => setMode("url")}
+            full
           >
             URL
           </Button>
           <Button
             data-test-id="image-modal-option-file"
             onClick={() => setMode("file")}
+            full
           >
             File
           </Button>
@@ -209,29 +211,29 @@ export default function ImagesPlugin({
 
           return true;
         },
-        COMMAND_PRIORITY_EDITOR,
+        COMMAND_PRIORITY_EDITOR
       ),
       editor.registerCommand<DragEvent>(
         DRAGSTART_COMMAND,
         (event) => {
           return $onDragStart(event);
         },
-        COMMAND_PRIORITY_HIGH,
+        COMMAND_PRIORITY_HIGH
       ),
       editor.registerCommand<DragEvent>(
         DRAGOVER_COMMAND,
         (event) => {
           return $onDragover(event);
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW
       ),
       editor.registerCommand<DragEvent>(
         DROP_COMMAND,
         (event) => {
           return $onDrop(event, editor);
         },
-        COMMAND_PRIORITY_HIGH,
-      ),
+        COMMAND_PRIORITY_HIGH
+      )
     );
   }, [captionsEnabled, editor]);
 
@@ -268,7 +270,7 @@ function $onDragStart(event: DragEvent): boolean {
         width: node.__width,
       },
       type: "image",
-    }),
+    })
   );
 
   return true;

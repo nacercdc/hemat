@@ -59,13 +59,13 @@ export class DomainUpdateRequestDto {
     description: 'Description of the domain',
     example: 'Domain covering public health initiatives',
     minLength: 1,
-    maxLength: 500,
+    maxLength: 1000,
     type: String,
   })
   @IsOptional()
   @IsString({ message: 'validation.description.isString' })
-  @Length(1, 500, {
-    message: 'validation.description.length args: min:1 | max:500',
+  @Length(1, 1000, {
+    message: 'validation.description.length args: min:1 | max:1000',
   })
   @Type(() => String)
   description?: string;

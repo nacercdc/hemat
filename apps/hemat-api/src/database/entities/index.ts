@@ -1,6 +1,7 @@
 export * from './answer.entity';
 export * from './assessment-component.entity';
 export * from './assessment-domain.entity';
+export * from './assessment-download.entity';
 export * from './assessment-group.entity';
 export * from './assessment-measurement-scale.entity';
 export * from './assessment-measurement-scale-sub-component.entity';

@@ -41,8 +41,8 @@ export function useFindAll<
     options.queries?.filters,
     options.queries?.search,
     options.queries?.sorts,
-    options?.queries?.limit?.toString(),
-    options?.queries?.page?.toString(),
+    options?.queries?.take?.toString(),
+    options?.queries?.skip?.toString(),
     ...(options.tqOptions?.queryKey?.map(String) || []),
   ].filter(Boolean);
 

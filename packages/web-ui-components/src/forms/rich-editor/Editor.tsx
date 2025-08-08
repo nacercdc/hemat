@@ -44,6 +44,7 @@ export interface EditorProps {
   isEnabled?: boolean;
   placeholder?: string;
   isModal?: boolean;
+  size?: "sm" | "md";
   onChange?: (state: string) => void;
 }
 
@@ -60,6 +61,7 @@ export const Editor = forwardRef<EditorRef, EditorProps>(
       error,
       isEnabled = true,
       isModal = false,
+      size = "sm",
       placeholder = "Start typing...",
       onChange,
     },
@@ -137,7 +139,7 @@ export const Editor = forwardRef<EditorRef, EditorProps>(
                   >
                     <ContentEditable
                       placeholder={placeholder}
-                      className={`!focus:border-none min-h-10 outline-none px-2 py-2 ${noBorder && "px-0"}`}
+                      className={`!focus:border-none outline-none px-2 py-2 ${noBorder && "px-0"} ${size === "sm" && "min-h-10"} ${size === "md" && "min-h-32"}`}
                     />
                   </div>
                 </div>

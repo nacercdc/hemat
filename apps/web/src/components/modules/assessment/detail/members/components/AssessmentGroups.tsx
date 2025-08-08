@@ -64,13 +64,13 @@ export default function AssessmentGroups() {
     },
   });
   const assessmentDomains: Domain[] = assessmentDomainsRes?.data || [];
-  const pathP =
-    assessmentId && selectedGroupId
-      ? `assessments/${assessmentId}/groups/${selectedGroupId}/domains`
-      : "";
+
   const { data: assessmentGroupDomainsRes, ...assessmentGroupDomainsState } =
     useFindAll<Domain>({
-      path: pathP,
+      path: `assessments/${assessmentId}/groups/${selectedGroupId}/domains`,
+      tqOptions: {
+        enabled: !!assessmentId && !!selectedGroupId,
+      },
     });
   const assessmentGroupDomains = useMemo(() => {
     return assessmentGroupDomainsState.isSuccess &&
@@ -119,6 +119,7 @@ export default function AssessmentGroups() {
     },
     tqOptions: {
       queryKey: [ASSESSMENT_GROUPS_KEY],
+      enabled: !!assessmentId,
     },
   });
 

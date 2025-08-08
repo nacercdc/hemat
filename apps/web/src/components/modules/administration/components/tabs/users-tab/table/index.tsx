@@ -41,8 +41,8 @@ export function UsersTable({ modules, permissions }: Props) {
   >({
     path: "/users",
     queries: {
-      limit: pagination.pageSize,
-      page: pagination.pageIndex + 1,
+      take: pagination.pageSize,
+      skip: pagination.pageIndex,
       include: ["permissions", "roles"],
       sorts: sort,
       search,

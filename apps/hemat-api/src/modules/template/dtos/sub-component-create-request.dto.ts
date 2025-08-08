@@ -40,13 +40,13 @@ export class SubComponentCreateRequestDto {
     description: 'Description of the sub-component',
     example: 'Sub-component for vaccine distribution',
     minLength: 1,
-    maxLength: 500,
+    maxLength: 1000,
     type: String,
   })
   @IsNotEmpty({ message: 'validation.description.isNotEmpty' })
   @IsString({ message: 'validation.description.isString' })
-  @Length(1, 500, {
-    message: 'validation.description.length args: min:1 | max:500',
+  @Length(1, 1000, {
+    message: 'validation.description.length args: min:1 | max:1000',
   })
   @Type(() => String)
   description: string;
