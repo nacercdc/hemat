@@ -27,6 +27,7 @@ export interface UpdateProfile {
   phoneNumber?: string;
   country?: string;
   jobTitle?: string;
+  profession?: string;
   username: string;
 }
 
