@@ -4,7 +4,6 @@
 import {
   AvatarInput,
   Button,
-  DateTimePickerRHF,
   InputRHF,
   PhoneNumberInputRHF,
   SelectRHF,
@@ -22,7 +21,6 @@ import { useGetMe } from "~/providers/me/useGetMe";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import type { Profile, UpdateProfile } from "~/libs/models/profile.model";
 import { ProfileTabSkeleton } from "./ProfileTabSkeleton";
-import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "@etm/utilities";
 import type { Country } from "~/libs/models/country.model";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 export const PERSONAL_TITLES = [
@@ -79,8 +77,8 @@ const ProfileDetailSchema = z.object({
   gender: GenderSchema.optional(),
   country: CountrySchema.optional(),
   jobTitle: z.string().min(1, { message: "Job title is required" }),
+  profession: z.string().min(1, { message: "Profession is required" }),
   email: z.string().optional(),
-  dateOfBirth: z.date().optional(),
 });
 
 export type ProfileDetailFormData = z.infer<typeof ProfileDetailSchema>;
@@ -111,7 +109,7 @@ export default function ProfileTab() {
       lastName: "",
       userName: "",
       jobTitle: "",
-      dateOfBirth: undefined,
+      profession: "",
     },
     resolver: zodResolver(ProfileDetailSchema),
     mode: "onChange",
@@ -131,9 +129,7 @@ export default function ProfileTab() {
       jobTitle: values.jobTitle,
       gender: values.gender?.id,
       phoneNumber: values?.phoneNumber,
-      dateOfBirth: values?.dateOfBirth
-        ? formatDateToYYYYMMDD(values?.dateOfBirth)
-        : undefined,
+      profession: values.profession,
     };
 
     updateProfile(
@@ -187,6 +183,7 @@ export default function ProfileTab() {
             }
           : undefined,
         jobTitle: currentUser.profile?.jobTitle ?? "",
+        profession: currentUser.profile?.profession ?? "",
         firstName: currentUser.profile?.firstName ?? "",
         lastName: currentUser.profile?.lastName ?? "",
         userName: currentUser.profile?.username ?? "",
@@ -204,9 +201,6 @@ export default function ProfileTab() {
           : undefined,
 
         phoneNumber: currentUser.profile?.phoneNumber ?? "",
-        dateOfBirth: currentUser.profile?.dateOfBirth
-          ? new Date(parseYYYYMMDDToDate(currentUser.profile?.dateOfBirth))
-          : undefined,
       });
     }
   }, [currentUserState.isSuccess, currentUserState.isRefetching, currentUser]);
@@ -313,11 +307,11 @@ export default function ProfileTab() {
         <PhoneNumberInputRHF
           control={control}
           name="phoneNumber"
-          label="Phone Phone"
+          label="Phone Number"
           labelSize="sm"
           labelVariant="medium"
           size="lg"
-          placeholder="Enter your phone phone"
+          placeholder="Enter your phone number"
           options={(countries?.data ?? []).map((country) => ({
             label: country.name ?? "",
             value: country.code as CountryCode,
@@ -341,15 +335,13 @@ export default function ProfileTab() {
           labelVariant="medium"
           placeholder="Enter job title"
         />
-        <DateTimePickerRHF
-          name="dateOfBirth"
+        <InputRHF
+          name="profession"
           control={control}
-          showTime={false}
-          labelVariant="medium"
-          label="Date of birth"
+          label="Profession"
           size="lg"
-          placeholder="Enter your date of birth"
-          iconDirection="right"
+          labelVariant="medium"
+          placeholder="Enter profession"
         />
       </div>
       <div className="flex flex-col gap-5">
