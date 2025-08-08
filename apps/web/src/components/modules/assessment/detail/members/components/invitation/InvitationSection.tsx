@@ -25,8 +25,10 @@ export default function InvitationSection({
   }
 
   return (
-    <div className="flex flex-col gap-2 w-full">
+    <div className="flex flex-col gap-2 w-full mb-4 bg-card rounded-b-md p-3 border border-t-0 border-secondary-100/80">
       {isLoading && <InvitationListSkeleton />}
+      <h1 className="font-semibold">Invited participants</h1>
+
       {assessmentGroups?.length && (
         <InvitationList assessmentGroups={assessmentGroups} />
       )}

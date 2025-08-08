@@ -17,31 +17,36 @@ import type {
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
-import MemberRoleCard from "../../../components/MemberRoleCard";
 import MemberAction from "../MemberAction";
 import MemberInfo from "../MemberInfo";
 import InvitationSection from "./InvitationSection";
 import InvitationListSkeleton from "./InvitationListSkeleton";
 
+const addAssessmentInvitationSchema = z
+  .object({
+    newGroup: z.string().optional(),
+    email: z.string().email({ message: "Enter a valid email" }).optional(),
+    group: z.object({
+      id: z.string().optional(),
+    }),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.group?.id && !data.newGroup?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select an existing team or create a new one",
+        path: ["group"],
+      });
+    }
 
-const addAssessmentInvitationSchema = z.object({
-  newGroup: z.string().optional(),
-  email: z
-    .string()
-    .email({ message: "Enter a valid email" })
-    .min(1, { message: "Email is required" }),
-  group: z.object({
-    id: z.string().min(1, { message: "Select a group or create one." }),
-  }),
-}).superRefine((data, ctx) => {
-      if (!data.group || !data.newGroup) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Create a group",
-          path: ["group"],
-        });
-      };
-    })
+    if (!data.group?.id && !data.newGroup?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please select an existing team or create a new one",
+        path: ["newGroup"],
+      });
+    }
+  });
 
 export type AddAssessmentInvitationFormData = z.infer<
   typeof addAssessmentInvitationSchema
@@ -55,17 +60,23 @@ export function SendInvitation() {
   const { toast } = useToast();
   const sendInvitationModalRef = useRef<ModalRef>(null);
 
-  const { control, getValues, setValue, trigger,formState:{errors} } =
-    useForm<AddAssessmentInvitationFormData>({
-      defaultValues: {
-        email: "",
-        newGroup: "",
-        group: {
-          id: "",
-        },
+  const {
+    control,
+    setError,
+    setValue,
+    trigger,
+    formState: { errors },
+  } = useForm<AddAssessmentInvitationFormData>({
+    defaultValues: {
+      email: "",
+      newGroup: "",
+      group: {
+        id: "",
       },
-      resolver: zodResolver(addAssessmentInvitationSchema),
-    });
+    },
+    resolver: zodResolver(addAssessmentInvitationSchema),
+    mode: "all",
+  });
 
   const { mutate: sendInvitation, ...sendInvitationState } = useAddMutation<
     MemberInvitationGroup[]
@@ -84,25 +95,51 @@ export function SendInvitation() {
   });
 
   const openInvitationModal = () => sendInvitationModalRef.current?.openModal();
-  const openTextFiledHandler = () => setAddNewGroupName((prev) => !prev);
+  const openTextFiledHandler = () => {
+    setAddNewGroupName((prev) => !prev);
+    if (addNewGroupName) {
+      setValue("newGroup", "");
+    } else {
+      setValue("group.id", "");
+    }
+  };
+
   const addEmailHandler = async (): Promise<void> => {
+    const emailValue = control._formValues.email;
+    if (!emailValue?.trim()) return;
+
     const isValid = await trigger("email");
     if (!isValid) return;
-    const newEmail = getValues("email").trim().toLowerCase();
+
+    const newEmail = emailValue.trim().toLowerCase();
+    if (emails.includes(newEmail)) {
+      setError("email", { type: "manual", message: "Duplicated email." });
+      return;
+    }
     if (newEmail && !emails.includes(newEmail)) {
       setEmails([...emails, newEmail]);
       setValue("email", "");
     }
   };
+
   const removeEmailHandler = (email: string) => {
     setEmails((prev = []) => prev.filter((e) => e !== email));
   };
-  const onInvitationSubmitHandler = () => {
+
+  const onInvitationSubmitHandler = async () => {
     if (emails.length === 0) return;
-    const values = getValues();
+
+    const isValidGroup = await trigger("group");
+    const isValidNewGroup = await trigger("newGroup");
+    if (!isValidGroup && !isValidNewGroup) return;
+
+    const values = control._formValues;
+    const groupId = values.group?.id?.trim();
+    const newGroupName = values.newGroup?.trim();
+
     const formatted: MemberInvitationGroup[] = [
       {
-        group: values.group?.id?.trim() || values.newGroup?.trim(),
+        group: groupId || newGroupName,
         invitations: emails.map((email) => ({
           email,
           role: "member",
@@ -123,6 +160,9 @@ export function SendInvitation() {
           });
           sendInvitationModalRef.current?.closeModal();
           setEmails([]);
+          setValue("newGroup", "");
+          setValue("group.id", "");
+          setAddNewGroupName(false);
           queryClient.invalidateQueries({
             queryKey: ["ASSESSMENT_GROUPS_KEY"],
           });
@@ -130,49 +170,68 @@ export function SendInvitation() {
       }
     );
   };
+
   if (assessmentGroupsState.isLoading) {
     return <InvitationListSkeleton />;
   }
+
   return (
     <div className="flex items-start flex-wrap justify-between gap-4">
-      <div className="lg:w-3/5 w-full flex flex-col gap-3 p-2 bg-dark-lighter/5 rounded-sm">
-          <div className="flex justify-between mt-2">
-            <h1 className="text-lg font-semibold">Invited participants</h1>
-            <Button
-              type="button"
-              size="lg"
-              color="primaryLight"
-            variant="outline"
-              onClick={openInvitationModal}
-              
-            >
-              Send Invitation
-            </Button>
+      <div className="w-full flex flex-col p-3 bg-dark-lighter/5 rounded-sm">
+        <div className="flex flex-col justify-between mt-2">
+          <div className="flex flex-col gap-4 bg-card rounded-t-md p-3 border border-secondary-100/80">
+            <div className="flex gap-3 ">
+              <div className="flex-1">
+                <InputRHF
+                  name="email"
+                  control={control}
+                  placeholder="Enter the email addresses of the participants you want to invite "
+                  error={errors.email?.message}
+                />
+              </div>
+              <Button
+                leftNode={<Icon icon={"mdi:user-add"} className="!w-5 !h-5" />}
+                size="lg"
+                color="primaryLight"
+                variant="outline"
+                onClick={addEmailHandler}
+              >
+                Add
+              </Button>
+            </div>
+            {emails.map((email) => (
+              <div key={email} className="flex justify-between">
+                <MemberInfo email={email} />
+                <MemberAction
+                  userId={email}
+                  refetch={() => removeEmailHandler(email)}
+                  optionsList={["Cancel Invitation"]}
+                />
+              </div>
+            ))}
+            {emails.length !== 0 && (
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  size="lg"
+                  color="primaryLight"
+                  variant="outline"
+                  onClick={openInvitationModal}
+                >
+                  Send Invitation
+                </Button>
+              </div>
+            )}
           </div>
-      
-
+        </div>
         <InvitationSection
           assessmentGroups={assessmentGroups?.data}
           isLoading={assessmentGroupsState.isLoading}
         />
       </div>
-
-      <div className="flex-1 rounded-sm gap-2 flex flex-col p-2 bg-dark-lighter/5">
-        <MemberRoleCard
-          title="Groups Leader"
-          icon="meteor-icons:user"
-          placeholderText="Group leader here"
-        />
-        <MemberRoleCard
-          title="Team Leader"
-          icon="mdi:group-add-outline"
-          placeholderText="Team leader here"
-        />
-      </div>
-
       <Modal ref={sendInvitationModalRef} title="Create Team">
         <div className="flex flex-col py-3 px-8">
-          <div className="flex gap-3 items-end">
+          <div className="flex gap-3 items-end mb-4">
             {assessmentGroups?.data?.length != 0 && !addNewGroupName && (
               <SelectRHF<AssessmentGroup, AddAssessmentInvitationFormData>
                 control={control}
@@ -183,7 +242,7 @@ export function SendInvitation() {
                 valueKey="id"
                 inModal={true}
                 options={assessmentGroups?.data ?? []}
-               error={errors.group?.message}
+                error={errors.group?.message}
               />
             )}
             {addNewGroupName && (
@@ -192,6 +251,7 @@ export function SendInvitation() {
                 name="newGroup"
                 control={control}
                 placeholder="Write name of the team"
+                error={errors.newGroup?.message}
               />
             )}
             <div className="mb-2">
@@ -209,22 +269,7 @@ export function SendInvitation() {
               </Button>
             </div>
           </div>
-           <div className="flex gap-3 mb-4">
-          <InputRHF
-            name="email"
-            control={control}
-            placeholder="Enter the email addresses of the participants you want to invite "
-          />
-          <Button
-            leftNode={<Icon icon={"mdi:user-add"} className="!w-5 !h-5" />}
-            size="lg"
-            color="primaryLight"
-            variant="outline"
-            onClick={addEmailHandler}
-          >
-            Add
-          </Button>
-        </div>
+
           <div className="flex flex-col bg-card rounded-sm ">
             {emails.length === 0 ? (
               <p className="text-sm text-muted-foreground">
