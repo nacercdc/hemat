@@ -27,6 +27,7 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
     path.join(
       projectRoot,
       'packages/server-media-upload/dist/src/entities/*.entity.js',
+      'packages/server-notification/dist/src/entities/*.entity.js',
     ),
   ],
   migrations: [
