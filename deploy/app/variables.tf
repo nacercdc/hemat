@@ -13,7 +13,7 @@ variable "environment" {
 
 variable "image_tag" {
   type = string
-  default = "main-4bb9673"
+  default = null
 }
 
 variable "project_id" {

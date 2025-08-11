@@ -71,20 +71,6 @@ export class UserBaseRequestDto {
   lastName: string;
 
   @ApiPropertyOptional({
-    description: 'Username',
-    example: 'johndoe',
-    minLength: 3,
-    maxLength: 50,
-    type: String,
-  })
-  @Length(3, 50, { message: 'validation.username.length args: min:3 | max:50' })
-  @IsString({ message: 'validation.username.isString' })
-  @IsOptional()
-  @IsUnique({ tableName: 'profiles', columns: ['username'] })
-  @Type(() => String)
-  username?: string | null = null;
-
-  @ApiPropertyOptional({
     description: 'Gender',
     enum: GenderEnum,
     example: GenderEnum.MALE,
@@ -98,16 +84,6 @@ export class UserBaseRequestDto {
   gender: GenderEnum | null = null;
 
   @ApiPropertyOptional({
-    description: 'Birth date',
-    example: '2000-10-25',
-    type: Date,
-  })
-  @IsDateString({}, { message: 'validation.dateOfBirth.isDateString' })
-  @IsOptional()
-  @Type(() => String)
-  dateOfBirth: Date | null = null;
-
-  @ApiPropertyOptional({
     description: 'Country',
     example: 'United States',
     type: String,
@@ -116,6 +92,26 @@ export class UserBaseRequestDto {
   @IsOptional()
   @Type(() => String)
   country: string | null = null;
+
+  @ApiPropertyOptional({
+    description: 'Job title',
+    example: 'Team Lead',
+    type: String,
+  })
+  @IsString({ message: 'validation.jobTitle.isString' })
+  @IsOptional()
+  @Type(() => String)
+  jobTitle?: string | null = null;
+
+  @ApiPropertyOptional({
+    description: 'Profession',
+    example: 'Medical Doctor',
+    type: String,
+  })
+  @IsString({ message: 'validation.profession.isString' })
+  @IsOptional()
+  @Type(() => String)
+  profession?: string | null = null;
 
   @ApiProperty({
     description: 'Roles',

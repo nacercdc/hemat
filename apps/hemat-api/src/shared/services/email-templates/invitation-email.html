@@ -1,84 +1,186 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>You're Invited to Africa CDC</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f4f8fb;
-      color: #222;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 420px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      padding: 32px 24px 24px 24px;
-      border-top: 5px solid #1b7c6e;
-      text-align: center;
-    }
-    .logo {
-      font-size: 2rem;
-      color: #1b7c6e;
-      font-weight: bold;
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-    }
-    h2 {
-      color: #1b7c6e;
-      font-size: 1.3rem;
-      margin-bottom: 0.7rem;
-    }
-    .desc {
-      font-size: 1.05rem;
-      color: #444;
-      margin-bottom: 22px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 28px;
-      background: #1b7c6e;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 18px 0 12px 0;
-      transition: background 0.2s;
-    }
-    .btn:hover {
-      background: #17695c;
-    }
-    .footer {
-      font-size: 0.93rem;
-      color: #888;
-      margin-top: 28px;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid #e6f2ef;
-      margin: 24px 0 16px 0;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="logo">Africa CDC</div>
-    <h2>You're Invited!</h2>
-    <div class="desc">
-      You have been invited to join an assessment on <b>Africa CDC</b>.<br>
-      Click the button below to accept your invitation.
+  <head>
+    <meta charset="UTF-8" />
+    <title>Request for Health Data Submission - Africa CDC</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: #f4f8fb;
+        color: #222;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        padding: 32px;
+        text-align: left;
+      }
+      .header img {
+        height: 40px;
+        width: auto;
+      }
+      .content {
+        padding: 32px;
+        text-align: left;
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: bold;
+        color: #444;
+        margin-bottom: 16px;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background: rgba(52, 143, 65, 0.07);
+        color: #206830;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 16px 0;
+        transition: background 0.2s;
+      }
+      .btn:hover {
+        background: #206830;
+        color: #fff;
+      }
+      .text-content {
+        font-size: 12px;
+        color: #444;
+        line-height: 1.6;
+        margin: 16px 0;
+      }
+      .text-content p {
+        margin: 8px 0;
+      }
+      .text-content .bold {
+        font-weight: bold;
+      }
+      .signature {
+        margin-top: 32px;
+        font-size: 14px;
+      }
+      .signature .bold {
+        font-weight: 600;
+      }
+      .footer {
+        background: #206830;
+        color: #fff;
+        padding: 24px 32px;
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .footer img {
+        height: 28px;
+        width: auto;
+      }
+      .footer-content {
+        text-align: left;
+        line-height: 1.6;
+      }
+      .footer-content p {
+        margin: 8px 0;
+      }
+      .icons {
+        margin: 8px 0;
+      }
+      .icons a {
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0 8px;
+        text-decoration: none;
+      }
+      .icons a:hover {
+        color: #fff;
+      }
+      .footer-content .copyright {
+        color: rgba(255, 255, 255, 0.7);
+      }
+      hr {
+        border: none;
+        border-top: 1px solid #e6f2ef;
+        margin: 24px 0;
+      }
+      .icon {
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="/images/acdc-logo.svg" alt="Africa CDC Logo" />
+      </div>
+      <div class="content">
+        <h1>Request for Health Data Submission</h1>
+        <a class="btn" href="{{registerUrl}}">Get Started</a>
+        <div class="text-content">
+          <p class="bold">Dear [Recipient Name],</p>
+          <p>
+            You have been invited to join an assessment on
+            <b>Africa CDC</b>.<br />
+            Click the button above to accept your invitation.
+          </p>
+        </div>
+        <div class="signature">
+          <p class="bold">Best Regards,</p>
+          <p>Africa CDC</p>
+        </div>
+      </div>
+      <div class="footer">
+        <div>
+          <img src="/images/acdc-logo-white.svg" alt="Africa CDC Logo" />
+        </div>
+        <div class="footer-content">
+          <p>Join a Healthier Future – With Us!</p>
+          <div class="icons">
+            <a href="https://facebook.com">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-2.5h2V11c0-2.21 1.79-4 4-4s4 1.79 4 4v1.5h-2V15h2v4.8c4.56-.93 8-4.96 8-9.8C22 6.48 17.52 2 12 2z"
+                />
+              </svg>
+            </a>
+            <a href="https://linkedin.com">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"
+                />
+              </svg>
+            </a>
+            <a href="https://twitter.com">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.18 4 15.93 4c-2.14 0-3.88 1.74-3.88 3.88 0 .3.03.59.09.87-3.23-.16-6.09-1.71-8.01-4.06-.33.56-.52 1.21-.52 1.91 0 1.31.67 2.47 1.68 3.15-.62-.02-1.2-.19-1.71-.47v.05c0 1.87 1.33 3.43 3.1 3.78-.32.09-.66.14-1.02.14-.24 0-.48-.02-.71-.07.48 1.5 1.87 2.59 3.52 2.62-1.29.99-2.92 1.58-4.69 1.58-.3 0-.6-.02-.89-.06 1.67 1.07 3.65 1.69 5.78 1.69 6.94 0 10.74-5.75 10.74-10.74 0-.16 0-.33-.02-.49.73-.53 1.36-1.19 1.86-1.95z"
+                />
+              </svg>
+            </a>
+            <a href="https://instagram.com">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.233.304 2.886.657.722.361 1.326.974 1.685 1.665.36.652.593 1.52.657 2.886.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.304 2.233-.657 2.886-.361.722-.974 1.326-1.665 1.685-.652.36-1.52.593-2.886.657-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.233-.304-2.886-.657-.722-.361-1.327-.974-1.685-1.665-.36-.652-.594-1.52-.657-2.886-.058-1.266-.07-1.646-.07-4.85s.012-3.584.07-4.85c.062-1.366.304-2.233.657-2.886.361-.722.974-1.326 1.665-1.685.652-.36 1.52-.593 2.886-.657 1.266-.058 1.646-.07 4.85-.07m0-2.163c-3.259 0-3.667.014-4.947.072-1.316.062-2.206.287-2.987.607-.832.337-1.534.796-2.226 1.488-.692.692-1.15 1.394-1.488 2.226-.32.781-.545 1.671-.607 2.987-.058 1.28-.072 1.689-.072 4.947s.014 3.667.072 4.947c.062 1.316.287 2.206.607 2.987.337.832.796 1.534 1.488 2.226.692.692 1.394 1.15 2.226 1.488.781.32 1.671.545 2.987.607 1.28.058 1.689.072 4.947.072s3.667-.014 4.947-.072c1.316-.062 2.206-.287 2.987-.607.832-.337 1.534-.796 2.226-1.488.692-.692 1.15-1.394 1.488-2.226.32-.781.545-1.671.607-2.987.058-1.28.072-1.689.072-4.947s-.014-3.667-.072-4.947c-.062-1.316-.287-2.206-.607-2.987-.337-.832-.796-1.534-1.488-2.226-.692-.692-1.394-1.15-2.226-1.488-.781-.32-1.671-.545-2.987-.607-1.28-.058-1.689-.072-4.947-.072z"
+                />
+                <path
+                  d="M12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162m0 10.162c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.441s.645 1.441 1.441 1.441 1.441-.645 1.441-1.441-.645-1.441-1.441-1.441z"
+                />
+              </svg>
+            </a>
+          </div>
+          <p class="copyright">&copy; AfricaCDC 2025, All Rights Reserved</p>
+        </div>
+      </div>
     </div>
-    <a class="btn" href="{{registerUrl}}">Accept Invitation</a>
-    <hr>
-    <div class="footer">
-      If you did not expect this invitation, you can safely ignore this email.<br>
-      <br>
-    </div>
-  </div>
-</body>
-</html> 
+  </body>
+</html>

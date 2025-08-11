@@ -1,5 +1,6 @@
 export * from './answer-status.enum';
 export * from './assesement.enum';
+export * from './download-status.enum';
 export * from './evidence.enum';
 export * from './invitation.enum';
 export * from './permission.enum';
