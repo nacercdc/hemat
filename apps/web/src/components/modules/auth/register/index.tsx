@@ -61,9 +61,24 @@ const CountrySchema = z.object(
 
 const registerFormSchema = z
   .object({
-    firstName: z.string().min(1, { message: "First name is required" }),
-    middleName: z.string().optional(),
-    lastName: z.string().min(1, { message: "Last name is required" }),
+    firstName: z
+      .string()
+      .min(1, { message: "First name is required" })
+      .refine((val) => isNaN(Number(val)), {
+        message: "First name cannot be a number",
+      }),
+    lastName: z
+      .string()
+      .min(1, { message: "Last name is required" })
+      .refine((val) => isNaN(Number(val)), {
+        message: "Last name cannot be a number",
+      }),
+    middleName: z
+      .string()
+      .optional()
+      .refine((val) => !val || isNaN(Number(val)), {
+        message: "Middle name cannot be a number",
+      }),
     title: titleSchema.optional(),
     gender: GenderSchema,
     jobTitle: z.string().min(1, { message: "Job title is required" }),
