@@ -37,8 +37,18 @@ const RoleSchema = z.object({
 
 const UserFormSchema = z.object({
   title: z.string().min(1, { message: "Title name is required" }),
-  firstName: z.string().min(1, { message: "First name is required" }),
-  lastName: z.string().min(1, { message: "Last name is required" }),
+  firstName: z
+    .string()
+    .min(1, { message: "First name is required" })
+    .refine((val) => isNaN(Number(val)), {
+      message: "First name cannot be a number",
+    }),
+  lastName: z
+    .string()
+    .min(1, { message: "Last name is required" })
+    .refine((val) => isNaN(Number(val)), {
+      message: "Last name cannot be a number",
+    }),
   email: z
     .string()
     .min(1, { message: "Email is required" })
@@ -101,8 +111,8 @@ export function UserForm({
   const { data: roles, ...rolesState } = useFindAll<QueryManyResponse<Role>>({
     path: "/roles",
     queries: {
-      limit: 100, //TODO: need all here
-      page: 1,
+      take: 100,
+      skip: 0,
       include: ["permissions"],
     },
   });

@@ -65,8 +65,18 @@ const CountrySchema = z.object({
 
 const ProfileDetailSchema = z.object({
   title: titleSchema.optional(),
-  firstName: z.string().min(1, { message: "First name is required" }),
-  lastName: z.string().min(1, { message: "Last name is required" }),
+  firstName: z
+    .string()
+    .min(1, { message: "First name is required" })
+    .refine((val) => isNaN(Number(val)), {
+      message: "First name cannot be a number",
+    }),
+  lastName: z
+    .string()
+    .min(1, { message: "Last name is required" })
+    .refine((val) => isNaN(Number(val)), {
+      message: "Last name cannot be a number",
+    }),
   userName: z.string().min(1, { message: "User name is required" }),
   phoneNumber: z
     .string()
