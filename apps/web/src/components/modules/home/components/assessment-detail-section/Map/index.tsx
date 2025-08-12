@@ -62,7 +62,7 @@ const progressStatusOptions: {
 //TODO: change as soon as api is changed
 const statusMap = {
   completed: "Completed",
-  draft: "In Progress", //Needs review
+  draft: "Planned", //Needs review
   pending: "Planned", //Needs review
   ready: "Planned", //Needs review
   planned: "Planned",

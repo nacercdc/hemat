@@ -204,9 +204,6 @@ export function CurrentAssessmentFill() {
     router.back();
   };
 
-  console.log("activeSubComponentIndex", activeSubComponentIndex);
-  console.log("subComponents", subComponents);
-
   useEffect(() => {
     if (components?.data.length) {
       setActiveComponent(components?.data[0] as unknown as Component);
