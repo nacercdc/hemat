@@ -1,6 +1,14 @@
 import type { Assessment } from "./assessment.model";
 import type { User } from "./user.model";
 
+export type StatusType =
+  | "draft"
+  | "pending"
+  | "closed"
+  | "ready"
+  | "inprogress"
+  | "completed";
+
 export interface Roadmap {
   id: string;
   createdAt: string;
@@ -48,7 +56,7 @@ export interface RoadmapList {
   userId: string;
   isPrimary: true;
   percentage: 0;
-  status: string;
+  status: StatusType;
   createdAt: string;
   updatedAt: string;
   assessment: Assessment;
