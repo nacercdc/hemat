@@ -196,7 +196,7 @@ export default function AssessmentGroups() {
             <span className="font-semibold text-sm">Team & Participants</span>
           </div>
 
-          {Array.isArray(groups) &&
+          {Array.isArray(groups) && groups.length !== 0 ? (
             groups.map((group) => (
               <div
                 className="relative border-2 rounded-lg px-4 pt-10 pb-4 bg-primary-50/20 border-primary-50"
@@ -225,7 +225,7 @@ export default function AssessmentGroups() {
                   </div>
                 </div>
 
-                {Array.isArray(group.members) &&
+                {Array.isArray(group.members) && group.members.length !== 0 ? (
                   group.members.map((member, index) => (
                     <div className="flex flex-col m-4" key={index}>
                       <div className="flex items-center justify-between">
@@ -256,9 +256,21 @@ export default function AssessmentGroups() {
                         />
                       </div>
                     </div>
-                  ))}
+                  ))
+                ) : (
+                  <MemberRoleCard
+                    icon="meteor-icons:user"
+                    placeholderText="There are no members to show."
+                  />
+                )}
               </div>
-            ))}
+            ))
+          ) : (
+            <MemberRoleCard
+              icon="mdi:group-add-outline"
+              placeholderText="There are no groups to show."
+            />
+          )}
         </div>
       </div>
 

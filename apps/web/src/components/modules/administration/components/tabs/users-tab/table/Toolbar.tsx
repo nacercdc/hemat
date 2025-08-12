@@ -1,42 +1,43 @@
 "use client";
 
 import React, { useState } from "react";
-import { CheckboxFilter } from "@etm/web-ui-components";
+import { Select } from "@etm/web-ui-components";
 import { UserStatus } from "~/libs/models/user.model";
 
 export interface StatusType {
-  label: UserStatus;
-  value: boolean;
+  label: string;
+  value: string;
 }
 
 const StatusTypesOptions: StatusType[] = [
-  { label: UserStatus.ACTIVE, value: true },
-  { label: UserStatus.INACTIVE, value: false },
+  { label: UserStatus.ACTIVE, value: UserStatus.ACTIVE },
+  { label: UserStatus.INACTIVE, value: UserStatus.INACTIVE },
 ];
-
 interface Props {
-  onStatusTypeCheck: (statusTypes?: StatusType[]) => void;
+  onStatusTypeSelect: (statusTypes?: StatusType) => void;
 }
-export default function Toolbar({ onStatusTypeCheck }: Props) {
-  const [checkedStatusTypes, setCheckedStatusTypes] = useState<StatusType[]>();
 
-  const onCheckStatusTypesHandler = (values?: StatusType[]) => {
-    setCheckedStatusTypes(values);
-    onStatusTypeCheck(values);
+export default function Toolbar({ onStatusTypeSelect }: Props) {
+  const [selectedStatusType, setSelectedStatusType] = useState<
+    StatusType | undefined
+  >();
+
+  const onCheckStatusTypesHandler = (value?: StatusType) => {
+    setSelectedStatusType(value);
+    onStatusTypeSelect(value);
   };
 
   return (
-    <div className="flex justify-between items-center gap-4 max-[400px]:w-full">
-      <CheckboxFilter<StatusType>
-        title="Filter"
-        options={StatusTypesOptions}
-        labelKey="label"
-        valueKey="value"
-        values={checkedStatusTypes}
+    <div className="flex justify-between items-center gap-4">
+      <Select<StatusType>
         size="lg"
-        variant="outline"
-        loading={false}
-        onValuesChange={onCheckStatusTypesHandler}
+        labelVariant="medium"
+        valueKey="value"
+        labelKey="label"
+        options={StatusTypesOptions}
+        placeholder="Filter by status"
+        value={selectedStatusType}
+        onSelect={onCheckStatusTypesHandler}
       />
     </div>
   );

@@ -20,12 +20,12 @@ export interface GroupMember {
 }
 
 export type StatusType =
-  | "Draft"
-  | "Pending"
-  | "Closed"
-  | "Ready"
-  | "In_Progress"
-  | "Completed";
+  | "draft"
+  | "pending"
+  | "closed"
+  | "ready"
+  | "in_progress"
+  | "completed";
 
 export interface Assessment {
   id: string;
@@ -76,8 +76,10 @@ export interface AssessmentDetail {
   description?: string;
 }
 
-export type AssessmentFilterable = "status";
+export interface AssessmentFilterable {
+  status: string;
+}
 export type AssessmentSortable = "createdAt" | "name" | "color";
 export type AssessmentsIncludeAble = "user" | "country" | "members" | "groups";
 export type AssessmentSorts = Sort<AssessmentSortable>;
-export type AssessmentFilters = Filter<AssessmentFilterable>[];
+export type AssessmentFilters = Filter<AssessmentFilterable>;

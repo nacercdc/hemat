@@ -14,8 +14,7 @@ const badgeVariants = cva("text-xs font-medium p-0.5 px-2", {
       warning: "bg-warning-500/10 text-warning-500 hover:bg-warning/15",
       dark: "bg-dark-lighter/10 text-dark hover:bg-dark-lighter/15",
       light: "bg-primary text-white hover:bg-primary/80",
-      progress:
-        "bg-destructive-500/10 text-destructive-500 hover:bg-destructive/15",
+      progress: "bg-secondary-300/10 text-secondary-300 hover:bg-secondary/15",
     },
     shape: {
       rectangular: "rounded-sm",

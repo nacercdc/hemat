@@ -3,17 +3,17 @@ import type { BadgeVariants } from "@etm/web-ui-components";
 import { Badge } from "@etm/web-ui-components";
 import type { ColumnDef } from "@etm/web-ui-components";
 
-import type { RoadmapList } from "~/libs/models/roadmap.model";
-import type { StatusType } from "~/libs/models/assessment.model";
+import type { RoadmapList, StatusType } from "~/libs/models/roadmap.model";
+
 import RoadmapAction from "./RoadmapAction";
 
 const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
-  Draft: "dark",
-  Pending: "warning",
-  Closed: "destructive",
-  Ready: "info",
-  "In-Progress": "progress",
-  Completed: "success",
+  draft: "dark",
+  pending: "warning",
+  closed: "destructive",
+  ready: "info",
+  inprogress: "progress",
+  completed: "success",
 };
 
 export const RoadmapsTableColumns: ColumnDef<RoadmapList>[] = [
@@ -54,8 +54,12 @@ export const RoadmapsTableColumns: ColumnDef<RoadmapList>[] = [
     cell: ({ row }: { row: { original: RoadmapList } }) => {
       return (
         <Badge
-          text={row.original.status}
-          variant={StatusVariantClasses[row.original.status as StatusType]}
+          text={
+            row.original.status === "inprogress"
+              ? "In-Progress"
+              : row.original.status
+          }
+          variant={StatusVariantClasses[row.original.status]}
           shape="circular"
         />
       );

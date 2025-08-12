@@ -27,21 +27,18 @@ const StatusTypesOptions: StatusType[] = [
 ];
 
 interface Props {
-  onStatusTypeSelect: (statusTypes?: StatusType[]) => void;
+  onStatusTypeSelect: (statusTypes?: StatusType) => void;
 }
 
 export default function Toolbar({ onStatusTypeSelect }: Props) {
-  const [selectedStatusTypes, setSelectedStatusTypes] = useState<StatusType[]>(
-    []
-  );
+  const [selectedStatusType, setSelectedStatusType] = useState<
+    StatusType | undefined
+  >();
 
-  const onCheckStatusTypesHandler = (values?: StatusType[]) => {
-    console.log(values, "VAlues");
-    setSelectedStatusTypes(values ?? []);
-    onStatusTypeSelect(values ?? []);
+  const onCheckStatusTypesHandler = (value?: StatusType) => {
+    setSelectedStatusType(value);
+    onStatusTypeSelect(value);
   };
-
-  console.log(selectedStatusTypes, "Selected");
 
   return (
     <div className="flex justify-between items-center gap-4">
@@ -52,12 +49,8 @@ export default function Toolbar({ onStatusTypeSelect }: Props) {
         labelKey="label"
         options={StatusTypesOptions}
         placeholder="Filter by status"
-        isMulti
-        values={selectedStatusTypes}
-        onSelect={() => {
-          console.log("SLECTTT");
-          onCheckStatusTypesHandler();
-        }}
+        value={selectedStatusType}
+        onSelect={onCheckStatusTypesHandler}
       />
     </div>
   );
