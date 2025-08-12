@@ -82,13 +82,6 @@ export enum SortDirectionEnum {
 
 export type SortDirectionType = SortDirectionEnum.ASC | SortDirectionEnum.DESC;
 
-export interface Filter<Filtrable> {
-  field: Filtrable;
-  operator: FilterOperatorEnum;
-  type?: FilterTypeEnum;
-  value: any;
-}
-
 export type Sort<Sortable> = Partial<Record<SortDirectionType, Sortable>>;
 
 export interface QueryOneRequest<Include> {
@@ -98,7 +91,7 @@ export interface QueryOneRequest<Include> {
 
 export interface QueryManyRequest<Include, Filterable, Sortable>
   extends QueryOneRequest<Include> {
-  filters?: Filter<Filterable>[];
+  filters?: Partial<Record<keyof Filterable, any>>;
   sorts?: Sort<Sortable>;
   search?: string;
   take?: number;
