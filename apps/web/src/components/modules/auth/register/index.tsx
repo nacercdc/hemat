@@ -133,6 +133,9 @@ export default function Register() {
   const { data: countries, ...countriesState } = useFindAll<Country>({
     path: "/countries",
     isProtected: false,
+    queries: {
+      take: 100,
+    },
   });
 
   const { mutate: registerProfile, ...registerProfileState } = useAddMutation<

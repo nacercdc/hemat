@@ -85,6 +85,9 @@ export function AssessmentForm({
   });
   const { data: countries, ...countriesState } = useFindAll<Country>({
     path: "/countries",
+    queries: {
+      take: 100,
+    },
     tqOptions: {
       enabled: !!assessment,
     },
