@@ -59,7 +59,11 @@ export default function CreateAssessment() {
   };
 
   return (
-    <PageContainer pageTitle="New Assessment" includeBreadcrumb={false}>
+    <PageContainer
+      pageTitle="New Assessment"
+      includeBreadcrumb={false}
+      onBack={() => router.back()}
+    >
       <AssessmentForm
         isLoading={createAssessmentState.isPending}
         onSubmitAssessmentForm={onSubmitAssessmentFormHandler}

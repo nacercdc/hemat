@@ -10,7 +10,7 @@ const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
   Pending: "warning",
   Closed: "destructive",
   Ready: "info",
-  "In-Progress": "progress",
+  In_Progress: "progress",
   Completed: "success",
 };
 
