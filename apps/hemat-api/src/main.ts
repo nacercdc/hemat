@@ -49,7 +49,11 @@ async function bootstrap() {
     },
   );
   app.useGlobalPipes(new ValidationPipe(VALIDATION_OPTIONS));
-  app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalFilters(
+    new GlobalExceptionFilter(
+      configService.get('app.nodeEnv', { infer: true }) === 'production',
+    ),
+  );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   await app.listen(configService.getOrThrow('app.port', { infer: true }));
