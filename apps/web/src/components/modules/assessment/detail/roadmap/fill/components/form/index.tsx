@@ -134,7 +134,6 @@ export function SubCompRoadmapForm({
     path: `/assessments/${params.id as string}/measurement-scales`,
     queries: {
       take: 100,
-      skip: 1,
     },
   });
 
