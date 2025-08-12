@@ -8,7 +8,7 @@ import { EmptyTableDataElement } from "~/components/modules/components/EmptyTabl
 import { UsersTableColumns } from "./UsersTableColumns";
 
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
-import Toolbar from "./Toolbar";
+
 import type {
   User,
   UserIncludable,
@@ -16,10 +16,12 @@ import type {
   UserSorts,
 } from "~/libs/models/user.model";
 import type { SortingState, PaginationState } from "@etm/web-ui-components";
-import type { StatusType } from "./Toolbar";
+
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { PermissionModule } from "../form";
 import type { Permission } from "~/libs/models/permission.model";
+import type { StatusType } from "./Toolbar";
+import Toolbar from "./Toolbar";
 
 interface Props {
   modules: PermissionModule[];
@@ -28,6 +30,8 @@ interface Props {
 
 export function UsersTable({ modules, permissions }: Props) {
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("");
+
   const [sort, setSort] = useState<UserSorts>({});
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: DEFAULT_PAGE_INDEX,
@@ -45,6 +49,7 @@ export function UsersTable({ modules, permissions }: Props) {
       skip: pagination.pageIndex,
       include: ["permissions", "roles"],
       sorts: sort,
+      filters: { status: filter },
       search,
     },
   });
@@ -78,8 +83,8 @@ export function UsersTable({ modules, permissions }: Props) {
   }, []);
 
   const onStatusFilterChangeHandler = useCallback(
-    (_statusType: StatusType[] | undefined) => {
-      //TODO: implement status filter once the backend is ready
+    (statusType: StatusType | undefined) => {
+      if (statusType) setFilter(statusType?.value);
     },
     []
   );
@@ -90,9 +95,6 @@ export function UsersTable({ modules, permissions }: Props) {
       title="No Users Found"
       body="You can add a new user by clicking the button below."
       actionText="Add User"
-      action={() => {
-        //TODO: Implement add user
-      }}
     />
   );
 
@@ -113,7 +115,7 @@ export function UsersTable({ modules, permissions }: Props) {
       enableRowSelection={false}
       initialPagination={pagination}
       onEmptyDataElement={OnEmptyDataElement}
-      toolbar={<Toolbar onStatusTypeCheck={onStatusFilterChangeHandler} />}
+      toolbar={<Toolbar onStatusTypeSelect={onStatusFilterChangeHandler} />}
     />
   );
 }
