@@ -27,26 +27,33 @@ export function validateConfig<T extends object>(
   return validatedConfig;
 }
 
-function generateErrors(errors: ValidationError[]): any {
-  return errors.reduce(
-    (acc, current) => ({
-      ...acc,
-      [current.property]:
-        (current.children?.length ?? 0) > 0
-          ? generateErrors(current.children ?? [])
-          : Object.values(current.constraints ?? {}),
-    }),
-    {},
-  );
-}
-
-export const validationOptions: ValidationPipeOptions = {
-  whitelist: true,
+export const VALIDATION_OPTIONS: ValidationPipeOptions = {
   transform: true,
+  whitelist: true,
   errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-  exceptionFactory: (errors: ValidationError[]) => {
-    return new UnprocessableEntityException({
-      message: generateErrors(errors),
-    });
+  exceptionFactory: (validationErrors: ValidationError[]) => {
+    const errors = generateErrors(validationErrors);
+    const message =
+      Object.values<string[]>(errors)[0]?.[0] ??
+      'common.exception.validationError';
+
+    return new UnprocessableEntityException({ message, errors });
   },
 };
+
+function generateErrors(
+  errors: ValidationError[],
+  parent?: string,
+): Record<string, string[]> {
+  return errors.reduce((acc: Record<string, string[]>, current) => {
+    let property = parent ? `${parent}.${current.property}` : current.property;
+
+    if (current.children?.length) {
+      return generateErrors(current.children, property);
+    }
+
+    acc[property] = Object.values<string>(current.constraints ?? {});
+
+    return acc;
+  }, {});
+}

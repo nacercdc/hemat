@@ -7,7 +7,7 @@ import { useContainer } from 'class-validator';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { ConfigType } from './config/types';
-import { validationOptions } from './shared/helpers';
+import { VALIDATION_OPTIONS } from './shared/helpers';
 import { GlobalExceptionFilter } from '@shared/filters';
 
 async function bootstrap() {
@@ -48,7 +48,7 @@ async function bootstrap() {
       exclude: ['/'],
     },
   );
-  app.useGlobalPipes(new ValidationPipe(validationOptions));
+  app.useGlobalPipes(new ValidationPipe(VALIDATION_OPTIONS));
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
