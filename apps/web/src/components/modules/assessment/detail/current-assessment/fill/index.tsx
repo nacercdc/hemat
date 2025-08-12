@@ -73,7 +73,6 @@ export function CurrentAssessmentFill() {
     path: `/assessmentDomains/${params.currentAssessmentId as string}/components`,
     queries: {
       take: 100,
-      skip: 1,
     },
   });
 
@@ -83,7 +82,6 @@ export function CurrentAssessmentFill() {
     path: `/assessmentSubcomponents/${activeComponent?.id}/subcomponents`,
     queries: {
       take: 100,
-      skip: 1,
     },
     tqOptions: {
       enabled: !!activeComponent,

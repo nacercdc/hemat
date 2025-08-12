@@ -40,7 +40,6 @@ export function RoadmapFill() {
     path: `/assessmentDomains/${params.roadmapDomainId as string}/components`,
     queries: {
       take: 100,
-      skip: 1,
     },
   });
 
@@ -50,7 +49,6 @@ export function RoadmapFill() {
     path: `/assessmentSubcomponents/${activeComponent?.id}/subcomponents`,
     queries: {
       take: 100,
-      skip: 1,
     },
     tqOptions: {
       enabled: !!activeComponent,

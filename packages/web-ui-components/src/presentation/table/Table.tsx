@@ -226,8 +226,13 @@ export function Table<TData extends object>({
                         "cursor-pointer",
                         header.id === "select" && "w-0",
                         header.id === "Action" &&
-                          "text-right sticky right-0 bg-basic-200"
+                          "text-right sticky right-0 bg-basic-200 w-[1%] whitespace-nowrap"
                       )}
+                      style={
+                        header.id === "Action"
+                          ? { width: "1%", whiteSpace: "nowrap" }
+                          : {}
+                      }
                     >
                       {flexRender(
                         header.column.columnDef.header,
@@ -296,8 +301,13 @@ export function Table<TData extends object>({
                           className={cn(
                             "py-0 px-2 text-sm font-medium",
                             isActionColumn &&
-                              "text-right sticky right-0 bg-card z-10"
+                              "text-right sticky right-0 bg-card z-10 w-[1%] whitespace-nowrap"
                           )}
+                          style={
+                            isActionColumn
+                              ? { width: "1%", whiteSpace: "nowrap" }
+                              : {}
+                          }
                         >
                           {flexRender(
                             cell.column.columnDef.cell,

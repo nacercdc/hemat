@@ -20,6 +20,6 @@ export function PageTitle({ assessmentId }: Props) {
     return <Skeleton className="w-80 h-7 rounded-sm" />;
   }
   return (
-    <div>{`${(assessment as unknown as Assessment).name} / Roadmap Fill`}</div>
+    <div>{`${(assessment as unknown as Assessment).name} / Assessment Fill`}</div>
   );
 }

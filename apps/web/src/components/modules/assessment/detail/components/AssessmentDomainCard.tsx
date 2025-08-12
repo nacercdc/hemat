@@ -9,8 +9,8 @@ export type GroupTagType = "primary" | "my" | "rest" | "roadmaps";
 export interface Domain {
   id: string;
   name: string;
-  componentsCount: number;
-  subComponentsCount: number;
+  componentscount: number;
+  subcomponentscount: number;
   progress: number;
   fillAccess: AssessmentRoleType;
 }
@@ -44,11 +44,11 @@ export default function AssessmentDomainCard({
         <h3 className="text-sm font-bold">{domain.name}</h3>
         <div className="flex items-center">
           <span className="text-xs font-normal flex-wrap">Components :</span>
-          <span className="text-sm font-bold">{domain.componentsCount}</span>
+          <span className="text-sm font-bold">{domain.componentscount}</span>
         </div>
         <div className="flex items-center flex-wrap">
           <span className="text-xs font-normal">Sub-Components :</span>
-          <span className="text-sm font-bold">{domain.subComponentsCount}</span>
+          <span className="text-sm font-bold">{domain.subcomponentscount}</span>
         </div>
       </div>
 

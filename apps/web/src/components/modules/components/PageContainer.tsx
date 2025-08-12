@@ -40,7 +40,7 @@ export function PageContainer({
   return (
     <div
       ref={pageContainerRef}
-      className="flex flex-col gap-4 w-full rounded-md px-4 pb-7 bg-white h-[calc(100vh-120px)] overflow-y-scroll overflow-x-hidden"
+      className="flex flex-col w-full rounded-md px-4  bg-white h-[calc(100vh-120px)] overflow-y-scroll overflow-x-hidden"
     >
       <PageHeader
         pageTitle={pageTitle}

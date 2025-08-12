@@ -101,6 +101,9 @@ export default function ProfileTab() {
   const { data: currentUser, ...currentUserState } = useGetMe();
   const { data: countries, ...countriesState } = useFindAll<Country>({
     path: "/countries",
+    queries: {
+      take: 100,
+    },
   });
 
   const { mutate: updateProfile, ...updateProfileState } = usePutMutation<
