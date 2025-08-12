@@ -20,12 +20,12 @@ export interface GroupMember {
 }
 
 export type StatusType =
-  | "Draft"
-  | "Pending"
-  | "Closed"
-  | "Ready"
-  | "In_Progress"
-  | "Completed";
+  | "draft"
+  | "pending"
+  | "closed"
+  | "ready"
+  | "in_progress"
+  | "completed";
 
 export interface Assessment {
   id: string;

@@ -6,12 +6,12 @@ import type { BadgeVariants, ColumnDef } from "@etm/web-ui-components";
 import type { Assessment, StatusType } from "~/libs/models/assessment.model";
 
 const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
-  Draft: "dark",
-  Pending: "warning",
-  Closed: "destructive",
-  Ready: "info",
-  In_Progress: "progress",
-  Completed: "success",
+  draft: "dark",
+  pending: "warning",
+  closed: "destructive",
+  ready: "info",
+  in_progress: "progress",
+  completed: "success",
 };
 
 export const AssessmentsTableColumns: ColumnDef<Assessment>[] = [
@@ -63,7 +63,11 @@ export const AssessmentsTableColumns: ColumnDef<Assessment>[] = [
     cell: ({ row }) => {
       return (
         <Badge
-          text={row.original.status}
+          text={
+            row.original.status === "in_progress"
+              ? "In-Progress"
+              : row.original.status
+          }
           variant={StatusVariantClasses[row.original.status]}
           shape="circular"
         />
