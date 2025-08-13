@@ -15,7 +15,7 @@ export default function InvitationAction({ invitation }: Props) {
   const { toast } = useToast();
 
   const { mutate: acceptInvitation, ...acceptInvitationState } = useAddMutation(
-    `assessments/${invitation.assessmentId}/invitations`
+    `assessments/${invitation.assessmentId}/invitations/accept`
   );
 
   const onInvitationAcceptHandler = () => {
