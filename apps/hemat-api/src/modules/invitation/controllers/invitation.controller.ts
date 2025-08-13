@@ -161,7 +161,8 @@ export class InvitationController {
 
   @ApiOperation({
     summary: 'Accept an invitation',
-    description: 'Accept an invitation using email and optional token',
+    description:
+      'Accept an invitation using invitation ID, email, and optional token',
   })
   @ApiOkResponse({
     description: 'Ok',
@@ -180,17 +181,27 @@ export class InvitationController {
     description: 'Bad request',
     type: ExceptionResponseDto,
   })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
   @HttpCode(200)
+  @UseGuards(AuthGuard)
   @Post(':assessmentId/invitations/accept')
   async accept(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Body() payload: InvitationUpdateRequestDto,
+    @Request() req: { user: AuthDto },
   ): Promise<{
     success: boolean;
     message: string;
     nextStep?: string;
     registerUrl?: string;
   }> {
-    return this.invitationService.accept(assessmentId, payload);
+    return this.invitationService.accept(assessmentId, payload, req.user);
   }
 }

@@ -612,6 +612,7 @@ export class InvitationService {
   async accept(
     assessmentId: string,
     payload: InvitationUpdateRequestDto,
+    user: AuthDto, // Add user parameter for authentication
   ): Promise<{
     success: boolean;
     message: string;
@@ -633,15 +634,25 @@ export class InvitationService {
         throw new NotFoundException('Invitation not found');
       }
 
+      // Verify that the authenticated user's email matches the invitation's email
+      if (user.email !== invitation.email) {
+        this.logger.warn(
+          `Unauthorized attempt to accept invitation ${invitation.id} by user ${user.email}`,
+        );
+        throw new ForbiddenException(
+          'You can only accept invitations for your own email',
+        );
+      }
+
       if (invitation.status === InvitationStatus.EXPIRED) {
         throw new BadRequestException('Invitation expired');
       }
 
       if (invitation.status === InvitationStatus.ACCEPTED) {
-        const user = await this.userRepository.findOne({
+        const userEntity = await this.userRepository.findOne({
           where: { email: invitation.email },
         });
-        if (user) {
+        if (userEntity) {
           const frontendDomain =
             this.configService.get('frontendDomain', {
               infer: true,
@@ -667,15 +678,15 @@ export class InvitationService {
         throw new BadRequestException('Invitation expired');
       }
 
-      const user = await this.userRepository.findOne({
+      const userEntity = await this.userRepository.findOne({
         where: { email: invitation.email },
       });
 
-      if (user) {
+      if (userEntity) {
         await this.dataSource.transaction(async (manager) => {
           if (
             await this.memberService
-              .findOne(invitation.assessmentId, user.id, { include: [] })
+              .findOne(invitation.assessmentId, userEntity.id, { include: [] })
               .catch(() => null)
           ) {
             throw new BadRequestException('User already in assessment group');
@@ -683,12 +694,12 @@ export class InvitationService {
 
           // Log the role and group assignment for traceability
           this.logger.log(
-            `Accepting invitation ${invitation.id} for user ${user.id} as role ${invitation.role} in group ${invitation.groupId} for assessment ${invitation.assessmentId}`,
+            `Accepting invitation ${invitation.id} for user ${userEntity.id} as role ${invitation.role} in group ${invitation.groupId} for assessment ${invitation.assessmentId}`,
           );
 
           await manager.save(
             manager.create(AssessmentMember, {
-              userId: user.id,
+              userId: userEntity.id,
               assessmentId: invitation.assessmentId,
               groupId: invitation.groupId,
               role: invitation.role,
@@ -704,7 +715,7 @@ export class InvitationService {
         // Log if the user is PRIMARY
         if (invitation.role === MemberRole.PRIMARY) {
           this.logger.log(
-            `User ${user.id} is now PRIMARY for assessment ${invitation.assessmentId} and can manage invitations and group members.`,
+            `User ${userEntity.id} is now PRIMARY for assessment ${invitation.assessmentId} and can manage invitations and group members.`,
           );
         }
 
@@ -724,7 +735,8 @@ export class InvitationService {
       this.logger.error(`accept: ${err.message}`, err.stack);
       if (
         err instanceof NotFoundException ||
-        err instanceof BadRequestException
+        err instanceof BadRequestException ||
+        err instanceof ForbiddenException
       ) {
         throw err;
       }
