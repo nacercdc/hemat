@@ -20,12 +20,26 @@ export class AccountResponseDto {
   })
   isAdmin: boolean;
 
-  @ApiProperty({
-    description: 'Full name',
-    example: 'John Doe',
+  @ApiPropertyOptional({
+    description: 'Title',
+    example: 'Administrator',
     type: String,
   })
-  name: string;
+  title: string | null;
+
+  @ApiProperty({
+    description: 'First name',
+    example: 'John',
+    type: String,
+  })
+  firstName: string;
+
+  @ApiProperty({
+    description: 'Last name',
+    example: 'Doe',
+    type: String,
+  })
+  lastName: string;
 
   @ApiProperty({
     description: 'Email address',
@@ -84,7 +98,9 @@ export class AccountResponseDto {
   constructor(entity: User) {
     this.id = entity.id;
     this.isAdmin = entity.isAdmin;
-    this.name = entity.name;
+    this.title = entity.profile?.title || null;
+    this.firstName = entity.profile?.firstName || '';
+    this.lastName = entity.profile?.lastName || '';
     this.email = entity.email;
     this.status = entity.status;
     this.lastLoggedInAt = entity.lastLoggedInAt;

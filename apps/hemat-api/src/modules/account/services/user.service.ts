@@ -280,11 +280,29 @@ export class UserService {
       });
   }
 
-  public async findAllUsers(): Promise<User[]> {
-    return this.userRepository.find().catch((err) => {
-      this.loggerService.error('findAllUsers:', err);
-      throw new BadRequestException('Failed to fetch users');
+  async findAllUsers(): Promise<AccountResponseDto[]> {
+    const users = await this.userRepository.find({
+      relations: ['profile', 'roles.permissions', 'permissions'],
     });
+
+    const accountDtos = await Promise.all(
+      users.map(async (user) => {
+        const profile: (Profile & { url?: string | null }) | null =
+          user.profile || null;
+
+        if (profile) {
+          const medias = await this.fileUploadService.getByEntity(
+            'profiles',
+            profile.id,
+          );
+          profile.url = medias?.[0]?.url || null;
+        }
+
+        return new AccountResponseDto({ ...user, profile });
+      }),
+    );
+
+    return accountDtos;
   }
 
   private async findUserById(id: string): Promise<User | null> {
