@@ -18,7 +18,16 @@ export default function MemberInfo({ name, email, avatarUrl, role }: Props) {
         <Avatar
           src={avatarUrl ?? ""}
           alt="user_profile_image"
-          fallback={getInitials(name ? name : email)}
+          fallback={getInitials(
+            name
+              ? name
+                ? (() => {
+                    const parts = name.trim().split(" ");
+                    return parts.length > 1 ? parts[1] : parts[0];
+                  })()
+                : ""
+              : email
+          )}
           size="md"
         />
         <div className="flex flex-col text-xs w-full">

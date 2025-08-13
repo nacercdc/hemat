@@ -98,54 +98,59 @@ export function Domain({ domain }: Props) {
   };
 
   return (
-    <div className="w-full flex items-center gap-5 rounded-lg border px-3">
-      <DropdownMenu
-        triggerTextAlign="center"
-        align="center"
-        trigger={
-          <Icon
-            icon="ph:dots-three-outline-fill"
-            className="!w-4 !h-4 !text-dark rotate-90"
-            onClick={(e) => e.stopPropagation()}
-          />
-        }
-        options={[
-          {
-            value: "view",
-            label: "View",
-            leftNode: (
-              <Icon icon="solar:eye-outline" className="!text-dark !w-4 !h-4" />
-            ),
-            onClick: () => {
-              setDrawerOpen(true);
+    <div className="w-full flex items-center gap-5 rounded-lg border pr-3">
+      <div>
+        <DropdownMenu
+          triggerTextAlign="center"
+          align="center"
+          trigger={
+            <Icon
+              icon="ph:dots-three-outline-fill"
+              className="!w-4 !h-4 !text-dark rotate-90"
+              onClick={(e) => e.stopPropagation()}
+            />
+          }
+          options={[
+            {
+              value: "view",
+              label: "View",
+              leftNode: (
+                <Icon
+                  icon="solar:eye-outline"
+                  className="!text-dark !w-4 !h-4"
+                />
+              ),
+              onClick: () => {
+                setDrawerOpen(true);
+              },
             },
-          },
-          {
-            value: "edit",
-            label: "Edit",
-            leftNode: (
-              <Icon
-                icon="iconamoon:edit-light"
-                className="!text-dark !w-4 !h-4"
-              />
-            ),
-            onClick: () => {
-              editItemModalRef.current?.openModal();
+            {
+              value: "edit",
+              label: "Edit",
+              leftNode: (
+                <Icon
+                  icon="iconamoon:edit-light"
+                  className="!text-dark !w-4 !h-4"
+                />
+              ),
+              onClick: () => {
+                editItemModalRef.current?.openModal();
+              },
             },
-          },
-          {
-            value: "delete",
-            label: "Delete",
-            leftNode: (
-              <Icon
-                icon="material-symbols-light:delete-outline"
-                className="!text-dark !w-4 !h-4"
-              />
-            ),
-            onClick: () => deleteDialogRef.current?.openDialog(),
-          },
-        ]}
-      />
+            {
+              value: "delete",
+              label: "Delete",
+              leftNode: (
+                <Icon
+                  icon="material-symbols-light:delete-outline"
+                  className="!text-dark !w-4 !h-4"
+                />
+              ),
+              onClick: () => deleteDialogRef.current?.openDialog(),
+            },
+          ]}
+        />
+      </div>
       <div
         className="flex items-center justify-between w-full gap-5 cursor-pointer"
         onClick={onDomainSelectHandler}
