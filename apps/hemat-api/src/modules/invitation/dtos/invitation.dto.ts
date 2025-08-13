@@ -8,6 +8,7 @@ import {
   ValidateNested,
   ArrayNotEmpty,
   Validate,
+  IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MemberRole } from '@shared/enums';
@@ -68,6 +69,14 @@ export type InvitationCreateBulkRequestDto = GroupInvitationDto[];
 
 export class InvitationUpdateRequestDto {
   @ApiProperty({
+    description: 'ID of the invitation',
+    example: '5ec49749-da90-4b00-b416-213156553c70',
+    type: String,
+  })
+  @IsUUID()
+  invitationId: string;
+
+  @ApiProperty({
     description: 'Email of the invitee',
     example: 'jane.doe@hiemat.org',
   })
@@ -78,5 +87,6 @@ export class InvitationUpdateRequestDto {
   @ApiProperty({ description: 'Invitation token', example: 'abc123xyz789' })
   @IsNotEmpty({ message: 'validation.token.isNotEmpty' })
   @IsString({ message: 'validation.token.isString' })
-  token: string;
+  @IsOptional()
+  token?: string;
 }
