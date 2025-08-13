@@ -161,7 +161,7 @@ export class InvitationController {
 
   @ApiOperation({
     summary: 'Accept an invitation',
-    description: 'Accept an invitation using email and token',
+    description: 'Accept an invitation using email and optional token',
   })
   @ApiOkResponse({
     description: 'Ok',
@@ -181,16 +181,6 @@ export class InvitationController {
     type: ExceptionResponseDto,
   })
   @HttpCode(200)
-  @Abilities({
-    isAdmin: true,
-    permissions: [
-      {
-        action: PermissionActionEnum.CREATE,
-        subject: PermissionSubjectEnum.INVITATION,
-      },
-    ],
-  })
-  @UseGuards(AuthGuard, AssessmentRoleGuard)
   @Post(':assessmentId/invitations/accept')
   async accept(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
@@ -201,6 +191,6 @@ export class InvitationController {
     nextStep?: string;
     registerUrl?: string;
   }> {
-    return this.invitationService.accept(payload);
+    return this.invitationService.accept(assessmentId, payload);
   }
 }

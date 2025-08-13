@@ -609,16 +609,26 @@ export class InvitationService {
     return invitation;
   }
 
-  async accept(payload: InvitationUpdateRequestDto): Promise<{
+  async accept(
+    assessmentId: string,
+    payload: InvitationUpdateRequestDto,
+  ): Promise<{
     success: boolean;
     message: string;
     nextStep?: string;
     registerUrl?: string;
   }> {
     try {
+      // Find invitation by ID, email, and optional token, ensuring it matches the assessmentId
       const invitation = await this.invitationRepository.findOne({
-        where: { email: payload.email, token: payload.token },
+        where: {
+          id: payload.invitationId,
+          email: payload.email,
+          assessmentId,
+          ...(payload.token ? { token: payload.token } : {}),
+        },
       });
+
       if (!invitation) {
         throw new NotFoundException('Invitation not found');
       }
@@ -632,14 +642,15 @@ export class InvitationService {
           where: { email: invitation.email },
         });
         if (user) {
-          const frontendDomain = this.configService.get('frontendDomain', {
-            infer: true,
-          });
+          const frontendDomain =
+            this.configService.get('frontendDomain', {
+              infer: true,
+            }) || 'http://localhost:3000';
           return {
             success: true,
             message: 'Invitation already accepted. Please log in.',
             nextStep: 'login',
-            registerUrl: `http://localhost:3000/login`,
+            registerUrl: `${frontendDomain}/login`,
           };
         }
         throw new BadRequestException('Invitation accepted, user not found');
@@ -670,9 +681,9 @@ export class InvitationService {
             throw new BadRequestException('User already in assessment group');
           }
 
-          // Professional: Log the role and group assignment for traceability
+          // Log the role and group assignment for traceability
           this.logger.log(
-            `Accepting invitation for user ${user.id} as role ${invitation.role} in group ${invitation.groupId}`,
+            `Accepting invitation ${invitation.id} for user ${user.id} as role ${invitation.role} in group ${invitation.groupId} for assessment ${invitation.assessmentId}`,
           );
 
           await manager.save(
@@ -690,7 +701,7 @@ export class InvitationService {
           );
         });
 
-        // Professional: If the user is PRIMARY, they now have full permissions to manage invitations and group members (enforced by AssessmentRoleGuard)
+        // Log if the user is PRIMARY
         if (invitation.role === MemberRole.PRIMARY) {
           this.logger.log(
             `User ${user.id} is now PRIMARY for assessment ${invitation.assessmentId} and can manage invitations and group members.`,
@@ -710,7 +721,7 @@ export class InvitationService {
         registerUrl: `${frontendDomain}/register?email=${encodeURIComponent(invitation.email)}&invitationId=${invitation.id}`,
       };
     } catch (err) {
-      this.logger.error('accept:', err);
+      this.logger.error(`accept: ${err.message}`, err.stack);
       if (
         err instanceof NotFoundException ||
         err instanceof BadRequestException
