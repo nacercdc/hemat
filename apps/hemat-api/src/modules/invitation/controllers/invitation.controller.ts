@@ -32,7 +32,7 @@ import {
   InvitationUpdateRequestDto,
 } from '../dtos';
 import { Invitation } from '@database/entities';
-import { Abilities, AuthGuard } from '@shared/modules';
+import { Abilities, AuthDto, AuthGuard } from '@shared/modules';
 import { AssessmentRoleGuard } from '../../assessment/guards/assessment-role.guard';
 import { AssessmentAbilityUser } from '../../assessment/guards/assessment-ability-user.decorator';
 import { AssessmentAbilityDto } from '../../assessment/guards/assessment-ability.dto';
@@ -56,10 +56,26 @@ import { AssessmentAbilityDto } from '../../assessment/guards/assessment-ability
   description: 'Too Many Requests',
   type: ExceptionResponseDto,
 })
-@UseGuards(AuthGuard, AssessmentRoleGuard)
-@Controller('assessments/:assessmentId/invitations')
+@Controller('assessments')
 export class InvitationController {
   constructor(private readonly invitationService: InvitationService) {}
+
+  @ApiOperation({
+    summary: 'Get invitations for the logged-in user',
+    description:
+      'Retrieve all invitations for the authenticated user across all assessments',
+  })
+  @ApiOkResponse({ description: 'Ok' })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @Get('me/invitations')
+  async findUserInvitations(
+    @Request() req: { user: AuthDto },
+    @Query() query: FindAllInvitationDto,
+  ): Promise<FindAllResponseDto<Invitation>> {
+    return this.invitationService.findUserInvitations(req.user, query);
+  }
 
   @ApiOperation({
     summary: 'Create new invitations',
@@ -82,11 +98,12 @@ export class InvitationController {
     ],
     requireAdmin: false,
   })
-  @Post()
+  @UseGuards(AuthGuard, AssessmentRoleGuard)
+  @Post(':assessmentId/invitations')
   async create(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Body() payload: InvitationCreateBulkRequestDto,
-    @AssessmentAbilityUser() user: AssessmentAbilityDto
+    @AssessmentAbilityUser() user: AssessmentAbilityDto,
   ): Promise<Invitation[]> {
     return this.invitationService.createBulk(assessmentId, payload, user);
   }
@@ -95,7 +112,7 @@ export class InvitationController {
     summary: 'Get all invitations for an assessment',
     description: 'Retrieve all invitations for a specific assessment',
   })
-  // @ApiOkResponse({ description: 'Ok', type: FindAllResponseDto(Invitation) })
+  @ApiOkResponse({ description: 'Ok' })
   @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
   @HttpCode(200)
   @Abilities({
@@ -107,7 +124,8 @@ export class InvitationController {
       },
     ],
   })
-  @Get()
+  @UseGuards(AuthGuard, AssessmentRoleGuard)
+  @Get(':assessmentId/invitations')
   async findAll(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Query() query: FindAllInvitationDto,
@@ -131,7 +149,8 @@ export class InvitationController {
       },
     ],
   })
-  @Get(':id')
+  @UseGuards(AuthGuard, AssessmentRoleGuard)
+  @Get(':assessmentId/invitations/:id')
   async findOne(
     @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -171,8 +190,12 @@ export class InvitationController {
       },
     ],
   })
-  @Post('accept')
-  async accept(@Body() payload: InvitationUpdateRequestDto): Promise<{
+  @UseGuards(AuthGuard, AssessmentRoleGuard)
+  @Post(':assessmentId/invitations/accept')
+  async accept(
+    @Param('assessmentId', new ParseUUIDPipe()) assessmentId: string,
+    @Body() payload: InvitationUpdateRequestDto,
+  ): Promise<{
     success: boolean;
     message: string;
     nextStep?: string;

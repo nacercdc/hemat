@@ -37,6 +37,7 @@ import { EmailService } from '../../../shared/services/email.service';
 import { InvitationCreatedEvent } from '../events/invitation.events';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { INVITATION_EVENTS } from '../events/invitation.constants';
+import { AuthDto } from '@shared/modules';
 
 @Injectable()
 export class InvitationService {
@@ -108,8 +109,6 @@ export class InvitationService {
               'Only admin can send the first PRIMARY invitation for an assessment.',
             );
         }
-        // --- END ENFORCE ROLE/INVITATION RULES ---
-
         const existingGroups = await manager.find(AssessmentGroup, {
           where: { assessmentId },
         });
@@ -528,6 +527,31 @@ export class InvitationService {
         throw new BadRequestException('Failed to create invitations.');
       }
     });
+  }
+
+  async findUserInvitations(
+    user: AuthDto,
+    query: FindAllInvitationDto,
+  ): Promise<FindAllResponseDto<Invitation>> {
+    const userEntity = await this.userRepository.findOne({
+      where: { id: user.id },
+    });
+
+    if (!userEntity) {
+      throw new NotFoundException('User not found');
+    }
+
+    return await new QueryService<Invitation>(this.invitationRepository)
+      .filter([{ field: 'email', operator: '=', value: userEntity.email }])
+      .join(query.include)
+      .filter([], {
+        fields: ['email', 'role', 'status'],
+        value: query.search,
+      })
+      .sort({ ascending: query.ascending, descending: query.descending })
+      .take(query.take)
+      .skip(query.skip)
+      .getManyAndCount();
   }
 
   async findAll(
