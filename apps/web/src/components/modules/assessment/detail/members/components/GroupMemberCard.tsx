@@ -22,7 +22,14 @@ export default function GroupMemberCard({
         <Avatar
           src={avatarUrl ?? ""}
           alt="user_profile_image"
-          fallback={getInitials(name)}
+          fallback={getInitials(
+            name
+              ? (() => {
+                  const parts = name.trim().split(" ");
+                  return parts.length > 1 ? parts[1] : parts[0];
+                })()
+              : ""
+          )}
           size="md"
         />
         <div className="flex flex-col text-xs py-1">

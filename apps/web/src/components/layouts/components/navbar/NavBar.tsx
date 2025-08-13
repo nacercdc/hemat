@@ -85,7 +85,7 @@ export function NavBar() {
             <Avatar
               src={currentUser?.profile.url || ""}
               alt="user_profile_image"
-              fallback={getInitials(currentUser?.name)}
+              fallback={getInitials(currentUser?.profile.firstName)}
             />
           }
           label={
@@ -94,7 +94,7 @@ export function NavBar() {
                 <Avatar
                   src={currentUser?.profile.url || ""}
                   alt="user_profile_image"
-                  fallback={getInitials(currentUser?.name)}
+                  fallback={getInitials(currentUser?.profile.firstName)}
                 />
                 {currentUser?.roles.length && (
                   <div className="w-fit px-4 py-1 flex items-center justify-center rounded-sm bg-primary-200/35 border-r-2 rounded-r-none border-primary">
