@@ -30,7 +30,7 @@ export function DomainCardList() {
   >({
     path: "/dashboard/domains/average-rate",
     queries: {
-      filters: [{ year: `${selectedYearCtx?.selectedFilterYear?.value}` }],
+      filters: { year: `${selectedYearCtx?.selectedFilterYear?.value}` },
     },
     isProtected: false,
     tqOptions: { queryKey: ["domains", selectedYearCtx?.selectedFilterYear] },

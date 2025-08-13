@@ -24,18 +24,18 @@ import { useAssessmentAccess } from "../../context/assessment-access/useAssessme
 
 export function AssessmentOverview() {
   const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
-    Draft: "dark",
-    Pending: "warning",
-    Closed: "destructive",
-    Ready: "info",
-    Completed: "success",
-    "In-Progress": "progress",
+    draft: "dark",
+    pending: "warning",
+    closed: "destructive",
+    ready: "info",
+    in_progress: "progress",
+    completed: "success",
   };
   const params = useParams();
   const assessmentAccessCtx = useAssessmentAccess();
   const assessmentId = params.id;
 
-  const { data: assessmentGroup, ...assessmentGroupsState } = useFindAll<
+  const { data: assessmentGroup, ..._assessmentGroupsState } = useFindAll<
     AssessmentGroup,
     AssessmentGroupIncludeAble
   >({
@@ -73,7 +73,7 @@ export function AssessmentOverview() {
             variant={
               assessment?.status
                 ? StatusVariantClasses[assessment.status]
-                : StatusVariantClasses.Pending
+                : StatusVariantClasses.pending
             }
           />
         </div>

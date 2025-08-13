@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { isNill } from "@etm/utilities/string.utils";
 import { SortDirectionEnum } from "./types";
 import type {
   Method,
@@ -62,8 +61,9 @@ export function buildQueryString<
 >(query: QueryManyRequest<Include, Filterable, Sortable>): string {
   const params = new URLSearchParams();
   if (query.filters) {
-    const filters = query.filters.filter((v) => !isNill(v.value));
-    query.filters = filters;
+    Object.keys(query.filters).forEach((fKey) => {
+      params.set(`${fKey}`, `${query.filters?.[fKey as keyof Filterable]}`);
+    });
   }
 
   if (query.include && query.include.length > 0) {
