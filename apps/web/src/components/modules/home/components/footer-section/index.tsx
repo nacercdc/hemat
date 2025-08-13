@@ -64,7 +64,7 @@ export function FooterSection() {
                 target="_blank"
                 className="underline"
               >
-                African Union Website
+                Africa CDC Website
               </a>
             </span>
           </div>
