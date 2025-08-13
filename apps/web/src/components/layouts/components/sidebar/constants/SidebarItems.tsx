@@ -143,6 +143,16 @@ export const groups = (
         permission: isLoading ? false : true,
         depth: 0,
       },
+      {
+        id: "invitations",
+        label: "Invitations",
+        icon: (
+          <Icon icon="mingcute:invite-line" className="!w-[18px] !h-[18px]" />
+        ),
+        path: "/invitations",
+        permission: isLoading ? false : true,
+        depth: 0,
+      },
     ],
   },
 ];
