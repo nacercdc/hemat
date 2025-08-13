@@ -63,7 +63,9 @@ export default function InvitationAction({ invitation }: Props) {
                 className="text-lg text-dark"
               />
             ),
-            onClick: invitationModalRef.current?.openModal,
+            onClick: () => {
+              invitationModalRef.current?.openModal();
+            },
           },
         ]}
       />
