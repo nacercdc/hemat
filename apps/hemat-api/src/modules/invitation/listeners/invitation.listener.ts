@@ -49,7 +49,7 @@ export class InvitationListener {
   async handleInvitationCreated(event: InvitationCreatedEvent) {
     const { email, token, invitationId, assessmentName, groupName, extraData } =
       event;
-    const registerUrl = `https://africa-cdc-web-501628761718.us-west1.run.app/invitations?email=${encodeURIComponent(email)}&invitationId=${invitationId}&token=${token}`;
+    const registerUrl = `https://africa-cdc-web-501628761718.us-west1.run.app/invitations/accept?email=${encodeURIComponent(email)}&invitationId=${invitationId}&token=${token}&assessmentName=${assessmentName}`;
     const data = {
       token,
       registerUrl,
