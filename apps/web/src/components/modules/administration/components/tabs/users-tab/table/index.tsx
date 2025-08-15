@@ -47,7 +47,7 @@ export function UsersTable({ modules, permissions }: Props) {
     queries: {
       take: pagination.pageSize,
       skip: pagination.pageIndex,
-      include: ["permissions", "roles"],
+      include: ["permissions", "roles", "profile"],
       sorts: sort,
       filters: { status: filter },
       search,

@@ -10,12 +10,15 @@ import {
   InputRHF,
   PhoneNumberInputRHF as _,
   MultiSelectRHF,
+  SelectRHF,
 } from "@etm/web-ui-components";
 import type { Role } from "~/libs/models/role.model";
 import type { PermissionType } from "~/components/modules/administration/types";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import { generatePassword } from "~/components/modules/administration/utils";
+import type { User } from "~/libs/models/user.model";
+import { PERSONAL_TITLES } from "~/libs/models/user.model";
 
 export interface PermissionModule {
   name: string;
@@ -36,7 +39,10 @@ const RoleSchema = z.object({
 });
 
 const UserFormSchema = z.object({
-  title: z.string().min(1, { message: "Title name is required" }),
+  title: z.object({
+    id: z.string().min(1, { message: "Title ID is required" }),
+    name: z.string().min(1, { message: "Title name is required" }),
+  }),
   firstName: z
     .string()
     .min(1, { message: "First name is required" })
@@ -60,7 +66,7 @@ const UserFormSchema = z.object({
 export type UserFormData = z.infer<typeof UserFormSchema>;
 
 interface Props {
-  user?: UserFormData;
+  user?: User;
   loading?: boolean;
   rolePermissions?: Record<string, Partial<Record<PermissionType, boolean>>>;
   modules: PermissionModule[];
@@ -82,7 +88,6 @@ export function UserForm({
 }: Props) {
   const { control, handleSubmit, reset } = useForm<UserFormData>({
     defaultValues: {
-      title: "Mrs",
       firstName: "",
       lastName: "",
       email: "",
@@ -118,8 +123,20 @@ export function UserForm({
   });
 
   useEffect(() => {
-    //TODO: this is wrong: title should not be updated like this
-    if (user) reset({ ...user, title: "Mrs" });
+    if (user)
+      reset({
+        title: {
+          id: user.profile.title,
+          name: user.profile.title,
+        },
+        firstName: user.profile.firstName,
+        lastName: user.profile.lastName,
+        email: user.email,
+        roles: user.roles.map((role) => ({
+          id: role.id,
+          name: role.name,
+        })),
+      });
   }, [user, reset]);
 
   const onSubmitHandler = (values: UserFormData) => {
@@ -174,6 +191,20 @@ export function UserForm({
       className="rounded-md flex flex-col w-full max-h-[80vh] gap-5"
     >
       <div className="flex gap-2 px-7">
+        <SelectRHF
+          inModal={true}
+          name="title"
+          control={control}
+          displayLabel="Title"
+          labelVariant="medium"
+          valueKey="id"
+          labelKey="name"
+          options={PERSONAL_TITLES.map((title) => ({
+            id: title,
+            name: title,
+          }))}
+          placeholder="Select title"
+        />
         <InputRHF
           name="firstName"
           control={control}

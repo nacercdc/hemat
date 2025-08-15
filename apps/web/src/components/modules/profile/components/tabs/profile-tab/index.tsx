@@ -23,20 +23,7 @@ import type { Profile, UpdateProfile } from "~/libs/models/profile.model";
 import { ProfileTabSkeleton } from "./ProfileTabSkeleton";
 import type { Country } from "~/libs/models/country.model";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
-export const PERSONAL_TITLES = [
-  "Mr.",
-  "Mrs.",
-  "Miss",
-  "Ms.",
-  "Mx.",
-  "Dr.",
-  "Prof.",
-  "Eng.",
-  "Arch.",
-  "Adv.",
-  "CPA",
-  "Esq.",
-];
+import { PERSONAL_TITLES } from "~/libs/models/user.model";
 
 interface GenderType {
   id: string;

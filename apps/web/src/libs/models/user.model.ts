@@ -3,6 +3,21 @@ import type { Permission } from "./permission.model";
 import type { Profile } from "./profile.model";
 import type { Role } from "./role.model";
 
+export const PERSONAL_TITLES = [
+  "Mr",
+  "Mrs",
+  "Miss",
+  "Ms",
+  "Mx",
+  "Dr",
+  "Prof",
+  "Eng",
+  "Arch",
+  "Adv",
+  "CPA",
+  "Esq",
+];
+
 export enum UserStatus {
   ACTIVE = "active",
   INACTIVE = "inactive",
@@ -26,6 +41,7 @@ export interface User {
 }
 
 export interface CreateUser {
+  title: string;
   firstName: string;
   lastName: string;
   email: string;
