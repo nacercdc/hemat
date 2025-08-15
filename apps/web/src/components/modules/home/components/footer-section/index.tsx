@@ -59,13 +59,12 @@ export function FooterSection() {
               communications@africacdc.org
             </a>
             <span className="text-sm font-bold text-end text-nowrap">
-              Visit Africa CDC on the{" "}
               <a
                 href="https://africacdc.org/"
                 target="_blank"
                 className="underline"
               >
-                African Union Website
+                Africa CDC Website
               </a>
             </span>
           </div>
