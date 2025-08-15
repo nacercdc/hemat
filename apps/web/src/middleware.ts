@@ -13,19 +13,46 @@ export function middleware(request: NextRequest) {
   const pathname = nextUrl.pathname;
   const token = cookies.get("token")?.value;
   const invitationId = nextUrl.searchParams.get("invitationId");
-  const INVITATION_LOGIN = `/login&invitationId=${invitationId}`;
+  const invitationEmail = nextUrl.searchParams.get("email");
+  const invitationAssessmentName = nextUrl.searchParams.get("assessmentName");
 
   const isPublicRoute = isPublic(pathname);
-  if (invitationId) {
-    return isPublicRoute
-      ? NextResponse.next()
-      : redirectTo(INVITATION_LOGIN, nextUrl);
-  }
-  if (!token) {
-    return isPublicRoute ? NextResponse.next() : redirectTo(LOGIN, nextUrl);
+
+  if (invitationId && !token) {
+    const target = `${LOGIN}?invitationId=${invitationId}&email=${invitationEmail}&assessmentName=${invitationAssessmentName}`;
+    if (pathname !== LOGIN) {
+      return redirectTo(target, nextUrl);
+    }
+    return NextResponse.next();
   }
 
-  return isPublicRoute ? redirectTo(DASHBOARD, nextUrl) : NextResponse.next();
+  if (invitationId && token) {
+    const target = `/invitations/accept/${invitationId}?email=${invitationEmail}&assessmentName=${invitationAssessmentName}`;
+    if (pathname !== target) {
+      return redirectTo(target, nextUrl);
+    }
+    return NextResponse.next();
+  }
+
+  if (!invitationId && !token && !isPublicRoute) {
+    if (pathname !== LOGIN) {
+      return redirectTo(LOGIN, nextUrl);
+    }
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/invitations/accept/") && token) {
+    return NextResponse.next();
+  }
+
+  if (!invitationId && token && !isPublicRoute) {
+    if (pathname !== DASHBOARD) {
+      return redirectTo(DASHBOARD, nextUrl);
+    }
+    return NextResponse.next();
+  }
+
+  return NextResponse.next();
 }
 
 function isPublic(pathname: string): boolean {
