@@ -609,10 +609,36 @@ export class InvitationService {
     return invitation;
   }
 
+  async findOneInvitation(
+    id: string,
+    query: FindOneInvitationDto,
+    userEmail: string,
+  ): Promise<Invitation> {
+    const invitation = await new QueryService<Invitation>(
+      this.invitationRepository,
+    )
+      .filter([{ field: 'id', operator: '=', value: id }])
+      .join(query.include)
+      .getOne();
+
+    if (!invitation) {
+      throw new NotFoundException('Invitation not found');
+    }
+
+    // Ensure the invitation belongs to the logged-in user
+    if (invitation.email !== userEmail) {
+      throw new ForbiddenException(
+        'You are not allowed to access this invitation',
+      );
+    }
+
+    return invitation;
+  }
+
   async accept(
     assessmentId: string,
     payload: InvitationUpdateRequestDto,
-    user: AuthDto, // Add user parameter for authentication
+    user: AuthDto,
   ): Promise<{
     success: boolean;
     message: string;

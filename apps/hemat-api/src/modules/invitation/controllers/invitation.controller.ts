@@ -160,6 +160,24 @@ export class InvitationController {
   }
 
   @ApiOperation({
+    summary: 'Get an invitation by ID Without Assessment Context',
+    description:
+      'Retrieve a specific invitation by its ID without assessment context (must match logged-in user’s email)',
+  })
+  @ApiOkResponse({ description: 'Ok', type: Invitation })
+  @ApiNotFoundResponse({ description: 'Not found', type: ExceptionResponseDto })
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @Get('invitations/:id')
+  async findOneInvitation(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query() query: FindOneInvitationDto,
+    @Request() req: { user: AuthDto },
+  ): Promise<Invitation> {
+    return this.invitationService.findOneInvitation(id, query, req.user.email);
+  }
+
+  @ApiOperation({
     summary: 'Accept an invitation',
     description:
       'Accept an invitation using invitation ID, email, and optional token',
