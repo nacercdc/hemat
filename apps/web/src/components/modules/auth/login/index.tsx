@@ -23,7 +23,7 @@ const loginFormSchema = z.object({
 });
 
 type LoginFormInputs = z.infer<typeof loginFormSchema>;
-export default function Login() {
+export default function Login({ invitationId }: { invitationId: string }) {
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const { toast } = useToast();
 
@@ -58,7 +58,11 @@ export default function Login() {
       },
       {
         onSuccess: () => {
-          router.replace("/");
+          if (invitationId) {
+            router.replace(`/invitations/accept/${invitationId}`);
+          } else {
+            router.replace("/");
+          }
         },
         onError: (error) => {
           toast({
