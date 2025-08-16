@@ -17,7 +17,7 @@ export function InvitationLayout({ children }: Props) {
         <div className="flex flex-col items-center relative pt-16 pb-8 px-6 sm:px-8 gap-6 w-full sm:w-[65%] md:w-[45%] lg:w-[45%] xl:w-[30%] 2xl:w-[25%] rounded-lg border border-basic-200 shadow-sm">
           <div
             className="flex justify-center  w-full lg:w-[20%] cursor-pointer"
-            onClick={() => router.replace("/home")}
+            onClick={() => router.replace("/")}
           >
             <Image
               src="/images/acdc-logo.svg"

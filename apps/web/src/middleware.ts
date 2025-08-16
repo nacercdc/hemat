@@ -17,6 +17,13 @@ export function middleware(request: NextRequest) {
 
   const isPublicRoute = isPublic(pathname);
 
+  if (!invitationId && !token && !isPublicRoute) {
+    if (pathname !== LOGIN) {
+      return redirectTo(LOGIN, nextUrl);
+    }
+    return NextResponse.next();
+  }
+
   if (invitationId && !token) {
     const target = `${LOGIN}?invitationId=${invitationId}&email=${invitationEmail}&assessmentName=${invitationAssessmentName}`;
     if (pathname !== LOGIN) {
@@ -33,18 +40,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!invitationId && !token && !isPublicRoute) {
-    if (pathname !== LOGIN) {
-      return redirectTo(LOGIN, nextUrl);
-    }
-    return NextResponse.next();
-  }
-
   if (pathname.startsWith("/invitations/accept/") && token) {
-    return NextResponse.next();
-  }
-
-  if (token) {
     return NextResponse.next();
   }
 
