@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const DASHBOARD = "/";
 const LOGIN = "/login";
 const HOME = "/home";
 const REGISTER = "/register";
@@ -45,10 +44,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!invitationId && token && !isPublicRoute) {
-    if (pathname !== DASHBOARD) {
-      return redirectTo(DASHBOARD, nextUrl);
-    }
+  if (token) {
     return NextResponse.next();
   }
 
