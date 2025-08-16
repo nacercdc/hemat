@@ -23,20 +23,7 @@ import type { Profile, UpdateProfile } from "~/libs/models/profile.model";
 import { ProfileTabSkeleton } from "./ProfileTabSkeleton";
 import type { Country } from "~/libs/models/country.model";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
-export const PERSONAL_TITLES = [
-  "Mr.",
-  "Mrs.",
-  "Miss",
-  "Ms.",
-  "Mx.",
-  "Dr.",
-  "Prof.",
-  "Eng.",
-  "Arch.",
-  "Adv.",
-  "CPA",
-  "Esq.",
-];
+import { PERSONAL_TITLES } from "~/libs/models/user.model";
 
 interface GenderType {
   id: string;
@@ -200,7 +187,7 @@ export default function ProfileTab() {
         firstName: currentUser.profile?.firstName ?? "",
         lastName: currentUser.profile?.lastName ?? "",
         userName: currentUser.profile?.username ?? "",
-        country: currentUser.profile.country
+        country: currentUser.profile?.country
           ? {
               id: currentUser.profile.country,
               name: currentUser.profile.country,
@@ -230,7 +217,9 @@ export default function ProfileTab() {
       <div className="flex items-center gap-3">
         <div className="relative">
           <AvatarInput
-            initialFilePreviewURL={currentUser?.profile.url}
+            initialFilePreviewURL={
+              currentUser?.profile ? currentUser?.profile.url : ""
+            }
             onChange={onProfilePicChangeHandler}
             file={profilePic}
             ref={profilePicRef}

@@ -55,6 +55,7 @@ export default function InvitationAction({ invitation }: Props) {
         }
         options={[
           {
+            disabled: invitation.status !== "pending",
             value: "accept",
             label: "Accept",
             leftNode: (

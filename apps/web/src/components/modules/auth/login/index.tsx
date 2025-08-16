@@ -26,12 +26,15 @@ type LoginFormInputs = z.infer<typeof loginFormSchema>;
 export default function Login() {
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
   const { toast } = useToast();
-
   const router = useRouter();
   const searchParams = useSearchParams();
   const { mutate: login, ...loginState } = useLogin<unknown, LoginRequestBody>(
     "/api/login"
   );
+
+  const invitationId = searchParams.get("invitationId") || "";
+  const invitationEmail = searchParams.get("email") || "";
+  const invitationAssessmentName = searchParams.get("assessmentName") || "";
 
   const { control, handleSubmit } = useForm<LoginFormInputs>({
     resolver: zodResolver(loginFormSchema),
@@ -58,7 +61,13 @@ export default function Login() {
       },
       {
         onSuccess: () => {
-          router.replace("/");
+          if (invitationId) {
+            router.replace(
+              `/invitations/accept/${invitationId}?email=${invitationEmail}&assessmentName=${invitationAssessmentName}`
+            );
+          } else {
+            router.replace("/");
+          }
         },
         onError: (error) => {
           toast({

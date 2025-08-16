@@ -83,18 +83,24 @@ export function NavBar() {
           align="end"
           trigger={
             <Avatar
-              src={currentUser?.profile.url || ""}
+              src={currentUser?.profile ? (currentUser?.profile.url ?? "") : ""}
               alt="user_profile_image"
-              fallback={getInitials(currentUser?.profile.firstName)}
+              fallback={getInitials(
+                currentUser?.profile ? currentUser?.profile.firstName : ""
+              )}
             />
           }
           label={
             <div className="flex flex-col gap-4">
               <div className="flex flex-row items-center gap-3 justify-between w-full">
                 <Avatar
-                  src={currentUser?.profile.url || ""}
+                  src={
+                    currentUser?.profile ? (currentUser?.profile.url ?? "") : ""
+                  }
                   alt="user_profile_image"
-                  fallback={getInitials(currentUser?.profile.firstName)}
+                  fallback={getInitials(
+                    currentUser?.profile ? currentUser?.profile.firstName : ""
+                  )}
                 />
                 {currentUser?.roles.length && (
                   <div className="w-fit px-4 py-1 flex items-center justify-center rounded-sm bg-primary-200/35 border-r-2 rounded-r-none border-primary">

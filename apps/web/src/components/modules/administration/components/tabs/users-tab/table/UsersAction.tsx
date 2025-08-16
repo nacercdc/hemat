@@ -81,6 +81,7 @@ export default function UserAction({ user, modules, permissions }: Props) {
           roleIds,
           permissionsIds,
           id: user.id,
+          title: values.title.id,
         },
         id: user.id,
       },
@@ -149,7 +150,7 @@ export default function UserAction({ user, modules, permissions }: Props) {
               ...user,
               firstName: user.name.split(" ")[0],
               lastName: user.name.split(" ")[1],
-            } as unknown as UserFormData
+            } as unknown as User
           }
           loading={updateUserState.isPending}
         />

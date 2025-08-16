@@ -36,6 +36,7 @@ export interface DropdownMenuOption {
   label: React.ReactNode;
   leftNode?: ReactNode;
   separator?: boolean;
+  disabled?: boolean;
   onClick?: () => void;
   submenu?: DropdownMenuOption[];
   destructive?: boolean;
@@ -77,7 +78,10 @@ export function DropdownMenu({
         return (
           <div key={item.value}>
             {item.separator && <DropdownMenuSeparator />}
-            <DropdownMenuItem onSelect={() => item.onClick?.()}>
+            <DropdownMenuItem
+              disabled={item.disabled}
+              onSelect={() => item.onClick?.()}
+            >
               <div
                 className={cn(
                   {
