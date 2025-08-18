@@ -30,14 +30,6 @@ export default function Sidebar() {
     router.push(path);
   };
 
-  const FooterOnOpen = (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2 text-white text-sm">
-        <Icon icon="formkit:help" /> Help and support
-      </div>
-    </div>
-  );
-
   return (
     <div className="z-30">
       <ETMSidebar
@@ -76,9 +68,6 @@ export default function Sidebar() {
         footer={{
           expand: (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Icon icon="formkit:help" /> Glossary
-              </div>
               <Image
                 src="/images/branding-texture.png"
                 alt="logo"

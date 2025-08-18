@@ -414,11 +414,25 @@ export function Sidebar({
           {isLoading && (
             <div className="flex flex-col gap-2 px-2">{SidebarSkeleton()}</div>
           )}
-          {open && (
-            <SidebarMenuItem className="self-center w-full">
-              {open && footer.expand}
-            </SidebarMenuItem>
-          )}
+
+          <SidebarMenuItem className="self-center w-full pr-2">
+            <SidebarMenuButton
+              tooltip="Glossary"
+              className={cn(
+                "hover:!bg-primary/5",
+                "font-medium text-foreground hover:bg-tbsidebar-accent hover:text-primary py-[18px] text-[13px]",
+                "data-[state=open]:hover:bg-tbsidebar-accent data-[state=open]:hover:text-primary active:bg-primary/5 active:text-primary-950",
+                isActivePath("/glossary") &&
+                  "bg-primary/5 text-primary font-semibold"
+              )}
+              onClick={() => onNavigate("/glossary")}
+            >
+              <Icon icon="mdi:help-circle-outline" className="text-lg " />
+              Glossary
+            </SidebarMenuButton>
+            {open && footer.expand}
+          </SidebarMenuItem>
+
           {!open && footer.collapse}
         </SidebarMenu>
       </SidebarContent>

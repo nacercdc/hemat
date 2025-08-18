@@ -1,5 +1,4 @@
 "use client";
-
 import { PageContainer } from "../components/PageContainer";
 import Collapsible from "./Collapsible";
 const data = {
@@ -34,7 +33,7 @@ const data = {
 
 export function Glossary() {
   return (
-    <PageContainer pageTitle="Invitations" includeBreadcrumb={false}>
+    <PageContainer pageTitle="Glossary" includeBreadcrumb={false}>
       <div className="w-full flex flex-col gap-6 mt-10 p-5 bg-basic-200 rounded-sm ">
         <h1 className="text-sm font-semibold"> Key Terms / Definition </h1>
         <div className="w-full mx-auto">
