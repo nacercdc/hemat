@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useEffect, useState } from "react";
 import type {
   ColumnDef,
   PaginationState,
   SortingState,
+  Row,
+  ExpandedState,
 } from "@tanstack/react-table";
 import {
   useReactTable,
@@ -32,7 +34,9 @@ interface Props<TData> {
   pageSizeOptions?: number[];
   initialPagination?: PaginationState;
   enableRowSelection?: boolean;
+  enableExpanding?: boolean;
   onEmptyDataElement?: React.ReactNode;
+  getExpandedContent?: (row: Row<TData>) => Promise<React.ReactNode>;
   onPaginationChange?: (p: PaginationState) => void;
   onRowSelectionChange?: (selectedRowIds: string[]) => void;
   onSortingChange?: (sorting: SortingState) => void;
@@ -49,58 +53,102 @@ export function Table<TData extends object>({
   pageSizeOptions,
   initialPagination,
   enableRowSelection = true,
+  enableExpanding = false,
   onEmptyDataElement,
+  getExpandedContent,
   onPaginationChange,
   onRowSelectionChange,
   onSortingChange,
   onSearchFilterChange,
 }: Props<TData>) {
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const [expanded, setExpanded] = useState<ExpandedState>({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: initialPagination?.pageIndex ?? 0,
     pageSize: initialPagination?.pageSize ?? 10,
   });
+  const [expandedContent, setExpandedContent] = useState<
+    Record<string, React.ReactNode>
+  >({});
+  const [loadingExpandedRows, setLoadingExpandedRows] = useState<Set<string>>(
+    new Set()
+  );
+  const [errorExpandedRows, setErrorExpandedRows] = useState<Set<string>>(
+    new Set()
+  );
   const [filterValue, setFilterValue] = useState("");
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const debounceTimer = useRef<NodeJS.Timeout>(null);
 
-  const columnsWithCheckbox = React.useMemo<ColumnDef<TData>[]>(
-    () =>
-      enableRowSelection
-        ? [
-            {
-              id: "select",
-              header: ({ table }) => (
-                <input
-                  type="checkbox"
-                  checked={table.getIsAllPageRowsSelected()}
-                  onChange={table.getToggleAllPageRowsSelectedHandler()}
-                />
-              ),
-              cell: ({ row }) => (
-                <input
-                  type="checkbox"
-                  checked={row.getIsSelected()}
-                  onChange={row.getToggleSelectedHandler()}
-                />
-              ),
-            },
-            ...columns,
-          ]
-        : [...columns],
-    [columns, enableRowSelection]
-  );
+  const finalColumns = React.useMemo<ColumnDef<TData>[]>(() => {
+    let cols = [...columns];
+
+    if (enableRowSelection) {
+      cols = [
+        {
+          id: "select",
+          size: 30,
+          minSize: 30,
+          maxSize: 30,
+          header: ({ table }) => (
+            <input
+              type="checkbox"
+              checked={table.getIsAllPageRowsSelected()}
+              onChange={table.getToggleAllPageRowsSelectedHandler()}
+            />
+          ),
+          cell: ({ row }) => (
+            <input
+              type="checkbox"
+              checked={row.getIsSelected()}
+              onChange={row.getToggleSelectedHandler()}
+            />
+          ),
+        },
+        ...cols,
+      ];
+    }
+
+    if (enableExpanding) {
+      cols = [
+        {
+          id: "expander",
+          size: 30,
+          minSize: 30,
+          maxSize: 30,
+          header: () => null,
+          cell: ({ row }) => (
+            <button
+              onClick={row.getToggleExpandedHandler()}
+              className="cursor-pointer"
+            >
+              {row.getIsExpanded() ? (
+                <Icon icon="lucide:chevron-up" />
+              ) : (
+                <Icon icon="lucide:chevron-down" />
+              )}
+            </button>
+          ),
+        },
+        ...cols,
+      ];
+    }
+
+    return cols;
+  }, [columns, enableRowSelection, enableExpanding]);
 
   const table = useReactTable({
     data,
-    columns: columnsWithCheckbox,
+    columns: finalColumns,
     state: {
       rowSelection,
       sorting,
+      expanded,
       pagination,
     },
     onRowSelectionChange: setRowSelection,
+    onExpandedChange: setExpanded,
     onSortingChange: (updater) => {
       const newSorting =
         typeof updater === "function" ? updater(sorting) : updater;
@@ -110,14 +158,52 @@ export function Table<TData extends object>({
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getRowCanExpand: () => true,
     manualPagination: true,
     manualSorting: true,
     manualFiltering: true,
     enableSorting: !isLoading && data.length > 0,
+    enableExpanding,
     enableRowSelection,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (!getExpandedContent) return;
+
+    Object.entries(expanded).forEach(([key, isExpanded]) => {
+      if (
+        isExpanded &&
+        expandedContent[key] === undefined &&
+        !loadingExpandedRows.has(key) &&
+        !errorExpandedRows.has(key)
+      ) {
+        setLoadingExpandedRows((prev) => new Set([...prev, key]));
+        getExpandedContent(table.getRow(key))
+          .then((content) => {
+            setExpandedContent((prev) => ({ ...prev, [key]: content }));
+          })
+          .catch(() => {
+            setErrorExpandedRows((prev) => new Set([...prev, key]));
+          })
+          .finally(() => {
+            setLoadingExpandedRows((prev) => {
+              const newSet = new Set(prev);
+              newSet.delete(key);
+              return newSet;
+            });
+          });
+      }
+    });
+  }, [
+    expanded,
+    getExpandedContent,
+    table,
+    expandedContent,
+    loadingExpandedRows,
+    errorExpandedRows,
+  ]);
+
+  useEffect(() => {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     if (tableContainerRef.current) {
       tableContainerRef.current.scrollTop = 0;
@@ -125,14 +211,14 @@ export function Table<TData extends object>({
     // TODO we may need to reset based on other filters as well
   }, [sorting]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const selectedRowIds = Object.keys(rowSelection).filter(
       (id) => rowSelection[id] === true
     );
     onRowSelectionChange?.(selectedRowIds);
   }, [rowSelection, onRowSelectionChange]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
@@ -225,6 +311,7 @@ export function Table<TData extends object>({
                         "text-left py-4 px-2 font-bold text-[13px]",
                         "cursor-pointer",
                         header.id === "select" && "w-0",
+                        header.id === "expander" && "w-0",
                         header.id === "Action" &&
                           "text-right sticky right-0 bg-basic-200 w-[1%] whitespace-nowrap"
                       )}
@@ -264,7 +351,11 @@ export function Table<TData extends object>({
                 ) : (
                   <tr className="h-96 w-full">
                     <td
-                      colSpan={columns.length + 1}
+                      colSpan={
+                        columns.length +
+                        (enableRowSelection ? 1 : 0) +
+                        (enableExpanding ? 1 : 0)
+                      }
                       rowSpan={pagination.pageSize}
                       className="h-full w-full"
                     >
@@ -286,37 +377,55 @@ export function Table<TData extends object>({
                 )
               ) : (
                 table.getRowModel().rows.map((row, index) => (
-                  <tr
-                    key={row.id}
-                    className={cn("bg-card hover:bg-primary-50/40 h-11", {
-                      "border-b-[1px] border-basic-300":
-                        index !== table.getRowModel().rows.length - 1,
-                    })}
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      const isActionColumn = cell.column.id === "Action";
-                      return (
+                  <React.Fragment key={row.id}>
+                    <tr
+                      key={row.id}
+                      className={cn("bg-card hover:bg-primary-50/40 h-11", {
+                        "border-b-[1px] border-basic-300":
+                          index !== table.getRowModel().rows.length - 1,
+                      })}
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        const isActionColumn = cell.column.id === "Action";
+                        return (
+                          <td
+                            key={cell.id}
+                            className={cn(
+                              "py-0 px-2 text-sm font-medium",
+                              isActionColumn &&
+                                "text-right sticky right-0 bg-card z-10 w-[1%] whitespace-nowrap"
+                            )}
+                            style={
+                              isActionColumn
+                                ? { width: "1%", whiteSpace: "nowrap" }
+                                : {}
+                            }
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                    {row.getIsExpanded() && getExpandedContent && (
+                      <tr>
                         <td
-                          key={cell.id}
-                          className={cn(
-                            "py-0 px-2 text-sm font-medium",
-                            isActionColumn &&
-                              "text-right sticky right-0 bg-card z-10 w-[1%] whitespace-nowrap"
-                          )}
-                          style={
-                            isActionColumn
-                              ? { width: "1%", whiteSpace: "nowrap" }
-                              : {}
-                          }
+                          colSpan={row.getVisibleCells().length}
+                          className="px-2 text-sm font-medium"
                         >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
+                          {loadingExpandedRows.has(row.id) ? (
+                            <Skeleton className="h-[100px] w-full rounded-md my-2" />
+                          ) : errorExpandedRows.has(row.id) ? (
+                            <div>Error loading expanded content</div>
+                          ) : (
+                            expandedContent[row.id]
                           )}
                         </td>
-                      );
-                    })}
-                  </tr>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))
               )}
             </tbody>
