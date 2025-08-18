@@ -28,12 +28,12 @@ ARG APP_NAME
 
 WORKDIR /app
 
-
 COPY --from=deps /app ./
 COPY --from=deps /app/apps/${APP_NAME}/.env.stg ./apps/${APP_NAME}/.env
 
 RUN yarn workspace @etm/server-media-upload build && \
-  yarn workspace ${APP_NAME} build
+    yarn workspace @etm/server-notification build && \
+    yarn workspace ${APP_NAME} build
 
 FROM base AS web-runner
 
