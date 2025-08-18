@@ -1339,6 +1339,45 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@etm/server-notification@workspace:*, @etm/server-notification@workspace:packages/server-notification":
+  version: 0.0.0-use.local
+  resolution: "@etm/server-notification@workspace:packages/server-notification"
+  dependencies:
+    "@eslint/eslintrc": "npm:^3.2.0"
+    "@eslint/js": "npm:^9.18.0"
+    "@nestjs/cli": "npm:^11.0.0"
+    "@nestjs/common": "npm:^11.0.1"
+    "@nestjs/core": "npm:^11.0.1"
+    "@nestjs/platform-express": "npm:^11.0.1"
+    "@nestjs/schematics": "npm:^11.0.0"
+    "@nestjs/testing": "npm:^11.0.1"
+    "@swc/cli": "npm:^0.6.0"
+    "@swc/core": "npm:^1.10.7"
+    "@types/express": "npm:^5.0.0"
+    "@types/jest": "npm:^29.5.14"
+    "@types/multer": "npm:^1.4.12"
+    "@types/node": "npm:^22.10.7"
+    "@types/supertest": "npm:^6.0.2"
+    eslint: "npm:^9.18.0"
+    eslint-config-prettier: "npm:^10.0.1"
+    eslint-plugin-prettier: "npm:^5.2.2"
+    globals: "npm:^16.0.0"
+    jest: "npm:^29.7.0"
+    prettier: "npm:^3.4.2"
+    reflect-metadata: "npm:^0.2.2"
+    rxjs: "npm:^7.8.1"
+    source-map-support: "npm:^0.5.21"
+    supertest: "npm:^7.0.0"
+    ts-jest: "npm:^29.2.5"
+    ts-loader: "npm:^9.5.2"
+    ts-node: "npm:^10.9.2"
+    tsconfig-paths: "npm:^4.2.0"
+    typescript: "npm:^5.7.3"
+    typescript-eslint: "npm:^8.20.0"
+    uuid: "npm:^11.1.0"
+  languageName: unknown
+  linkType: soft
+
 "@etm/tailwind-config@workspace:*, @etm/tailwind-config@workspace:tooling/tailwind":
   version: 0.0.0-use.local
   resolution: "@etm/tailwind-config@workspace:tooling/tailwind"
@@ -12507,6 +12546,7 @@ __metadata:
     "@casl/ability": "npm:^6.7.3"
     "@etm/prettier-config": "workspace:*"
     "@etm/server-media-upload": "workspace:*"
+    "@etm/server-notification": "workspace:*"
     "@etm/utilities": "workspace:*"
     "@nestjs/cli": "npm:^11.0.0"
     "@nestjs/common": "npm:^11.0.1"

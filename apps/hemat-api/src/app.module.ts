@@ -1,3 +1,5 @@
+import { notificationModuleConfig } from '@config/notification.config';
+import { NotificationModule } from '@etm/server-notification';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SentryModule } from '@sentry/nestjs/setup';
@@ -8,18 +10,19 @@ import {
   AccountModule,
   AssessmentModule,
   CountryModule,
+  DashboardModule,
   InvitationModule,
   LanguageModule,
   MeasurementScaleModule,
   SupportModule,
   TemplateModule,
-  DashboardModule,
 } from './modules';
 import { ExistConstraint, UniqueConstraint } from './shared/validators';
 
 @Module({
   imports: [
     SentryModule.forRoot(),
+    NotificationModule.forRoot({ ...notificationModuleConfig }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig, authConfig, databaseConfig],
