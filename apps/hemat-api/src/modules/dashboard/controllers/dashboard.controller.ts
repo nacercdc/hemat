@@ -87,13 +87,42 @@ export class DashboardController {
   ): Promise<any[]> {
     return this.dashboardService.getAverageDomainRatesByTemplate(query);
   }
+  @ApiOperation({
+    summary:
+      'Get average measurement scale rate across all domains for all countries',
+  })
+  @ApiOkResponse({
+    description: 'Average rate across all domains for each country',
+    schema: {
+      example: [
+        {
+          countryCode: 'ET',
+          averageRate: 4,
+        },
+        {
+          countryCode: 'NG',
+          averageRate: 3,
+        },
+      ],
+    },
+  })
+  @Get('domains/average-rate/country')
+  async getAverageDomainRatesForAllCountries(
+    @Query()
+    query: DashboardQueryDto & { domainId?: string; countryCode?: string },
+  ): Promise<any[]> {
+    return this.dashboardService.getAverageDomainRatesForAllCountries(query);
+  }
 
   @Get('domains/average-rate/country/:countryCode')
   async getAverageDomainRatesByTemplateForCountry(
     @Param('countryCode') countryCode: string,
     @Query() query: DashboardQueryDto,
   ): Promise<any[]> {
-    return this.dashboardService.getAverageDomainRatesByTemplateForCountry(countryCode, query);
+    return this.dashboardService.getAverageDomainRatesByTemplateForCountry(
+      countryCode,
+      query,
+    );
   }
 
   @ApiOperation({
@@ -136,7 +165,11 @@ export class DashboardController {
     @Param('countryCode') countryCode: string,
     @Query() query: DashboardQueryDto,
   ): Promise<any[]> {
-    return this.dashboardService.getAverageComponentRatesByTemplateDomainForCountry(templateDomainId, countryCode, query);
+    return this.dashboardService.getAverageComponentRatesByTemplateDomainForCountry(
+      templateDomainId,
+      countryCode,
+      query,
+    );
   }
 
   @ApiOperation({
@@ -170,13 +203,19 @@ export class DashboardController {
     );
   }
 
-  @Get('components/:templateComponentId/subcomponents/average-rate/country/:countryCode')
+  @Get(
+    'components/:templateComponentId/subcomponents/average-rate/country/:countryCode',
+  )
   async getAverageSubComponentRatesByTemplateComponentForCountry(
     @Param('templateComponentId') templateComponentId: string,
     @Param('countryCode') countryCode: string,
     @Query() query: DashboardQueryDto,
   ): Promise<any[]> {
-    return this.dashboardService.getAverageSubComponentRatesByTemplateComponentForCountry(templateComponentId, countryCode, query);
+    return this.dashboardService.getAverageSubComponentRatesByTemplateComponentForCountry(
+      templateComponentId,
+      countryCode,
+      query,
+    );
   }
 
   @ApiOperation({ summary: 'Fetch all template domains' })
@@ -351,7 +390,8 @@ export class DashboardController {
 
   @ApiOperation({
     summary: 'Find all measurement scales',
-    description: 'Get all measurement scales with pagination (no authentication required)',
+    description:
+      'Get all measurement scales with pagination (no authentication required)',
   })
   @ApiOkResponse({
     description: 'Ok',
@@ -367,15 +407,21 @@ export class DashboardController {
     return this.assessmentSubComponentService.getAverageRateForPrimaryAnswersGrouped();
   }
 
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get all countries with subregion and assessment status',
-    description: 'Fetch countries with optional filtering by subregion, assessment status, and country code'
+    description:
+      'Fetch countries with optional filtering by subregion, assessment status, and country code',
   })
   @ApiOkResponse({
-    description: 'Array of countries with code, subregion, and assessment status',
+    description:
+      'Array of countries with code, subregion, and assessment status',
     schema: {
       example: [
-        { code: 'ET', subregion: 'Eastern Africa', assessmentStatus: 'COMPLETED' },
+        {
+          code: 'ET',
+          subregion: 'Eastern Africa',
+          assessmentStatus: 'COMPLETED',
+        },
         { code: 'NG', subregion: 'Western Africa', assessmentStatus: 'DRAFT' },
       ],
     },
@@ -392,4 +438,42 @@ export class DashboardController {
       countryCode,
     });
   }
-} 
+  @ApiOperation({
+    summary:
+      'Get average primary and roadmap rates per template domain for a specific country and Africa-wide',
+  })
+  @ApiOkResponse({
+    description:
+      'Average primary and roadmap rates per template domain for a country and Africa-wide',
+    schema: {
+      example: [
+        {
+          id: 'ab909a31-7873-4b10-8c1b-704656f851b1',
+          name: 'Public Health Infrastructure',
+          averagePrimaryRate: 2,
+          averageRoadmapRate: 3,
+          africaAveragePrimaryRate: 2,
+          africaAverageRoadmapRate: 2,
+        },
+        {
+          id: 'b6aa14f1-f3aa-4c9f-8022-5038b15e39ca',
+          name: 'Disease Prevention and Control',
+          averagePrimaryRate: 3,
+          averageRoadmapRate: 2,
+          africaAveragePrimaryRate: 3,
+          africaAverageRoadmapRate: 3,
+        },
+      ],
+    },
+  })
+  @Get('domains/average-rate/country/:countryCode/africa')
+  async getAverageDomainRatesByTemplateForCountryAndAfrica(
+    @Param('countryCode') countryCode: string,
+    @Query() query: DashboardQueryDto,
+  ): Promise<any[]> {
+    return this.dashboardService.getAverageDomainRatesByTemplateForCountryAndAfrica(
+      countryCode,
+      query,
+    );
+  }
+}
