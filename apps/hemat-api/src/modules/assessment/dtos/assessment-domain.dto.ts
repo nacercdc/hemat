@@ -25,14 +25,6 @@ export class AssessmentDomainDto {
   @IsNotEmpty({ message: 'validation.name.isNotEmpty' })
   @IsString({ message: 'validation.name.isString' })
   @Length(1, 10, { message: 'validation.code.length args: min:1 | max:10' })
-  @IsUnique(
-    {
-      tableName: 'assessment-domains',
-      columns: ['code'],
-      exclude: 'id'
-    },
-    { message: 'validation.code.isUnique' },
-  )
   @Type(() => String)
   code: string;
 
@@ -44,10 +36,6 @@ export class AssessmentDomainDto {
   @IsNotEmpty({ message: 'validation.name.isNotEmpt  y' })
   @IsString({ message: 'validation.name.isString' })
   @Length(1, 100, { message: 'validation.name.length args: 1,100' })
-  @IsUnique(
-    { tableName: 'assessment-domains', columns: ['name'], exclude: 'id' },
-    { message: 'validation.name.isUnique' },
-  )
   @Type(() => String)
   name: string;
 

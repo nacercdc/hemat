@@ -147,6 +147,58 @@ export class AssessmentComponentService {
       async (manager) => {
         const component = await this.findOne(assessmentId, id);
 
+        // Check uniqueness of code and name in a single query
+        if (
+          (payload.code && payload.code !== component.code) ||
+          (payload.name && payload.name !== component.name)
+        ) {
+          this.logger.debug(
+            `Checking uniqueness for code: ${payload.code}, name: ${payload.name} in assessment: ${assessmentId}`,
+          );
+
+          const queryBuilder = manager
+            .getRepository(AssessmentComponent)
+            .createQueryBuilder('ac')
+            .select(['ac.code', 'ac.name'])
+            .where('ac.assessmentId = :assessmentId', { assessmentId })
+            .andWhere('ac.id != :id', { id })
+            .andWhere('ac.deletedAt IS NULL');
+
+          const conditions: string[] = [];
+          const parameters: Record<string, any> = {};
+          if (payload.code && payload.code !== component.code) {
+            conditions.push('ac.code = :code');
+            parameters.code = payload.code;
+          }
+          if (payload.name && payload.name !== component.name) {
+            conditions.push('ac.name = :name');
+            parameters.name = payload.name;
+          }
+
+          if (conditions.length > 0) {
+            queryBuilder.andWhere(`(${conditions.join(' OR ')})`, parameters);
+            const duplicates = await queryBuilder.getMany();
+            this.logger.debug(
+              `Uniqueness check result: found ${duplicates.length} duplicates`,
+            );
+
+            for (const duplicate of duplicates) {
+              if (duplicate.code === payload.code) {
+                this.logger.error(
+                  `Code ${payload.code} already exists for assessment ${assessmentId}`,
+                );
+                throw new BadRequestException('validation.code.isUnique');
+              }
+              if (duplicate.name === payload.name) {
+                this.logger.error(
+                  `Name ${payload.name} already exists for assessment ${assessmentId}`,
+                );
+                throw new BadRequestException('validation.name.isUnique');
+              }
+            }
+          }
+        }
+
         const entity = {
           code: payload.code,
           name: payload.name,
@@ -159,6 +211,9 @@ export class AssessmentComponentService {
             AssessmentComponent,
             { id, assessmentId },
             entity,
+          );
+          this.logger.debug(
+            `Updated component ${id} for assessment ${assessmentId}`,
           );
           return { ...component, ...entity };
         } catch (err) {

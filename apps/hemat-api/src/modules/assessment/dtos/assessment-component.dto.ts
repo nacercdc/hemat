@@ -23,10 +23,6 @@ export class AssessmentComponentDto {
   @IsNotEmpty()
   @IsString()
   @Length(1, 50)
-  @IsUnique(
-    { tableName: 'assessment-components', columns: ['code'], exclude: 'id' },
-    { message: 'validation.code.isUnique' },
-  )
   @Type(() => String)
   code: string;
 
@@ -38,10 +34,6 @@ export class AssessmentComponentDto {
   @IsNotEmpty()
   @IsString()
   @Length(1, 100)
-  @IsUnique(
-    { tableName: 'assessment-components', columns: ['name'], exclude: 'id' },
-    { message: 'validation.code.isUnique' },
-  )
   @Type(() => String)
   name: string;
 

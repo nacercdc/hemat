@@ -119,6 +119,59 @@ export class AssessmentDomainService {
     return this.assessmentDomainRepository.manager.transaction(
       async (manager) => {
         const domain = await this.findOne(assessmentId, id);
+
+        // Check uniqueness of code and name in a single query
+        if (
+          (payload.code && payload.code !== domain.code) ||
+          (payload.name && payload.name !== domain.name)
+        ) {
+          this.logger.debug(
+            `Checking uniqueness for code: ${payload.code}, name: ${payload.name} in assessment: ${assessmentId}`,
+          );
+
+          const queryBuilder = manager
+            .getRepository(AssessmentDomain)
+            .createQueryBuilder('ad')
+            .select(['ad.code', 'ad.name'])
+            .where('ad.assessmentId = :assessmentId', { assessmentId })
+            .andWhere('ad.id != :id', { id })
+            .andWhere('ad.deletedAt IS NULL');
+
+          const conditions: string[] = [];
+          const parameters: Record<string, any> = {};
+          if (payload.code && payload.code !== domain.code) {
+            conditions.push('ad.code = :code');
+            parameters.code = payload.code;
+          }
+          if (payload.name && payload.name !== domain.name) {
+            conditions.push('ad.name = :name');
+            parameters.name = payload.name;
+          }
+
+          if (conditions.length > 0) {
+            queryBuilder.andWhere(`(${conditions.join(' OR ')})`, parameters);
+            const duplicates = await queryBuilder.getMany();
+            this.logger.debug(
+              `Uniqueness check result: found ${duplicates.length} duplicates`,
+            );
+
+            for (const duplicate of duplicates) {
+              if (duplicate.code === payload.code) {
+                this.logger.error(
+                  `Code ${payload.code} already exists for assessment ${assessmentId}`,
+                );
+                throw new BadRequestException('validation.code.isUnique');
+              }
+              if (duplicate.name === payload.name) {
+                this.logger.error(
+                  `Name ${payload.name} already exists for assessment ${assessmentId}`,
+                );
+                throw new BadRequestException('validation.name.isUnique');
+              }
+            }
+          }
+        }
+
         const entity = {
           code: payload.code,
           name: payload.name,
@@ -128,6 +181,9 @@ export class AssessmentDomainService {
 
         try {
           await manager.update(AssessmentDomain, { id, assessmentId }, entity);
+          this.logger.debug(
+            `Updated domain ${id} for assessment ${assessmentId}`,
+          );
           return { ...domain, ...entity };
         } catch (err) {
           this.logger.error(`update: ${err.message}`, err.stack);

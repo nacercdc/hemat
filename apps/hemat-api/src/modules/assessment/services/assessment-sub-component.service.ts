@@ -128,6 +128,59 @@ export class AssessmentSubComponentService {
     const subComponent = await this.findOne(assessmentId, id, {
       include: ['measurementScales'],
     });
+
+    // Check uniqueness of code and name in a single query
+    if (
+      (payload.code && payload.code !== subComponent.code) ||
+      (payload.name && payload.name !== subComponent.name)
+    ) {
+      this.loggerService.debug(
+        `Checking uniqueness for code: ${payload.code}, name: ${payload.name} in assessment: ${assessmentId}`,
+      );
+
+      const queryBuilder = this.assessmentSubComponentRepository
+        .createQueryBuilder('asc')
+        .select(['asc.code', 'asc.name'])
+        .where('asc.assessmentId = :assessmentId', { assessmentId })
+        .andWhere('asc.id != :id', { id })
+        .andWhere('asc.deletedAt IS NULL');
+
+      // Add conditions only for changed fields
+      const conditions: string[] = [];
+      const parameters: Record<string, any> = {};
+      if (payload.code && payload.code !== subComponent.code) {
+        conditions.push('asc.code = :code');
+        parameters.code = payload.code;
+      }
+      if (payload.name && payload.name !== subComponent.name) {
+        conditions.push('asc.name = :name');
+        parameters.name = payload.name;
+      }
+
+      if (conditions.length > 0) {
+        queryBuilder.andWhere(`(${conditions.join(' OR ')})`, parameters);
+        const duplicates = await queryBuilder.getMany();
+        this.loggerService.debug(
+          `Uniqueness check result: found ${duplicates.length} duplicates`,
+        );
+
+        for (const duplicate of duplicates) {
+          if (duplicate.code === payload.code) {
+            this.loggerService.error(
+              `Code ${payload.code} already exists for assessment ${assessmentId}`,
+            );
+            throw new BadRequestException('validation.code.isUnique');
+          }
+          if (duplicate.name === payload.name) {
+            this.loggerService.error(
+              `Name ${payload.name} already exists for assessment ${assessmentId}`,
+            );
+            throw new BadRequestException('validation.name.isUnique');
+          }
+        }
+      }
+    }
+
     try {
       const entity = {
         code: payload.code,
@@ -140,6 +193,9 @@ export class AssessmentSubComponentService {
         entity,
       );
 
+      this.loggerService.debug(
+        `Updated sub-component ${id} for assessment ${assessmentId}`,
+      );
       return { ...subComponent, ...entity };
     } catch (err) {
       this.loggerService.error(
