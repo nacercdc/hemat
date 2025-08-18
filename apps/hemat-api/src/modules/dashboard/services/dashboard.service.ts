@@ -77,8 +77,8 @@ export class DashboardService {
   async getAverageDomainRatesByTemplate(
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    // Handle both single year and multiple years
-    const years = query.years || (query.year ? [query.year] : undefined);
+    const currentYear = new Date().getFullYear();
+    const years = query.years || (query.year ? [query.year] : [currentYear]);
 
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
@@ -93,16 +93,12 @@ export class DashboardService {
       .andWhere('answers.isPrimary = :isPrimary', { isPrimary: true })
       .andWhere('templateDomain.deletedAt IS NULL')
       .andWhere('subComponentAnswers.deletedAt IS NULL')
-      .andWhere('measurementScale.deletedAt IS NULL');
-    if (years && years.length > 0) {
-      qb = qb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-      console.log('Applied year filter:', years);
-    } else {
-      console.log('No year filter applied');
-    }
+      .andWhere('measurementScale.deletedAt IS NULL')
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
+      });
+
+
     return qb
       .select('templateDomain.id', 'id')
       .addSelect('templateDomain.name', 'name')
@@ -119,8 +115,8 @@ export class DashboardService {
     templateDomainId: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    // Handle both single year and multiple years
-    const years = query.years || (query.year ? [query.year] : undefined);
+    const currentYear = new Date().getFullYear();
+    const years = query.years || (query.year ? [query.year] : [currentYear]);
 
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
@@ -140,13 +136,11 @@ export class DashboardService {
       .andWhere('templateComponent.deletedAt IS NULL')
       .andWhere('subComponentAnswers.deletedAt IS NULL')
       .andWhere('measurementScale.deletedAt IS NULL')
-      .andWhere('templateDomain.id = :templateDomainId', { templateDomainId });
-    if (years && years.length > 0) {
-      qb = qb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-    }
+      .andWhere('templateDomain.id = :templateDomainId', { templateDomainId })
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
+      });
+
     return qb
       .select('templateComponent.id', 'id')
       .addSelect('templateComponent.name', 'name')
@@ -163,8 +157,8 @@ export class DashboardService {
     templateComponentId: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    // Handle both single year and multiple years
-    const years = query.years || (query.year ? [query.year] : undefined);
+    const currentYear = new Date().getFullYear();
+    const years = query.years || (query.year ? [query.year] : [currentYear]);
 
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
@@ -187,13 +181,11 @@ export class DashboardService {
       .andWhere('measurementScale.deletedAt IS NULL')
       .andWhere('templateComponent.id = :templateComponentId', {
         templateComponentId,
+      })
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
       });
-    if (years && years.length > 0) {
-      qb = qb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-    }
+
     return qb
       .select('templateSubComponent.id', 'id')
       .addSelect('templateSubComponent.name', 'name')
@@ -212,8 +204,8 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    // Handle both single year and multiple years
-    const years = query.years || (query.year ? [query.year] : undefined);
+    const currentYear = new Date().getFullYear();
+    const years = query.years || (query.year ? [query.year] : [currentYear]);
 
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
@@ -229,13 +221,11 @@ export class DashboardService {
       .andWhere('templateDomain.deletedAt IS NULL')
       .andWhere('subComponentAnswers.deletedAt IS NULL')
       .andWhere('measurementScale.deletedAt IS NULL')
-      .andWhere('assessment.countryCode = :countryCode', { countryCode });
-    if (years && years.length > 0) {
-      qb = qb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-    }
+      .andWhere('assessment.countryCode = :countryCode', { countryCode })
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
+      });
+
     return qb
       .select('templateDomain.id', 'id')
       .addSelect('templateDomain.name', 'name')
@@ -253,8 +243,8 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    // Handle both single year and multiple years
-    const years = query.years || (query.year ? [query.year] : undefined);
+    const currentYear = new Date().getFullYear();
+    const years = query.years || (query.year ? [query.year] : [currentYear]);
 
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
@@ -275,13 +265,11 @@ export class DashboardService {
       .andWhere('subComponentAnswers.deletedAt IS NULL')
       .andWhere('measurementScale.deletedAt IS NULL')
       .andWhere('templateDomain.id = :templateDomainId', { templateDomainId })
-      .andWhere('assessment.countryCode = :countryCode', { countryCode });
-    if (years && years.length > 0) {
-      qb = qb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-    }
+      .andWhere('assessment.countryCode = :countryCode', { countryCode })
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
+      });
+
     return qb
       .select('templateComponent.id', 'id')
       .addSelect('templateComponent.name', 'name')
@@ -299,8 +287,8 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    // Handle both single year and multiple years
-    const years = query.years || (query.year ? [query.year] : undefined);
+    const currentYear = new Date().getFullYear();
+    const years = query.years || (query.year ? [query.year] : [currentYear]);
 
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
@@ -323,13 +311,11 @@ export class DashboardService {
       .andWhere('templateComponent.id = :templateComponentId', {
         templateComponentId,
       })
-      .andWhere('assessment.countryCode = :countryCode', { countryCode });
-    if (years && years.length > 0) {
-      qb = qb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-    }
+      .andWhere('assessment.countryCode = :countryCode', { countryCode })
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
+      });
+
     const countryResults: SubComponentRate[] = await qb
       .select('templateSubComponent.id', 'id')
       .addSelect('templateSubComponent.name', 'name')
@@ -347,7 +333,6 @@ export class DashboardService {
       .addGroupBy('templateSubComponent.description')
       .execute();
 
-    // Now compute Africa-wide averages
     const africanSubregions = [
       'Eastern Africa',
       'Western Africa',
@@ -379,13 +364,13 @@ export class DashboardService {
       })
       .andWhere('country.subregion IN (:...africanSubregions)', {
         africanSubregions,
+      })
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
       });
-    if (years && years.length > 0) {
-      africaQb = africaQb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-    }
+
+    console.log('Applied year filter for Africa:', years);
+
     const africaResults: SubComponentAfricaRate[] = await africaQb
       .select('templateSubComponent.id', 'id')
       .addSelect('templateSubComponent.name', 'name')
@@ -403,7 +388,6 @@ export class DashboardService {
       .addGroupBy('templateSubComponent.description')
       .execute();
 
-    // Merge results by id
     const merged = countryResults.map((countryItem: SubComponentRate) => {
       const africaItem = africaResults.find(
         (a: SubComponentAfricaRate) => a.id === countryItem.id,
@@ -423,6 +407,7 @@ export class DashboardService {
 
     return merged;
   }
+
 
   async getCountriesWithSubregionAndAssessmentStatus(query?: {
     subregion?: string;
@@ -482,6 +467,7 @@ export class DashboardService {
       assessmentStatus: latestStatusMap.get(country.code) || null,
     }));
   }
+  
   async getAverageDomainRatesForAllCountries(
     query: DashboardQueryDto & { domainId?: string; countryCode?: string },
   ): Promise<any[]> {
