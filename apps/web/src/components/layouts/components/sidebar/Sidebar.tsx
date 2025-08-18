@@ -67,13 +67,15 @@ export default function Sidebar() {
         isLoading={false}
         footer={{
           expand: (
-            <Image
-              src="/images/branding-texture.png"
-              alt="logo"
-              width={117}
-              height={62}
-              className="transform scale-x-[-1]"
-            />
+            <div className="flex flex-col gap-2">
+              <Image
+                src="/images/branding-texture.png"
+                alt="logo"
+                width={117}
+                height={62}
+                className="transform scale-x-[-1]"
+              />
+            </div>
           ),
           collapse: null,
         }}
