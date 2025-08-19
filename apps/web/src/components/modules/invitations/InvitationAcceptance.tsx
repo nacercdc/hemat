@@ -57,7 +57,7 @@ export default function InvitationAcceptance({
             message: "Invitation have been accepted successfully.",
             variant: "success",
           });
-          router.push("/dashboard");
+          router.push("/");
           queryClient.invalidateQueries({
             queryKey: [INVITATION_LIST_KEY],
           });
