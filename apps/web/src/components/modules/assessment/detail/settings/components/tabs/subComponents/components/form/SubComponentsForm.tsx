@@ -40,10 +40,10 @@ export const assessmentSubComponentFormSchema = z
           native: z.string(),
         })
       )
-      .min(1, { message: "At least one language is required" }),
+      .optional(),
   })
   .superRefine((data, ctx) => {
-    data.selectedLanguages.forEach((lang) => {
+    data.selectedLanguages?.forEach((lang) => {
       const translation = data.translations[lang.code];
 
       if (!translation?.name || translation.name.length === 0) {
@@ -131,10 +131,13 @@ export const SubComponentForm = ({
     resolver: zodResolver(assessmentSubComponentFormSchema),
     mode: "all",
   });
-  const { mutate: saveSubComponent } = usePutMutation<
-    AssessmentSubComponent,
-    AssessmentSubComponentUpdate
-  >(`/assessments/${assessmentId}/sub-components/${activeSubComponent?.id}`);
+  const { mutate: updateSubComponent, ...updateSubComponentState } =
+    usePutMutation<AssessmentSubComponent, AssessmentSubComponentUpdate>(
+      `/assessments/${assessmentId}/sub-components/${activeSubComponent?.id}`
+    );
+
+  console.log(errors, "Errr");
+
   const onSubmitHandler = (values: AssessmentSubComponentFormData) => {
     const filteredTranslations = Object.fromEntries(
       Object.entries(values.translations || {})
@@ -148,7 +151,7 @@ export const SubComponentForm = ({
           },
         ])
     );
-    saveSubComponent(
+    updateSubComponent(
       {
         data: {
           ...values,
@@ -214,8 +217,13 @@ export const SubComponentForm = ({
         >
           Cancel
         </Button>
-        <Button size="lg" type="submit" form="subComponent-form">
-          Save
+        <Button
+          size="lg"
+          type="submit"
+          form="subComponent-form"
+          loading={updateSubComponentState.isPending}
+        >
+          {updateSubComponentState.isPending ? "Saving..." : "Save"}
         </Button>
       </div>
     </form>
