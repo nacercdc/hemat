@@ -222,12 +222,10 @@ export default function Register() {
             labelVariant="medium"
             valueKey="id"
             labelKey="name"
-            options={
-              PERSONAL_TITLES?.map((title) => ({
-                id: title,
-                name: title,
-              })) ?? []
-            }
+            options={PERSONAL_TITLES.map((title) => ({
+              id: title,
+              name: title,
+            }))}
             placeholder="Select title"
           />
         </div>

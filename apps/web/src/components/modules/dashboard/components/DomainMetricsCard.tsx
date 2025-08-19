@@ -31,7 +31,7 @@ export default function DomainMetricsCard({ domain, scale }: Props) {
           <div
             className={cn(
               `flex items-center justify-center min-w-5 min-h-4 rounded-[3px] text-xs font-medium`,
-              isLightColor(scale?.color) ? "text-black" : "text-white"
+              isLightColor(scale?.color) ? "text-dark" : "text-card"
             )}
             style={{ background: scale.color }}
           >
