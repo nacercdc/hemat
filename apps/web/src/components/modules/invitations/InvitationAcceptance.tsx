@@ -111,14 +111,12 @@ export default function InvitationAcceptance({
             </>
           )}
 
-          {invitation?.status === "rejected" && (
+          {invitation?.status === "expired" && (
             <>
               <h2 className="text-2xl font-semibold text-center mb-4">
-                Invitation Declined
+                Invitation Expired
               </h2>
-              <p className="mb-6 text-center">
-                You have declined this invitation.
-              </p>
+              <p className="mb-6 text-center">This invitation has expired.</p>
             </>
           )}
 
