@@ -41,10 +41,10 @@ export const assessmentComponentFormSchema = z
           native: z.string(),
         })
       )
-      .min(1, { message: "At least one language is required" }),
+      .optional(),
   })
   .superRefine((data, ctx) => {
-    data.selectedLanguages.forEach((lang) => {
+    data.selectedLanguages?.forEach((lang) => {
       const translation = data.translations[lang.code];
 
       if (!translation?.name || translation.name.length === 0) {

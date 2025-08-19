@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, useToast } from "@etm/web-ui-components";
+import { Button, Spinner, useToast } from "@etm/web-ui-components";
 import { INVITATION_LIST_KEY } from "./components/table";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
@@ -16,6 +16,7 @@ interface Props {
   invitationEmail: string;
   assessmentName?: string;
 }
+
 export default function InvitationAcceptance({
   invitationId,
   invitationEmail,
@@ -67,59 +68,70 @@ export default function InvitationAcceptance({
 
   return (
     <div className="flex flex-col w-full p-6 items-center justify-center">
-      {invitation?.status === "pending" && (
+      {invitationState.isLoading ? (
+        <div className="flex flex-col items-center justify-center min-h-44">
+          <Spinner color="primary" size="md" />
+          <p className="mt-4 text-center">Loading invitation...</p>
+        </div>
+      ) : (
         <>
-          <h2 className="text-2xl font-semibold text-center mb-4">
-            You are Invited!
-          </h2>
-          <p className="mb-6 text-center">
-            {assessmentName && (
-              <>
-                For the assessment <strong>{assessmentName}</strong>,{" "}
-              </>
-            )}
-            join the assessment by accepting the invitation below.
-          </p>
-          <Button
-            onClick={onInvitationAcceptHandler}
-            loading={acceptInvitationState.isPending}
-            disabled={
-              acceptInvitationState.isPending || invitationState.isLoading
-            }
-          >
-            {acceptInvitationState.isPending ? "Accepting..." : "Accept"}
-          </Button>
-        </>
-      )}
+          {invitation?.status === "pending" && (
+            <>
+              <h2 className="text-2xl font-semibold text-center mb-4">
+                You are Invited!
+              </h2>
+              <p className="mb-6 text-center">
+                {assessmentName && (
+                  <>
+                    For the assessment <strong>{assessmentName}</strong>,{" "}
+                  </>
+                )}
+                join the assessment by accepting the invitation below.
+              </p>
+              <Button
+                onClick={onInvitationAcceptHandler}
+                loading={acceptInvitationState.isPending}
+                disabled={
+                  acceptInvitationState.isPending || invitationState.isLoading
+                }
+              >
+                {acceptInvitationState.isPending ? "Accepting..." : "Accept"}
+              </Button>
+            </>
+          )}
 
-      {invitation?.status === "accepted" && (
-        <>
-          <h2 className="text-2xl font-semibold text-center mb-4">
-            Invitation Accepted
-          </h2>
-          <p className="mb-6 text-center">
-            You’ve already accepted this invitation.
-          </p>
-        </>
-      )}
+          {invitation?.status === "accepted" && (
+            <>
+              <h2 className="text-2xl font-semibold text-center mb-4">
+                Invitation Accepted
+              </h2>
+              <p className="mb-6 text-center">
+                You’ve already accepted this invitation.
+              </p>
+            </>
+          )}
 
-      {invitation?.status === "rejected" && (
-        <>
-          <h2 className="text-2xl font-semibold text-center  mb-4">
-            Invitation Declined
-          </h2>
-          <p className="mb-6 text-center">You have declined this invitation.</p>
-        </>
-      )}
+          {invitation?.status === "rejected" && (
+            <>
+              <h2 className="text-2xl font-semibold text-center mb-4">
+                Invitation Declined
+              </h2>
+              <p className="mb-6 text-center">
+                You have declined this invitation.
+              </p>
+            </>
+          )}
 
-      {!invitation?.status && (
-        <>
-          <h2 className="text-2xl font-semibold text-center  mb-4">
-            Invitation Not Found
-          </h2>
-          <p className="mb-6 text-center">
-            This invitation may be invalid or expired.
-          </p>
+          {!invitation?.status && (
+            <>
+              <h2 className="text-2xl font-semibold text-center mb-4">
+                Invitation Not Found
+              </h2>
+              <p className="mb-6 text-center">
+                This invitation may be invalid or expired.
+              </p>
+            </>
+          )}
         </>
       )}
     </div>
