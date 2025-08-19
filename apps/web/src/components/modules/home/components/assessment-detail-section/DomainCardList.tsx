@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { DomainCard } from "./DomainCard";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { cn } from "~/utils/cn.util";
@@ -44,6 +44,12 @@ export function DomainCardList() {
       averageRatedDomains as unknown as AverageRatedDomain[];
 
     if (averagedDomains?.length) {
+      averagedDomains.sort((a, b) => {
+        const nameA = a.name ?? "";
+        const nameB = b.name ?? "";
+        return nameA.localeCompare(nameB, undefined, { sensitivity: "base" });
+      });
+
       return averagedDomains.map((averagedDomain) => ({
         ...averagedDomain,
         icon: null,

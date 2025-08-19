@@ -30,6 +30,12 @@ export const PartnersImages = [
     alt: "cdc logo",
   },
   {
+    src: "/images/partners/giz_au.jpg",
+    width: 150,
+    height: 70,
+    alt: "giz logo",
+  },
+  {
     src: "/images/partners/global_fund.svg",
     width: 200,
     height: 50,
