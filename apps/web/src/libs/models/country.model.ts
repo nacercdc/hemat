@@ -4,4 +4,5 @@ export interface Country {
   numericCode?: string;
   phoneCode?: string;
   native?: string;
+  emoji?: string;
 }
