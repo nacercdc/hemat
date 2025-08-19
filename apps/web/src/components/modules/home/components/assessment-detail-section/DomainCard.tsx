@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { Icon } from "@iconify/react";
 import { Progress } from "@etm/web-ui-components";
 import { cn } from "~/utils/cn.util";
 import { useSelectedDomain } from "../../context/selected-domain/useSelectedDomain";
 import type { IDomainCardType } from "./DomainCardList";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measurement-scale.model";
+import { DomainIconMap } from "../../constants";
 
 interface Props {
   domain: IDomainCardType;
@@ -56,37 +58,70 @@ export function DomainCard({ domain }: Props) {
         backgroundColor: `${selectedDomainCtx?.selectedDomain?.name === domain.name ? `${activeMeasurementScale?.color}30` : "#fff"}`,
       }}
     >
-      {/* {domain.type !== "summary" && icon} */}
-      <div className="flex flex-col justify-between gap-2 w-full">
-        <span
-          className={cn(
-            "text-xs font-medium",
-            domain.type === "summary" && "font-bold text-2xl"
+      <div className="flex gap-3">
+        <>
+          {isIncluded(domain.name, "fluent-mdl2:party-leader") && (
+            <Icon icon="fluent-mdl2:party-leader" className="w-8 h-8" />
           )}
-        >
-          {domain.name}
-        </span>
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex items-center gap-2">
-            <span className="text-xs">{activeMeasurementScale?.name}</span>
-            <div
-              className={cn(
-                "flex items-center justify-center rounded-sm text-white w-5 h-5 text-xs font-medium",
-                domain.averageRate === 3 && "text-black"
-              )}
-              style={{
-                backgroundColor: `${activeMeasurementScale?.color}`,
-              }}
-            >
-              {domain.averageRate ? domain.averageRate : "?"}
+          {isIncluded(domain.name, "game-icons:satellite-communication") && (
+            <Icon
+              icon="game-icons:satellite-communication"
+              className="w-8 h-8"
+            />
+          )}
+          {isIncluded(domain.name, "carbon:ibm-knowledge-catalog-standard") && (
+            <Icon
+              icon="carbon:ibm-knowledge-catalog-standard"
+              className="w-8 h-8"
+            />
+          )}
+          {isIncluded(domain.name, "fluent-mdl2:workforce-management") && (
+            <Icon icon="fluent-mdl2:workforce-management" className="w-8 h-8" />
+          )}
+        </>
+        <div className="flex flex-col justify-between gap-2 w-full">
+          <span
+            className={cn(
+              "text-xs font-medium",
+              domain.type === "summary" && "font-bold text-2xl"
+            )}
+          >
+            {domain.name}
+          </span>
+          <div className="flex flex-col gap-2 w-full">
+            <div className="flex items-center gap-2">
+              <span className="text-xs">{activeMeasurementScale?.name}</span>
+              <div
+                className={cn(
+                  "flex items-center justify-center rounded-sm text-white w-5 h-5 text-xs font-medium",
+                  domain.averageRate === 3 && "text-black"
+                )}
+                style={{
+                  backgroundColor: `${activeMeasurementScale?.color}`,
+                }}
+              >
+                {domain.averageRate ? domain.averageRate : "?"}
+              </div>
             </div>
+            <Progress
+              color={`${activeMeasurementScale?.color}`}
+              value={domain.averageRate * 20}
+            />
           </div>
-          <Progress
-            color={`${activeMeasurementScale?.color}`}
-            value={domain.averageRate * 20}
-          />
         </div>
       </div>
     </div>
   );
+}
+
+function isIncluded(domainName: string, iconName: string) {
+  let included = false;
+  DomainIconMap[iconName]?.forEach((key) => {
+    console.log(included);
+    if (domainName.toLowerCase().includes(key.toLowerCase())) {
+      included = true;
+      return;
+    }
+  });
+  return included;
 }

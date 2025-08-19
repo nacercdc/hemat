@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { DomainCard } from "./DomainCard";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { cn } from "~/utils/cn.util";
