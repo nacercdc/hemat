@@ -8,7 +8,7 @@ import {
   TextAreaRHF,
 } from "@etm/web-ui-components";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { Country } from "~/libs/models/country.model";
@@ -36,16 +36,16 @@ const AssessmentFormSchema = z
     name: z
       .string()
       .min(2, { message: "Assessment name must be at least 2 characters" })
-      .max(50, { message: "Assessment name must be at most 50 characters" }),
+      .max(100, { message: "Assessment name must be at most 50 characters" }),
     startDate: z.date(),
     endDate: z.date(),
     country: CountrySchema,
     organization: z
       .string()
-      .min(1, { message: "Organization must be at least 1 character" })
       .max(100, {
         message: "Organization name must be at most 100 characters",
-      }),
+      })
+      .optional(),
     description: z
       .string()
       .min(1, { message: "Description must be at least 1 character" })
@@ -93,18 +93,19 @@ export function AssessmentForm({
     },
   });
 
-  const { control, handleSubmit, reset } = useForm<AssessmentFormData>({
-    defaultValues: {
-      name: "",
-      startDate: new Date(),
-      endDate: new Date(),
-      organization: "",
-      languages: [],
-      description: "",
-    },
-    resolver: zodResolver(AssessmentFormSchema),
-    mode: "all",
-  });
+  const { control, handleSubmit, reset, setValue } =
+    useForm<AssessmentFormData>({
+      defaultValues: {
+        name: "",
+        startDate: new Date(),
+        endDate: new Date(),
+        organization: "",
+        languages: [],
+        description: "",
+      },
+      resolver: zodResolver(AssessmentFormSchema),
+      mode: "all",
+    });
 
   const onSubmitHandler = (values: AssessmentFormData) => {
     onSubmitAssessmentForm({
@@ -118,6 +119,27 @@ export function AssessmentForm({
     onCancelAssessmentForm?.();
     reset();
   };
+  const selectedCountry = useWatch({ control, name: "country" });
+  const selectedDate = useWatch({ control, name: "startDate" });
+
+  useEffect(() => {
+    if (selectedCountry?.code && selectedDate) {
+      const countryName =
+        countries?.data.find((c: Country) => c.code === selectedCountry.code)
+          ?.name ?? "";
+      const formattedDate = new Date(selectedDate).toLocaleDateString("en-GB", {
+        year: "numeric",
+      });
+      setValue(
+        "name",
+        `HIE Maturity Assessment - ${countryName} (${formattedDate})`,
+        {
+          shouldValidate: true,
+          shouldDirty: true,
+        }
+      );
+    }
+  }, [selectedCountry, selectedDate, countries, setValue]);
 
   useEffect(() => {
     if (assessment) {
@@ -151,36 +173,6 @@ export function AssessmentForm({
       className="flex flex-col  md:w-[744px]  rounded-md   mx-auto bg-dark-lighter/5"
     >
       <div className="flex flex-col gap-6 px-8 pt-8">
-        <InputRHF
-          name="name"
-          label="Assessment Name"
-          placeholder="Write Name"
-          size="xl"
-          labelVariant="bold"
-          control={control}
-        />
-        <div className="xl:col-start-2 col-start-1 flex gap-2">
-          <DateTimePickerRHF
-            control={control}
-            name="startDate"
-            label="Start Date"
-            labelVariant="bold"
-            size="xl"
-            showTime={false}
-            iconDirection="right"
-            placeholder="Select start date"
-          />
-          <DateTimePickerRHF
-            control={control}
-            name="endDate"
-            label="End Date"
-            size="xl"
-            showTime={false}
-            iconDirection="right"
-            placeholder="Select end date"
-            labelVariant="bold"
-          />
-        </div>
         <SelectRHF<Country, AssessmentFormData>
           control={control}
           name="country"
@@ -192,6 +184,42 @@ export function AssessmentForm({
           onOpenChange={() => countriesState.refetch()}
           options={(countries?.data as unknown as Country[]) ?? []}
           loading={countriesState.isLoading || countriesState.isFetching}
+          required
+        />
+
+        <div className="xl:col-start-2 col-start-1 flex gap-2">
+          <DateTimePickerRHF
+            control={control}
+            name="startDate"
+            label="Start Date"
+            labelVariant="bold"
+            size="xl"
+            showTime={false}
+            iconDirection="right"
+            placeholder="Select start date"
+            required
+          />
+          <DateTimePickerRHF
+            control={control}
+            name="endDate"
+            label="End Date"
+            size="xl"
+            showTime={false}
+            iconDirection="right"
+            placeholder="Select end date"
+            labelVariant="bold"
+            required
+          />
+        </div>
+        <InputRHF
+          name="name"
+          label="Assessment Name"
+          placeholder="Write Name"
+          size="xl"
+          labelVariant="bold"
+          control={control}
+          required
+          disabled
         />
 
         <InputRHF
@@ -201,6 +229,7 @@ export function AssessmentForm({
           placeholder="Organization Name"
           size="xl"
           labelVariant="bold"
+          required
         />
         <MultiSelectRHF
           control={control}
@@ -213,6 +242,7 @@ export function AssessmentForm({
           labelVariant="bold"
           size="lg"
           loading={languagesState.isLoading}
+          required
         />
         <TextAreaRHF
           control={control}
