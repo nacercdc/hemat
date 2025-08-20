@@ -23,7 +23,7 @@ export function TotalDomains() {
       }
       count={domainsCount?.count || 0}
       isLoading={isLoading}
-      title="Domain"
+      title="Domains"
     />
   );
 }
