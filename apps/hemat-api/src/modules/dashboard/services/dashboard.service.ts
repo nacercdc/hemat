@@ -549,7 +549,8 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years || (query.year ? [query.year] : undefined);
+    const currentYear = new Date().getFullYear();
+    const years = query.years || (query.year ? [query.year] : [currentYear]);
 
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
@@ -564,22 +565,20 @@ export class DashboardService {
       .andWhere('templateDomain.deletedAt IS NULL')
       .andWhere('subComponentAnswers.deletedAt IS NULL')
       .andWhere('measurementScale.deletedAt IS NULL')
-      .andWhere('assessment.countryCode = :countryCode', { countryCode });
-    if (years && years.length > 0) {
-      qb = qb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-    }
+      .andWhere('assessment.countryCode = :countryCode', { countryCode })
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
+      });
+
     const countryResults: DomainRate[] = await qb
       .select('templateDomain.id', 'id')
       .addSelect('templateDomain.name', 'name')
       .addSelect(
-        'COALESCE(ROUND(AVG(CASE WHEN answers.isPrimary = true THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id AND answers.isPrimary = true THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averagePrimaryRate',
       )
       .addSelect(
-        'COALESCE(ROUND(AVG(CASE WHEN answers.isPrimary = false THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id AND answers.isPrimary = false THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRoadmapRate',
       )
       .groupBy('templateDomain.id')
@@ -609,22 +608,20 @@ export class DashboardService {
       .andWhere('measurementScale.deletedAt IS NULL')
       .andWhere('country.subregion IN (:...africanSubregions)', {
         africanSubregions,
+      })
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
       });
-    if (years && years.length > 0) {
-      africaQb = africaQb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-    }
+
     const africaResults: DomainAfricaRate[] = await africaQb
       .select('templateDomain.id', 'id')
       .addSelect('templateDomain.name', 'name')
       .addSelect(
-        'COALESCE(ROUND(AVG(CASE WHEN answers.isPrimary = true THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id AND answers.isPrimary = true THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'africaAveragePrimaryRate',
       )
       .addSelect(
-        'COALESCE(ROUND(AVG(CASE WHEN answers.isPrimary = false THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id AND answers.isPrimary = false THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'africaAverageRoadmapRate',
       )
       .groupBy('templateDomain.id')
