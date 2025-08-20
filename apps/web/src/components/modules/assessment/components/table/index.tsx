@@ -18,7 +18,7 @@ import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { StatusType } from "./Toolbar";
 import Toolbar from "./Toolbar";
 
-export const ASSESSMENT_LIST_KEY = "assessment-list";
+export const ASSESSMENT_LIST_KEY = "assessments";
 
 export function AssessmentsTable() {
   const [search, setSearch] = useState("");
@@ -48,7 +48,7 @@ export function AssessmentsTable() {
       sorts: sort,
     },
     tqOptions: {
-      queryKey: [ASSESSMENT_LIST_KEY, filter],
+      queryKey: [filter],
     },
   });
 

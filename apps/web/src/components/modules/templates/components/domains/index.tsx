@@ -18,7 +18,7 @@ import { Domain } from "./domain";
 import type { ItemFormData } from "../form";
 import { DomainComponentForm } from "../form";
 import { ListTypeColors } from "../DomainCompCard";
-
+export const DOMAIN_LIST_QUERY_KEY = "domains";
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;
 }
@@ -28,9 +28,6 @@ export function DomainsList({ modalRef }: Props) {
 
   const { data: domains, ...domainsState } = useFindAll<IDomain>({
     path: "/domains",
-    tqOptions: {
-      queryKey: ["domains"],
-    },
   });
 
   const { mutate: createDomain, ...createDomainState } = useAddMutation<
@@ -57,19 +54,21 @@ export function DomainsList({ modalRef }: Props) {
       },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [DOMAIN_LIST_QUERY_KEY],
+          });
           toast({
             title: "Success",
             message: "Domain created successfully",
             variant: "success",
           });
-          queryClient.invalidateQueries({
-            queryKey: ["domains"],
-          });
+
           modalRef.current?.closeModal();
         },
       }
     );
   };
+  console.log(domains, "domains");
 
   return (
     <div className="flex flex-col gap-5 overflow-y-auto h-full">

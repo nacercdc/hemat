@@ -26,6 +26,10 @@ export interface ManyRequest<Entity, Include, Filterable, Sortable> {
   configs?: Omit<RequestConfig, "data">;
 }
 
+const getLastSubPathQueryKey = (path: string) => {
+  const subPaths = path.split("/");
+  return subPaths[subPaths.length - 1];
+};
 export function useFindAll<
   Entity,
   Include = unknown,
@@ -37,7 +41,7 @@ export function useFindAll<
   } = useFetch();
 
   const queryKey = [
-    options.path,
+    getLastSubPathQueryKey(options.path),
     options.queries?.filters,
     options.queries?.search,
     options.queries?.sorts,
@@ -45,6 +49,7 @@ export function useFindAll<
     options?.queries?.skip?.toString(),
     ...(options.tqOptions?.queryKey?.map(String) || []),
   ].filter(Boolean);
+  console.log(queryKey, "");
 
   const { tqOptions, ...rest } = options;
   return useQuery({
