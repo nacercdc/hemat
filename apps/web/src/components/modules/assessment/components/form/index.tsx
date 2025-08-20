@@ -229,7 +229,6 @@ export function AssessmentForm({
           placeholder="Organization Name"
           size="xl"
           labelVariant="bold"
-          required
         />
         <MultiSelectRHF
           control={control}
@@ -251,6 +250,7 @@ export function AssessmentForm({
           placeholder="Write Description..."
           labelVariant="bold"
           rows={4}
+          required
         />
       </div>
       <div className="flex justify-between items-center w-full bg-dark-lighter/5 p-4 rounded-b-lg px-8">

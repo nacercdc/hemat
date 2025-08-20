@@ -12,13 +12,15 @@
         padding: 0;
         min-height: 100vh;
         /* Subtle pattern overlay */
-        background-image: url('https://www.transparenttextures.com/patterns/cubes.png'), linear-gradient(135deg, #e8f0fe 0%, #f4f8fb 100%);
+        background-image:
+          url('https://www.transparenttextures.com/patterns/cubes.png'),
+          linear-gradient(135deg, #e8f0fe 0%, #f4f8fb 100%);
       }
       .container {
         max-width: 600px;
         margin: 48px auto;
-        background: rgba(255,255,255,0.98);
-        box-shadow: 0 8px 32px rgba(32, 104, 48, 0.10);
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 8px 32px rgba(32, 104, 48, 0.1);
         border-radius: 18px;
         overflow: hidden;
       }
@@ -44,18 +46,20 @@
       .btn {
         display: inline-block;
         padding: 14px 32px;
-        background: linear-gradient(90deg, #FFD100 0%, #FFEE80 100%);
-        color: #00703C;
+        background: linear-gradient(90deg, #ffd100 0%, #ffee80 100%);
+        color: #00703c;
         text-decoration: none;
         border-radius: 7px;
         font-size: 16px;
         font-weight: 700;
         margin: 24px 0 0 0;
         box-shadow: 0 2px 8px rgba(32, 104, 48, 0.08);
-        transition: background 0.2s, color 0.2s;
+        transition:
+          background 0.2s,
+          color 0.2s;
       }
       .btn:hover {
-        background: #00703C;
+        background: #00703c;
         color: #fff;
       }
       .text-content {
@@ -87,7 +91,7 @@
       }
       .credentials-box .value {
         font-size: 20px;
-        color: #00703C;
+        color: #00703c;
         font-weight: bold;
         letter-spacing: 1px;
       }
@@ -99,7 +103,7 @@
         font-weight: 600;
       }
       .footer {
-        background: #00703C;
+        background: #00703c;
         color: #fff;
         padding: 24px 32px;
         font-size: 13px;
@@ -143,24 +147,29 @@
   <body>
     <div class="container">
       <div class="content">
-        <h1>Welcome to Africa CDC</h1>
+        <h1>Welcome to HIEMAT</h1>
         <div class="text-content">
           <p class="bold">Hello,</p>
           <p>
-            Your account has been successfully created. Here is your temporary password:
+            Your account has been successfully created. Here is your temporary
+            password:
           </p>
         </div>
         <div class="credentials-box">
           <div class="label">Temporary Password</div>
           <div class="value">{{password}}</div>
         </div>
-        <a class="btn" href="https://africacdc.org/login">Login to Your Account</a>
+        <a class="btn" href="https://africacdc.org/login"
+          >Login to Your Account</a
+        >
         <div class="text-content">
           <p>
-            <strong>Important:</strong> For your security, please log in and change your password as soon as possible.
+            <strong>Important:</strong> For your security, please log in and
+            change your password as soon as possible.
           </p>
           <p>
-            If you have any questions or need assistance, please don't hesitate to contact our support team.
+            If you have any questions or need assistance, please don't hesitate
+            to contact our support team.
           </p>
         </div>
         <div class="signature">
@@ -170,4 +179,4 @@
       </div>
     </div>
   </body>
-</html> 
+</html>

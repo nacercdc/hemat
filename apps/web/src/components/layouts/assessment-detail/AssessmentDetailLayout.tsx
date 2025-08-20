@@ -12,7 +12,7 @@ import { AssessmentAccessProvider } from "~/components/modules/assessment/contex
 
 const TABS = [
   { value: "detail", label: "Detail" },
-  { value: "setting", label: "Setting" },
+  // { value: "setting", label: "Setting" },
   { value: "member", label: "Participants" },
   { value: "current-assessments", label: "Current Assessment" },
   { value: "roadmap", label: "Roadmap" },
