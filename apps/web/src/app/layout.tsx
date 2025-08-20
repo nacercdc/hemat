@@ -18,7 +18,7 @@ export function generateMetadata(): Metadata {
   return constructMetadata({
     title: "Africa CDC HIE Maturity Toolkit",
     description:
-      "Africa CDC Health Information Exchange Maturity Assessment Toolkit",
+      "The HIEMAT is a structured tool developed by Africa CDC to help African Union Member States assess and improve their Health Information Exchange (HIE) systems",
     path: `/`,
   });
 }
