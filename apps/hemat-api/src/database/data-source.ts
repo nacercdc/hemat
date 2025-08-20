@@ -27,16 +27,13 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
     path.join(
       projectRoot,
       'packages/server-media-upload/dist/src/entities/*.entity.js',
+    ),
+    path.join(
+      projectRoot,
       'packages/server-notification/dist/src/entities/*.entity.js',
     ),
   ],
-  migrations: [
-    'dist/database/migrations/**/*{.ts,.js}',
-    // path.join(
-    //   projectRoot,
-    //   'packages/server-media-upload/dist/src/migrations/*.migration.js',
-    // ),
-  ],
+  migrations: ['dist/database/migrations/**/*{.ts,.js}'],
   subscribers: ['dist/database/subscribers/*{.subscriber.js,.subscriber.ts}'],
   seeds: ['dist/database/seeders/**/*.js'],
   cli: {

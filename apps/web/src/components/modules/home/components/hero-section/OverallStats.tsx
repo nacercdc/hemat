@@ -16,6 +16,81 @@ interface TooltipData {
   color: string;
 }
 
+interface CircleConfig {
+  sizeClass: string;
+  borderClass: string;
+  hoveredOpacity: number;
+  pulseOpacity: number[];
+  durationOpacity: number;
+  durationRotate: number;
+  delayScale: number;
+  delayAnim: number;
+  rotate: number;
+}
+
+const circleConfigs: CircleConfig[] = [
+  {
+    sizeClass:
+      "2xl:w-[600px] 2xl:h-[600px] md:w-[500px] md:h-[500px] w-[450px] h-[450px]",
+    borderClass: "border-primary/85",
+    hoveredOpacity: 0.85,
+    pulseOpacity: [0.5, 0.3, 0.5],
+    durationOpacity: 2,
+    durationRotate: 20,
+    delayScale: 0,
+    delayAnim: 0.5,
+    rotate: 360,
+  },
+  {
+    sizeClass:
+      "2xl:w-[520px] 2xl:h-[520px] md:w-[440px] md:h-[440px] w-[390px] h-[390px]",
+    borderClass: "border-primary/75",
+    hoveredOpacity: 0.75,
+    pulseOpacity: [0.475, 0.275, 0.475],
+    durationOpacity: 1.9,
+    durationRotate: 18,
+    delayScale: 0.25,
+    delayAnim: 0.75,
+    rotate: -360,
+  },
+  {
+    sizeClass:
+      "2xl:w-[440px] 2xl:h-[440px] md:w-[380px] md:h-[380px] w-[330px] h-[330px]",
+    borderClass: "border-primary/65",
+    hoveredOpacity: 0.65,
+    pulseOpacity: [0.45, 0.25, 0.45],
+    durationOpacity: 1.8,
+    durationRotate: 15,
+    delayScale: 0.5,
+    delayAnim: 1,
+    rotate: 360,
+  },
+  {
+    sizeClass:
+      "2xl:w-[360px] 2xl:h-[360px] md:w-[320px] md:h-[320px] w-[270px] h-[270px]",
+    borderClass: "border-primary/55",
+    hoveredOpacity: 0.55,
+    pulseOpacity: [0.425, 0.225, 0.425],
+    durationOpacity: 1.7,
+    durationRotate: 13,
+    delayScale: 0.75,
+    delayAnim: 1.25,
+    rotate: -360,
+  },
+  {
+    sizeClass:
+      "2xl:w-[280px] 2xl:h-[280px] md:w-[260px] md:h-[260px] w-[210px] h-[210px]",
+    borderClass: "border-primary/45",
+    hoveredOpacity: 0.45,
+    pulseOpacity: [0.4, 0.2, 0.4],
+    durationOpacity: 1.6,
+    durationRotate: 10,
+    delayScale: 1,
+    delayAnim: 1.5,
+    rotate: 360,
+  },
+];
+
 const getContrastColor = (hex: string) => {
   if (hex.startsWith("#")) {
     hex = hex.slice(1);
@@ -72,21 +147,20 @@ export function OverallStats() {
     if (domains?.length) {
       const validDomains = domains.filter((domain) => domain.averageRate !== 0);
 
-      const availableCirclesCount = 3;
-
       const newTooltipData = validDomains?.map((domain) => ({
         domain,
-        circleIndex: Math.floor(Math.random() * availableCirclesCount),
+        circleIndex: 5 - Math.round(domain.averageRate),
         angle: Math.random() * 360,
         color:
           (
             measurementScales?.data as unknown as AssessmentMeasurementScale[]
-          )?.find((mScale) => mScale.rate === domain.averageRate)?.color || "",
+          )?.find((mScale) => mScale.rate === Math.round(domain.averageRate))
+            ?.color || "",
       }));
 
       setTooltipData(newTooltipData);
     }
-  }, [averageRatedDomains, measurementScales, measurementScales?.data]);
+  }, [averageRatedDomains, measurementScales]);
 
   const getTooltip = ({
     key,
@@ -136,170 +210,73 @@ export function OverallStats() {
         >
           <div className="w-[800px] h-[600px] bg-gradient-to-b from-transparent to-yellow-300/25 rounded-full absolute -bottom-0 -right-[450px] blur-3xl" />
 
-          <motion.div
-            className={`absolute 2xl:w-[600px] 2xl:h-[600px] w-[500px] h-[500px] rounded-full border-2 border-primary/85 ${!isHovered ? "animate-pulse" : ""}`}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={
-              isHovered
-                ? { scale: 1, opacity: 0.85 }
-                : { scale: 1, opacity: [0.5, 0.3, 0.5], rotate: 360 }
-            }
-            transition={
-              isHovered
-                ? { scale: { duration: 0.5, ease: "easeOut" } }
-                : {
-                    scale: { duration: 0.5, ease: "easeOut" },
-                    opacity: {
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 0.5,
-                    },
-                    rotate: {
-                      duration: 20,
-                      repeat: Infinity,
-                      ease: "linear",
-                      delay: 0.5,
-                    },
-                  }
-            }
-          >
-            <div className="2xl:w-[600px] 2xl:h-[600px] h-[500px] w-[500px] rounded-full relative">
-              {tooltipData
-                .filter((data) => data.circleIndex === 0)
-                .map(({ domain, angle, color }) => {
-                  const result = Math.round(domain.averageRate);
-                  return getTooltip({
-                    key: domain.name,
-                    content: domain.name,
-                    result,
-                    resultBg: color,
-                    trigger: (
-                      <div
-                        style={{
-                          ...getTooltipStyle(angle),
-                          backgroundColor: color,
-                        }}
-                        className={`rounded-md w-8 h-6 border-white/85 text-lg font-bold flex items-center justify-center z-20 ${getContrastColor(color)}`}
-                      >
-                        {result}
-                      </div>
-                    ),
-                  });
-                })}
-            </div>
-          </motion.div>
+          {circleConfigs.map((config, index) => (
+            <motion.div
+              key={index}
+              className={`absolute rounded-full border-2 ${config.borderClass} ${!isHovered ? "animate-pulse" : ""} ${config.sizeClass}`}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={
+                isHovered
+                  ? { scale: 1, opacity: config.hoveredOpacity }
+                  : {
+                      scale: 1,
+                      opacity: config.pulseOpacity,
+                      rotate: config.rotate,
+                    }
+              }
+              transition={
+                isHovered
+                  ? { scale: { duration: 0.5, ease: "easeOut" } }
+                  : {
+                      scale: {
+                        duration: 0.5,
+                        ease: "easeOut",
+                        delay: config.delayScale,
+                      },
+                      opacity: {
+                        duration: config.durationOpacity,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: config.delayAnim,
+                      },
+                      rotate: {
+                        duration: config.durationRotate,
+                        repeat: Infinity,
+                        ease: "linear",
+                        delay: config.delayAnim,
+                      },
+                    }
+              }
+            >
+              <div className={`rounded-full relative ${config.sizeClass}`}>
+                {tooltipData
+                  .filter((data) => data.circleIndex === index)
+                  .map(({ domain, angle, color }) => {
+                    const result = Math.round(domain.averageRate);
+                    return getTooltip({
+                      key: domain.name,
+                      content: domain.name,
+                      result,
+                      resultBg: color,
+                      trigger: (
+                        <div
+                          style={{
+                            ...getTooltipStyle(angle),
+                            backgroundColor: color,
+                          }}
+                          className={`rounded-sm w-5 h-5 border-white/85 text-sm font-bold flex items-center justify-center z-20 ${getContrastColor(color)}`}
+                        >
+                          {result}
+                        </div>
+                      ),
+                    });
+                  })}
+              </div>
+            </motion.div>
+          ))}
 
           <motion.div
-            className={`absolute 2xl:w-[450px] 2xl:h-[450px] w-[400px] h-[400px] rounded-full border-2 border-primary/65 ${!isHovered ? "animate-pulse" : ""}`}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={
-              isHovered
-                ? { scale: 1, opacity: 0.65 }
-                : { scale: 1, opacity: [0.45, 0.25, 0.45], rotate: -360 }
-            }
-            transition={
-              isHovered
-                ? { scale: { duration: 0.5, ease: "easeOut" } }
-                : {
-                    scale: { duration: 0.5, ease: "easeOut", delay: 0.5 },
-                    opacity: {
-                      duration: 1.8,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 1,
-                    },
-                    rotate: {
-                      duration: 15,
-                      repeat: Infinity,
-                      ease: "linear",
-                      delay: 1,
-                    },
-                  }
-            }
-          >
-            <div className="2xl:w-[450px] 2xl:h-[450px] w-[400px] h-[400px] rounded-full relative">
-              {tooltipData
-                .filter((data) => data.circleIndex === 1)
-                .map(({ domain, angle, color }) => {
-                  const result = Math.round(domain.averageRate);
-                  return getTooltip({
-                    key: domain.name,
-                    content: domain.name,
-                    result,
-                    resultBg: color,
-                    trigger: (
-                      <div
-                        style={{
-                          ...getTooltipStyle(angle),
-                          backgroundColor: color,
-                        }}
-                        className={`rounded-md w-8 h-6 border-white/85 text-lg font-bold flex items-center justify-center z-20 ${getContrastColor(color)}`}
-                      >
-                        {result}
-                      </div>
-                    ),
-                  });
-                })}
-            </div>
-          </motion.div>
-
-          <motion.div
-            className={`absolute w-[300px] h-[300px] rounded-full border-2 border-primary/55 ${!isHovered ? "animate-pulse" : ""}`}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={
-              isHovered
-                ? { scale: 1, opacity: 0.55 }
-                : { scale: 1, opacity: [0.4, 0.2, 0.4], rotate: 360 }
-            }
-            transition={
-              isHovered
-                ? { scale: { duration: 0.5, ease: "easeOut" } }
-                : {
-                    scale: { duration: 0.5, ease: "easeOut", delay: 1 },
-                    opacity: {
-                      duration: 1.6,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 1.5,
-                    },
-                    rotate: {
-                      duration: 10,
-                      repeat: Infinity,
-                      ease: "linear",
-                      delay: 1.5,
-                    },
-                  }
-            }
-          >
-            <div className="w-[300px] h-[300px] rounded-full relative">
-              {tooltipData
-                .filter((data) => data.circleIndex === 2)
-                .map(({ domain, angle, color }) => {
-                  const result = Math.round(domain.averageRate);
-                  return getTooltip({
-                    key: domain.name,
-                    content: domain.name,
-                    result,
-                    resultBg: color,
-                    trigger: (
-                      <div
-                        style={{
-                          ...getTooltipStyle(angle),
-                          backgroundColor: color,
-                        }}
-                        className={`rounded-md w-8 h-6 border-white/85 text-lg font-bold flex items-center justify-center z-20 ${getContrastColor(color)}`}
-                      >
-                        {result}
-                      </div>
-                    ),
-                  });
-                })}
-            </div>
-          </motion.div>
-
-          <motion.div
-            className={`absolute w-[175px] h-[175px] rounded-full border-2 border-primary/45 ${!isHovered ? "animate-pulse" : ""}`}
+            className={`absolute md:w-[175px] md:h-[175px] w-[150px] h-[150px] rounded-full border-2 border-primary/45 ${!isHovered ? "animate-pulse" : ""}`}
             initial={{ scale: 0, opacity: 1 }}
             animate={isHovered ? { scale: 1, opacity: 0.45 } : { scale: 1 }}
             transition={
@@ -309,7 +286,7 @@ export function OverallStats() {
                     scale: {
                       duration: 0.5,
                       ease: "easeOut",
-                      delay: 1.5,
+                      delay: 1.25,
                       repeat: 0,
                     },
                   }
@@ -334,12 +311,20 @@ function OverallStatsSkeleton() {
             <div className="absolute w-6 h-6 bg-slate-200/10 rounded-md bottom-4 left-1/2 -translate-x-1/2 animate-pulse" />
           </div>
 
-          <div className="absolute rounded-full border-2 border-slate-200/10 animate-pulse 2xl:w-[450px] 2xl:h-[450px] w-[400px] h-[400px]">
+          <div className="absolute rounded-full border-2 border-slate-200/10 animate-pulse 2xl:w-[520px] 2xl:h-[520px] w-[440px] h-[440px]">
             <div className="absolute w-6 h-6 bg-slate-200/10 rounded-md top-1/2 -translate-y-1/2 left-4 animate-pulse" />
           </div>
 
-          <div className="absolute w-[300px] h-[300px] rounded-full border-2 border-slate-200/10 animate-pulse">
+          <div className="absolute rounded-full border-2 border-slate-200/10 animate-pulse 2xl:w-[440px] 2xl:h-[440px] w-[380px] h-[380px]">
             <div className="absolute w-6 h-6 bg-slate-200/10 rounded-md top-1/2 -translate-y-1/2 right-4 animate-pulse" />
+          </div>
+
+          <div className="absolute rounded-full border-2 border-slate-200/10 animate-pulse 2xl:w-[360px] 2xl:h-[360px] w-[320px] h-[320px]">
+            <div className="absolute w-6 h-6 bg-slate-200/10 rounded-md bottom-1/2 translate-y-1/2 left-1/4 animate-pulse" />
+          </div>
+
+          <div className="absolute rounded-full border-2 border-slate-200/10 animate-pulse 2xl:w-[280px] 2xl:h-[280px] w-[260px] h-[260px]">
+            <div className="absolute w-6 h-6 bg-slate-200/10 rounded-md top-1/4 left-1/2 -translate-x-1/2 animate-pulse" />
           </div>
 
           <div className="absolute w-[175px] h-[175px] rounded-full border-2 bg-slate-200/5 border-slate-200/10 animate-pulse" />

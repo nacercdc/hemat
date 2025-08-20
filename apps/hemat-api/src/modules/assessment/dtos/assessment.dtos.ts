@@ -22,12 +22,7 @@ export class AssessmentCreateRequestDto {
   })
   @IsNotEmpty({ message: 'validation.name.isNotEmpty' })
   @IsString({ message: 'validation.name.isString' })
-  @Length(1, 100, { message: 'validation.name.length args: min:1 | max:100' })
-  @IsUnique(
-    { tableName: 'assessments', columns: ['name'] },
-    { message: 'validation.name.isUnique' },
-  )
-  @Type(() => String)
+  @Length(1, 500, { message: 'validation.name.length args: min:1 | max:500' })
   name: string;
 
   @ApiProperty({

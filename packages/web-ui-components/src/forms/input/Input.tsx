@@ -35,7 +35,7 @@ export const inputVariants = cva(
       variant: "default",
       size: "md",
     },
-  },
+  }
 );
 
 export type InputVariantProps = VariantProps<typeof inputVariants>;
@@ -43,7 +43,7 @@ export type InputVariantProps = VariantProps<typeof inputVariants>;
 export interface Props
   extends Omit<
       React.InputHTMLAttributes<HTMLInputElement>,
-      "size" | "className" | "style"
+      "size" | "className" | "style" | "required"
     >,
     VariantProps<typeof inputVariants> {
   leftNode?: React.ReactNode;
@@ -55,6 +55,7 @@ export interface Props
   error?: string;
   description?: string;
   isPhone?: boolean;
+  required?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, Props>(
@@ -71,9 +72,10 @@ export const Input = forwardRef<HTMLInputElement, Props>(
       labelVariant,
       labelSize,
       isPhone = false,
+      required = false,
       ...props
     },
-    ref,
+    ref
   ) => {
     const InputComponent = (
       <div
@@ -111,6 +113,7 @@ export const Input = forwardRef<HTMLInputElement, Props>(
             variant={labelVariant}
             size={labelSize}
             description={description}
+            required={required}
           >
             {InputComponent}
           </FormControl>
@@ -118,7 +121,7 @@ export const Input = forwardRef<HTMLInputElement, Props>(
         {isPhone && InputComponent}
       </>
     );
-  },
+  }
 );
 
 Input.displayName = "Input";

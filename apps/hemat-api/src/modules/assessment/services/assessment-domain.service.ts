@@ -125,10 +125,6 @@ export class AssessmentDomainService {
           (payload.code && payload.code !== domain.code) ||
           (payload.name && payload.name !== domain.name)
         ) {
-          this.logger.debug(
-            `Checking uniqueness for code: ${payload.code}, name: ${payload.name} in assessment: ${assessmentId}`,
-          );
-
           const queryBuilder = manager
             .getRepository(AssessmentDomain)
             .createQueryBuilder('ad')
@@ -151,10 +147,6 @@ export class AssessmentDomainService {
           if (conditions.length > 0) {
             queryBuilder.andWhere(`(${conditions.join(' OR ')})`, parameters);
             const duplicates = await queryBuilder.getMany();
-            this.logger.debug(
-              `Uniqueness check result: found ${duplicates.length} duplicates`,
-            );
-
             for (const duplicate of duplicates) {
               if (duplicate.code === payload.code) {
                 this.logger.error(
@@ -181,9 +173,6 @@ export class AssessmentDomainService {
 
         try {
           await manager.update(AssessmentDomain, { id, assessmentId }, entity);
-          this.logger.debug(
-            `Updated domain ${id} for assessment ${assessmentId}`,
-          );
           return { ...domain, ...entity };
         } catch (err) {
           this.logger.error(`update: ${err.message}`, err.stack);
@@ -309,7 +298,6 @@ export class AssessmentDomainService {
     groupIds?: string[],
     includePrimary?: boolean
   ): Promise<GroupDomainAnswerCount[]> {
-    // Extra debug: log all subcomponent answers being counted
     const answerQuery = this.assessmentRepository
       .createQueryBuilder('assessment')
       .where('assessment.id = :assessmentId', { assessmentId })
@@ -341,7 +329,6 @@ export class AssessmentDomainService {
     }
     answerQuery.andWhere('answer.isPrimary = false');
 
-    // LOGGING: Print all subcomponent answers being counted for debugging
     const domainIdList = groupIds && groupIds.length
       ? groupIds.map(id => `'${id}'`).join(',')
       : `(SELECT id FROM assessment_domains WHERE assessmentId = '${assessmentId}')`;
@@ -357,7 +344,6 @@ export class AssessmentDomainService {
         AND a.deletedAt IS NULL;
     `;
     // eslint-disable-next-line no-console
-    console.log('[PROGRESS DEBUG] Executing debug query:', debugQuery);
     try {
       const rawAnswers = await this.assessmentRepository.manager.query(debugQuery);
       // eslint-disable-next-line no-console

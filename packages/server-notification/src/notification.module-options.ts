@@ -12,6 +12,7 @@ export interface NotificationModuleOptions {
   email: ChannelPolicy<EmailPayload>;
   sms: ChannelPolicy<SmsPayload>;
   inApp?: ChannelPolicy<InAppPayload>;
+  isGlobal?: boolean;
   redactPayloadForAudit?: (payload: NotificationPayload) => any;
   resolvePolicy?: (ctx: {
     tenantId?: string;
@@ -25,6 +26,7 @@ export interface NotificationModuleAsyncOptions
     ...args: any[]
   ) => Promise<NotificationModuleOptions> | NotificationModuleOptions;
   inject?: any[];
+  isGlobal?: boolean;
 }
 
 export const NOTIFICATION_OPTIONS = Symbol('NOTIFICATION_OPTIONS');

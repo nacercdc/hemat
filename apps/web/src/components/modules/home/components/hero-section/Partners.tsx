@@ -17,7 +17,7 @@ export function Partners() {
       opts={{
         align: "start",
       }}
-      className="w-full"
+      className="w-full scroll-mt-20"
       id="partners"
     >
       <ETMCarousel.CarouselContent className="w-screen">

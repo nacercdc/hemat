@@ -6,6 +6,7 @@ import { Assessment } from '../../../database/entities/assessment.entity';
 import { AssessmentStatus } from '../../../shared/enums/assesement.enum';
 import { DashboardQueryDto } from '../dtos/dashboard-query.dto';
 import { Country } from '../../../database/entities/country.entity';
+import { Component, SubComponent } from '@database/entities';
 
 interface SubComponentRate {
   id: string;
@@ -40,6 +41,10 @@ export class DashboardService {
   constructor(
     @InjectRepository(Domain)
     private readonly domainRepository: Repository<Domain>,
+    @InjectRepository(Component)
+    private readonly componentRepository: Repository<Component>,
+    @InjectRepository(SubComponent)
+    private readonly subComponentRepository: Repository<SubComponent>,
     @InjectRepository(Assessment)
     private readonly assessmentRepository: Repository<Assessment>,
     @InjectRepository(Country)
@@ -57,6 +62,20 @@ export class DashboardService {
 
   async getActiveDomainsCount(): Promise<{ count: number }> {
     const count = await this.domainRepository.count({
+      where: { isActive: true },
+    });
+    return { count };
+  }
+
+  async getActiveComponentsCount(): Promise<{ count: number }> {
+    const count = await this.componentRepository.count({
+      where: { isActive: true },
+    });
+    return { count };
+  }
+
+  async getActiveSubComponentsCount(): Promise<{ count: number }> {
+    const count = await this.subComponentRepository.count({
       where: { isActive: true },
     });
     return { count };
@@ -97,7 +116,6 @@ export class DashboardService {
       .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
         years,
       });
-
 
     return qb
       .select('templateDomain.id', 'id')
@@ -408,7 +426,6 @@ export class DashboardService {
     return merged;
   }
 
-
   async getCountriesWithSubregionAndAssessmentStatus(query?: {
     subregion?: string;
     assessmentStatus?: AssessmentStatus;
@@ -467,7 +484,7 @@ export class DashboardService {
       assessmentStatus: latestStatusMap.get(country.code) || null,
     }));
   }
-  
+
   async getAverageDomainRatesForAllCountries(
     query: DashboardQueryDto & { domainId?: string; countryCode?: string },
   ): Promise<any[]> {
@@ -532,7 +549,8 @@ export class DashboardService {
     countryCode: string,
     query: DashboardQueryDto,
   ): Promise<any[]> {
-    const years = query.years || (query.year ? [query.year] : undefined);
+    const currentYear = new Date().getFullYear();
+    const years = query.years || (query.year ? [query.year] : [currentYear]);
 
     let qb = this.assessmentRepository
       .createQueryBuilder('assessment')
@@ -547,22 +565,20 @@ export class DashboardService {
       .andWhere('templateDomain.deletedAt IS NULL')
       .andWhere('subComponentAnswers.deletedAt IS NULL')
       .andWhere('measurementScale.deletedAt IS NULL')
-      .andWhere('assessment.countryCode = :countryCode', { countryCode });
-    if (years && years.length > 0) {
-      qb = qb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-    }
+      .andWhere('assessment.countryCode = :countryCode', { countryCode })
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
+      });
+
     const countryResults: DomainRate[] = await qb
       .select('templateDomain.id', 'id')
       .addSelect('templateDomain.name', 'name')
       .addSelect(
-        'COALESCE(ROUND(AVG(CASE WHEN answers.isPrimary = true THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id AND answers.isPrimary = true THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averagePrimaryRate',
       )
       .addSelect(
-        'COALESCE(ROUND(AVG(CASE WHEN answers.isPrimary = false THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id AND answers.isPrimary = false THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'averageRoadmapRate',
       )
       .groupBy('templateDomain.id')
@@ -592,22 +608,20 @@ export class DashboardService {
       .andWhere('measurementScale.deletedAt IS NULL')
       .andWhere('country.subregion IN (:...africanSubregions)', {
         africanSubregions,
+      })
+      .andWhere('EXTRACT(YEAR FROM assessment.startDate) IN (:...years)', {
+        years,
       });
-    if (years && years.length > 0) {
-      africaQb = africaQb.andWhere(
-        'EXTRACT(YEAR FROM assessment.startDate) IN (:...years)',
-        { years },
-      );
-    }
+
     const africaResults: DomainAfricaRate[] = await africaQb
       .select('templateDomain.id', 'id')
       .addSelect('templateDomain.name', 'name')
       .addSelect(
-        'COALESCE(ROUND(AVG(CASE WHEN answers.isPrimary = true THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id AND answers.isPrimary = true THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'africaAveragePrimaryRate',
       )
       .addSelect(
-        'COALESCE(ROUND(AVG(CASE WHEN answers.isPrimary = false THEN measurementScale.rate ELSE NULL END))::int, 0)',
+        'COALESCE(ROUND(AVG(CASE WHEN subComponentAnswers.domainId = assessmentDomains.id AND answers.isPrimary = false THEN measurementScale.rate ELSE NULL END))::int, 0)',
         'africaAverageRoadmapRate',
       )
       .groupBy('templateDomain.id')
