@@ -16,8 +16,9 @@ const inter = Inter({
 
 export function generateMetadata(): Metadata {
   return constructMetadata({
-    title: "Yarn monorepo starter",
-    description: "Yarn monorepo starter",
+    title: "Africa CDC HIE Maturity Toolkit",
+    description:
+      "Africa CDC Health Information Exchange Maturity Assessment Toolkit",
     path: `/`,
   });
 }
