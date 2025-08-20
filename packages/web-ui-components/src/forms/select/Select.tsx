@@ -53,7 +53,13 @@ export const selectVariants = cva("w-full font-normal", {
 export interface Props<T>
   extends Omit<
       React.SelectHTMLAttributes<HTMLSelectElement>,
-      "size" | "className" | "style" | "defaultValue" | "onSelect" | "value"
+      | "size"
+      | "className"
+      | "style"
+      | "defaultValue"
+      | "onSelect"
+      | "value"
+      | "required"
     >,
     VariantProps<typeof selectVariants> {
   options: T[];
@@ -72,6 +78,7 @@ export interface Props<T>
   error?: string;
   inModal?: boolean;
   loading?: boolean;
+  required?: boolean;
   onOpenChange?: () => void;
   onSelect: (value?: T) => void;
 }
@@ -95,6 +102,7 @@ export function Select<T>({
   labelSize,
   error,
   loading,
+  required = false,
   inModal = false,
   onSelect,
   onOpenChange,
@@ -137,6 +145,7 @@ export function Select<T>({
       description={displayDescription}
       variant={labelVariant}
       size={labelSize}
+      required={required}
     >
       <Popover open={open} onOpenChange={onOpenChangeHandler} modal={inModal}>
         <PopoverTrigger asChild className="flex items-center w-full">
