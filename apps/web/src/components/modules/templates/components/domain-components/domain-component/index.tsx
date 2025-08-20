@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useRef, useState } from "react";
@@ -23,6 +24,8 @@ import type {
 import ComponentDetail from "./component-detail";
 import type { ItemFormData } from "../../form";
 import { DomainComponentForm } from "../../form";
+import { COMPONENT_LIST_QUERY_KEY } from "..";
+
 interface Props {
   component: IComponent;
 }
@@ -53,9 +56,8 @@ export function Component({ component }: Props) {
           id: component.id,
           name: values.name,
           domainId,
-          code: values.code,
           description: values.description,
-          translations: values.translations,
+          translations: values.translations as any,
         },
       },
       {
@@ -66,7 +68,7 @@ export function Component({ component }: Props) {
             variant: "success",
           });
           queryClient.invalidateQueries({
-            queryKey: ["components"],
+            queryKey: [COMPONENT_LIST_QUERY_KEY],
           });
           editItemModalRef.current?.closeModal();
         },
@@ -85,7 +87,7 @@ export function Component({ component }: Props) {
             variant: "success",
           });
           queryClient.invalidateQueries({
-            queryKey: ["components"],
+            queryKey: [COMPONENT_LIST_QUERY_KEY],
           });
           deleteDialogRef.current?.closeDialog();
         },

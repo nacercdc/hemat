@@ -22,7 +22,8 @@ import { SubComponent } from "./domain-sub-component";
 import { SubComponentForm } from "../form/subComponents";
 import type { DefaultFieldsFormData } from "../form/subComponents/DefaultFieldsForm";
 import type { ScalesFormData } from "../form/subComponents/ScalesForm";
-
+import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
+export const SUB_COMPONENT_LIST_QUERY_KEY = "subComponents";
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;
 }
@@ -45,7 +46,6 @@ export function DomainSubComponents({ modalRef }: Props) {
     },
     tqOptions: {
       enabled: !!componentId,
-      queryKey: ["subComponents", componentId],
     },
   });
 
@@ -115,6 +115,9 @@ export function DomainSubComponents({ modalRef }: Props) {
         },
         {
           onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: [SUB_COMPONENT_LIST_QUERY_KEY],
+            });
             toast({
               title: "Success",
               message:
