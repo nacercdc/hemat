@@ -18,25 +18,10 @@ export const groups = (
         depth: 0,
       },
       {
-        id: "assessment",
-        label: "Assessment",
-        icon: (
-          <Icon
-            icon="fluent-mdl2:assessment-group"
-            className="!w-[18px] !h-[18px]"
-          />
-        ),
-        path: "/assessment",
-        permission: isLoading ? false : true,
-        depth: 0,
-      },
-      {
-        id: "roadmaps",
-        label: "Roadmaps",
-        icon: (
-          <Icon icon="hugeicons:floor-plan" className="!w-[18px] !h-[18px]" />
-        ),
-        path: "/roadmaps",
+        id: "measurement-scale",
+        label: "Measurement Scale",
+        icon: <Icon icon="oui:scale" className="!w-[18px] !h-[18px]" />,
+        path: "/measurement-scale",
         permission: isLoading ? false : true,
         depth: 0,
       },
@@ -54,10 +39,25 @@ export const groups = (
         depth: 0,
       },
       {
-        id: "measurement-scale",
-        label: "Measurement scale",
-        icon: <Icon icon="oui:scale" className="!w-[18px] !h-[18px]" />,
-        path: "/measurement-scale",
+        id: "assessment",
+        label: "Assessments",
+        icon: (
+          <Icon
+            icon="fluent-mdl2:assessment-group"
+            className="!w-[18px] !h-[18px]"
+          />
+        ),
+        path: "/assessment",
+        permission: isLoading ? false : true,
+        depth: 0,
+      },
+      {
+        id: "roadmaps",
+        label: "Roadmaps",
+        icon: (
+          <Icon icon="hugeicons:floor-plan" className="!w-[18px] !h-[18px]" />
+        ),
+        path: "/roadmaps",
         permission: isLoading ? false : true,
         depth: 0,
       },
@@ -90,6 +90,20 @@ export const groups = (
       //     },
       //   ],
       // },
+
+      {
+        id: "administration",
+        label: "Administration",
+        icon: (
+          <Icon
+            icon="clarity:administrator-line"
+            className="!w-[18px] !h-[18px]"
+          />
+        ),
+        path: "/administration",
+        permission: isLoading ? false : true,
+        depth: 0,
+      },
       {
         id: "settings",
         label: "Settings",
@@ -114,20 +128,6 @@ export const groups = (
             depth: 1,
           },
         ],
-      },
-
-      {
-        id: "administration",
-        label: "Administration",
-        icon: (
-          <Icon
-            icon="clarity:administrator-line"
-            className="!w-[18px] !h-[18px]"
-          />
-        ),
-        path: "/administration",
-        permission: isLoading ? false : true,
-        depth: 0,
       },
 
       {

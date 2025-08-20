@@ -16,6 +16,12 @@ const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
 
 export const AssessmentsTableColumns: ColumnDef<Assessment>[] = [
   {
+    header: "Country",
+    accessorKey: "country",
+    enableColumnFilter: false,
+    cell: ({ row }) => <span>{row.original.country.name}</span>,
+  },
+  {
     header: "Name",
     accessorKey: "name",
     enableColumnFilter: true,
@@ -50,12 +56,6 @@ export const AssessmentsTableColumns: ColumnDef<Assessment>[] = [
     ),
   },
 
-  {
-    header: "Country",
-    accessorKey: "country",
-    enableColumnFilter: false,
-    cell: ({ row }) => <span>{row.original.country.name}</span>,
-  },
   {
     header: "Status",
     accessorKey: "status",
