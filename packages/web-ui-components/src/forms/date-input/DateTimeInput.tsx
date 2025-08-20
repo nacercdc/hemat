@@ -109,6 +109,7 @@ export const DateTimePicker = ({
       description={description}
       variant={labelVariant}
       size={labelSize}
+      required={required}
     >
       <Popover>
         <PopoverTrigger asChild>

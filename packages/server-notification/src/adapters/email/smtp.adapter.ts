@@ -3,16 +3,48 @@ import {
   DeliveryResult,
   VendorAdapter,
 } from '../../interface/notification.interface';
+import { createTransport } from 'nodemailer';
+
+interface SmtpAuth {
+  user: string;
+  pass: string;
+}
+interface SmtpEmailOptions {
+  host: string;
+  port: number;
+  from?: string;
+  auth?: SmtpAuth;
+  secure?: boolean;
+  ignoreTLS?: boolean;
+  requireTLS?: boolean;
+  debug?: boolean;
+}
 
 export class SmtpEmailAdapter implements VendorAdapter<EmailPayload> {
   readonly name = 'smtp';
-  constructor(
-    private readonly host: string,
-    private readonly port: number,
-    private readonly auth?: { user: string; pass: string },
-  ) {}
+  constructor(private readonly options: SmtpEmailOptions) {}
+
   async send(payload: EmailPayload): Promise<DeliveryResult> {
-    // nodemailer transport.sendMail(...)
-    return { vendor: this.name, externalId: 'smtp-queue-id' };
+    const body = payload.html ? { html: payload.html } : { text: payload.text };
+    const res = await createTransport({
+      host: this.options.host,
+      port: this.options.port,
+      auth: this.options.auth,
+      secure: this.options.secure,
+      from: this.options.from,
+      ignoreTLS: this.options.ignoreTLS,
+      requireTLS: this.options.requireTLS,
+      debug: this.options.debug,
+    }).sendMail({
+      from: this.options.from || `"Africa CDC" <${this.options.auth?.user}>`,
+      to: payload.to,
+      subject: payload.subject,
+      cc: payload.cc,
+      bcc: payload.bcc,
+      attachments: payload.attachments,
+      ...body,
+    });
+
+    return { vendor: this.name, externalId: res.messageId };
   }
 }

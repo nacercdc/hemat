@@ -52,7 +52,6 @@ export class Assessment extends BaseEntityWithSoftDelete {
     type: String,
   })
   @Column()
-  @Index({ unique: true })
   name: string;
 
   @ApiProperty({

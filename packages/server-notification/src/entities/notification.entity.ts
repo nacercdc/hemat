@@ -4,8 +4,6 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
-  Index,
 } from 'typeorm';
 import {
   Channel,

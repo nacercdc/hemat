@@ -1,13 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { EmailService } from '../../../shared/services/email.service';
+import {
+  NotificationService,
+  NotificationPayload,
+  Channel,
+} from '@etm/server-notification';
 import { USER_EVENTS } from '../events/user.events';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 
 @Injectable()
 export class UserListener {
-  constructor(private readonly emailService: EmailService) {}
+  private readonly logger = new Logger(UserListener.name);
+
+  constructor(private readonly notificationService: NotificationService) {}
 
   /**
    * Render the user registration email HTML template with dynamic data.
@@ -36,7 +42,7 @@ export class UserListener {
       );
     }
     for (const [key, value] of Object.entries(data)) {
-      html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
+      html = html.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
     }
     return html;
   }
@@ -45,33 +51,38 @@ export class UserListener {
   async handleUserCreated(event: { email: string; password: string }) {
     const { email, password } = event;
     const subject = 'Your Africa CDC Account Credentials';
-    
+
     try {
-      console.log(
-        '[UserListener] Preparing to send registration email to',
-        email,
-      );
-      
+      this.logger.log(`Preparing to send registration email to ${email}`);
+
       const data = {
         email,
         password,
       };
-      
+
       const html = await this.renderUserRegistrationTemplate(data);
-      
-      await this.emailService.sendMail({
-        to: email,
-        subject,
-        html,
+
+      const payload: NotificationPayload = {
+        channel: Channel.EMAIL,
+        payload: {
+          to: email,
+          subject,
+          html,
+        },
+      };
+
+      await this.notificationService.send({
+        ...payload,
+        userId: email, // Using email as userId for tracking
+        metadata: {
+          event: USER_EVENTS.CREATED,
+        },
       });
-      
-      console.log('[UserListener] Registration email sent to', email);
+
+      this.logger.log(`Registration email sent to ${email}`);
     } catch (err) {
-      console.error(
-        '[UserListener] Failed to send registration email to',
-        email,
-        err,
-      );
+      this.logger.error(`Failed to send registration email to ${email}`, err);
+      throw new Error(`Failed to send registration email: ${err.message}`);
     }
   }
-} 
+}

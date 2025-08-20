@@ -34,6 +34,10 @@ export class DatabaseService implements TypeOrmOptionsFactory {
           projectRoot,
           'packages/server-media-upload/dist/src/entities/*.entity.js',
         ),
+        path.join(
+          projectRoot,
+          'packages/server-notification/dist/src/entities/*.entity.js',
+        ),
       ],
       subscribers: [
         'dist/database/subscribers/*{.subscriber.js,.subscriber.ts}',
