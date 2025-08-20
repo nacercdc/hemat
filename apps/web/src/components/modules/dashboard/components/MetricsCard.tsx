@@ -3,7 +3,7 @@ import { isLightColor } from "../utils/luminacity.util";
 import { Skeleton } from "@etm/web-ui-components";
 
 interface Props {
-  name: string;
+  name?: string;
   rate?: number;
   color: string;
   legend?: boolean;
