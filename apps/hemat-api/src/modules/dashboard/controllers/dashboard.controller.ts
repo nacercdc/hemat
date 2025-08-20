@@ -45,6 +45,26 @@ export class DashboardController {
     return this.dashboardService.getActiveDomainsCount();
   }
 
+  @ApiOperation({ summary: 'Get active components count' })
+  @ApiOkResponse({
+    description: 'Total number of active components',
+    type: Number,
+  })
+  @Get('components/count')
+  async getActiveComponentsCount(): Promise<{ count: number }> {
+    return this.dashboardService.getActiveComponentsCount();
+  }
+
+  @ApiOperation({ summary: 'Get active sub-components count' })
+  @ApiOkResponse({
+    description: 'Total number of active sub-components',
+    type: Number,
+  })
+  @Get('subcomponents/count')
+  async getActiveSubComponentsCount(): Promise<{ count: number }> {
+    return this.dashboardService.getActiveSubComponentsCount();
+  }
+
   @ApiOperation({
     summary: 'Get count of countries with completed assessments',
   })
