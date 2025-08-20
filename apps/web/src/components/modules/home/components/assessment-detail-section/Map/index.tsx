@@ -32,10 +32,10 @@ interface Country {
 }
 
 const colorMap: Record<AssessmentStatus, string> = {
-  Completed: "#49B773",
-  "In Progress": "#4E8EC9",
+  Completed: "#782C2D",
+  "In Progress": "#348F41",
   Planned: "#EEDD6A",
-  "Not Yet Assessed": "#ccc",
+  "Not Yet Assessed": "#B4A269",
 };
 
 const regionOptions: {
@@ -62,10 +62,10 @@ const progressStatusOptions: {
 //TODO: change as soon as api is changed
 const statusMap = {
   completed: "Completed",
-  draft: "Planned", //Needs review
-  pending: "Planned", //Needs review
-  ready: "Planned", //Needs review
-  planned: "Planned",
+  draft: "Not Yet Assessed", //Needs review
+  pending: "Not Yet Assessed", //Needs review
+  ready: "Not Yet Assessed", //Needs review
+  planned: "Not Yet Assessed", //Needs review
   closed: "Completed", //Needs review
   in_progress: "In Progress", //Needs review
 };
@@ -83,7 +83,7 @@ export const AfricaMap = () => {
     zoom: number;
   }>({
     coordinates: [0, 0],
-    zoom: 3,
+    zoom: 2.7,
   });
 
   const [mapCountries, setMapCountries] = useState<Partial<Country>[]>([]);
@@ -127,7 +127,7 @@ export const AfricaMap = () => {
       const formattedRegion = `${selectedRegion.id} Africa`;
 
       if (region !== formattedRegion) {
-        return "#DDD";
+        return "#EEEEEE";
       }
     }
 
@@ -138,9 +138,9 @@ export const AfricaMap = () => {
     if (fetchedAssessmentData[name] && selectedStatus) {
       return selectedStatus.name === fetchedAssessmentData[name].progress
         ? fetchedAssessmentData[name]?.color
-        : "#DDD";
+        : "#EEEEEE";
     }
-    return "#DDD";
+    return "#EEEEEE";
   };
 
   const handleSelect = (value?: string) => {
@@ -152,21 +152,24 @@ export const AfricaMap = () => {
         zoom: 12,
       });
       setSelectedCountry(selected);
+      setSelectedRegion(undefined);
+      setSelectedStatus(undefined);
     } else {
-      setPosition({
-        coordinates: [0, 0],
-        zoom: 3,
-      });
+      onResetZoomHandler();
       setSelectedCountry(undefined);
     }
   };
 
   const onStatusSelectHandler = (v: ProgressStatus | undefined) => {
     setSelectedStatus(v);
+    setSelectedCountry(undefined);
+    onResetZoomHandler();
   };
 
   const onRegionSelectHandler = (v: Region | undefined) => {
     setSelectedRegion(v);
+    setSelectedCountry(undefined);
+    onResetZoomHandler();
   };
 
   const onZoomInHandler = () => {
@@ -189,7 +192,7 @@ export const AfricaMap = () => {
   const onResetZoomHandler = () => {
     setPosition({
       coordinates: [0, 0],
-      zoom: 3,
+      zoom: 2.7,
     });
   };
 
@@ -202,6 +205,12 @@ export const AfricaMap = () => {
       return { name, center } as Partial<Country>;
     });
 
+    processed.sort((a, b) => {
+      const nameA = a.name ?? "";
+      const nameB = b.name ?? "";
+      return nameA.localeCompare(nameB, undefined, { sensitivity: "base" });
+    });
+
     setMapCountries(processed);
   }, []);
 
@@ -212,7 +221,7 @@ export const AfricaMap = () => {
   return (
     <div
       id="map"
-      className="relative h-[600px] overflow-x-auto"
+      className="relative h-[600px] overflow-x-auto scroll-mt-20"
       style={{
         backgroundImage: "radial-gradient(circle, #fff, #FAF5D450)",
       }}
@@ -231,7 +240,7 @@ export const AfricaMap = () => {
           center={position.coordinates}
           onMoveStart={() => setIsDragging(true)}
           onMoveEnd={onMoveEndHandler}
-          minZoom={3}
+          minZoom={2.7}
           maxZoom={10}
         >
           <Geographies geography={africa}>
@@ -273,12 +282,12 @@ export const AfricaMap = () => {
                         selectedGeo.properties.name,
                         selectedGeo.properties.subregion
                       )}
-                      stroke="#ffff00"
+                      stroke="#000"
                       strokeWidth={1}
                       style={{
                         default: {
                           outline: "none",
-                          strokeDasharray: "4 2",
+                          // strokeDasharray: "4 2",
                         },
                       }}
                     />
@@ -291,32 +300,68 @@ export const AfricaMap = () => {
       </ComposableMap>
       {/* Filter Section */}
       <div className="w-64 mb-4 absolute top-10 left-10 2xl:left-48 z-20">
-        <Select<Partial<Country>>
-          options={mapCountries}
-          onSelect={(c) => handleSelect(c?.name)}
-          labelKey="name"
-          valueKey="name"
-          value={selectedCountry}
-          placeholder="Select by Country"
-        />
+        <div className="rounded-md relative">
+          <Select<Partial<Country>>
+            options={mapCountries}
+            onSelect={(c) => handleSelect(c?.name)}
+            labelKey="name"
+            valueKey="name"
+            value={selectedCountry}
+            placeholder="Select by Country"
+          />
+          {selectedCountry && (
+            <div className="bg-white rounded-full absolute -top-2 -right-2 w-4 h-4">
+              <Icon
+                icon="carbon:close-filled"
+                className="w-4 h-4 cursor-pointer text-destructive"
+                onClick={() => {
+                  setSelectedCountry(undefined);
+                  onResetZoomHandler();
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
       <div className="w-64 mb-4 absolute top-24 xl:top-10 right-80 left-10 xl:left-auto z-20 flex gap-4">
-        <Select<Region>
-          options={regionOptions}
-          onSelect={(r) => onRegionSelectHandler(r)}
-          labelKey="name"
-          valueKey="name"
-          value={selectedRegion}
-          placeholder="Filter by Regional Centers"
-        />
-        <Select<ProgressStatus>
-          options={progressStatusOptions}
-          onSelect={(s) => onStatusSelectHandler(s)}
-          labelKey="id"
-          valueKey="name"
-          value={selectedStatus}
-          placeholder="Filter by Status"
-        />
+        <div className="rounded-md relative min-w-[217px] w-full">
+          <Select<Region>
+            options={regionOptions}
+            onSelect={(r) => onRegionSelectHandler(r)}
+            labelKey="name"
+            valueKey="name"
+            value={selectedRegion}
+            placeholder="Filter by Regional Centers"
+          />
+          {selectedRegion && (
+            <div className="bg-white rounded-full absolute -top-2 -right-2 w-4 h-4">
+              <Icon
+                icon="carbon:close-filled"
+                className="w-4 h-4 cursor-pointer text-destructive"
+                onClick={() => setSelectedRegion(undefined)}
+              />
+            </div>
+          )}
+        </div>
+        <div className="rounded-md relative min-w-[147px] w-full">
+          <Select<ProgressStatus>
+            options={progressStatusOptions}
+            onSelect={(s) => onStatusSelectHandler(s)}
+            labelKey="id"
+            valueKey="name"
+            value={selectedStatus}
+            placeholder="Filter by Status"
+          />
+          {selectedStatus && (
+            <div className="bg-white rounded-full absolute -top-2 -right-2 w-4 h-4">
+              <Icon
+                icon="carbon:close-filled"
+                className="w-4 h-4 cursor-pointer text-destructive"
+                onClick={() => setSelectedStatus(undefined)}
+              />
+            </div>
+          )}
+        </div>
       </div>
       {/* Controls Section */}
       <div className="flex flex-col absolute top-1/2 left-10 xl:left-auto xl:right-48 -translate-y-1/2 w-fit gap-2 z-20">
@@ -348,13 +393,13 @@ export const AfricaMap = () => {
           ></div>
           <span className="text-sm font-bold">Completed</span>
         </div>
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <div
             className="w-6 h-6 rounded-md"
             style={{ backgroundColor: `${colorMap.Planned}` }}
           ></div>
           <span className="text-sm font-bold">Planned</span>
-        </div>
+        </div> */}
         <div className="flex items-center gap-2">
           <div
             className="w-6 h-6 rounded-md"
