@@ -28,13 +28,6 @@ export class DashboardController {
     private readonly measurementScaleService: MeasurementScaleService,
   ) {}
 
-  @ApiOperation({ summary: 'Get total countries count' })
-  @ApiOkResponse({ description: 'Total number of countries', type: Number })
-  @Get('countries/count')
-  async getCountriesCount(): Promise<{ count: number }> {
-    return this.dashboardService.getActiveCountriesCount();
-  }
-
   @ApiOperation({ summary: 'Get active domains count' })
   @ApiOkResponse({
     description: 'Total number of active domains',
@@ -43,6 +36,33 @@ export class DashboardController {
   @Get('domains/count')
   async getActiveDomainsCount(): Promise<{ count: number }> {
     return this.dashboardService.getActiveDomainsCount();
+  }
+
+  @ApiOperation({ summary: 'Get active components count' })
+  @ApiOkResponse({
+    description: 'Total number of active components',
+    type: Number,
+  })
+  @Get('components/count')
+  async getActiveComponentsCount(): Promise<{ count: number }> {
+    return this.dashboardService.getActiveComponentsCount();
+  }
+
+  @ApiOperation({ summary: 'Get active sub-components count' })
+  @ApiOkResponse({
+    description: 'Total number of active sub-components',
+    type: Number,
+  })
+  @Get('subcomponents/count')
+  async getActiveSubComponentsCount(): Promise<{ count: number }> {
+    return this.dashboardService.getActiveSubComponentsCount();
+  }
+
+  @ApiOperation({ summary: 'Get total countries count' })
+  @ApiOkResponse({ description: 'Total number of countries', type: Number })
+  @Get('countries/count')
+  async getCountriesCount(): Promise<{ count: number }> {
+    return this.dashboardService.getActiveCountriesCount();
   }
 
   @ApiOperation({

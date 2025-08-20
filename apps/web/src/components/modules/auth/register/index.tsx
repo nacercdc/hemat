@@ -19,7 +19,6 @@ import {
 import { AuthCardHeader } from "../components/AuthCardHeader";
 import Link from "next/link";
 import PasswordVisibilityToggler from "../../components/PasswordVisibilityToggler";
-import { PERSONAL_TITLES } from "../../profile/components/tabs/profile-tab";
 import {
   PasswordMinLength,
   PasswordMustIncludeTypes,
@@ -29,6 +28,7 @@ import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import type { Country } from "~/libs/models/country.model";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { serializeFormData } from "~/utils/object.util";
+import { PERSONAL_TITLES } from "~/libs/models/user.model";
 
 interface GenderType {
   id: string;
@@ -222,10 +222,12 @@ export default function Register() {
             labelVariant="medium"
             valueKey="id"
             labelKey="name"
-            options={PERSONAL_TITLES.map((title) => ({
-              id: title,
-              name: title,
-            }))}
+            options={
+              PERSONAL_TITLES?.map((title) => ({
+                id: title,
+                name: title,
+              })) ?? []
+            }
             placeholder="Select title"
           />
         </div>

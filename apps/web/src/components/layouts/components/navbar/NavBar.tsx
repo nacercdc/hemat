@@ -56,16 +56,6 @@ export function NavBar() {
             onClick={() => setOpenMobile(true)}
           />
         )}
-        <Input
-          size="lg"
-          name="search"
-          variant="search"
-          type="search"
-          placeholder={`Search anything here ...`}
-          onChange={inputChangeHandler}
-          value={searchValue}
-          leftNode={<Icon icon="lucide:search" className="ml-3" />}
-        />
       </div>
 
       <div className="flex items-center gap-4">

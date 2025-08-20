@@ -24,6 +24,9 @@ import { ListTypeColors } from "../DomainCompCard";
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;
 }
+
+export const COMPONENT_LIST_QUERY_KEY = "components";
+
 export function DomainComponents({ modalRef }: Props) {
   const { domainId, componentId } = useActiveList();
   const { toast } = useToast();
@@ -32,7 +35,6 @@ export function DomainComponents({ modalRef }: Props) {
     path: `/domains/${domainId}/components`,
     tqOptions: {
       enabled: !!domainId,
-      queryKey: ["components", domainId],
     },
   });
 
@@ -66,7 +68,7 @@ export function DomainComponents({ modalRef }: Props) {
             variant: "success",
           });
           queryClient.invalidateQueries({
-            queryKey: ["components"],
+            queryKey: [COMPONENT_LIST_QUERY_KEY],
           });
           modalRef.current?.closeModal();
         },

@@ -20,6 +20,7 @@ import { useActiveList } from "../../../providers/active-list/useActiveList";
 import DomainDetail from "./domain-detail";
 import { DomainComponentForm } from "../../form";
 import type { ItemFormData } from "../../form";
+import { DOMAIN_LIST_QUERY_KEY } from "..";
 interface Props {
   domain: Domain;
 }
@@ -70,7 +71,7 @@ export function Domain({ domain }: Props) {
             variant: "success",
           });
           queryClient.invalidateQueries({
-            queryKey: ["domains"],
+            queryKey: [DOMAIN_LIST_QUERY_KEY],
           });
           editItemModalRef.current?.closeModal();
         },
@@ -89,7 +90,7 @@ export function Domain({ domain }: Props) {
             variant: "success",
           });
           queryClient.invalidateQueries({
-            queryKey: ["domains"],
+            queryKey: [DOMAIN_LIST_QUERY_KEY],
           });
           deleteDialogRef.current?.closeDialog();
         },

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -122,28 +123,14 @@ export function UserForm({
     },
   });
 
-  useEffect(() => {
-    if (user)
-      reset({
-        title: {
-          id: user.profile.title,
-          name: user.profile.title,
-        },
-        firstName: user.profile.firstName,
-        lastName: user.profile.lastName,
-        email: user.email,
-        roles: user.roles.map((role) => ({
-          id: role.id,
-          name: role.name,
-        })),
-      });
-  }, [user, reset]);
-
   const onSubmitHandler = (values: UserFormData) => {
     onSubmitUserFormHandler(permissionState, values);
   };
 
-  const handleCheckboxChange = (moduleName: string, type: PermissionType) => {
+  const onCheckboxChangeHandler = (
+    moduleName: string,
+    type: PermissionType
+  ) => {
     const checked = !permissionState[moduleName]?.[type];
     const newState = {
       ...permissionState,
@@ -166,7 +153,7 @@ export function UserForm({
     );
   };
 
-  const handleToggleAllModule = (moduleName: string) => {
+  const onToggleAllModuleHandler = (moduleName: string) => {
     const allChecked = permissionTypes.every(
       (type) => permissionState[moduleName]?.[type]
     );
@@ -184,6 +171,23 @@ export function UserForm({
   };
 
   const gridTemplateColumns = `minmax(180px, 1fr) repeat(${permissionTypes.length}, minmax(80px, 0.5fr))`;
+
+  useEffect(() => {
+    if (user)
+      reset({
+        title: {
+          id: user.profile.title,
+          name: user.profile.title,
+        },
+        firstName: user.profile.firstName,
+        lastName: user.profile.lastName,
+        email: user.email,
+        roles: user.roles.map((role) => ({
+          id: role.id,
+          name: role.name,
+        })),
+      });
+  }, [user]);
 
   return (
     <form
@@ -273,7 +277,7 @@ export function UserForm({
             >
               <Checkbox
                 checked={isAllModuleChecked(module.name)}
-                onCheckedChange={() => handleToggleAllModule(module.name)}
+                onCheckedChange={() => onToggleAllModuleHandler(module.name)}
                 size="md"
                 label={module.label}
               />
@@ -286,7 +290,7 @@ export function UserForm({
                   <Checkbox
                     checked={permissionState[module.name]?.[type]}
                     onCheckedChange={() =>
-                      handleCheckboxChange(module.name, type)
+                      onCheckboxChangeHandler(module.name, type)
                     }
                     size="md"
                   />
