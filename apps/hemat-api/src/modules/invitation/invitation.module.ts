@@ -17,9 +17,14 @@ import { AuthModule } from '@shared/modules';
 import { AssessmentModule } from '../assessment';
 import { GroupService } from './services/group.service';
 import { AssessmentRoleService } from './services/assessment-role.service';
-import { EmailService } from '../../shared/services/email.service';
+// import { EmailService } from '../../shared/services/email.service';
 import { InvitationListener } from './listeners/invitation.listener';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import {
+  NOTIFICATION_OPTIONS,
+  NotificationModule,
+  NotificationService,
+} from '@etm/server-notification';
 
 @Module({
   imports: [
@@ -39,7 +44,12 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     EventEmitterModule.forRoot(),
   ],
   controllers: [InvitationController],
-  providers: [InvitationService, GroupService, AssessmentRoleService, EmailService, InvitationListener],
+  providers: [
+    InvitationService,
+    GroupService,
+    AssessmentRoleService,
+    InvitationListener,
+  ],
   exports: [InvitationService],
 })
 export class InvitationModule {}

@@ -15,6 +15,7 @@ import { NotificationService } from './notification.service';
 export class NotificationModule {
   static forRoot(options: NotificationModuleOptions): DynamicModule {
     return {
+      global: options.isGlobal ?? false,
       module: NotificationModule,
       imports: [TypeOrmModule.forFeature([NotificationEntity])],
       providers: [
@@ -28,6 +29,7 @@ export class NotificationModule {
 
   static forRootAsync(options: NotificationModuleAsyncOptions): DynamicModule {
     return {
+      global: options.isGlobal ?? false,
       module: NotificationModule,
       imports: [
         ...(options.imports ?? []),
