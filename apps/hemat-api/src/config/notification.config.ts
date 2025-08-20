@@ -27,13 +27,13 @@ export const notificationModuleConfig: NotificationModuleOptions = {
         ),
         priority: 1,
       },
-      {
-        adapter: new SmtpEmailAdapter(process.env.SMTP_HOST!, 587, {
-          user: process.env.SMTP_USER!,
-          pass: process.env.SMTP_PASS!,
-        }),
-        priority: 2,
-      },
+      // {
+      //   adapter: new SmtpEmailAdapter(process.env.SMTP_HOST!, 587, {
+      //     user: process.env.SMTP_USER!,
+      //     pass: process.env.SMTP_PASS!,
+      //   }),
+      //   priority: 2,
+      // },
     ],
   },
   sms: {
