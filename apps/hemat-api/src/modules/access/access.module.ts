@@ -10,7 +10,6 @@ import { PermissionController } from './controllers/permission.controller';
 import { User, Role, Permission, Profile } from '../../database/entities';
 import { AuthModule } from '../../shared/modules';
 import { UserListener } from './listeners/user.listener';
-import { EmailService } from '../../shared/services/email.service';
 
 @Module({
   imports: [
@@ -19,6 +18,6 @@ import { EmailService } from '../../shared/services/email.service';
     EventEmitterModule.forRoot(),
   ],
   controllers: [UserController, RoleController, PermissionController],
-  providers: [UserService, RoleService, PermissionService, UserListener, EmailService],
+  providers: [UserService, RoleService, PermissionService, UserListener],
 })
 export class AccessModule {}

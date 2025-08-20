@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { NotificationPayload } from './dto/notification-payload';
 import {
@@ -37,17 +38,18 @@ export class NotificationService {
     input: NotificationPayload & {
       userId: string;
       tenantId?: string;
-      metadata?: any;
+      metadata?: Record<string, any>;
     },
   ) {
     const { channel, payload, tenantId } = input;
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     const redacter = this.options.redactPayloadForAudit ?? ((p: any) => p);
     const notification = await this.repo.createPending({
       userId: input.userId,
       channel,
       metadata: input.metadata,
-      payloadSnapshot: redacter(input),
+      payloadSnapshot: redacter(input) as Record<string, any>,
     });
 
     const router = this.buildRouter(channel, tenantId);
