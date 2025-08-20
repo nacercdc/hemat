@@ -8,6 +8,7 @@ import { DomainComponentCollapsibleList } from "./DomainComponentCollapsibleList
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import type { Domain } from "~/libs/models/domain.model";
 import type { ITemplateDomain } from "./DomainToolsCollapsibleList";
+import { isIncluded } from "../assessment-detail-section/DomainCard";
 
 export interface ITemplateComponent {
   id: string;
@@ -68,7 +69,27 @@ export function DomainToolsCollapsible({ domain, isOpen, onToggle }: Props) {
         className="px-5 py-5 bg-white text-dark rounded-sm cursor-pointer w-full flex justify-between items-center border-l-2"
         style={{ borderLeftColor: `${BorderColor}` }}
       >
-        <span>{domain.name}</span>
+        <div className="flex items-center gap-2">
+          {isIncluded(domain.name, "fluent-mdl2:party-leader") && (
+            <Icon icon="fluent-mdl2:party-leader" className="w-6 h-6" />
+          )}
+          {isIncluded(domain.name, "game-icons:satellite-communication") && (
+            <Icon
+              icon="game-icons:satellite-communication"
+              className="w-6 h-6"
+            />
+          )}
+          {isIncluded(domain.name, "carbon:ibm-knowledge-catalog-standard") && (
+            <Icon
+              icon="carbon:ibm-knowledge-catalog-standard"
+              className="w-6 h-6"
+            />
+          )}
+          {isIncluded(domain.name, "fluent-mdl2:workforce-management") && (
+            <Icon icon="fluent-mdl2:workforce-management" className="w-6 h-6" />
+          )}
+          <span>{domain.name}</span>
+        </div>
         <ChevronIcon isOpen={isOpen} />
       </button>
 
@@ -80,7 +101,7 @@ export function DomainToolsCollapsible({ domain, isOpen, onToggle }: Props) {
             animate="open"
             exit="closed"
             className={cn(
-              "overflow-x-auto bg-[#00B0F00D] rounded-md mt-3 flex flex-col gap-4 w-full",
+              "overflow-x-auto bg-[#00B0F00D] rounded-md mt-3 flex flex-col gap-6 w-full",
               isOpen ? "py-5 px-10" : "py-0 px-5"
             )}
           >

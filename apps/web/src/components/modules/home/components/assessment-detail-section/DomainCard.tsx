@@ -114,10 +114,9 @@ export function DomainCard({ domain }: Props) {
   );
 }
 
-function isIncluded(domainName: string, iconName: string) {
+export function isIncluded(domainName: string, iconName: string) {
   let included = false;
   DomainIconMap[iconName]?.forEach((key) => {
-    console.log(included);
     if (domainName.toLowerCase().includes(key.toLowerCase())) {
       included = true;
       return;
