@@ -7,7 +7,7 @@ export function NavBar() {
   const router = useRouter();
   return (
     <div
-      className="flex items-center justify-between w-full h-[130px] text-white px-20"
+      className="flex items-center justify-between w-full h-[130px] text-white px-4 gap-4 2xl:px-10"
       style={{ backgroundColor: "#273E35" }}
     >
       <Image
