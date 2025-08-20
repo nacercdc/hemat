@@ -71,7 +71,6 @@ export class InvitationListener {
         },
       };
 
-      this.logger.debug(`Notification payload: ${JSON.stringify(payload)}`);
       const response = await this.notificationService.send({
         ...payload,
         userId: invitationId,

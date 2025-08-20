@@ -36,6 +36,7 @@ export class SmtpEmailAdapter implements VendorAdapter<EmailPayload> {
       requireTLS: this.options.requireTLS,
       debug: this.options.debug,
     }).sendMail({
+      from: this.options.from || `"Africa CDC" <${this.options.auth?.user}>`,
       to: payload.to,
       subject: payload.subject,
       cc: payload.cc,
