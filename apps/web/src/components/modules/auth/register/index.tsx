@@ -237,6 +237,7 @@ export default function Register() {
           control={control}
           name="firstName"
           labelVariant="medium"
+          required
         />
         <InputRHF
           label="Middle Name"
@@ -251,6 +252,7 @@ export default function Register() {
           control={control}
           name="lastName"
           labelVariant="medium"
+          required
         />
       </div>
 
@@ -265,6 +267,7 @@ export default function Register() {
           labelKey="name"
           options={genderOptions}
           placeholder="Select gender"
+          required
         />
         <InputRHF
           name="profession"
@@ -272,6 +275,7 @@ export default function Register() {
           placeholder="Enter your profession"
           control={control}
           labelVariant="medium"
+          required
         />
         <InputRHF
           name="jobTitle"
@@ -280,6 +284,7 @@ export default function Register() {
           size="lg"
           labelVariant="medium"
           placeholder="Enter job title"
+          required
         />
       </div>
 
@@ -298,6 +303,7 @@ export default function Register() {
           placeholder="Select country"
           onOpenChange={() => countriesState.refetch()}
           loading={countriesState.isLoading || countriesState.isFetching}
+          required
         />
         <InputRHF
           label="Email"
@@ -306,6 +312,7 @@ export default function Register() {
           name="email"
           labelVariant="medium"
           disabled={!!invitationIdFromURL}
+          required
         />
         <PhoneNumberInputRHF
           control={control}
@@ -319,6 +326,7 @@ export default function Register() {
             label: country.name ?? "",
             value: country.code as CountryCode,
           }))}
+          required
         />
       </div>
 
@@ -337,6 +345,7 @@ export default function Register() {
               onToggle={() => setPasswordVisible((prev) => !prev)}
             />
           }
+          required
         />
         <InputRHF
           control={control}
@@ -352,6 +361,7 @@ export default function Register() {
               onToggle={() => setConfirmPasswordVisible((prev) => !prev)}
             />
           }
+          required
         />
       </div>
 

@@ -56,18 +56,17 @@ const progressStatusOptions: {
   { id: "Completed", name: "Completed" },
   { id: "In Progress", name: "In Progress" },
   { id: "Not Yet Assessed", name: "Not Yet Assessed" },
-  { id: "Planned", name: "Planned" },
 ];
 
 //TODO: change as soon as api is changed
 const statusMap = {
   completed: "Completed",
-  draft: "Not Yet Assessed", //Needs review
-  pending: "Not Yet Assessed", //Needs review
-  ready: "Not Yet Assessed", //Needs review
-  planned: "Not Yet Assessed", //Needs review
-  closed: "Completed", //Needs review
-  in_progress: "In Progress", //Needs review
+  draft: "Not Yet Assessed",
+  pending: "Not Yet Assessed",
+  ready: "Not Yet Assessed",
+  planned: "Not Yet Assessed",
+  closed: "Completed",
+  in_progress: "In Progress",
 };
 
 type ProgressStatus = (typeof progressStatusOptions)[number];
@@ -221,7 +220,7 @@ export const AfricaMap = () => {
   return (
     <div
       id="map"
-      className="relative h-[600px] overflow-x-auto scroll-mt-20"
+      className="relative h-[600px] overflow-x-auto scroll-mt-24"
       style={{
         backgroundImage: "radial-gradient(circle, #fff, #FAF5D450)",
       }}

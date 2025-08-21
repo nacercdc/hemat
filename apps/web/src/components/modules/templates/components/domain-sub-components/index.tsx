@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 
@@ -23,6 +23,7 @@ import { SubComponentForm } from "../form/subComponents";
 import type { DefaultFieldsFormData } from "../form/subComponents/DefaultFieldsForm";
 import type { ScalesFormData } from "../form/subComponents/ScalesForm";
 import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQueryProvider";
+
 export const SUB_COMPONENT_LIST_QUERY_KEY = "subComponents";
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;
@@ -46,6 +47,9 @@ export function DomainSubComponents({ modalRef }: Props) {
     },
     tqOptions: {
       enabled: !!componentId,
+      queryKey: [SUB_COMPONENT_LIST_QUERY_KEY, componentId],
+      placeholderData: undefined,
+      staleTime: 0,
     },
   });
 
@@ -144,11 +148,12 @@ export function DomainSubComponents({ modalRef }: Props) {
 
   return (
     <div className="flex flex-col gap-5 overflow-y-auto h-full">
-      {subComponentsState.isLoading && <SubComponentsSkeleton />}
-
-      {subComponentsState.isSuccess &&
-      subComponents?.total &&
-      subComponents?.total > 0 ? (
+      {subComponentsState.isLoading || subComponentsState.isFetching ? (
+        <SubComponentsSkeleton />
+      ) : componentId &&
+        subComponentsState.isSuccess &&
+        subComponents?.total &&
+        subComponents?.total > 0 ? (
         <>
           {subComponents?.data?.map((subComponent) => (
             <div
@@ -166,7 +171,7 @@ export function DomainSubComponents({ modalRef }: Props) {
           ))}
         </>
       ) : (
-        !subComponentsState.isLoading && <SubComponentsEmptyPlaceHolder />
+        <SubComponentsEmptyPlaceHolder />
       )}
 
       <Modal

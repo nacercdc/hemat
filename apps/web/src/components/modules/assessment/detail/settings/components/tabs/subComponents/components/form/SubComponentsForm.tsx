@@ -136,8 +136,6 @@ export const SubComponentForm = ({
       `/assessments/${assessmentId}/sub-components/${activeSubComponent?.id}`
     );
 
-  console.log(errors, "Errr");
-
   const onSubmitHandler = (values: AssessmentSubComponentFormData) => {
     const filteredTranslations = Object.fromEntries(
       Object.entries(values.translations || {})

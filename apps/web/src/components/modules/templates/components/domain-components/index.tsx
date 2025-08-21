@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 
@@ -20,6 +20,7 @@ import { ComponentsEmptyPlaceHolder } from "./ComponentsEmptyPlaceHolder";
 import type { ItemFormData } from "../form";
 import { DomainComponentForm } from "../form";
 import { ListTypeColors } from "../DomainCompCard";
+import { SUB_COMPONENT_LIST_QUERY_KEY } from "../domain-sub-components";
 
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;
@@ -35,6 +36,7 @@ export function DomainComponents({ modalRef }: Props) {
     path: `/domains/${domainId}/components`,
     tqOptions: {
       enabled: !!domainId,
+      queryKey: [COMPONENT_LIST_QUERY_KEY, domainId],
     },
   });
 
@@ -76,13 +78,21 @@ export function DomainComponents({ modalRef }: Props) {
     );
   };
 
+  useEffect(() => {
+    if (componentId) {
+      queryClient.invalidateQueries({
+        queryKey: [SUB_COMPONENT_LIST_QUERY_KEY],
+      });
+    }
+  }, [componentId]);
+
   return (
     <div className="flex flex-col gap-5 overflow-y-auto h-full">
-      {componentsState.isLoading && <ComponentsSkeleton />}
-
-      {componentsState.isSuccess &&
-      components?.total &&
-      components?.total > 0 ? (
+      {componentsState.isLoading || componentsState.isFetching ? (
+        <ComponentsSkeleton />
+      ) : componentsState.isSuccess &&
+        components?.total &&
+        components?.total > 0 ? (
         <>
           {components?.data?.map((component) => (
             <div
@@ -100,7 +110,7 @@ export function DomainComponents({ modalRef }: Props) {
           ))}
         </>
       ) : (
-        !componentsState.isLoading && <ComponentsEmptyPlaceHolder />
+        <ComponentsEmptyPlaceHolder />
       )}
 
       <Modal ref={modalRef} title={`Add Component`}>
