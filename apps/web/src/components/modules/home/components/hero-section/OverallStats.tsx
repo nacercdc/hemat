@@ -30,8 +30,7 @@ interface CircleConfig {
 
 const circleConfigs: CircleConfig[] = [
   {
-    sizeClass:
-      "2xl:w-[600px] 2xl:h-[600px] md:w-[500px] md:h-[500px] w-[450px] h-[450px]",
+    sizeClass: "2xl:w-[600px] 2xl:h-[600px] w-[400px] h-[400px]",
     borderClass: "border-primary/85",
     hoveredOpacity: 0.85,
     pulseOpacity: [0.5, 0.3, 0.5],
@@ -42,8 +41,7 @@ const circleConfigs: CircleConfig[] = [
     rotate: 360,
   },
   {
-    sizeClass:
-      "2xl:w-[520px] 2xl:h-[520px] md:w-[440px] md:h-[440px] w-[390px] h-[390px]",
+    sizeClass: "2xl:w-[520px] 2xl:h-[520px] w-[340px] h-[340px]",
     borderClass: "border-primary/75",
     hoveredOpacity: 0.75,
     pulseOpacity: [0.475, 0.275, 0.475],
@@ -54,8 +52,7 @@ const circleConfigs: CircleConfig[] = [
     rotate: -360,
   },
   {
-    sizeClass:
-      "2xl:w-[440px] 2xl:h-[440px] md:w-[380px] md:h-[380px] w-[330px] h-[330px]",
+    sizeClass: "2xl:w-[440px] 2xl:h-[440px] w-[280px] h-[280px]",
     borderClass: "border-primary/65",
     hoveredOpacity: 0.65,
     pulseOpacity: [0.45, 0.25, 0.45],
@@ -66,8 +63,7 @@ const circleConfigs: CircleConfig[] = [
     rotate: 360,
   },
   {
-    sizeClass:
-      "2xl:w-[360px] 2xl:h-[360px] md:w-[320px] md:h-[320px] w-[270px] h-[270px]",
+    sizeClass: "2xl:w-[360px] 2xl:h-[360px] w-[220px] h-[220px]",
     borderClass: "border-primary/55",
     hoveredOpacity: 0.55,
     pulseOpacity: [0.425, 0.225, 0.425],
@@ -78,8 +74,7 @@ const circleConfigs: CircleConfig[] = [
     rotate: -360,
   },
   {
-    sizeClass:
-      "2xl:w-[280px] 2xl:h-[280px] md:w-[260px] md:h-[260px] w-[210px] h-[210px]",
+    sizeClass: "2xl:w-[280px] 2xl:h-[280px] w-[160px] h-[160px]",
     borderClass: "border-primary/45",
     hoveredOpacity: 0.45,
     pulseOpacity: [0.4, 0.2, 0.4],
@@ -276,7 +271,7 @@ export function OverallStats() {
           ))}
 
           <motion.div
-            className={`absolute md:w-[175px] md:h-[175px] w-[150px] h-[150px] rounded-full border-2 border-primary/45 ${!isHovered ? "animate-pulse" : ""}`}
+            className={`absolute 2xl:w-[175px] 2xl:h-[175px] w-[110px] h-[110px] rounded-full border-2 border-primary/45 ${!isHovered ? "animate-pulse" : ""}`}
             initial={{ scale: 0, opacity: 1 }}
             animate={isHovered ? { scale: 1, opacity: 0.45 } : { scale: 1 }}
             transition={

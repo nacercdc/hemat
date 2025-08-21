@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 "use client";
 import React from "react";
-import { Sidebar as ETMSidebar } from "@etm/web-ui-components";
+import { Sidebar as ETMSidebar, Tooltip } from "@etm/web-ui-components";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import useUserAbility from "~/providers/ability/casl/useUserAbility";
@@ -81,6 +81,13 @@ export default function Sidebar() {
         footer={{
           expand: (
             <div className="flex flex-col gap-2">
+              <div
+                className="text-xs flex gap-1 items-center text-dark px-2 cursor-pointer"
+                onClick={() => onNavigate("/glossary")}
+              >
+                <Icon icon="mdi:help-circle-outline" className="text-lg" />
+                Glossary
+              </div>
               <Image
                 src="/images/branding-texture.png"
                 alt="logo"
@@ -90,7 +97,13 @@ export default function Sidebar() {
               />
             </div>
           ),
-          collapse: null,
+          collapse: (
+            <Icon
+              icon="mdi:help-circle-outline"
+              className="text-lg cursor-pointer mx-auto mb-16"
+              onClick={() => onNavigate("/glossary")}
+            />
+          ),
         }}
       />
     </div>
