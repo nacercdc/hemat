@@ -210,7 +210,7 @@ export default function Register() {
     >
       <AuthCardHeader
         header="Register"
-        subHeader="Enter your detail to register Africa CDC"
+        subHeader="Enter your detail to register HIEMAT"
       />
 
       <div className="flex flex-col lg:flex-row gap-4">

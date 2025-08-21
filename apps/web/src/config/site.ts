@@ -1,7 +1,7 @@
 import { env } from "~/env";
 import type { SiteConfig } from "~/types/site-config.type";
 
-export const BASE_URL = env.NEXT_PUBLIC_HOST_URL;
+export const BASE_URL = env.NEXT_PUBLIC_BASE_URL ?? "";
 
 const EMAIL_URL = "mailto:info@etmsoftwareplc.com";
 

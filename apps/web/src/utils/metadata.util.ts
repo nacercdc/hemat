@@ -35,7 +35,7 @@ export function constructMetadata({
         }))
       : [
           {
-            url: `${siteConfig.url}/og.png`,
+            url: `${siteConfig.url}/logo.png`,
             alt: pageTitle,
           },
         ];

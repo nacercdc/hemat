@@ -26,10 +26,11 @@ import { useState } from "react";
 import { Checkbox } from "../checkbox/Checkbox";
 
 export interface Props<T>
-  extends Omit<SelectProps<T>, "defaultValue" | "onSelect">,
+  extends Omit<SelectProps<T>, "defaultValue" | "onSelect" | "required">,
     VariantProps<typeof selectVariants> {
   values?: T[];
-  isModal: boolean;
+  isModal?: boolean;
+  required?: boolean;
   onSelect: (value?: T[]) => void;
 }
 export function MultiSelect<T>({
@@ -51,6 +52,7 @@ export function MultiSelect<T>({
   searchPlaceholder = "Search...",
   emptyText = "No results found.",
   isModal = false,
+  required = false,
   onOpenChange,
   onSelect,
 }: Props<T>) {
@@ -97,6 +99,7 @@ export function MultiSelect<T>({
       description={displayDescription}
       variant={labelVariant}
       size={labelSize}
+      required={required}
     >
       <Popover open={open} onOpenChange={onOpenChangeHandler} modal={isModal}>
         <PopoverTrigger asChild className="flex items-center w-full">

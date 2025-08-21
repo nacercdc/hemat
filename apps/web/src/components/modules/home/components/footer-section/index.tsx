@@ -14,9 +14,9 @@ export function FooterSection() {
             alt="logo"
             width={100}
             height={50}
-            className="w-48 h-28 -ml-2"
+            className="w-56 h-36 -ml-2"
           />
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <input
               name="email"
               placeholder="Enter your email here"
@@ -27,7 +27,7 @@ export function FooterSection() {
                 <Icon icon="mynaui:send" className="!w-6 !h-6 text-white" />
               </div>
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex flex-col gap-4 text-white">
@@ -42,7 +42,7 @@ export function FooterSection() {
             href="#assessment_tools"
             className="text-sm font-bold hover:underline"
           >
-            Assessment Tools
+            Assessment Tool Overview
           </a>
         </div>
 
