@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length, IsNotEmpty, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 import { DomainTranslationDto } from '../../../shared/dtos';
-import { IsUnique } from '@shared/validators';
 
 export class AssessmentDomainDto {
   @ApiProperty({

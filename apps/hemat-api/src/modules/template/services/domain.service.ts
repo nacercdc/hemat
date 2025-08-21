@@ -51,21 +51,25 @@ export class DomainService {
       where: { id },
       relations: query.include,
     });
-
+  
     if (!domain) {
       throw new NotFoundException(`Domain ${id} not found.`);
     }
 
-    const [componentsCount, subComponentsCount] = await Promise.all([
-      this.componentRepository.count({
-        where: { domainId: id, deletedAt: IsNull() },
-      }),
-      this.componentRepository.count({
-        where: { domainId: id, subComponents: { id: Not(IsNull()), deletedAt: IsNull() } },
-        relations: ['subComponents'],
-      }),
-    ]);
+    const components = await this.componentRepository.find({
+      where: { domainId: id, deletedAt: IsNull() },
+      relations: ['subComponents'],
+    });
 
+    const componentsCount = components.length;
+    const subComponentsCount = components.reduce(
+      (total, component) =>
+        total +
+        (component.subComponents?.filter((sub) => sub.deletedAt === null)
+          .length || 0),
+      0,
+    );
+  
     return {
       ...domain,
       componentsCount,
