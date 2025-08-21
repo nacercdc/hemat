@@ -548,7 +548,7 @@ export class DashboardService {
   async getAverageDomainRatesByTemplateForCountryAndAfrica(
     countryCode: string,
     query: DashboardQueryDto,
-  ): Promise<any[]> {
+  ): Promise<{ data: any[]; total: number }> {
     const currentYear = new Date().getFullYear();
     const years = query.years || (query.year ? [query.year] : [currentYear]);
 
@@ -663,6 +663,10 @@ export class DashboardService {
         africaAverageRoadmapRate: africaItem.africaAverageRoadmapRate || 0,
       }));
 
-    return [...merged, ...africaOnlyDomains];
+    const data = [...merged, ...africaOnlyDomains];
+    return {
+      data,
+      total: data.length,
+    };
   }
 }

@@ -490,7 +490,7 @@ export class DashboardController {
   async getAverageDomainRatesByTemplateForCountryAndAfrica(
     @Param('countryCode') countryCode: string,
     @Query() query: DashboardQueryDto,
-  ): Promise<any[]> {
+  ): Promise<{ data: any[]; total: number }> {
     return this.dashboardService.getAverageDomainRatesByTemplateForCountryAndAfrica(
       countryCode,
       query,
