@@ -8,8 +8,10 @@ import Image from "next/image";
 import useUserAbility from "~/providers/ability/casl/useUserAbility";
 import { groups } from "./constants";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { useGetMe } from "~/providers/me/useGetMe";
 
 export default function Sidebar() {
+  const { data: currentUser, ...currentUserState } = useGetMe();
   const router = useRouter();
   const pathName = usePathname();
   const ability = useUserAbility();
@@ -68,10 +70,14 @@ export default function Sidebar() {
         }}
         bgColor="white"
         isActivePath={isActivePath}
-        groups={groups(ability, false)}
+        groups={groups(ability)}
         separatorBetweenGroups={false}
         onNavigate={onNavigate}
-        isLoading={false}
+        isLoading={
+          !currentUser ||
+          currentUserState.isFetching ||
+          currentUserState.isLoading
+        }
         footer={{
           expand: (
             <div className="flex flex-col gap-2">
