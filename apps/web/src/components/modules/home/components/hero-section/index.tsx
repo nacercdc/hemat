@@ -13,7 +13,7 @@ export default function HeroSection() {
   return (
     <div className="flex flex-col">
       <div
-        className="grid grid-cols-1 xl:grid-cols-2 gap-4 p-10 2xl:px-60 py-10 min-h-[calc(100vh-290px)] w-full"
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 p-10 2xl:px-60 py-10 min-h-[calc(100vh-290px)] w-full"
         style={{ backgroundColor: "#273E35" }}
       >
         <AnimatedSection animation={slideInLeft} className="flex">
