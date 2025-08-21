@@ -50,13 +50,20 @@ export default function Sidebar() {
             </div>
           ),
           collapse: (
-            <Image
-              src="/images/icon.png"
-              alt="logo"
-              width={30}
-              height={30}
-              className="w-auto h-auto mt-[2.75rem]"
-            />
+            <div
+              className="relative mt-[2.75rem] -ml-1.5"
+              style={{
+                width: 35,
+                height: 35,
+              }}
+            >
+              <Image
+                src="/images/icon.svg"
+                alt="logo"
+                fill
+                className="object-contain"
+              />
+            </div>
           ),
         }}
         bgColor="white"

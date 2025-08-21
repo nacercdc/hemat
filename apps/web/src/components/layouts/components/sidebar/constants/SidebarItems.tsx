@@ -20,7 +20,9 @@ export const groups = (
       {
         id: "measurement-scale",
         label: "Measurement Scale",
-        icon: <Icon icon="oui:scale" className="!w-[18px] !h-[18px]" />,
+        icon: (
+          <Icon icon="hugeicons:chart-02" className="!w-[18px] !h-[18px]" />
+        ),
         path: "/measurement-scale",
         permission: isLoading ? false : true,
         depth: 0,
