@@ -18,7 +18,7 @@ export default function DomainMetricsCard({ domain, scale }: Props) {
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 items-start h-24 min-w-72 bg-card border-l-2 rounded-sm py-2 px-4 justify-between overflow-x-auto"
+        "flex flex-col gap-2 items-start h-24 min-w-72 bg-layout-bg/30 border-l-2 rounded-sm py-2 px-4 justify-between overflow-x-auto"
       )}
       style={{ borderColor: scale?.color }}
     >

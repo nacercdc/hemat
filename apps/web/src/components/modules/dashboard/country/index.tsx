@@ -63,7 +63,7 @@ export default function CountryDashboard() {
 
   const {
     data: countryDomainsRateWithBenchmark,
-    ...countryDomainsRateWithBenchmarkState
+    // ...countryDomainsRateWithBenchmarkState
   } = useFindAll<CountryDomainRatesWithBenchmark[]>({
     path: `/dashboard/domains/average-rate/country/${countryCode}/africa`,
     isProtected: false,
@@ -71,10 +71,12 @@ export default function CountryDashboard() {
 
   const radarChartData = useMemo(() => {
     if (!countryDomainsRateWithBenchmark) return [];
-    return countryDomainsRateWithBenchmark.map((domain, index) => ({
-      subject: domain.name,
-      countryRate: domain.averagePrimaryRate,
-      africaRate: domain.africaAveragePrimaryRate,
+    return countryDomainsRateWithBenchmark.data.map((domain) => ({
+      subject: (domain as unknown as CountryDomainRatesWithBenchmark).name,
+      countryRate: (domain as unknown as CountryDomainRatesWithBenchmark)
+        .averagePrimaryRate,
+      africaRate: (domain as unknown as CountryDomainRatesWithBenchmark)
+        .africaAveragePrimaryRate,
       fullMark: 5,
     }));
   }, [countryDomainsRateWithBenchmark]);
@@ -182,61 +184,65 @@ export default function CountryDashboard() {
             </div>
           </div>
         </div>
-        {Object.keys(mappedCountryDomainRate).length !== 0 && (
-          <MetricsContainer
-            title={`Domains Metrics for ${africanCountries.features.find((f) => f.properties.postal === countryCode)?.properties.name}`}
-          >
-            <>
-              <div className="flex flex-row gap-3 w-full py-5 overflow-x-auto">
-                {!measurementScaleLoading &&
-                  Object.entries(mappedCountryDomainRate).map(
-                    ([domain, { rate, name, color }], index) => (
-                      <DomainMetricsCard
-                        key={index}
-                        scale={{ rate, name, color }}
-                        domain={{ id: domain, name: domain }}
-                      />
-                    )
-                  )}
-                {(measurementScaleLoading ||
-                  countryDomainsRateState.isLoading) &&
-                  Array.from({ length: 4 }, (_, i) => (
-                    <DomainMetricsCardSkeleton key={i} />
-                  ))}
-              </div>
-            </>
-          </MetricsContainer>
-        )}
-        <MetricsContainer title={`Domain Overview`}>
-          <div className="bg-card rounded-md w-full h-[600px]">
-            <ResponsiveContainer width="50%" height="100%">
-              <RadarChart
-                cx="50%"
-                cy="50%"
-                outerRadius="80%"
-                data={radarChartData}
-              >
-                <PolarGrid />
-                <PolarAngleAxis dataKey="subject" />
-                <PolarRadiusAxis domain={[0, 5]} />
-                <Radar
-                  name="Country"
-                  dataKey="countryRate"
-                  stroke="#348F41"
-                  fill="#348F41"
-                  fillOpacity={0.4}
-                />
-                <Radar
-                  name="Africa Average"
-                  dataKey="africaRate"
-                  stroke="#782C2D"
-                  fill="#782C2D"
-                  fillOpacity={0.4}
-                />
-                <Legend />
-                <Tooltip />
-              </RadarChart>
-            </ResponsiveContainer>
+        <MetricsContainer title={`Assessment result for ${africanCountries.features.find((f) => f.properties.postal === countryCode)?.properties.name}`}>
+          <div className="flex flex-col lg:flex-row gap-3 w-full m-5">
+            {Object.keys(mappedCountryDomainRate).length !== 0 && (
+
+                <div className="flex flex-row lg:flex-col bg-card gap-6 w-full lg:w-1/3 py-6 px-8  overflow-x-auto">
+                  {!measurementScaleLoading &&
+                    Object.entries(mappedCountryDomainRate).map(
+                      ([domain, { rate, name, color }], index) => (
+                        <DomainMetricsCard
+                          key={index}
+                          scale={{ rate, name, color }}
+                          domain={{ id: domain, name: domain }}
+                        />
+                      )
+                    )}
+                  {(measurementScaleLoading ||
+                    countryDomainsRateState.isLoading) &&
+                    Array.from({ length: 4 }, (_, i) => (
+                      <DomainMetricsCardSkeleton key={i} />
+                    ))}
+                </div>
+
+            )}
+
+            <div className="bg-card rounded-md w-full h-[600px]">
+              <ResponsiveContainer width="100%" height="100%" className="p-12">
+                <RadarChart
+                  cx="50%"
+                  cy="50%"
+                  outerRadius="80%"
+                  data={radarChartData}
+                >
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="subject" />
+                  <PolarRadiusAxis domain={[0, 5]} />
+                  <Radar
+                    name="Africa"
+                    dataKey="africaRate"
+                    stroke="#782C2D"
+                    fill="#782C2D"
+                    fillOpacity={0.6}
+                  />
+                  <Radar
+                    name={
+                      africanCountries.features.find(
+                        (f) => f.properties.postal === countryCode
+                      )?.properties.name
+                    }
+                    dataKey="countryRate"
+                    stroke="#348F41"
+                    fill="#348F41"
+                    fillOpacity={0.6}
+                  />
+
+                  <Legend />
+                  <Tooltip />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </MetricsContainer>
       </div>

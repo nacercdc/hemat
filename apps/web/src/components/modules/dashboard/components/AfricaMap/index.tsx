@@ -103,7 +103,7 @@ export const AfricaMap = () => {
       if (selectedRegion) {
         const formattedRegion = `${selectedRegion.id} Africa`;
         if (region !== formattedRegion) {
-          return "#DDD";
+          return "#EEEEEE";
         }
       }
       if (selectedScale) {
@@ -124,6 +124,12 @@ export const AfricaMap = () => {
         zoom: 12,
       });
       setSelectedCountry(selected);
+    }else{
+      setPosition({  
+        coordinates: [0, 0],
+        zoom: 3,
+      })
+      setSelectedCountry(undefined);
     }
   };
 
@@ -203,7 +209,7 @@ export const AfricaMap = () => {
           onMoveStart={() => setIsDragging(true)}
           onMoveEnd={onMoveEndHandler}
           minZoom={3}
-          maxZoom={10}
+          maxZoom={50}
         >
           <Geographies geography={africa}>
             {({ geographies }) => {
@@ -233,6 +239,7 @@ export const AfricaMap = () => {
                               geo.properties.subregion
                             )}
                             stroke="#FFF"
+                            strokeWidth={0.4}
                           />
                         }
                         content={`${geo.properties.name}: ${fetchedAssessmentData[geo.properties.name]?.scaleName || "No data"}`}
@@ -240,21 +247,30 @@ export const AfricaMap = () => {
                     ))}
 
                   {selectedGeo && (
-                    <Geography
-                      key={selectedGeo.rsmKey}
-                      geography={selectedGeo}
-                      fill={getColor(
-                        selectedGeo.properties.name,
-                        selectedGeo.properties.subregion
-                      )}
-                      stroke="#ffff00"
-                      strokeWidth={1}
-                      style={{
-                        default: {
-                          outline: "none",
-                          strokeDasharray: "4 2",
-                        },
-                      }}
+                    <Tooltip
+                      color="dark"
+                      trigger={
+                        <Geography
+                          onClick={() =>
+                            onCountryClickHandler(selectedGeo.properties.postal)
+                          }
+                          key={selectedGeo.rsmKey}
+                          geography={selectedGeo}
+                          fill={getColor(
+                            selectedGeo.properties.name,
+                            selectedGeo.properties.subregion
+                          )}
+                          stroke="#ffff00"
+                          strokeWidth={0.4}
+                          style={{
+                            default: {
+                              outline: "none",
+                              strokeDasharray: "0.3 0.3",
+                            },
+                          }}
+                        />
+                      }
+                      content={`${selectedGeo.properties.name}: ${fetchedAssessmentData[selectedGeo.properties.name]?.scaleName || "No data"}`}
                     />
                   )}
                 </>
@@ -265,6 +281,7 @@ export const AfricaMap = () => {
       </ComposableMap>
       {/* Filter Section */}
       <div className="w-64 mb-4 absolute top-10 left-10 2xl:left-48 z-20">
+              <div className="rounded-md relative">
         <Select<Partial<Country>>
           options={mapCountries}
           onSelect={(c) => handleSelect(c?.name)}
@@ -273,8 +290,22 @@ export const AfricaMap = () => {
           value={selectedCountry}
           placeholder="Select by Country"
         />
+        {selectedCountry && (
+            <div className="bg-white rounded-full absolute -top-2 -right-2 w-4 h-4">
+              <Icon
+                icon="carbon:close-filled"
+                className="w-4 h-4 cursor-pointer text-destructive"
+                onClick={() => {
+                  setSelectedCountry(undefined);
+                  onResetZoomHandler();
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
       <div className="w-64 mb-4 absolute top-24 xl:top-10 right-80 left-10 xl:left-auto z-20 flex gap-4">
+         <div className="rounded-md relative min-w-[247px] w-full">
         <Select<Region>
           options={regionOptions}
           onSelect={(r) => onRegionSelectHandler(r)}
@@ -283,6 +314,17 @@ export const AfricaMap = () => {
           value={selectedRegion}
           placeholder="Filter by Regional Centers"
         />
+        {selectedRegion && (
+            <div className="bg-white rounded-full absolute -top-2 -right-2 w-4 h-4">
+              <Icon
+                icon="carbon:close-filled"
+                className="w-4 h-4 cursor-pointer text-destructive"
+                onClick={() => setSelectedRegion(undefined)}
+              />
+            </div>
+          )}
+        </div>
+         <div className="rounded-md relative min-w-[147px] w-full">
         <Select<MeasurementScale>
           options={
             (measurementScales?.data as unknown as AssessmentMeasurementScale[]) ??
@@ -294,6 +336,16 @@ export const AfricaMap = () => {
           value={selectedScale}
           placeholder="Filter by Scale"
         />
+         {selectedScale && (
+            <div className="bg-white rounded-full absolute -top-2 -right-2 w-4 h-4">
+              <Icon
+                icon="carbon:close-filled"
+                className="w-4 h-4 cursor-pointer text-destructive"
+                onClick={() => setSelectedScale(undefined)}
+              />
+            </div>
+          )}
+        </div>
       </div>
       {/* Controls Section */}
       <div className="flex flex-col absolute top-1/2 left-10 xl:left-auto xl:right-48 -translate-y-1/2 w-fit gap-2 z-20">
