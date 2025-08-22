@@ -25,7 +25,11 @@ export function Accordion({
   onValueChange,
 }: Props) {
   return (
-    <ShadcnAccordion type={type} collapsible={collapsible} className={"w-full"}>
+    <ShadcnAccordion
+      type={type}
+      collapsible={collapsible}
+      className={"w-full flex flex-col gap-4"}
+    >
       {items.map((item) => (
         <AccordionItem key={item.value} value={item.value}>
           <AccordionTrigger onClick={() => onValueChange?.(item.value)}>

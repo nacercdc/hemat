@@ -68,7 +68,6 @@ export const AfricaMap = () => {
 
   const { data: countryStatuses } = useFindAll<Country[]>({
     path: `/dashboard/domains/average-rate/country`,
-    isProtected: false,
   });
 
   const fetchedAssessmentData = useMemo(() => {
@@ -124,11 +123,11 @@ export const AfricaMap = () => {
         zoom: 12,
       });
       setSelectedCountry(selected);
-    }else{
-      setPosition({  
+    } else {
+      setPosition({
         coordinates: [0, 0],
         zoom: 3,
-      })
+      });
       setSelectedCountry(undefined);
     }
   };
@@ -281,16 +280,16 @@ export const AfricaMap = () => {
       </ComposableMap>
       {/* Filter Section */}
       <div className="w-64 mb-4 absolute top-10 left-10 2xl:left-48 z-20">
-              <div className="rounded-md relative">
-        <Select<Partial<Country>>
-          options={mapCountries}
-          onSelect={(c) => handleSelect(c?.name)}
-          labelKey="name"
-          valueKey="name"
-          value={selectedCountry}
-          placeholder="Select by Country"
-        />
-        {selectedCountry && (
+        <div className="rounded-md relative">
+          <Select<Partial<Country>>
+            options={mapCountries}
+            onSelect={(c) => handleSelect(c?.name)}
+            labelKey="name"
+            valueKey="name"
+            value={selectedCountry}
+            placeholder="Select by Country"
+          />
+          {selectedCountry && (
             <div className="bg-white rounded-full absolute -top-2 -right-2 w-4 h-4">
               <Icon
                 icon="carbon:close-filled"
@@ -305,16 +304,16 @@ export const AfricaMap = () => {
         </div>
       </div>
       <div className="w-64 mb-4 absolute top-24 xl:top-10 right-80 left-10 xl:left-auto z-20 flex gap-4">
-         <div className="rounded-md relative min-w-[247px] w-full">
-        <Select<Region>
-          options={regionOptions}
-          onSelect={(r) => onRegionSelectHandler(r)}
-          labelKey="name"
-          valueKey="name"
-          value={selectedRegion}
-          placeholder="Filter by Regional Centers"
-        />
-        {selectedRegion && (
+        <div className="rounded-md relative min-w-[247px] w-full">
+          <Select<Region>
+            options={regionOptions}
+            onSelect={(r) => onRegionSelectHandler(r)}
+            labelKey="name"
+            valueKey="name"
+            value={selectedRegion}
+            placeholder="Filter by Regional Centers"
+          />
+          {selectedRegion && (
             <div className="bg-white rounded-full absolute -top-2 -right-2 w-4 h-4">
               <Icon
                 icon="carbon:close-filled"
@@ -324,19 +323,19 @@ export const AfricaMap = () => {
             </div>
           )}
         </div>
-         <div className="rounded-md relative min-w-[147px] w-full">
-        <Select<MeasurementScale>
-          options={
-            (measurementScales?.data as unknown as AssessmentMeasurementScale[]) ??
-            []
-          }
-          onSelect={(s) => onScaleSelectHandler(s)}
-          labelKey="name"
-          valueKey="name"
-          value={selectedScale}
-          placeholder="Filter by Scale"
-        />
-         {selectedScale && (
+        <div className="rounded-md relative min-w-[147px] w-full">
+          <Select<MeasurementScale>
+            options={
+              (measurementScales?.data as unknown as AssessmentMeasurementScale[]) ??
+              []
+            }
+            onSelect={(s) => onScaleSelectHandler(s)}
+            labelKey="name"
+            valueKey="name"
+            value={selectedScale}
+            placeholder="Filter by Scale"
+          />
+          {selectedScale && (
             <div className="bg-white rounded-full absolute -top-2 -right-2 w-4 h-4">
               <Icon
                 icon="carbon:close-filled"

@@ -40,29 +40,28 @@ export default function CountryDashboard() {
   const params = useParams();
   const countryCode = params.code as string;
 
-  const { data: measurementScales, ...measurementScalesState } = useFindAll<{
-    data: AssessmentMeasurementScale[];
-  }>({
-    path: "/dashboard/measurement-scales",
-    queries: { sorts: { ascending: "rate" } },
-  });
+  const { data: measurementScales, ...measurementScalesState } =
+    useFindAll<AssessmentMeasurementScale>({
+      path: "/dashboard/measurement-scales",
+      queries: { sorts: { ascending: "rate" } },
+    });
 
   const measurementScaleLoading =
     measurementScalesState.isLoading || measurementScalesState.isFetching;
 
-  const { data: countryDomainsRate, ...countryDomainsRateState } = useFindAll<
-    Domain[]
-  >({
-    path: `/dashboard/domains/average-rate/country/${countryCode}`,
-    isProtected: false,
-  });
+  const { data: countryDomainsRate, ...countryDomainsRateState } =
+    useFindAll<Domain>({
+      path: `/dashboard/domains/average-rate/country/${countryCode}`,
+      tqOptions: {
+        queryKey: ["country-domains-rate"],
+      },
+    });
 
   const {
     data: countryDomainsRateWithBenchmark,
     // ...countryDomainsRateWithBenchmarkState
   } = useFindAll<CountryDomainRatesWithBenchmark>({
     path: `/dashboard/domains/average-rate/country/${countryCode}/africa`,
-    isProtected: false,
   });
 
   const radarChartData = useMemo(() => {

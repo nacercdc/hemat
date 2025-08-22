@@ -9,6 +9,9 @@ import {
   DomainComponentCardSkeleton,
   SubComponentCard,
 } from "../../components/SubComponentCard";
+import { DomainIconMap } from "~/components/modules/home/constants";
+import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measurement-scale.model";
+import { isLightColor } from "../../utils/luminacity.util";
 
 interface Props {
   countryCode: string;
@@ -44,90 +47,190 @@ export const DomainsAccordion = ({ countryCode }: Props) => {
   const { data: countryDomainsRate, ..._countryDomainsRateState } =
     useFindAll<Domain>({
       path: `/dashboard/domains/average-rate/country/${countryCode}`,
-      isProtected: false,
+      tqOptions: {
+        queryKey: ["country-domains-rate-accordion"],
+      },
     });
 
-  const { data: countryComponentsRate, ..._countryComponentsRateState } =
+  const { data: countryComponentsRate, ...countryComponentsRateState } =
     useFindAll<Component>({
       path: `/dashboard/domains/${selectedDomain}/components/average-rate/country/${countryCode}`,
-      isProtected: false,
       tqOptions: {
         enabled: !!selectedDomain,
+
+        queryKey: ["country-components-rate-accordion", selectedDomain],
       },
     });
 
   const { data: countrySubComponentsRate, ...countrySubComponentsRateState } =
     useFindAll<SubComponent>({
       path: `/dashboard/components/${selectedComponent}/subcomponents/average-rate/country/${countryCode}`,
-      isProtected: false,
       tqOptions: {
         enabled: !!selectedComponent,
+        queryKey: ["country-sub-components-rate-accordion", selectedComponent],
       },
     });
 
-  // Child accordion with nested accordions
-  const childAccordionItems = countryComponentsRate?.map((component) => ({
-    value: component.id,
-    trigger: (
-      <div
-        className="flex items-center gap-2 px-3 rounded-md"
-        onClick={() => {
-          setSelectedComponent(component.id);
-        }}
-      >
-        <Icon icon="solar:map-linear" className="text-dark" />
-        <span className="text-sm font-bold text-dark">{component.name}</span>
-      </div>
-    ),
-    content: (
-      <div
-        className={cn(
-          "overflow-hidden bg-white rounded-sm mt-3 grid grid-cols-1 lg:grid-cols-2 gap-4 py-5 px-10"
-        )}
-      >
-        {!countrySubComponentsRateState.isLoading &&
-          (countrySubComponentsRate as unknown as SubComponent[])?.map(
-            ({ description, averagePrimaryRate, name }, index) => (
-              <SubComponentCard
-                key={index}
-                content={description}
-                score={averagePrimaryRate}
-                title={name}
-              />
-            )
-          )}
-        {countrySubComponentsRateState.isLoading && (
-          <DomainComponentCardSkeleton />
-        )}
-      </div>
-    ),
-  }));
+  const { data: measurementScales, ...measurementScalesState } =
+    useFindAll<AssessmentMeasurementScale>({
+      path: "/dashboard/measurement-scales",
+      queries: { sorts: { ascending: "rate" } },
+    });
 
-  // Parent accordion with nested accordions
-  const parentAccordionItems = countryDomainsRate?.map((domain) => ({
-    value: domain.id,
-    trigger: (
-      <div className="flex items-center gap-2 px-3 rounded-md">
-        <Icon icon="solar:map-linear" className="text-dark" />
-        <span className="text-sm font-bold text-dark">{domain.name}</span>
-      </div>
-    ),
-    content: (
-      <div className="flex flex-col gap-3 p-3 border">
-        <div key={domain.id} className="mb-1">
-          <Accordion
-            items={childAccordionItems?.length ? childAccordionItems : []}
-            type="single"
-            collapsible={true}
-            onValueChange={setSelectedComponent}
-          />
+  const childAccordionItems = countryComponentsRateState.isLoading
+    ? [
+        {
+          value: "skeleton",
+          trigger: (
+            <div className="flex items-center gap-2 px-3 rounded-md">
+              <div className="h-5 w-40 bg-gray-200 animate-pulse rounded" />
+            </div>
+          ),
+          content: (
+            <div
+              className={cn(
+                "overflow-hidden bg-white rounded-sm grid grid-cols-1 lg:grid-cols-2 gap-4 py-5 px-10 border"
+              )}
+            >
+              <DomainComponentCardSkeleton />
+              <DomainComponentCardSkeleton />
+            </div>
+          ),
+        },
+      ]
+    : countryComponentsRate?.data?.map((component) => ({
+        value: component.id,
+        trigger: (
+          <div className="flex items-center gap-2 px-3 rounded-md">
+            <span className="text-sm font-bold text-dark">
+              {component.name}
+            </span>
+          </div>
+        ),
+        content: (
+          <div
+            className={cn(
+              " overflow-hidden bg-white rounded-sm  grid grid-cols-1 lg:grid-cols-2 gap-14  min-[600px]:gap-4 py-5 px-10 border"
+            )}
+          >
+            {!countrySubComponentsRateState.isLoading &&
+              countrySubComponentsRate?.data?.map(
+                (
+                  {
+                    description,
+                    averagePrimaryRate,
+                    averageRoadmapRate,
+                    africaAveragePrimaryRate,
+                    name,
+                  },
+                  index
+                ) => (
+                  <SubComponentCard
+                    key={index}
+                    content={description}
+                    primaryRate={averagePrimaryRate}
+                    roadmapRate={averageRoadmapRate}
+                    benchmarkRate={africaAveragePrimaryRate}
+                    title={name}
+                  />
+                )
+              )}
+            {countrySubComponentsRateState.isLoading && (
+              <>
+                <DomainComponentCardSkeleton />
+                <DomainComponentCardSkeleton />
+              </>
+            )}
+          </div>
+        ),
+      }));
+
+  const parentAccordionItems = countryDomainsRate?.map((domain) => {
+    const scaleColor = measurementScales?.data.find(
+      (scale) => scale.rate === domain.averageRate
+    )?.color;
+    return {
+      value: domain.id,
+      trigger: (
+        <div className="flex items-center gap-4 px-3 py-0 rounded-md">
+          <>
+            {isIncluded(domain.name, "fluent-mdl2:party-leader") && (
+              <div
+                className="rounded-full p-2"
+                style={{
+                  backgroundColor: scaleColor ? `${scaleColor}4A` : undefined,
+                  color: isLightColor(scaleColor ?? "") ? "black" : "white",
+                }}
+              >
+                <Icon icon="fluent-mdl2:party-leader" className="w-5 h-5 " />
+              </div>
+            )}
+            {isIncluded(domain.name, "game-icons:satellite-communication") && (
+              <div
+                className="rounded-full p-2"
+                style={{
+                  backgroundColor: scaleColor ? `${scaleColor}4A` : undefined,
+                  color: isLightColor(scaleColor ?? "") ? "black" : "white",
+                }}
+              >
+                <Icon
+                  icon="game-icons:satellite-communication"
+                  className="w-5 h-5 "
+                />
+              </div>
+            )}
+            {isIncluded(
+              domain.name,
+              "carbon:ibm-knowledge-catalog-standard"
+            ) && (
+              <div
+                className="rounded-full p-2"
+                style={{
+                  backgroundColor: scaleColor ? `${scaleColor}4A` : undefined,
+                  color: isLightColor(scaleColor ?? "") ? "black" : "white",
+                }}
+              >
+                <Icon
+                  icon="carbon:ibm-knowledge-catalog-standard"
+                  className="w-5 h-5 "
+                />
+              </div>
+            )}
+            {isIncluded(domain.name, "fluent-mdl2:workforce-management") && (
+              <div
+                className="rounded-full p-2"
+                style={{
+                  backgroundColor: scaleColor ? `${scaleColor}4A` : undefined,
+                  color: isLightColor(scaleColor ?? "") ? "black" : "white",
+                }}
+              >
+                <Icon
+                  icon="fluent-mdl2:workforce-management"
+                  className="w-5 h-5 "
+                />
+              </div>
+            )}
+          </>
+          <span className="text-sm font-bold text-dark">{domain.name}</span>
         </div>
-      </div>
-    ),
-  }));
+      ),
+      content: (
+        <div className="flex flex-col gap-6 p-3 border">
+          <div key={domain.id} className="mb-1">
+            <Accordion
+              items={childAccordionItems?.length ? childAccordionItems : []}
+              type="single"
+              collapsible={true}
+              onValueChange={setSelectedComponent}
+            />
+          </div>
+        </div>
+      ),
+    };
+  });
 
   return (
-    <div className="flex flex-col gap-3 mt-4 bg-layout-bg/15 p-4 rounded-md">
+    <div className="flex flex-col gap-3 mt-4 bg-card rounded-md">
       <Accordion
         items={parentAccordionItems?.length ? parentAccordionItems : []}
         type="single"
@@ -140,3 +243,14 @@ export const DomainsAccordion = ({ countryCode }: Props) => {
     </div>
   );
 };
+
+export function isIncluded(domainName: string, iconName: string) {
+  let included = false;
+  DomainIconMap[iconName]?.forEach((key) => {
+    if (domainName.toLowerCase().includes(key.toLowerCase())) {
+      included = true;
+      return;
+    }
+  });
+  return included;
+}
