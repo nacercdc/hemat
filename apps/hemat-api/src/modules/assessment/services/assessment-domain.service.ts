@@ -119,6 +119,51 @@ export class AssessmentDomainService {
     return this.assessmentDomainRepository.manager.transaction(
       async (manager) => {
         const domain = await this.findOne(assessmentId, id);
+
+        // Check uniqueness of code and name in a single query
+        if (
+          (payload.code && payload.code !== domain.code) ||
+          (payload.name && payload.name !== domain.name)
+        ) {
+          const queryBuilder = manager
+            .getRepository(AssessmentDomain)
+            .createQueryBuilder('ad')
+            .select(['ad.code', 'ad.name'])
+            .where('ad.assessmentId = :assessmentId', { assessmentId })
+            .andWhere('ad.id != :id', { id })
+            .andWhere('ad.deletedAt IS NULL');
+
+          const conditions: string[] = [];
+          const parameters: Record<string, any> = {};
+          if (payload.code && payload.code !== domain.code) {
+            conditions.push('ad.code = :code');
+            parameters.code = payload.code;
+          }
+          if (payload.name && payload.name !== domain.name) {
+            conditions.push('ad.name = :name');
+            parameters.name = payload.name;
+          }
+
+          if (conditions.length > 0) {
+            queryBuilder.andWhere(`(${conditions.join(' OR ')})`, parameters);
+            const duplicates = await queryBuilder.getMany();
+            for (const duplicate of duplicates) {
+              if (duplicate.code === payload.code) {
+                this.logger.error(
+                  `Code ${payload.code} already exists for assessment ${assessmentId}`,
+                );
+                throw new BadRequestException('validation.code.isUnique');
+              }
+              if (duplicate.name === payload.name) {
+                this.logger.error(
+                  `Name ${payload.name} already exists for assessment ${assessmentId}`,
+                );
+                throw new BadRequestException('validation.name.isUnique');
+              }
+            }
+          }
+        }
+
         const entity = {
           code: payload.code,
           name: payload.name,
@@ -253,7 +298,6 @@ export class AssessmentDomainService {
     groupIds?: string[],
     includePrimary?: boolean
   ): Promise<GroupDomainAnswerCount[]> {
-    // Extra debug: log all subcomponent answers being counted
     const answerQuery = this.assessmentRepository
       .createQueryBuilder('assessment')
       .where('assessment.id = :assessmentId', { assessmentId })
@@ -285,7 +329,6 @@ export class AssessmentDomainService {
     }
     answerQuery.andWhere('answer.isPrimary = false');
 
-    // LOGGING: Print all subcomponent answers being counted for debugging
     const domainIdList = groupIds && groupIds.length
       ? groupIds.map(id => `'${id}'`).join(',')
       : `(SELECT id FROM assessment_domains WHERE assessmentId = '${assessmentId}')`;
@@ -301,7 +344,6 @@ export class AssessmentDomainService {
         AND a.deletedAt IS NULL;
     `;
     // eslint-disable-next-line no-console
-    console.log('[PROGRESS DEBUG] Executing debug query:', debugQuery);
     try {
       const rawAnswers = await this.assessmentRepository.manager.query(debugQuery);
       // eslint-disable-next-line no-console

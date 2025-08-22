@@ -104,6 +104,11 @@ export function Administration() {
       {
         data: {
           ...values,
+          email: values.email,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          password: values.password,
+          title: values.title.id,
           roleIds,
           permissionsIds,
           confirmPassword: values.password,

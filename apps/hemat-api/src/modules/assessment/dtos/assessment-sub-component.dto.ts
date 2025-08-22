@@ -27,14 +27,6 @@ export class AssessmentSubComponentDto {
   @IsNotEmpty()
   @IsString()
   @Length(1, 50)
-  @IsUnique(
-    {
-      tableName: 'assessment_sub_components',
-      columns: ['code'],
-      exclude: 'id',
-    },
-    { message: 'validation.code.isUnique' },
-  )
   @Type(() => String)
   code: string;
 
@@ -46,14 +38,6 @@ export class AssessmentSubComponentDto {
   @IsNotEmpty()
   @IsString()
   @Length(1, 100)
-  @IsUnique(
-    {
-      tableName: 'assessment_sub_components',
-      columns: ['name'],
-      exclude: 'id',
-    },
-    { message: 'validation.name.isUnique' },
-  )
   @Type(() => String)
   name: string;
 

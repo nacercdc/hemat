@@ -17,33 +17,28 @@ export class AssessmentCreateRequestDto {
     description: 'Name of the assessment',
     example: 'HIE Governance Assessment 2025',
     minLength: 1,
-    maxLength: 100,
+    maxLength: 500,
     type: String,
   })
   @IsNotEmpty({ message: 'validation.name.isNotEmpty' })
   @IsString({ message: 'validation.name.isString' })
-  @Length(1, 100, { message: 'validation.name.length args: min:1 | max:100' })
-  @IsUnique(
-    { tableName: 'assessments', columns: ['name'] },
-    { message: 'validation.name.isUnique' },
-  )
-  @Type(() => String)
+  @Length(1, 500, { message: 'validation.name.length args: min:1 | max:500' })
   name: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Description of the assessment',
     example: 'Assess HIE governance in Ethiopia',
     minLength: 1,
-    maxLength: 500,
+    maxLength: 1000,
     type: String,
   })
-  @IsNotEmpty({ message: 'validation.description.isNotEmpty' })
+  @IsOptional()
   @IsString({ message: 'validation.description.isString' })
-  @Length(1, 500, {
-    message: 'validation.description.length args: min:1 | max:500',
+  @Length(1, 1000, {
+    message: 'validation.description.length args: min:1 | max:1000',
   })
   @Type(() => String)
-  description: string;
+  description?: string;
 
   @ApiProperty({
     description: 'Country code for the assessment',
@@ -128,12 +123,12 @@ export class AssessmentUpdateRequestDto {
     description: 'Name of the assessment',
     example: 'HIE Governance Assessment 2025',
     minLength: 1,
-    maxLength: 100,
+    maxLength: 500,
     type: String,
   })
   @IsOptional()
   @IsString({ message: 'validation.name.isString' })
-  @Length(1, 100, { message: 'validation.name.length args: min:1 | max:100' })
+  @Length(1, 500, { message: 'validation.name.length args: min:1 | max:500' })
   @IsUnique(
     { tableName: 'assessments', columns: ['name'], exclude: 'id' },
     { message: 'validation.name.isUnique' },
@@ -145,13 +140,13 @@ export class AssessmentUpdateRequestDto {
     description: 'Description of the assessment',
     example: 'Assess HIE governance in Ethiopia',
     minLength: 1,
-    maxLength: 500,
+    maxLength: 1000,
     type: String,
   })
   @IsOptional()
   @IsString({ message: 'validation.description.isString' })
-  @Length(1, 500, {
-    message: 'validation.description.length args: min:1 | max:500',
+  @Length(1, 1000, {
+    message: 'validation.description.length args: min:1 | max:1000',
   })
   @Type(() => String)
   description?: string;

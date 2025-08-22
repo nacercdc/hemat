@@ -16,9 +16,9 @@ export function AssessedCountries() {
     assessedCountriesCountState.isLoading;
 
   return (
-    <div className="flex flex-col justify-center items-center h-full gap-2">
+    <div className="flex flex-col justify-center items-center h-full 2xl:gap-2 gap-1">
       {!isLoading && (
-        <span className="text-5xl text-[#E8D8A6] font-bold">
+        <span className="2xl:text-5xl text-2xl text-[#E8D8A6] font-bold">
           <AnimatedCounter
             from={0}
             to={assessedCountries?.count || 0}
@@ -31,7 +31,7 @@ export function AssessedCountries() {
       <span className="rounded-md text-xs text-center text-white bg-[#E8D8A6]/25 p-1">
         Countries
       </span>
-      <span className="text-xs text-white text-wrap text-center">
+      <span className="2xl:text-xs text-[9px] text-white text-wrap text-center">
         Assessment <br />
         Collected
       </span>

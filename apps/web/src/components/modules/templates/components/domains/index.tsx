@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { DomainsSkeleton } from "./DomainsSkeleton";
@@ -18,18 +18,20 @@ import { Domain } from "./domain";
 import type { ItemFormData } from "../form";
 import { DomainComponentForm } from "../form";
 import { ListTypeColors } from "../DomainCompCard";
+import { COMPONENT_LIST_QUERY_KEY } from "../domain-components";
 
+export const DOMAIN_LIST_QUERY_KEY = "domains";
 interface Props {
   modalRef: React.RefObject<ModalRef | null>;
 }
 export function DomainsList({ modalRef }: Props) {
-  const { domainId } = useActiveList();
+  const { domainId, setComponentId } = useActiveList();
   const { toast } = useToast();
 
   const { data: domains, ...domainsState } = useFindAll<IDomain>({
     path: "/domains",
     tqOptions: {
-      queryKey: ["domains"],
+      queryKey: [DOMAIN_LIST_QUERY_KEY],
     },
   });
 
@@ -57,19 +59,28 @@ export function DomainsList({ modalRef }: Props) {
       },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: [DOMAIN_LIST_QUERY_KEY],
+          });
           toast({
             title: "Success",
             message: "Domain created successfully",
             variant: "success",
           });
-          queryClient.invalidateQueries({
-            queryKey: ["domains"],
-          });
+
           modalRef.current?.closeModal();
         },
       }
     );
   };
+
+  useEffect(() => {
+    if (domainId) {
+      queryClient.invalidateQueries({
+        queryKey: [COMPONENT_LIST_QUERY_KEY],
+      });
+    }
+  }, [domainId, setComponentId]);
 
   return (
     <div className="flex flex-col gap-5 overflow-y-auto h-full">

@@ -9,6 +9,21 @@ import { useSelectedFilterYear } from "../../context/selected-filter-year/useSel
 
 type DomainCardType = "single" | "summary";
 
+/*
+  I know this is ugly
+  It would be better if the user provides order-index at creation
+*/
+export const domainsCustomOrder = [
+  "Leadership and Governance",
+  "Management and Workforce",
+  "Information and Communication Technology (ICT) Infrastructure",
+  "Standards and Interoperability",
+];
+
+export const domainsOrderMap = new Map(
+  domainsCustomOrder.map((name, index) => [name.toLowerCase(), index])
+);
+
 export interface AverageRatedDomain {
   id: string;
   name: string;
@@ -44,6 +59,12 @@ export function DomainCardList() {
       averageRatedDomains as unknown as AverageRatedDomain[];
 
     if (averagedDomains?.length) {
+      averagedDomains.sort((a, b) => {
+        const aIndex = domainsOrderMap.get(a.name.toLowerCase()) ?? Infinity;
+        const bIndex = domainsOrderMap.get(b.name.toLowerCase()) ?? Infinity;
+        return aIndex - bIndex;
+      });
+
       return averagedDomains.map((averagedDomain) => ({
         ...averagedDomain,
         icon: null,

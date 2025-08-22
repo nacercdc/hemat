@@ -1,33 +1,42 @@
 import React from "react";
+import { Icon } from "@iconify/react";
 import { Button } from "@etm/web-ui-components";
-import { ActiveCountries } from "./ActiveCountries";
 import { TotalDomains } from "./TotalDomains";
-import { useRouter } from "next/navigation";
+import { TotalComponents } from "./TotalComponents";
+import { TotalSubComponents } from "./TotalSubComponents";
 
 export function OverallSummary() {
-  const router = useRouter();
-
   return (
-    <div className="xl:flex-col w-full text-white xl:justify-between hidden xl:flex">
-      <div className="flex flex-col gap-5">
-        <h1 className="font-bold text-7xl">Africa CDC</h1>
-        <div className="flex flex-col gap-1">
-          <h2 className="font-light text-3xl">
-            Centers for Diseases Control and
+    <div className="flex-col w-full text-white justify-between flex items-center md:items-start">
+      <div className="flex flex-col gap-10 items-center md:items-start">
+        <div className="flex flex-col gap-2 items-center md:items-start">
+          <h1 className="font-bold text-7xl">HIEMAT</h1>
+          <h2 className="text-center md:text-start text-3xl">
+            Health Information Exchange Maturity
           </h2>
-          <h2 className="font-light text-3xl">Prevention</h2>
-          <h3 className="text-xl font-bold" style={{ color: "#E8D8A6" }}>
-            Safeguarding Africa's Health
-          </h3>
+          <h2 className="font-light text-3xl inline-block xl:block md:text-start text-center">
+            Assessment Toolkit
+          </h2>
         </div>
-        <p className="text-sm">
-          Is a specialized technical institution of the Africa Union established
-          to
-          <br />
-          support public health initiatives of member states
+        <p className="text-sm max-w-lg leading-6">
+          The HIEMAT is a structured tool developed by Africa CDC to help
+          African Union Member States assess and improve their Health
+          Information Exchange (HIE) systems. It evaluates maturity across four
+          domains Leadership & Governance, Workforce & Management, ICT
+          Infrastructure, and Standards & Interoperability and provides
+          practical roadmaps to strengthen interoperability, identify gaps, and
+          guide investments in digital health.
         </p>
+        <h3
+          className="text-[0.9rem]] font-semibold max-w-2xl"
+          style={{ color: "#E8D8A6" }}
+        >
+          This toolkit empowers countries to track progress, promote data-driven
+          decision-making, and advance seamless health data exchange across the
+          continent.
+        </h3>
       </div>
-      <div className="flex flex-col gap-1">
+      {/* <div className="flex flex-col gap-1">
         <span className="font-medium text-sm text-white/75">
           Let's get started
         </span>
@@ -41,10 +50,22 @@ export function OverallSummary() {
         >
           Register
         </Button>
-      </div>
-      <div className="flex gap-10">
-        <ActiveCountries />
-        <TotalDomains />
+      </div> */}
+      <div className="flex flex-col gap-4 md:mt-2 mt-7">
+        <div className="flex xl:flex-row gap-2 flex-col">
+          <TotalDomains />
+          <TotalComponents />
+          <TotalSubComponents />
+        </div>
+        <a href="#assessment_tools">
+          <Button
+            rightNode={
+              <Icon icon="gravity-ui:arrow-up" className="rotate-90" />
+            }
+          >
+            ASSESSMENT TOOL OVERVIEW
+          </Button>
+        </a>
       </div>
     </div>
   );

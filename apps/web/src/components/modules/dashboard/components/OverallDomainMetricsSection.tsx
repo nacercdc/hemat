@@ -69,6 +69,12 @@ export function OverallDomainMetricsSection({
       reshaped.push(tempDomainObj);
     });
 
+    reshaped.sort((a, b) => {
+      const nameA = (a.domain as ITemplateDomain)?.name ?? "";
+      const nameB = (b.domain as ITemplateDomain)?.name ?? "";
+      return nameA.localeCompare(nameB, undefined, { sensitivity: "base" });
+    });
+
     return reshaped;
   }, [averageRatedDomains, measurementScales, templateDomains]);
 

@@ -43,7 +43,7 @@ export function AuthLayout({ children }: Props) {
           <div className={`flex flex-col gap-6 w-full ${contentWidth}`}>
             <div className="flex flex-col text-center lg:text-left">
               <span className="font-bold text-lg sm:text-xl">
-                Welcome to Africa CDC
+                Welcome to HIEMAT
               </span>
               <span className="text-xs sm:text-sm text-basic-600">
                 {isLogin

@@ -26,6 +26,7 @@ import type { DefaultFieldsFormData } from "../../form/subComponents/DefaultFiel
 import { ScalesForm } from "../../form/subComponents/ScalesForm";
 import type { ScalesFormData } from "../../form/subComponents/ScalesForm";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
+import { SUB_COMPONENT_LIST_QUERY_KEY } from "..";
 
 interface Props {
   subComponent: SubComponent;
@@ -137,7 +138,7 @@ export function SubComponent({ subComponent }: Props) {
             variant: "success",
           });
           queryClient.invalidateQueries({
-            queryKey: ["subComponents"],
+            queryKey: [SUB_COMPONENT_LIST_QUERY_KEY],
           });
         },
         onError: () => {
@@ -170,9 +171,8 @@ export function SubComponent({ subComponent }: Props) {
                 "Sub component measurement scale description created successfully",
               variant: "success",
             });
-
             queryClient.invalidateQueries({
-              queryKey: ["subComponents"],
+              queryKey: [SUB_COMPONENT_LIST_QUERY_KEY],
             });
             addMeasurementScaleModalRef.current?.closeModal();
           },

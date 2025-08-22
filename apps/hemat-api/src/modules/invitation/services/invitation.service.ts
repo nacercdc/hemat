@@ -33,7 +33,7 @@ import { AssessmentRoleService } from './assessment-role.service';
 import { generateRandomToken } from '@shared/helpers/token.helper';
 import { MemberRole } from '@shared/enums';
 import { AssessmentAbilityDto } from '../../assessment/guards/assessment-ability.dto';
-import { EmailService } from '../../../shared/services/email.service';
+// import { EmailService } from '../../../shared/services/email.service';
 import { InvitationCreatedEvent } from '../events/invitation.events';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { INVITATION_EVENTS } from '../events/invitation.constants';
@@ -55,7 +55,7 @@ export class InvitationService {
     private readonly roleService: AssessmentRoleService,
     private readonly dataSource: DataSource,
     private readonly configService: ConfigService<AppConfig>,
-    private readonly emailService: EmailService,
+    // private readonly emailService: EmailService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -609,10 +609,36 @@ export class InvitationService {
     return invitation;
   }
 
+  async findOneInvitation(
+    id: string,
+    query: FindOneInvitationDto,
+    userEmail: string,
+  ): Promise<Invitation> {
+    const invitation = await new QueryService<Invitation>(
+      this.invitationRepository,
+    )
+      .filter([{ field: 'id', operator: '=', value: id }])
+      .join(query.include)
+      .getOne();
+
+    if (!invitation) {
+      throw new NotFoundException('Invitation not found');
+    }
+
+    // Ensure the invitation belongs to the logged-in user
+    if (invitation.email !== userEmail) {
+      throw new ForbiddenException(
+        'You are not allowed to access this invitation',
+      );
+    }
+
+    return invitation;
+  }
+
   async accept(
     assessmentId: string,
     payload: InvitationUpdateRequestDto,
-    user: AuthDto, // Add user parameter for authentication
+    user: AuthDto,
   ): Promise<{
     success: boolean;
     message: string;
@@ -744,16 +770,16 @@ export class InvitationService {
     }
   }
 
-  async sendInvitation(invitationDto: any): Promise<any> {
-    // ... existing invitation creation logic ...
-    // After creating the invitation, send the email
-    await this.emailService.sendMail({
-      to: invitationDto.email,
-      subject: 'You are invited!',
-      html: `<p>Hello,</p><p>You have been invited to join. Please follow the instructions in the invitation.</p>`,
-    });
-    // ... rest of the logic ...
-  }
+  // async sendInvitation(invitationDto: any): Promise<any> {
+  //   // ... existing invitation creation logic ...
+  //   // After creating the invitation, send the email
+  //   await this.emailService.sendMail({
+  //     to: invitationDto.email,
+  //     subject: 'You are invited!',
+  //     html: `<p>Hello,</p><p>You have been invited to join. Please follow the instructions in the invitation.</p>`,
+  //   });
+  //   // ... rest of the logic ...
+  // }
 
   private async sendInvitationEmail(): Promise<void> {
     throw new NotImplementedException('Email service not implemented');

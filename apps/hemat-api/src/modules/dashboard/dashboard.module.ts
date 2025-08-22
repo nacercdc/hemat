@@ -8,11 +8,25 @@ import { Assessment } from '../../database/entities/assessment.entity';
 import { TemplateModule } from '../template/template.module';
 import { AssessmentModule } from '../assessment/assessment.module';
 import { MeasurementScaleModule } from '../measurement-scale/measurement-scale.module';
+import { Component, SubComponent } from '@database/entities';
+import { AuthModule } from '@shared/modules';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Country, Domain, Assessment]), TemplateModule, AssessmentModule, MeasurementScaleModule],
+  imports: [
+    TypeOrmModule.forFeature([
+      Country,
+      Domain,
+      Component,
+      SubComponent,
+      Assessment,
+    ]),
+    TemplateModule,
+    AssessmentModule,
+    MeasurementScaleModule,
+    AuthModule,
+  ],
   controllers: [DashboardController],
   providers: [DashboardService],
   exports: [DashboardService],
 })
-export class DashboardModule {} 
+export class DashboardModule {}

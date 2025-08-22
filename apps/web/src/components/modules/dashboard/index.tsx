@@ -44,7 +44,7 @@ export default function Dashboard() {
             </div>
           </div>
         </MetricsContainer>
-        <MetricsContainer title="Overall Domains Metrics">
+        <MetricsContainer title="Domains">
           <OverallDomainMetricsSection
             measurementScaleLoading={measurementScaleLoading}
             measurementScales={

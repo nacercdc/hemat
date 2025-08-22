@@ -32,17 +32,18 @@ const textAreaVariants = cva(
       variant: "default",
       size: "md",
     },
-  },
+  }
 );
 
 export interface Props
   extends Omit<
       React.TextareaHTMLAttributes<HTMLTextAreaElement>,
-      "size" | "className" | "style"
+      "size" | "className" | "style" | "required"
     >,
     VariantProps<typeof textAreaVariants> {
   label?: string;
   error?: string;
+  required?: boolean;
   description?: string;
   labelVariant?: FormControlVariants["variant"];
   labelSize?: FormControlVariants["size"];
@@ -56,12 +57,13 @@ export const TextArea = forwardRef<HTMLTextAreaElement, Props>(
       variant,
       size,
       error,
+      required,
       description,
       labelVariant,
       labelSize,
       ...props
     },
-    ref,
+    ref
   ) => {
     return (
       <FormControl
@@ -71,6 +73,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, Props>(
         description={description}
         variant={labelVariant}
         size={labelSize}
+        required={required}
       >
         <div className="relative flex items-center">
           <ShadcnTextArea
@@ -78,7 +81,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, Props>(
             id={name}
             className={cn(
               textAreaVariants({ variant, size }),
-              error && "border-destructive-500",
+              error && "border-destructive-500"
             )}
             aria-invalid={error ? "true" : "false"}
             ref={ref}
@@ -86,5 +89,5 @@ export const TextArea = forwardRef<HTMLTextAreaElement, Props>(
         </div>
       </FormControl>
     );
-  },
+  }
 );

@@ -414,11 +414,13 @@ export function Sidebar({
           {isLoading && (
             <div className="flex flex-col gap-2 px-2">{SidebarSkeleton()}</div>
           )}
-          {open && (
-            <SidebarMenuItem className="self-center w-full">
+
+          {!isLoading && (
+            <SidebarMenuItem className="self-center w-full pr-2">
               {open && footer.expand}
             </SidebarMenuItem>
           )}
+
           {!open && footer.collapse}
         </SidebarMenu>
       </SidebarContent>

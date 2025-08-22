@@ -1,39 +1,36 @@
-import { Controller, Get, Query, Param } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiOkResponse } from '@nestjs/swagger';
+import { Controller, Get, Query, Param, UseGuards } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiOkResponse,
+  ApiBearerAuth,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
+} from '@nestjs/swagger';
 import { DashboardService } from '../services/dashboard.service';
 import { DashboardQueryDto } from '../dtos/dashboard-query.dto';
 import { DomainService } from '../../template/services/domain.service';
 import { ComponentService } from '../../template/services/component.service';
-import { SubComponentService } from '../../template/services/sub-component.service';
-import { Inject } from '@nestjs/common';
 import { SubComponentMeasurementScaleService } from '../../template/services/sub-component-mesurment-scale.service';
-import { BadRequestException } from '@nestjs/common';
 import { AssessmentSubComponentService } from '../../assessment/services/assessment-sub-component.service';
 import { MeasurementScaleService } from '../../measurement-scale/services/measurement-scale.service';
 import { FindAllMeasurementScaleDto } from '../../measurement-scale/dtos';
-import { FindAllResponseDto } from '@shared/dtos';
+import { FindAllResponseDto, ExceptionResponseDto } from '@shared/dtos';
 import { MeasurementScale } from '@database/entities';
+import { AuthGuard, Abilities, PermissionGuard } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 
 @ApiTags('Dashboard')
 @Controller('dashboard')
 export class DashboardController {
   constructor(
     private readonly dashboardService: DashboardService,
-    @Inject(DomainService) private readonly domainService: DomainService,
-    @Inject(ComponentService)
+    private readonly domainService: DomainService,
     private readonly componentService: ComponentService,
-    @Inject(SubComponentMeasurementScaleService)
     private readonly subComponentMeasurementScaleService: SubComponentMeasurementScaleService,
     private readonly assessmentSubComponentService: AssessmentSubComponentService,
     private readonly measurementScaleService: MeasurementScaleService,
   ) {}
-
-  @ApiOperation({ summary: 'Get total countries count' })
-  @ApiOkResponse({ description: 'Total number of countries', type: Number })
-  @Get('countries/count')
-  async getCountriesCount(): Promise<{ count: number }> {
-    return this.dashboardService.getActiveCountriesCount();
-  }
 
   @ApiOperation({ summary: 'Get active domains count' })
   @ApiOkResponse({
@@ -43,6 +40,33 @@ export class DashboardController {
   @Get('domains/count')
   async getActiveDomainsCount(): Promise<{ count: number }> {
     return this.dashboardService.getActiveDomainsCount();
+  }
+
+  @ApiOperation({ summary: 'Get active components count' })
+  @ApiOkResponse({
+    description: 'Total number of active components',
+    type: Number,
+  })
+  @Get('components/count')
+  async getActiveComponentsCount(): Promise<{ count: number }> {
+    return this.dashboardService.getActiveComponentsCount();
+  }
+
+  @ApiOperation({ summary: 'Get active sub-components count' })
+  @ApiOkResponse({
+    description: 'Total number of active sub-components',
+    type: Number,
+  })
+  @Get('subcomponents/count')
+  async getActiveSubComponentsCount(): Promise<{ count: number }> {
+    return this.dashboardService.getActiveSubComponentsCount();
+  }
+
+  @ApiOperation({ summary: 'Get total countries count' })
+  @ApiOkResponse({ description: 'Total number of countries', type: Number })
+  @Get('countries/count')
+  async getCountriesCount(): Promise<{ count: number }> {
+    return this.dashboardService.getActiveCountriesCount();
   }
 
   @ApiOperation({
@@ -88,12 +112,96 @@ export class DashboardController {
     return this.dashboardService.getAverageDomainRatesByTemplate(query);
   }
 
+  @ApiOperation({
+    summary:
+      'Get average measurement scale rate across all domains for all countries',
+  })
+  @ApiOkResponse({
+    description: 'Average rate across all domains for each country',
+    schema: {
+      example: [
+        {
+          countryCode: 'ET',
+          averageRate: 4,
+        },
+        {
+          countryCode: 'NG',
+          averageRate: 3,
+        },
+      ],
+    },
+  })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @UseGuards(PermissionGuard)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.DASHBOARD,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @Get('domains/average-rate/country')
+  async getAverageDomainRatesForAllCountries(
+    @Query()
+    query: DashboardQueryDto & { domainId?: string; countryCode?: string },
+  ): Promise<any[]> {
+    return this.dashboardService.getAverageDomainRatesForAllCountries(query);
+  }
+
+  @ApiOperation({
+    summary:
+      'Get average measurement scale rate per template domain for a specific country',
+  })
+  @ApiOkResponse({
+    description: 'Average rate per template domain for a country',
+    schema: {
+      example: [
+        {
+          id: 'ab909a31-7873-4b10-8c1b-704656f851b1',
+          name: 'Public Health Infrastructure',
+          averageRate: 2,
+        },
+      ],
+    },
+  })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @UseGuards(PermissionGuard)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.DASHBOARD,
+      },
+    ],
+    requireAdmin: false,
+  })
   @Get('domains/average-rate/country/:countryCode')
   async getAverageDomainRatesByTemplateForCountry(
     @Param('countryCode') countryCode: string,
     @Query() query: DashboardQueryDto,
   ): Promise<any[]> {
-    return this.dashboardService.getAverageDomainRatesByTemplateForCountry(countryCode, query);
+    return this.dashboardService.getAverageDomainRatesByTemplateForCountry(
+      countryCode,
+      query,
+    );
   }
 
   @ApiOperation({
@@ -130,13 +238,52 @@ export class DashboardController {
     );
   }
 
+  @ApiOperation({
+    summary:
+      'Get average measurement scale rate per template component for a template domain in a specific country',
+  })
+  @ApiOkResponse({
+    description: 'Average rate per template component for a country',
+    schema: {
+      example: [
+        {
+          id: 'c1c2c3c4-1234-5678-9abc-def012345678',
+          name: 'Immunization',
+          averageRate: 2,
+        },
+      ],
+    },
+  })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @UseGuards(PermissionGuard)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.DASHBOARD,
+      },
+    ],
+    requireAdmin: false,
+  })
   @Get('domains/:templateDomainId/components/average-rate/country/:countryCode')
   async getAverageComponentRatesByTemplateDomainForCountry(
     @Param('templateDomainId') templateDomainId: string,
     @Param('countryCode') countryCode: string,
     @Query() query: DashboardQueryDto,
   ): Promise<any[]> {
-    return this.dashboardService.getAverageComponentRatesByTemplateDomainForCountry(templateDomainId, countryCode, query);
+    return this.dashboardService.getAverageComponentRatesByTemplateDomainForCountry(
+      templateDomainId,
+      countryCode,
+      query,
+    );
   }
 
   @ApiOperation({
@@ -170,13 +317,54 @@ export class DashboardController {
     );
   }
 
-  @Get('components/:templateComponentId/subcomponents/average-rate/country/:countryCode')
+  @ApiOperation({
+    summary:
+      'Get average measurement scale rate per template subcomponent for a template component in a specific country',
+  })
+  @ApiOkResponse({
+    description: 'Average rate per template subcomponent for a country',
+    schema: {
+      example: [
+        {
+          id: 's1s2s3s4-1234-5678-9abc-def012345678',
+          name: 'Cold Chain Management',
+          averageRate: 2,
+        },
+      ],
+    },
+  })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @UseGuards(PermissionGuard)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.DASHBOARD,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @Get(
+    'components/:templateComponentId/subcomponents/average-rate/country/:countryCode',
+  )
   async getAverageSubComponentRatesByTemplateComponentForCountry(
     @Param('templateComponentId') templateComponentId: string,
     @Param('countryCode') countryCode: string,
     @Query() query: DashboardQueryDto,
   ): Promise<any[]> {
-    return this.dashboardService.getAverageSubComponentRatesByTemplateComponentForCountry(templateComponentId, countryCode, query);
+    return this.dashboardService.getAverageSubComponentRatesByTemplateComponentForCountry(
+      templateComponentId,
+      countryCode,
+      query,
+    );
   }
 
   @ApiOperation({ summary: 'Fetch all template domains' })
@@ -351,7 +539,8 @@ export class DashboardController {
 
   @ApiOperation({
     summary: 'Find all measurement scales',
-    description: 'Get all measurement scales with pagination (no authentication required)',
+    description:
+      'Get all measurement scales with pagination (no authentication required)',
   })
   @ApiOkResponse({
     description: 'Ok',
@@ -362,20 +551,32 @@ export class DashboardController {
     return this.measurementScaleService.findAll(query);
   }
 
+  @ApiOperation({
+    summary: 'Get average rate for primary answers grouped',
+  })
+  @ApiOkResponse({
+    description: 'Average rate for primary answers grouped',
+  })
   @Get('answers/average-rate')
   async getAverageRateForPrimaryAnswersGrouped() {
     return this.assessmentSubComponentService.getAverageRateForPrimaryAnswersGrouped();
   }
 
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get all countries with subregion and assessment status',
-    description: 'Fetch countries with optional filtering by subregion, assessment status, and country code'
+    description:
+      'Fetch countries with optional filtering by subregion, assessment status, and country code',
   })
   @ApiOkResponse({
-    description: 'Array of countries with code, subregion, and assessment status',
+    description:
+      'Array of countries with code, subregion, and assessment status',
     schema: {
       example: [
-        { code: 'ET', subregion: 'Eastern Africa', assessmentStatus: 'COMPLETED' },
+        {
+          code: 'ET',
+          subregion: 'Eastern Africa',
+          assessmentStatus: 'COMPLETED',
+        },
         { code: 'NG', subregion: 'Western Africa', assessmentStatus: 'DRAFT' },
       ],
     },
@@ -392,4 +593,62 @@ export class DashboardController {
       countryCode,
     });
   }
-} 
+
+  @ApiOperation({
+    summary:
+      'Get average primary and roadmap rates per template domain for a specific country and Africa-wide',
+  })
+  @ApiOkResponse({
+    description:
+      'Average primary and roadmap rates per template domain for a country and Africa-wide',
+    schema: {
+      example: [
+        {
+          id: 'ab909a31-7873-4b10-8c1b-704656f851b1',
+          name: 'Public Health Infrastructure',
+          averagePrimaryRate: 2,
+          averageRoadmapRate: 3,
+          africaAveragePrimaryRate: 2,
+          africaAverageRoadmapRate: 2,
+        },
+        {
+          id: 'b6aa14f1-f3aa-4c9f-8022-5038b15e39ca',
+          name: 'Disease Prevention and Control',
+          averagePrimaryRate: 3,
+          averageRoadmapRate: 2,
+          africaAveragePrimaryRate: 3,
+          africaAverageRoadmapRate: 3,
+        },
+      ],
+    },
+  })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @UseGuards(PermissionGuard)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.DASHBOARD,
+      },
+    ],
+    requireAdmin: false,
+  })
+  @Get('domains/average-rate/country/:countryCode/africa')
+  async getAverageDomainRatesByTemplateForCountryAndAfrica(
+    @Param('countryCode') countryCode: string,
+    @Query() query: DashboardQueryDto,
+  ): Promise<{ data: any[]; total: number }> {
+    return this.dashboardService.getAverageDomainRatesByTemplateForCountryAndAfrica(
+      countryCode,
+      query,
+    );
+  }
+}
