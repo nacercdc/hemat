@@ -27,7 +27,8 @@ interface Country {
     | "in_progress"
     | "ready"
     | "pending"
-    | "draft";
+    | "draft"
+    | "submitted";
   center: [number, number];
 }
 
@@ -67,6 +68,7 @@ const statusMap = {
   planned: "Not Yet Assessed",
   closed: "Completed",
   in_progress: "In Progress",
+  submitted: "Completed",
 };
 
 type ProgressStatus = (typeof progressStatusOptions)[number];

@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Progress } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import type { Access } from "~/libs/models/assessment.model";
+import type { Access, StatusType } from "~/libs/models/assessment.model";
 
 export type AssessmentRoleType = "primary" | "team-leader";
 export type GroupTagType = "primary" | "my" | "rest" | "roadmaps";
@@ -18,6 +18,7 @@ export interface Domain {
 interface Props {
   domain: Domain;
   access?: Access;
+  status?: StatusType;
   groupTag: GroupTagType;
   groupId?: string;
   onDetailViewClickHandler: (domainId: string, groupId?: string) => void;
@@ -27,6 +28,7 @@ interface Props {
 export default function AssessmentDomainCard({
   domain,
   access,
+  status,
   groupTag,
   groupId,
   onDetailViewClickHandler,
@@ -69,16 +71,17 @@ export default function AssessmentDomainCard({
           />
           <div className="flex w-full items-center mt-4">
             {((groupTag === "my" && access?.role === "primary") ||
-              domain.fillAccess === access?.role) && (
-              <Button
-                full
-                variant="outline"
-                rightNode={<Icon icon="lucide:chevron-right" />}
-                onClick={() => onFillClickHandler(domain.id, groupId)}
-              >
-                Fill
-              </Button>
-            )}
+              domain.fillAccess === access?.role) &&
+              status !== "submitted" && (
+                <Button
+                  full
+                  variant="outline"
+                  rightNode={<Icon icon="lucide:chevron-right" />}
+                  onClick={() => onFillClickHandler(domain.id, groupId)}
+                >
+                  Fill
+                </Button>
+              )}
           </div>
         </div>
       </div>
