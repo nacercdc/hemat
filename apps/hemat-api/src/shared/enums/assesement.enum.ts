@@ -5,4 +5,5 @@ export enum AssessmentStatus {
   IN_PROGRESS = 'in_progress',
   CLOSED = 'closed',
   COMPLETED = 'completed',
+  SUBMITTED = 'submitted',
 }
