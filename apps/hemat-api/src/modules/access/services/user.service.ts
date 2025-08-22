@@ -20,7 +20,7 @@ import {
   UpdatePasswordRequestDto,
 } from '../dtos';
 import { FindAllResponseDto } from '@shared/dtos';
-import { LanguageEnum } from '@shared/enums';
+import { LanguageEnum, PermissionSubjectEnum } from '@shared/enums';
 import { UserStatusEnum } from '@shared/enums';
 import { USER_EVENTS } from '../events/user.events';
 
@@ -74,11 +74,29 @@ export class UserService {
       const roles = await manager
         .getRepository(Role)
         .findBy({ id: In(payload.roleIds) });
+
+      // Fetch existing permissions from payload
       const permissions = payload.permissionsIds
         ? await manager
             .getRepository(Permission)
             .findBy({ id: In(payload.permissionsIds) })
         : [];
+
+      // Fetch DASHBOARD permission
+      const dashboardPermission = await manager
+        .getRepository(Permission)
+        .findOne({
+          where: { subject: PermissionSubjectEnum.DASHBOARD },
+        });
+
+      if (dashboardPermission) {
+        // Add DASHBOARD permission if not already included
+        if (!permissions.some((p) => p.id === dashboardPermission.id)) {
+          permissions.push(dashboardPermission);
+        }
+      } else {
+        this.logger.warn('DASHBOARD permission not found in the database.');
+      }
 
       const generatedPassword = this.generateRandomPassword();
 
@@ -104,13 +122,13 @@ export class UserService {
         });
 
         await manager.getRepository(Profile).save(profile);
-        
+
         // Emit user created event for email notification
         this.eventEmitter.emit(USER_EVENTS.CREATED, {
           email: savedUser.email,
           password: generatedPassword,
         });
-        
+
         return { ...savedUser };
       } catch (err) {
         this.logger.error('create:', err);

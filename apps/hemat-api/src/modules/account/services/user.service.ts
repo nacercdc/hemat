@@ -13,6 +13,7 @@ import { DataSource, Repository } from 'typeorm';
 import {
   AssessmentMember,
   Invitation,
+  Permission,
   Profile,
   User,
 } from '../../../database/entities';
@@ -23,7 +24,13 @@ import {
 } from '../../../shared/modules';
 import { ConfigType } from '../../../config/types';
 import { HashHelper, pick } from '../../../shared/helpers';
-import { InvitationStatus, UserStatusEnum, MemberRole } from '../../../shared/enums';
+import {
+  InvitationStatus,
+  UserStatusEnum,
+  MemberRole,
+  PermissionSubjectEnum,
+  PermissionActionEnum,
+} from '../../../shared/enums';
 import { SuccessResponseDto } from '../../../shared/dtos';
 import {
   LoginRequestDto,
@@ -55,12 +62,33 @@ export class UserService {
     });
 
     if (emailExists) {
-      throw new BadRequestException();
+      throw new BadRequestException('Email already exists');
     }
 
     try {
-      await this.dataSource.transaction(async function (manager) {
+      await this.dataSource.transaction(async (manager) => {
         const { title, firstName, middleName, lastName, phoneNumber } = payload;
+
+        // Fetch DASHBOARD permission
+        const dashboardPermission = await manager
+          .getRepository(Permission)
+          .findOne({
+            where: {
+              subject: PermissionSubjectEnum.DASHBOARD,
+              action: PermissionActionEnum.READ,
+            },
+          });
+
+        if (!dashboardPermission) {
+          this.loggerService.warn(
+            `DASHBOARD permission (subject: ${PermissionSubjectEnum.DASHBOARD}, action: ${PermissionActionEnum.READ}) not found in the database. User will be created without it.`,
+          );
+        } else {
+          this.loggerService.log(
+            `DASHBOARD permission found: ID=${dashboardPermission.id}, subject=${dashboardPermission.subject}, action=${dashboardPermission.action}`,
+          );
+        }
+
         const user = manager.create(User, {
           email: payload.email,
           password: payload.password,
@@ -68,9 +96,14 @@ export class UserService {
           name: [title, firstName, middleName, lastName]
             .filter((n) => n)
             .join(' '),
+          permissions: dashboardPermission ? [dashboardPermission] : [],
         });
 
-        await manager.insert(User, user);
+        // Use save instead of insert to ensure relations are persisted
+        await manager.save(User, user);
+        this.loggerService.log(
+          `User created with ID=${user.id}, email=${user.email}, permissions=${JSON.stringify(user.permissions)}`,
+        );
 
         if (payload.invitationId) {
           const invitation = await manager.findOne(Invitation, {
@@ -78,11 +111,11 @@ export class UserService {
           });
 
           if (!invitation) {
-            throw new BadRequestException();
+            throw new BadRequestException('Invalid invitation');
           }
 
           if (invitation?.status !== InvitationStatus.PENDING) {
-            throw new BadRequestException();
+            throw new BadRequestException('Invitation is not pending');
           }
 
           const member = manager.create(AssessmentMember, {
