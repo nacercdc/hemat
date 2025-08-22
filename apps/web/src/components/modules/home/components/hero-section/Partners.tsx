@@ -5,6 +5,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { ETMCarousel } from "@etm/web-ui-components";
 import { PartnersImages } from "../../constants";
 import Image from "next/image";
+import Link from "next/link";
 
 export function Partners() {
   return (
@@ -34,13 +35,15 @@ export function Partners() {
                   height: img.height,
                 }}
               >
-                <Image
-                  key={index}
-                  src={img.src}
-                  alt={img.alt}
-                  fill
-                  className="object-contain"
-                />
+                <Link href={img.url ?? "#"} target="_blank">
+                  <Image
+                    key={index}
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    className="object-contain cursor-pointer"
+                  />
+                </Link>
               </div>
             </div>
           </ETMCarousel.CarouselItem>
