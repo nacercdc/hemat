@@ -15,18 +15,22 @@ interface Props {
   items: AccordionItem[];
   type?: "single" | "multiple";
   collapsible?: boolean;
+  onValueChange?: (value: string) => void;
 }
 
 export function Accordion({
   items,
   type = "single",
   collapsible = true,
+  onValueChange,
 }: Props) {
   return (
     <ShadcnAccordion type={type} collapsible={collapsible} className={"w-full"}>
       {items.map((item) => (
         <AccordionItem key={item.value} value={item.value}>
-          <AccordionTrigger>{item.trigger}</AccordionTrigger>
+          <AccordionTrigger onClick={() => onValueChange?.(item.value)}>
+            {item.trigger}
+          </AccordionTrigger>
           <AccordionContent>{item.content}</AccordionContent>
         </AccordionItem>
       ))}

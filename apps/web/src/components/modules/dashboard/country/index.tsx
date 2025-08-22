@@ -23,12 +23,8 @@ import {
   Legend,
   Tooltip,
 } from "recharts";
-
-interface Domain {
-  id: string;
-  name: string;
-  averageRate: number;
-}
+import type { Domain } from "./components/DomainsAccordion";
+import { DomainsAccordion } from "./components/DomainsAccordion";
 
 interface CountryDomainRatesWithBenchmark {
   id: string;
@@ -64,7 +60,7 @@ export default function CountryDashboard() {
   const {
     data: countryDomainsRateWithBenchmark,
     // ...countryDomainsRateWithBenchmarkState
-  } = useFindAll<CountryDomainRatesWithBenchmark[]>({
+  } = useFindAll<CountryDomainRatesWithBenchmark>({
     path: `/dashboard/domains/average-rate/country/${countryCode}/africa`,
     isProtected: false,
   });
@@ -173,7 +169,7 @@ export default function CountryDashboard() {
                   ? isLightColor(
                       (
                         measurementScales?.data as unknown as AssessmentMeasurementScale[]
-                      ).find((s) => s?.rate === countryAverage)?.color ?? "*:"
+                      )?.find((s) => s?.rate === countryAverage)?.color ?? "*:"
                     )
                     ? "text-dark"
                     : "text-card"
@@ -184,28 +180,29 @@ export default function CountryDashboard() {
             </div>
           </div>
         </div>
-        <MetricsContainer title={`Assessment result for ${africanCountries.features.find((f) => f.properties.postal === countryCode)?.properties.name}`}>
+        <MetricsContainer
+          title={`Assessment result for ${africanCountries.features.find((f) => f.properties.postal === countryCode)?.properties.name}`}
+        >
           <div className="flex flex-col lg:flex-row gap-3 w-full m-5">
             {Object.keys(mappedCountryDomainRate).length !== 0 && (
-
-                <div className="flex flex-row lg:flex-col bg-card gap-6 w-full lg:w-1/3 py-6 px-8  overflow-x-auto">
-                  {!measurementScaleLoading &&
-                    Object.entries(mappedCountryDomainRate).map(
-                      ([domain, { rate, name, color }], index) => (
-                        <DomainMetricsCard
-                          key={index}
-                          scale={{ rate, name, color }}
-                          domain={{ id: domain, name: domain }}
-                        />
-                      )
-                    )}
-                  {(measurementScaleLoading ||
-                    countryDomainsRateState.isLoading) &&
-                    Array.from({ length: 4 }, (_, i) => (
-                      <DomainMetricsCardSkeleton key={i} />
-                    ))}
-                </div>
-
+              <div className="flex flex-row lg:flex-col bg-card gap-6 w-full lg:w-1/3 py-6 px-8  overflow-x-auto">
+                {!measurementScaleLoading &&
+                  Object.entries(mappedCountryDomainRate).map(
+                    ([domain, { rate, name, color }], index) => (
+                      <DomainMetricsCard
+                        isInDetail={true}
+                        key={index}
+                        scale={{ rate, name, color }}
+                        domain={{ id: domain, name: domain }}
+                      />
+                    )
+                  )}
+                {(measurementScaleLoading ||
+                  countryDomainsRateState.isLoading) &&
+                  Array.from({ length: 4 }, (_, i) => (
+                    <DomainMetricsCardSkeleton key={i} />
+                  ))}
+              </div>
             )}
 
             <div className="bg-card rounded-md w-full h-[600px]">
@@ -245,6 +242,7 @@ export default function CountryDashboard() {
             </div>
           </div>
         </MetricsContainer>
+        <DomainsAccordion countryCode={countryCode} />
       </div>
     </PageContainer>
   );
