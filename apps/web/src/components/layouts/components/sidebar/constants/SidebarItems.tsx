@@ -1,12 +1,13 @@
 import type { AppAbilityType } from "~/providers/ability/casl/ability";
 import { Icon } from "@iconify/react";
 import type { Group } from "@etm/web-ui-components";
+import {
+  PermissionActionEnum,
+  PermissionSubjectEnum,
+} from "~/providers/ability/casl/types";
 
 // TODO: Remove isLoading as soon as we have all permission actions and subjects
-export const groups = (
-  _ability: AppAbilityType,
-  isLoading: boolean
-): Group[] => [
+export const groups = (ability: AppAbilityType): Group[] => [
   {
     menuItems: [
       {
@@ -14,15 +15,23 @@ export const groups = (
         label: "Dashboard",
         icon: <Icon icon="mage:dashboard-2" className="!w-[18px] !h-[18px]" />,
         path: "/",
-        permission: isLoading ? false : true,
+        permission: ability.can(
+          PermissionActionEnum.READ,
+          PermissionSubjectEnum.DASHBOARD
+        ),
         depth: 0,
       },
       {
         id: "measurement-scale",
         label: "Measurement Scale",
-        icon: <Icon icon="oui:scale" className="!w-[18px] !h-[18px]" />,
+        icon: (
+          <Icon icon="hugeicons:chart-02" className="!w-[18px] !h-[18px]" />
+        ),
         path: "/measurement-scale",
-        permission: isLoading ? false : true,
+        permission: ability.can(
+          PermissionActionEnum.READ,
+          PermissionSubjectEnum.MEASUREMENT_SCALE
+        ),
         depth: 0,
       },
       {
@@ -35,7 +44,10 @@ export const groups = (
           />
         ),
         path: "/templates",
-        permission: isLoading ? false : true,
+        permission: ability.can(
+          PermissionActionEnum.READ,
+          PermissionSubjectEnum.ASSESSMENT_DOMAIN
+        ),
         depth: 0,
       },
       {
@@ -48,7 +60,10 @@ export const groups = (
           />
         ),
         path: "/assessment",
-        permission: isLoading ? false : true,
+        permission: ability.can(
+          PermissionActionEnum.READ,
+          PermissionSubjectEnum.ASSESSMENT
+        ),
         depth: 0,
       },
       {
@@ -58,7 +73,10 @@ export const groups = (
           <Icon icon="hugeicons:floor-plan" className="!w-[18px] !h-[18px]" />
         ),
         path: "/roadmaps",
-        permission: isLoading ? false : true,
+        permission: ability.can(
+          PermissionActionEnum.READ,
+          PermissionSubjectEnum.ROADMAP
+        ),
         depth: 0,
       },
 
@@ -101,7 +119,10 @@ export const groups = (
           />
         ),
         path: "/administration",
-        permission: isLoading ? false : true,
+        permission: [
+          ability.can(PermissionActionEnum.READ, PermissionSubjectEnum.USER),
+          ability.can(PermissionActionEnum.READ, PermissionSubjectEnum.ROLE),
+        ].some(Boolean),
         depth: 0,
       },
       {
@@ -110,21 +131,33 @@ export const groups = (
         icon: (
           <Icon icon="solar:settings-linear" className="!w-[18px] !h-[18px]" />
         ),
-        permission: [true].some(Boolean),
+        permission: [
+          ability.can(PermissionActionEnum.READ, PermissionSubjectEnum.PROFILE),
+          ability.can(
+            PermissionActionEnum.READ,
+            PermissionSubjectEnum.LANGUAGE
+          ),
+        ].some(Boolean),
         depth: 0,
         children: [
           {
             id: "profile",
             label: "Profile",
             path: "/profile",
-            permission: true,
+            permission: ability.can(
+              PermissionActionEnum.READ,
+              PermissionSubjectEnum.PROFILE
+            ),
             depth: 1,
           },
           {
             id: "language",
             label: "Language",
             path: "/language",
-            permission: true,
+            permission: ability.can(
+              PermissionActionEnum.READ,
+              PermissionSubjectEnum.LANGUAGE
+            ),
             depth: 1,
           },
         ],
@@ -140,7 +173,10 @@ export const groups = (
           />
         ),
         path: "/support",
-        permission: isLoading ? false : true,
+        permission: ability.can(
+          PermissionActionEnum.READ,
+          PermissionSubjectEnum.SUPPORT
+        ),
         depth: 0,
       },
       {
@@ -150,7 +186,10 @@ export const groups = (
           <Icon icon="mingcute:invite-line" className="!w-[18px] !h-[18px]" />
         ),
         path: "/invitations",
-        permission: isLoading ? false : true,
+        permission: ability.can(
+          PermissionActionEnum.READ,
+          PermissionSubjectEnum.INVITATION
+        ),
         depth: 0,
       },
     ],

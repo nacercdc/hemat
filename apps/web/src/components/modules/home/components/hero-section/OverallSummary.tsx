@@ -7,14 +7,16 @@ import { TotalSubComponents } from "./TotalSubComponents";
 
 export function OverallSummary() {
   return (
-    <div className="xl:flex-col w-full text-white xl:justify-between hidden xl:flex">
-      <div className="flex flex-col gap-10">
-        <div className="flex flex-col gap-2">
+    <div className="flex-col w-full text-white justify-between flex items-center md:items-start">
+      <div className="flex flex-col gap-10 items-center md:items-start">
+        <div className="flex flex-col gap-2 items-center md:items-start">
           <h1 className="font-bold text-7xl">HIEMAT</h1>
-          <div className="flex flex-col gap-1">
-            <h2 className=" text-3xl">Health Information Exchange Maturity</h2>
-            <h2 className="font-light text-3xl">Assessment Toolkit</h2>
-          </div>
+          <h2 className="text-center md:text-start text-3xl">
+            Health Information Exchange Maturity
+          </h2>
+          <h2 className="font-light text-3xl inline-block xl:block md:text-start text-center">
+            Assessment Toolkit
+          </h2>
         </div>
         <p className="text-sm max-w-lg leading-6">
           The HIEMAT is a structured tool developed by Africa CDC to help
@@ -49,8 +51,8 @@ export function OverallSummary() {
           Register
         </Button>
       </div> */}
-      <div className="flex flex-col gap-4">
-        <div className="flex gap-10">
+      <div className="flex flex-col gap-4 md:mt-2 mt-7">
+        <div className="flex xl:flex-row gap-2 flex-col">
           <TotalDomains />
           <TotalComponents />
           <TotalSubComponents />

@@ -49,7 +49,6 @@ export function useFindAll<
     options?.queries?.skip?.toString(),
     ...(options.tqOptions?.queryKey?.map(String) || []),
   ].filter(Boolean);
-  console.log(queryKey, "");
 
   const { tqOptions, ...rest } = options;
   return useQuery({
