@@ -16,6 +16,7 @@ export interface Component extends ComponentModel {
 
 interface Props {
   components?: Component[];
+  activeComponent?: Component;
   filledSubs: FilledSubComponent[];
   numberOfSubs: number;
   statusLoading: boolean;
@@ -29,20 +30,12 @@ export function ComponentsList({
   numberOfSubs,
   statusLoading,
   isLoading = false,
+  activeComponent,
   onClick,
 }: Props) {
-  const [activeComponent, setActiveComponent] = useState<Component>();
-
   const onComponentClickHandler = (component: Component) => {
-    setActiveComponent(component);
     onClick(component.id);
   };
-
-  useEffect(() => {
-    if (components?.length && !activeComponent) {
-      setActiveComponent(components?.[0]);
-    }
-  }, [activeComponent, components]);
 
   const numOfFilledSub = useMemo(
     () => filledSubs?.filter((sub) => sub.filled),

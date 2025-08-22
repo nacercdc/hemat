@@ -25,7 +25,8 @@ export type StatusType =
   | "closed"
   | "ready"
   | "in_progress"
-  | "completed";
+  | "completed"
+  | "submitted";
 
 export interface Assessment {
   id: string;

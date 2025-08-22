@@ -270,7 +270,7 @@ export default function MemberAction({
   return (
     <div>
       <DropdownMenu
-        isModal={true}
+        // isModal={true}
         triggerTextAlign="end"
         align="end"
         trigger={
