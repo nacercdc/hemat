@@ -1,28 +1,32 @@
-import { Controller, Get, Query, Param } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiOkResponse } from '@nestjs/swagger';
+import { Controller, Get, Query, Param, UseGuards } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiOkResponse,
+  ApiBearerAuth,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
+} from '@nestjs/swagger';
 import { DashboardService } from '../services/dashboard.service';
 import { DashboardQueryDto } from '../dtos/dashboard-query.dto';
 import { DomainService } from '../../template/services/domain.service';
 import { ComponentService } from '../../template/services/component.service';
-import { SubComponentService } from '../../template/services/sub-component.service';
-import { Inject } from '@nestjs/common';
 import { SubComponentMeasurementScaleService } from '../../template/services/sub-component-mesurment-scale.service';
-import { BadRequestException } from '@nestjs/common';
 import { AssessmentSubComponentService } from '../../assessment/services/assessment-sub-component.service';
 import { MeasurementScaleService } from '../../measurement-scale/services/measurement-scale.service';
 import { FindAllMeasurementScaleDto } from '../../measurement-scale/dtos';
-import { FindAllResponseDto } from '@shared/dtos';
+import { FindAllResponseDto, ExceptionResponseDto } from '@shared/dtos';
 import { MeasurementScale } from '@database/entities';
+import { AuthGuard, Abilities, PermissionGuard } from '@shared/modules';
+import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
 
 @ApiTags('Dashboard')
 @Controller('dashboard')
 export class DashboardController {
   constructor(
     private readonly dashboardService: DashboardService,
-    @Inject(DomainService) private readonly domainService: DomainService,
-    @Inject(ComponentService)
+    private readonly domainService: DomainService,
     private readonly componentService: ComponentService,
-    @Inject(SubComponentMeasurementScaleService)
     private readonly subComponentMeasurementScaleService: SubComponentMeasurementScaleService,
     private readonly assessmentSubComponentService: AssessmentSubComponentService,
     private readonly measurementScaleService: MeasurementScaleService,
@@ -107,6 +111,7 @@ export class DashboardController {
   ): Promise<any[]> {
     return this.dashboardService.getAverageDomainRatesByTemplate(query);
   }
+
   @ApiOperation({
     summary:
       'Get average measurement scale rate across all domains for all countries',
@@ -126,6 +131,25 @@ export class DashboardController {
       ],
     },
   })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @UseGuards(PermissionGuard)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.DASHBOARD,
+      },
+    ],
+    requireAdmin: false,
+  })
   @Get('domains/average-rate/country')
   async getAverageDomainRatesForAllCountries(
     @Query()
@@ -134,6 +158,41 @@ export class DashboardController {
     return this.dashboardService.getAverageDomainRatesForAllCountries(query);
   }
 
+  @ApiOperation({
+    summary:
+      'Get average measurement scale rate per template domain for a specific country',
+  })
+  @ApiOkResponse({
+    description: 'Average rate per template domain for a country',
+    schema: {
+      example: [
+        {
+          id: 'ab909a31-7873-4b10-8c1b-704656f851b1',
+          name: 'Public Health Infrastructure',
+          averageRate: 2,
+        },
+      ],
+    },
+  })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @UseGuards(PermissionGuard)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.DASHBOARD,
+      },
+    ],
+    requireAdmin: false,
+  })
   @Get('domains/average-rate/country/:countryCode')
   async getAverageDomainRatesByTemplateForCountry(
     @Param('countryCode') countryCode: string,
@@ -179,6 +238,41 @@ export class DashboardController {
     );
   }
 
+  @ApiOperation({
+    summary:
+      'Get average measurement scale rate per template component for a template domain in a specific country',
+  })
+  @ApiOkResponse({
+    description: 'Average rate per template component for a country',
+    schema: {
+      example: [
+        {
+          id: 'c1c2c3c4-1234-5678-9abc-def012345678',
+          name: 'Immunization',
+          averageRate: 2,
+        },
+      ],
+    },
+  })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @UseGuards(PermissionGuard)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.DASHBOARD,
+      },
+    ],
+    requireAdmin: false,
+  })
   @Get('domains/:templateDomainId/components/average-rate/country/:countryCode')
   async getAverageComponentRatesByTemplateDomainForCountry(
     @Param('templateDomainId') templateDomainId: string,
@@ -223,6 +317,41 @@ export class DashboardController {
     );
   }
 
+  @ApiOperation({
+    summary:
+      'Get average measurement scale rate per template subcomponent for a template component in a specific country',
+  })
+  @ApiOkResponse({
+    description: 'Average rate per template subcomponent for a country',
+    schema: {
+      example: [
+        {
+          id: 's1s2s3s4-1234-5678-9abc-def012345678',
+          name: 'Cold Chain Management',
+          averageRate: 2,
+        },
+      ],
+    },
+  })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @UseGuards(PermissionGuard)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.DASHBOARD,
+      },
+    ],
+    requireAdmin: false,
+  })
   @Get(
     'components/:templateComponentId/subcomponents/average-rate/country/:countryCode',
   )
@@ -422,6 +551,12 @@ export class DashboardController {
     return this.measurementScaleService.findAll(query);
   }
 
+  @ApiOperation({
+    summary: 'Get average rate for primary answers grouped',
+  })
+  @ApiOkResponse({
+    description: 'Average rate for primary answers grouped',
+  })
   @Get('answers/average-rate')
   async getAverageRateForPrimaryAnswersGrouped() {
     return this.assessmentSubComponentService.getAverageRateForPrimaryAnswersGrouped();
@@ -458,6 +593,7 @@ export class DashboardController {
       countryCode,
     });
   }
+
   @ApiOperation({
     summary:
       'Get average primary and roadmap rates per template domain for a specific country and Africa-wide',
@@ -485,6 +621,25 @@ export class DashboardController {
         },
       ],
     },
+  })
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+    type: ExceptionResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Forbidden',
+    type: ExceptionResponseDto,
+  })
+  @UseGuards(PermissionGuard)
+  @Abilities({
+    permissions: [
+      {
+        action: PermissionActionEnum.READ,
+        subject: PermissionSubjectEnum.DASHBOARD,
+      },
+    ],
+    requireAdmin: false,
   })
   @Get('domains/average-rate/country/:countryCode/africa')
   async getAverageDomainRatesByTemplateForCountryAndAfrica(

@@ -9,6 +9,7 @@ import { TemplateModule } from '../template/template.module';
 import { AssessmentModule } from '../assessment/assessment.module';
 import { MeasurementScaleModule } from '../measurement-scale/measurement-scale.module';
 import { Component, SubComponent } from '@database/entities';
+import { AuthModule } from '@shared/modules';
 
 @Module({
   imports: [
@@ -22,9 +23,10 @@ import { Component, SubComponent } from '@database/entities';
     TemplateModule,
     AssessmentModule,
     MeasurementScaleModule,
+    AuthModule,
   ],
   controllers: [DashboardController],
   providers: [DashboardService],
   exports: [DashboardService],
 })
-export class DashboardModule {} 
+export class DashboardModule {}
