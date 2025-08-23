@@ -126,7 +126,7 @@ export function SubComponentForm({
               2
             </div>
             <span className="text-sm font-medium">
-              Measurement scales description
+              Measurement Scales Description
             </span>
           </div>
         </>

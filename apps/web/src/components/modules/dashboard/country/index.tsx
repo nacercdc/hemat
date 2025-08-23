@@ -125,7 +125,7 @@ export default function CountryDashboard() {
       }}
     >
       <div className="flex flex-col gap-3 w-full mt-2">
-        <MetricsContainer title="Measurement Metrics">
+        <MetricsContainer title="Measurement Scale">
           <div className="flex flex-col-reverse items-start sm:flex-row justify-between sm:items-center">
             <div className="grid w-full max-w-2xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 px-4 sm:px-6 lg:px-8 py-6">
               {!measurementScaleLoading &&
@@ -190,7 +190,7 @@ export default function CountryDashboard() {
           </div>
         </div>
         <MetricsContainer
-          title={`Assessment result for ${africanCountries.features.find((f) => f.properties.postal === countryCode)?.properties.name}`}
+          title={`Assessment Result for ${africanCountries.features.find((f) => f.properties.postal === countryCode)?.properties.name}`}
           rightAction={
             <Select<YearOption>
               options={yearOptions}

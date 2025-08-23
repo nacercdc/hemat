@@ -175,7 +175,7 @@ export function DomainSubComponents({ modalRef }: Props) {
 
       <Modal
         ref={modalRef}
-        title={`Add sub-component`}
+        title={`Add Sub-Component`}
         onOpenChange={(open) => {
           if (open) {
             setCreatedSubComponentId(null);
