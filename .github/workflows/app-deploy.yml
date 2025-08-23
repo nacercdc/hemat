@@ -58,7 +58,7 @@ jobs:
           build-args: |
             APP_NAME=web
           tags: |
-            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_WEB }}:${{ env.TAG_SHA }}
+            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_WEB }}:${{ env.IMAGE_TAG }}
             ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_WEB }}:latest
 
       # Build & push API (NestJS) from the 'service-runner' multi-stage target
@@ -72,5 +72,5 @@ jobs:
           build-args: |
             APP_NAME=hemat-api
           tags: |
-            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_API }}:${{ env.TAG_SHA }}
+            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_API }}:${{ env.IMAGE_TAG }}
             ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_API }}:latest
