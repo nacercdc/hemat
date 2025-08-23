@@ -48,8 +48,6 @@ export const DomainsAccordion = ({
     null
   );
 
-  console.log(selectedFilterYear, "Year");
-
   const { data: countryDomainsRate, ..._countryDomainsRateState } =
     useFindAll<Domain>({
       path: `/dashboard/domains/average-rate/country/${countryCode}`,
