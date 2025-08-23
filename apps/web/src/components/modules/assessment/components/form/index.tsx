@@ -127,17 +127,14 @@ export function AssessmentForm({
       const countryName =
         countries?.data.find((c: Country) => c.code === selectedCountry.code)
           ?.name ?? "";
-      const formattedDate = new Date(selectedDate).toLocaleDateString("en-GB", {
-        year: "numeric",
+      //TODO
+      // const formattedDate = new Date(selectedDate).toLocaleDateString("en-GB", {
+      //   year: "numeric",
+      // });
+      setValue("name", `HIE Maturity Assessment - ${countryName}`, {
+        shouldValidate: true,
+        shouldDirty: true,
       });
-      setValue(
-        "name",
-        `HIE Maturity Assessment - ${countryName} (${formattedDate})`,
-        {
-          shouldValidate: true,
-          shouldDirty: true,
-        }
-      );
     }
   }, [selectedCountry, selectedDate, countries, setValue]);
 
