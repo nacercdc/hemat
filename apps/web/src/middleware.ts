@@ -26,9 +26,14 @@ export function middleware(request: NextRequest) {
 
   if (invitationId && !token) {
     const target = `${LOGIN}?invitationId=${invitationId}&email=${invitationEmail}&assessmentName=${invitationAssessmentName}`;
+
+    if (pathname === REGISTER) {
+      return NextResponse.next();
+    }
     if (pathname !== LOGIN) {
       return redirectTo(target, nextUrl);
     }
+
     return NextResponse.next();
   }
 

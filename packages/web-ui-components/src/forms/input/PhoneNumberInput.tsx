@@ -93,7 +93,7 @@ export const PhoneNumberInput: React.ForwardRefExoticComponent<Props> =
           />
         </FormControl>
       );
-    },
+    }
   );
 
 const InputComponent = React.forwardRef<
@@ -131,7 +131,7 @@ const CountrySelect = ({
           className={cn(
             inputVariants({ size }),
             error && error && "border-destructive-500",
-            "flex gap-1 rounded-e-none border-r-0 shadow-none focus:z-10 text-lg w-fit pr-0",
+            "flex gap-1 rounded-e-none border-r-0 shadow-none focus:z-10 text-lg w-fit pr-0"
           )}
           disabled={disabled}
         >
@@ -163,7 +163,7 @@ const CountrySelect = ({
                       selectedCountry={selectedCountry}
                       onChange={onChange}
                     />
-                  ) : null,
+                  ) : null
                 )}
               </CommandGroup>
             </ScrollArea>

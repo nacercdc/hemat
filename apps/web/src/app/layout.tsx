@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import "~/app/styles.css";
+import "flag-icons/css/flag-icons.min.css";
 import { Providers } from "~/providers";
 import { cn } from "~/utils/cn.util";
 import { Toaster } from "@etm/web-ui-components";

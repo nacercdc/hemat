@@ -12,13 +12,19 @@ interface Props {
     rate: number;
     color: string;
   };
+  isInDetail?: boolean;
 }
 
-export default function DomainMetricsCard({ domain, scale }: Props) {
+export default function DomainMetricsCard({
+  domain,
+  scale,
+  isInDetail = false,
+}: Props) {
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 items-start h-24 min-w-72 bg-card border-l-2 rounded-sm py-2 px-4 justify-between overflow-x-auto"
+        "flex flex-col gap-2 items-start h-24 min-w-72  border-l-2 rounded-sm py-2 px-4 justify-between overflow-x-auto",
+        isInDetail ? "bg-layout-bg/30" : "bg-card"
       )}
       style={{ borderColor: scale?.color }}
     >
@@ -31,7 +37,7 @@ export default function DomainMetricsCard({ domain, scale }: Props) {
           <div
             className={cn(
               `flex items-center justify-center min-w-5 min-h-4 rounded-[3px] text-xs font-medium`,
-              isLightColor(scale?.color) ? "text-black" : "text-white"
+              isLightColor(scale?.color) ? "text-dark" : "text-card"
             )}
             style={{ background: scale.color }}
           >

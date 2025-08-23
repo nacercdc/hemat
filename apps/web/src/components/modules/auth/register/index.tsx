@@ -122,7 +122,8 @@ type RegisterFormInputs = z.infer<typeof registerFormSchema>;
 
 export default function Register() {
   const searchParams = useSearchParams();
-  const invitationEmail = searchParams.get("email");
+
+  const invitationEmail = searchParams.get("email") || "";
   const invitationIdFromURL = searchParams.get("invitationId");
   const router = useRouter();
   const toast = useToast();
@@ -222,12 +223,10 @@ export default function Register() {
             labelVariant="medium"
             valueKey="id"
             labelKey="name"
-            options={
-              PERSONAL_TITLES?.map((title) => ({
-                id: title,
-                name: title,
-              })) ?? []
-            }
+            options={PERSONAL_TITLES.map((title) => ({
+              id: title,
+              name: title,
+            }))}
             placeholder="Select title"
           />
         </div>
@@ -311,7 +310,7 @@ export default function Register() {
           control={control}
           name="email"
           labelVariant="medium"
-          disabled={!!invitationIdFromURL}
+          disabled={!!invitationIdFromURL || !!invitationEmail}
           required
         />
         <PhoneNumberInputRHF

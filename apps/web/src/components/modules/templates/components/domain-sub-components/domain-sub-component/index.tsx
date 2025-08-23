@@ -137,9 +137,6 @@ export function SubComponent({ subComponent }: Props) {
             message: "Sub Component updated successfully",
             variant: "success",
           });
-          queryClient.invalidateQueries({
-            queryKey: [SUB_COMPONENT_LIST_QUERY_KEY],
-          });
         },
         onError: () => {
           toast({
@@ -209,7 +206,7 @@ export function SubComponent({ subComponent }: Props) {
               variant: "success",
             });
             queryClient.invalidateQueries({
-              queryKey: ["subComponents"],
+              queryKey: [SUB_COMPONENT_LIST_QUERY_KEY],
             });
             editSubComponentModalRef.current?.closeModal();
           },
@@ -229,7 +226,7 @@ export function SubComponent({ subComponent }: Props) {
             variant: "success",
           });
           queryClient.invalidateQueries({
-            queryKey: ["components"],
+            queryKey: [SUB_COMPONENT_LIST_QUERY_KEY],
           });
           deleteDialogRef.current?.closeDialog();
         },

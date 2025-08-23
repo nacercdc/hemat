@@ -149,7 +149,10 @@ export default function Login() {
 
         <div className="flex flex-row gap-1">
           <span className="text-sm">Do not have an account?</span>
-          <Link href={"/register"} className="underline text-sm text-info-500">
+          <Link
+            href={`/register?invitationId=${invitationId}&email=${invitationEmail}&assessmentName=${invitationAssessmentName}`}
+            className="underline text-sm text-info-500"
+          >
             Register
           </Link>
         </div>
