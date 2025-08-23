@@ -52,6 +52,7 @@ export function RoadmapFill() {
     },
     tqOptions: {
       enabled: !!activeComponent,
+      queryKey: ["sub-components", activeComponent?.id],
     },
   });
 
@@ -151,6 +152,7 @@ export function RoadmapFill() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 w-full">
           <ComponentsList
             components={components?.data as unknown as Component[]}
+            activeComponent={activeComponent}
             statusLoading={
               filledSubCompsState.isFetching ||
               filledSubCompsState.isLoading ||

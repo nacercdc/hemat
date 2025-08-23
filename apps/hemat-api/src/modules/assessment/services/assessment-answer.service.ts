@@ -418,18 +418,34 @@ export class AssessmentAnswerService {
     userId: string,
   ): Promise<any> {
     return this.dataSource.transaction(async (manager) => {
-      // Find all subcomponents for the assessment
-      const subComponents = await manager.getRepository(AssessmentSubComponent).find({ where: { assessmentId } });
-      if (!subComponents.length) {
-        throw new NotFoundException('No subcomponents found for this assessment');
+      // Find the assessment
+      const assessment = await manager.findOne(Assessment, {
+        where: { id: assessmentId },
+      });
+      if (!assessment) {
+        throw new NotFoundException(`Assessment ${assessmentId} not found`);
       }
+
+      // Find all subcomponents for the assessment
+      const subComponents = await manager
+        .getRepository(AssessmentSubComponent)
+        .find({ where: { assessmentId } });
+      if (!subComponents.length) {
+        throw new NotFoundException(
+          'No subcomponents found for this assessment',
+        );
+      }
+
       // Find the user's primary answer for this assessment
       const answer = await manager.findOne(Answer, {
         where: { assessmentId, userId, isPrimary: true },
       });
       if (!answer) {
-        throw new NotFoundException('No primary answer found for this assessment');
+        throw new NotFoundException(
+          'No primary answer found for this assessment',
+        );
       }
+
       // Check all subcomponents for this assessment are answered
       const subComponentIds = subComponents.map((sc) => sc.id);
       const answered = await manager.find(AssessmentSubComponentAnswer, {
@@ -439,19 +455,39 @@ export class AssessmentAnswerService {
         },
       });
       if (answered.length !== subComponentIds.length) {
-        throw new BadRequestException('Not all subcomponents for this assessment are answered');
+        throw new BadRequestException(
+          'Not all subcomponents for this assessment are answered',
+        );
       }
+
       // Check answer status is COMPLETED or SUBMITTED
       if (answer.status === AnswerStatus.SUBMITTED) {
-        return { message: 'Assessment answers already submitted', answerId: answer.id, status: answer.status };
+        return {
+          message: 'Assessment answers already submitted',
+          answerId: answer.id,
+          status: answer.status,
+        };
       }
       if (answer.status !== AnswerStatus.COMPLETED) {
-        throw new BadRequestException('Answer status must be COMPLETED to submit');
+        throw new BadRequestException(
+          'Answer status must be COMPLETED to submit',
+        );
       }
-      // Set status to SUBMITTED
+
+      // Set answer status to SUBMITTED
       answer.status = AnswerStatus.SUBMITTED;
       await manager.save(Answer, answer);
-      return { message: 'Assessment answers submitted', answerId: answer.id, status: answer.status };
+
+      // Update assessment status to SUBMITTED
+      assessment.status = AssessmentStatus.SUBMITTED;
+      await manager.save(Assessment, assessment);
+
+      return {
+        message: 'Assessment answers submitted',
+        answerId: answer.id,
+        status: answer.status,
+        assessmentStatus: assessment.status,
+      };
     });
   }
 }

@@ -66,7 +66,7 @@ export default function useFetch() {
     option: Mutation<Req>
   ): Promise<Res> {
     return request<Res, Res>({
-      method: "PUT",
+      method: "PATCH",
       isProtected: option?.isProtected,
       path: option.path,
       data: option.data as any,

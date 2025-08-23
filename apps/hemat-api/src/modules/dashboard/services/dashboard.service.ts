@@ -7,14 +7,7 @@ import { AssessmentStatus } from '../../../shared/enums/assesement.enum';
 import { DashboardQueryDto } from '../dtos/dashboard-query.dto';
 import { Country } from '../../../database/entities/country.entity';
 import { Component, SubComponent } from '@database/entities';
-
-interface SubComponentRate {
-  id: string;
-  name: string;
-  description: string;
-  averagePrimaryRate: number;
-  averageRoadmapRate: number;
-}
+import { ComponentRate, SubComponentRate } from '../interface';
 
 interface SubComponentAfricaRate {
   id: string;
@@ -260,7 +253,7 @@ export class DashboardService {
     templateDomainId: string,
     countryCode: string,
     query: DashboardQueryDto,
-  ): Promise<any[]> {
+  ): Promise<{ data: ComponentRate[]; total: number }> {
     const currentYear = new Date().getFullYear();
     const years = query.years || (query.year ? [query.year] : [currentYear]);
 
@@ -288,7 +281,7 @@ export class DashboardService {
         years,
       });
 
-    return qb
+    const data = await qb
       .select('templateComponent.id', 'id')
       .addSelect('templateComponent.name', 'name')
       .addSelect(
@@ -298,13 +291,15 @@ export class DashboardService {
       .groupBy('templateComponent.id')
       .addGroupBy('templateComponent.name')
       .execute();
+
+    return { data, total: data.length };
   }
 
   async getAverageSubComponentRatesByTemplateComponentForCountry(
     templateComponentId: string,
     countryCode: string,
     query: DashboardQueryDto,
-  ): Promise<any[]> {
+  ): Promise<{ data: SubComponentRate[]; total: number }> {
     const currentYear = new Date().getFullYear();
     const years = query.years || (query.year ? [query.year] : [currentYear]);
 
@@ -389,7 +384,7 @@ export class DashboardService {
 
     console.log('Applied year filter for Africa:', years);
 
-    const africaResults: SubComponentAfricaRate[] = await africaQb
+    const africaResults: SubComponentRate[] = await africaQb
       .select('templateSubComponent.id', 'id')
       .addSelect('templateSubComponent.name', 'name')
       .addSelect('templateSubComponent.description', 'description')
@@ -406,9 +401,9 @@ export class DashboardService {
       .addGroupBy('templateSubComponent.description')
       .execute();
 
-    const merged = countryResults.map((countryItem: SubComponentRate) => {
+    const data = countryResults.map((countryItem: SubComponentRate) => {
       const africaItem = africaResults.find(
-        (a: SubComponentAfricaRate) => a.id === countryItem.id,
+        (a: SubComponentRate) => a.id === countryItem.id,
       ) || {
         africaAveragePrimaryRate: 0,
         africaAverageRoadmapRate: 0,
@@ -423,9 +418,8 @@ export class DashboardService {
       };
     });
 
-    return merged;
+    return { data, total: data.length };
   }
-
   async getCountriesWithSubregionAndAssessmentStatus(query?: {
     subregion?: string;
     assessmentStatus?: AssessmentStatus;

@@ -19,6 +19,7 @@ import { FindAllResponseDto, ExceptionResponseDto } from '@shared/dtos';
 import { MeasurementScale } from '@database/entities';
 import { AuthGuard, Abilities, PermissionGuard } from '@shared/modules';
 import { PermissionActionEnum, PermissionSubjectEnum } from '@shared/enums';
+import { ComponentRate, SubComponentRate } from '../interface';
 
 @ApiTags('Dashboard')
 @Controller('dashboard')
@@ -278,7 +279,7 @@ export class DashboardController {
     @Param('templateDomainId') templateDomainId: string,
     @Param('countryCode') countryCode: string,
     @Query() query: DashboardQueryDto,
-  ): Promise<any[]> {
+  ): Promise<FindAllResponseDto<ComponentRate>> {
     return this.dashboardService.getAverageComponentRatesByTemplateDomainForCountry(
       templateDomainId,
       countryCode,
@@ -289,22 +290,6 @@ export class DashboardController {
   @ApiOperation({
     summary:
       'Get average measurement scale rate per template subcomponent for a template component',
-  })
-  @ApiOkResponse({
-    description:
-      'Average rate per template subcomponent for a template component',
-    schema: {
-      example: [
-        {
-          id: 's1s2s3s4-1234-5678-9abc-def012345678',
-          name: 'Cold Chain Management',
-          description:
-            'Ensures vaccines are stored at the correct temperature.',
-          subComponentId: 'sub1',
-          averageRate: 2,
-        },
-      ],
-    },
   })
   @Get('components/:templateComponentId/subcomponents/average-rate')
   async getAverageSubComponentRatesByTemplateComponent(
@@ -320,18 +305,6 @@ export class DashboardController {
   @ApiOperation({
     summary:
       'Get average measurement scale rate per template subcomponent for a template component in a specific country',
-  })
-  @ApiOkResponse({
-    description: 'Average rate per template subcomponent for a country',
-    schema: {
-      example: [
-        {
-          id: 's1s2s3s4-1234-5678-9abc-def012345678',
-          name: 'Cold Chain Management',
-          averageRate: 2,
-        },
-      ],
-    },
   })
   @ApiBearerAuth()
   @ApiUnauthorizedResponse({
@@ -359,7 +332,7 @@ export class DashboardController {
     @Param('templateComponentId') templateComponentId: string,
     @Param('countryCode') countryCode: string,
     @Query() query: DashboardQueryDto,
-  ): Promise<any[]> {
+  ): Promise<FindAllResponseDto<SubComponentRate>> {
     return this.dashboardService.getAverageSubComponentRatesByTemplateComponentForCountry(
       templateComponentId,
       countryCode,

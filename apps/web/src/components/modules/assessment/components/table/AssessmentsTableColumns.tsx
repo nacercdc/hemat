@@ -4,6 +4,7 @@ import AssessmentAction from "./AssessmentsAction";
 
 import type { BadgeVariants, ColumnDef } from "@etm/web-ui-components";
 import type { Assessment, StatusType } from "~/libs/models/assessment.model";
+import { capitalizeFirstLetter } from "~/utils/string.util";
 
 const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
   draft: "dark",
@@ -12,6 +13,7 @@ const StatusVariantClasses: Record<StatusType, BadgeVariants["variant"]> = {
   ready: "info",
   in_progress: "progress",
   completed: "success",
+  submitted: "success",
 };
 
 export const AssessmentsTableColumns: ColumnDef<Assessment>[] = [
@@ -66,7 +68,7 @@ export const AssessmentsTableColumns: ColumnDef<Assessment>[] = [
           text={
             row.original.status === "in_progress"
               ? "In-Progress"
-              : row.original.status
+              : capitalizeFirstLetter(row.original.status)
           }
           variant={StatusVariantClasses[row.original.status]}
           shape="circular"

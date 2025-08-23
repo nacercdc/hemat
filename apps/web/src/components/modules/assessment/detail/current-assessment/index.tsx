@@ -19,9 +19,12 @@ import type {
   GroupIncludeAble,
 } from "~/libs/models/assessment-group.model";
 import { GroupSkeleton } from "./components/GroupSkeleton";
+import { usePatchMutation } from "~/libs/tanstack-api-query/hooks/usePatchMutation";
+import { useToast } from "@etm/web-ui-components";
 
 export function CurrentAssessment() {
   const params = useParams();
+  const { toast } = useToast();
   const assessmentId = params.id;
   const [selectedLanguage, setSelectedLanguage] = useState<
     string | undefined
@@ -79,6 +82,14 @@ export function CurrentAssessment() {
       queryKey: ["my-progress"],
     },
   });
+
+  const { mutate: submitPrimaryAssessment, ...submitPrimaryAssessmentState } =
+    usePatchMutation<
+      { id: string },
+      {
+        status: "submitted";
+      }
+    >(`/assessments/${assessmentId as string}/answers/submit`);
 
   const allAssessmentDomains = assessmentDomains as unknown as Domain[];
   const allAssessmentGroups = assessmentGroups?.data as unknown as Group[];
@@ -177,6 +188,21 @@ export function CurrentAssessment() {
   const restCategoryLoading =
     assessmentLoading || restProgressLoading || groupsLoading;
 
+  const submitPrimaryAssessmentHandler = () => {
+    submitPrimaryAssessment(
+      { data: { status: "submitted" } },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            message: "Primary Assessment has been submitted successfully!",
+            variant: "success",
+          });
+        },
+      }
+    );
+  };
+
   return (
     <div className="flex flex-col  bg-layout-bg/15 rounded-md">
       <AssessmentFillHeader
@@ -196,6 +222,9 @@ export function CurrentAssessment() {
             access={assessmentDetail?.access}
             assessmentId={assessmentId as string}
             groupId={assessmentDetail?.access?.groupId}
+            status={assessmentDetail?.status}
+            onAction={submitPrimaryAssessmentHandler}
+            actionLoading={submitPrimaryAssessmentState.isPending}
           />
         )}
 
@@ -209,6 +238,7 @@ export function CurrentAssessment() {
             subtitle="My Assessment"
             domains={myDomainList}
             access={assessmentDetail?.access}
+            status={assessmentDetail?.status}
             assessmentId={assessmentId as string}
           />
         )}
@@ -225,6 +255,7 @@ export function CurrentAssessment() {
               title={group.name}
               subtitle={`${group.name}'s Assessment`}
               domains={group.domains}
+              status={assessmentDetail?.status}
               assessmentId={assessmentId as string}
             />
           ))}
