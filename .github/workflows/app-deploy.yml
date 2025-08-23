@@ -36,7 +36,7 @@ jobs:
         with:
           appSourcePath: ${{ github.workspace }}
           dockerfilePath: ./Dockerfile
-          target: web-runner
+          targetLabel: web-runner
           buildArguments: |
             APP_NAME=web
           registryUrl: africacdc.azurecr.io
@@ -51,7 +51,7 @@ jobs:
         with:
           appSourcePath: ${{ github.workspace }}
           dockerfilePath: ./Dockerfile
-          target: service-runner
+          targetLabel: service-runner
           buildArguments: |
             APP_NAME=hemat-api
           registryUrl: africacdc.azurecr.io
