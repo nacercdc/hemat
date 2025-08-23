@@ -8,14 +8,10 @@ import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import {
   DomainComponentCardSkeleton,
   SubComponentCard,
-} from "../../components/SubComponentCard";
+} from "./SubComponentCard";
 import { DomainIconMap } from "~/components/modules/home/constants";
 import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measurement-scale.model";
-import { isLightColor } from "../../utils/luminacity.util";
-
-interface Props {
-  countryCode: string;
-}
+import { isLightColor } from "../utils/luminacity.util";
 
 export interface Domain {
   id: string;
@@ -38,44 +34,69 @@ interface SubComponent {
   africaAveragePrimaryRate: number;
 }
 
-export const DomainsAccordion = ({ countryCode }: Props) => {
+interface Props {
+  countryCode: string;
+  selectedFilterYear?: { label: number; value: number };
+}
+
+export const DomainsAccordion = ({
+  countryCode,
+  selectedFilterYear,
+}: Props) => {
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(
     null
   );
 
+  console.log(selectedFilterYear, "Year");
+
   const { data: countryDomainsRate, ..._countryDomainsRateState } =
     useFindAll<Domain>({
       path: `/dashboard/domains/average-rate/country/${countryCode}`,
+      queries: {
+        filters: { year: `${selectedFilterYear?.value}` },
+      },
       tqOptions: {
-        queryKey: ["country-domains-rate-accordion"],
+        queryKey: ["country-domains-rate-accordion", selectedFilterYear],
       },
     });
 
   const { data: countryComponentsRate, ...countryComponentsRateState } =
     useFindAll<Component>({
       path: `/dashboard/domains/${selectedDomain}/components/average-rate/country/${countryCode}`,
+      queries: {
+        filters: { year: `${selectedFilterYear?.value}` },
+      },
       tqOptions: {
         enabled: !!selectedDomain,
-
-        queryKey: ["country-components-rate-accordion", selectedDomain],
+        queryKey: [
+          "country-components-rate-accordion",
+          selectedDomain,
+          selectedFilterYear,
+        ],
       },
     });
 
   const { data: countrySubComponentsRate, ...countrySubComponentsRateState } =
     useFindAll<SubComponent>({
       path: `/dashboard/components/${selectedComponent}/subcomponents/average-rate/country/${countryCode}`,
+      queries: {
+        filters: { year: `${selectedFilterYear?.value}` },
+      },
       tqOptions: {
         enabled: !!selectedComponent,
-        queryKey: ["country-sub-components-rate-accordion", selectedComponent],
+        queryKey: [
+          "country-sub-components-rate-accordion",
+          selectedComponent,
+          selectedFilterYear,
+        ],
       },
     });
 
-  const { data: measurementScales, ...measurementScalesState } =
-    useFindAll<AssessmentMeasurementScale>({
-      path: "/dashboard/measurement-scales",
-      queries: { sorts: { ascending: "rate" } },
-    });
+  const { data: measurementScales } = useFindAll<AssessmentMeasurementScale>({
+    path: "/dashboard/measurement-scales",
+    queries: { sorts: { ascending: "rate" } },
+  });
 
   const childAccordionItems = countryComponentsRateState.isLoading
     ? [

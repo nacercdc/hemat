@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 
@@ -91,7 +91,6 @@ export function DomainSubComponents({ modalRef }: Props) {
               message: "Sub Component created successfully",
               variant: "success",
             });
-
             subComponentsState.refetch();
           },
           onError: () => {

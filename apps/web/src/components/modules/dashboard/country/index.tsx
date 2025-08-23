@@ -7,26 +7,24 @@ import MetricsContainer from "../components/MetricsContainer";
 import MetricsCard, { MetricsCardSkeleton } from "../components/MetricsCard";
 import { useParams, useRouter } from "next/navigation";
 import africanCountries from "../components/AfricaMap/africa.geo.json";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import DomainMetricsCard, {
   DomainMetricsCardSkeleton,
 } from "../components/DomainMetricsCard";
 import { cn } from "~/utils/cn.util";
 import { isLightColor } from "../utils/luminacity.util";
-import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  ResponsiveContainer,
-  Legend,
-  Tooltip,
-} from "recharts";
-import type { Domain } from "./components/DomainsAccordion";
-import { DomainsAccordion } from "./components/DomainsAccordion";
+import type { Domain } from "../components/DomainsAccordion";
+import { DomainsAccordion } from "../components/DomainsAccordion";
+import { Select } from "@etm/web-ui-components";
+import { RadarChartComponent } from "../components/RadarChartComponent";
+import { yearOptions } from "../constants";
 
-interface CountryDomainRatesWithBenchmark {
+export interface YearOption {
+  label: number;
+  value: number;
+}
+
+export interface CountryDomainRatesWithBenchmark {
   id: string;
   name: string;
   averagePrimaryRate: number;
@@ -36,6 +34,9 @@ interface CountryDomainRatesWithBenchmark {
 }
 
 export default function CountryDashboard() {
+  const [selectedFilterYear, setSelectedFilterYear] = useState<
+    YearOption | undefined
+  >();
   const router = useRouter();
   const params = useParams();
   const countryCode = params.code as string;
@@ -43,7 +44,9 @@ export default function CountryDashboard() {
   const { data: measurementScales, ...measurementScalesState } =
     useFindAll<AssessmentMeasurementScale>({
       path: "/dashboard/measurement-scales",
-      queries: { sorts: { ascending: "rate" } },
+      queries: {
+        sorts: { ascending: "rate" },
+      },
     });
 
   const measurementScaleLoading =
@@ -52,29 +55,26 @@ export default function CountryDashboard() {
   const { data: countryDomainsRate, ...countryDomainsRateState } =
     useFindAll<Domain>({
       path: `/dashboard/domains/average-rate/country/${countryCode}`,
+      queries: {
+        filters: { year: `${selectedFilterYear?.value}` },
+      },
       tqOptions: {
-        queryKey: ["country-domains-rate"],
+        queryKey: ["country-domains-rate", selectedFilterYear],
       },
     });
 
   const {
     data: countryDomainsRateWithBenchmark,
-    // ...countryDomainsRateWithBenchmarkState
+    ...countryDomainsRateWithBenchmarkState
   } = useFindAll<CountryDomainRatesWithBenchmark>({
     path: `/dashboard/domains/average-rate/country/${countryCode}/africa`,
+    queries: {
+      filters: { year: `${selectedFilterYear?.value}` },
+    },
+    tqOptions: {
+      queryKey: [selectedFilterYear],
+    },
   });
-
-  const radarChartData = useMemo(() => {
-    if (!countryDomainsRateWithBenchmark) return [];
-    return countryDomainsRateWithBenchmark.data.map((domain) => ({
-      subject: (domain as unknown as CountryDomainRatesWithBenchmark).name,
-      countryRate: (domain as unknown as CountryDomainRatesWithBenchmark)
-        .averagePrimaryRate,
-      africaRate: (domain as unknown as CountryDomainRatesWithBenchmark)
-        .africaAveragePrimaryRate,
-      fullMark: 5,
-    }));
-  }, [countryDomainsRateWithBenchmark]);
 
   const countryAverage = Array.isArray(countryDomainsRate)
     ? Math.round(
@@ -105,6 +105,16 @@ export default function CountryDashboard() {
 
     return result;
   }, [countryDomainsRate, measurementScales]);
+
+  const handleSelect = (value?: number) => {
+    const selected = yearOptions.find((c) => c.label === value);
+
+    if (selected) {
+      setSelectedFilterYear(selected);
+    } else {
+      setSelectedFilterYear(undefined);
+    }
+  };
 
   return (
     <PageContainer
@@ -181,6 +191,16 @@ export default function CountryDashboard() {
         </div>
         <MetricsContainer
           title={`Assessment result for ${africanCountries.features.find((f) => f.properties.postal === countryCode)?.properties.name}`}
+          rightAction={
+            <Select<YearOption>
+              options={yearOptions}
+              onSelect={(c) => handleSelect(c?.value)}
+              labelKey="label"
+              valueKey="value"
+              value={selectedFilterYear}
+              placeholder="Filter by Year"
+            />
+          }
         >
           <div className="flex flex-col lg:flex-row gap-3 w-full m-5">
             {Object.keys(mappedCountryDomainRate).length !== 0 && (
@@ -203,45 +223,17 @@ export default function CountryDashboard() {
                   ))}
               </div>
             )}
-
-            <div className="bg-card rounded-md w-full h-[600px]">
-              <ResponsiveContainer width="100%" height="100%" className="p-12">
-                <RadarChart
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="80%"
-                  data={radarChartData}
-                >
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="subject" />
-                  <PolarRadiusAxis domain={[0, 5]} />
-                  <Radar
-                    name="Africa"
-                    dataKey="africaRate"
-                    stroke="#782C2D"
-                    fill="#782C2D"
-                    fillOpacity={0.6}
-                  />
-                  <Radar
-                    name={
-                      africanCountries.features.find(
-                        (f) => f.properties.postal === countryCode
-                      )?.properties.name
-                    }
-                    dataKey="countryRate"
-                    stroke="#348F41"
-                    fill="#348F41"
-                    fillOpacity={0.6}
-                  />
-
-                  <Legend />
-                  <Tooltip />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
+            <RadarChartComponent
+              data={countryDomainsRateWithBenchmark?.data ?? []}
+              countryCode={countryCode}
+              isLoading={countryDomainsRateWithBenchmarkState.isLoading}
+            />
           </div>
         </MetricsContainer>
-        <DomainsAccordion countryCode={countryCode} />
+        <DomainsAccordion
+          countryCode={countryCode}
+          selectedFilterYear={selectedFilterYear}
+        />
       </div>
     </PageContainer>
   );
