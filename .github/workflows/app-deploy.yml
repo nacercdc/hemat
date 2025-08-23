@@ -4,14 +4,17 @@ name: Trigger auto deployment for hemat-web
 on:
   # Automatically trigger it when detected changes in repo
   push:
-    branches: 
-      [ main ]
-    paths:
-    - '**'
-    - '.github/workflows/app-deploy.yml'
+    branches: [ azure-ci ]
 
   # Allow manual trigger 
   workflow_dispatch:      
+
+env:
+  ACR_NAME: africacdc
+  IMAGE_TAG: ${{ github.sha }}
+  IMAGE_NAME_WEB: hemat-web
+  IMAGE_NAME_API: hemat-api
+  DOCKERFILE: ./Dockerfile
 
 jobs:
   build-and-deploy:
@@ -24,39 +27,50 @@ jobs:
       - name: Checkout to the branch
         uses: actions/checkout@v4
 
-      - name: Azure Login
+      - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Build and push web image to registry
-        uses: azure/container-apps-deploy-action@v2
-        with:
-          appSourcePath: ${{ github.workspace }}
-          dockerfilePath: ./Dockerfile
-          targetLabel: web-runner
-          buildArguments: |
-            APP_NAME=web
-          registryUrl: africacdc.azurecr.io
-          registryUsername: ${{ secrets.REGISTRY_USERNAME }}
-          registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
-          containerAppName: hemat-web
-          resourceGroup: rg-hemat-dev
-          imageToBuild: africacdc.azurecr.io/hemat-web:${{ github.sha }}
+      - name: Get ACR login server
+        id: acr
+        run: |
+          LOGIN_SERVER=$(az acr show -n "${{ env.ACR_NAME }}" --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" --query loginServer -o tsv)
+          echo "login_server=$LOGIN_SERVER" >> $GITHUB_OUTPUT
+          echo "ACR login server: $LOGIN_SERVER"
+      
+      - name: Azure Container Registry Login
+        run: az acr login --name "${{ env.ACR_NAME }}" --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}"
 
-      - name: Build and push api image to registry
-        uses: azure/container-apps-deploy-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build & push WEB (Next.js) from the 'web-runner' multi-stage target
+      - name: Build & push WEB image
+        uses: docker/build-push-action@v6
         with:
-          appSourcePath: ${{ github.workspace }}
-          dockerfilePath: ./Dockerfile
-          targetLabel: service-runner
-          buildArguments: |
+          context: .
+          file: ${{ env.DOCKERFILE }}
+          target: web-runner
+          push: true
+          build-args: |
+            APP_NAME=web
+          tags: |
+            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_WEB }}:${{ env.TAG_SHA }}
+            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_WEB }}:latest
+
+      # Build & push API (NestJS) from the 'service-runner' multi-stage target
+      - name: Build & push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE }}
+          target: service-runner
+          push: true
+          build-args: |
             APP_NAME=hemat-api
-          registryUrl: africacdc.azurecr.io
-          registryUsername: ${{ secrets.REGISTRY_USERNAME }}
-          registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
-          containerAppName: hemat-api
-          resourceGroup: rg-hemat-dev
-          imageToBuild: africacdc.azurecr.io/hemat-api:${{ github.sha }}
+          tags: |
+            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_API }}:${{ env.TAG_SHA }}
+            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_API }}:latest
