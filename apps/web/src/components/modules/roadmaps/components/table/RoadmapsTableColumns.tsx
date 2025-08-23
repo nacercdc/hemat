@@ -44,7 +44,7 @@ export const RoadmapsTableColumns: ColumnDef<RoadmapList>[] = [
     accessorKey: "country",
     enableColumnFilter: false,
     cell: ({ row }: { row: { original: RoadmapList } }) => (
-      <span>{row.original.assessment.countryCode}</span>
+      <span>{row.original.assessment?.countryCode}</span>
     ),
   },
   {
