@@ -78,8 +78,8 @@ export class DashboardService {
     const completedAssessments = await this.assessmentRepository
       .createQueryBuilder('assessment')
       .select('assessment.countryCode')
-      .where('assessment.status = :status', {
-        status: AssessmentStatus.COMPLETED,
+      .where('assessment.status IN (:...statuses)', {
+        statuses: [AssessmentStatus.COMPLETED, AssessmentStatus.SUBMITTED],
       })
       .groupBy('assessment.countryCode')
       .getRawMany();
