@@ -60,3 +60,4 @@ crash.log
 *.tfvars
 .terragrunt-cache/
 config.json
+azure/.terraform.lock.hcl
