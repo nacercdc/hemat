@@ -27,6 +27,7 @@ data "azurerm_storage_account" "core" {
 resource "azurerm_resource_group" "target_rg" {
   name     = local.project_rg
   location = var.location
+  tags     = var.resource_tags
 }
 
 # -------- VNet + Subnet for CAE + peering --------

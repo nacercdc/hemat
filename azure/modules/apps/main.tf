@@ -74,7 +74,11 @@ data "azurerm_role_definition" "kv_secrets_user" {
 
 # Scope the assignment to /secrets/<name> to limit to that secret only.
 locals {
-  secret_names = ["hemat-postgres-url", "hemat-redis-url", "hemat-blob-conn"] # add more names if needed
+  secret_names = {
+    postgres-url = "hemat-postgres-${var.environment}-url"
+    redis-url    = "hemat-redis-${var.environment}-url"
+    storage-url  = "hemat-blob-${var.environment}-url"
+  }
   login_server = data.azurerm_container_registry.acr.login_server
   web_image    = "${local.login_server}/hemat-web:${var.image_tag}"
   api_image    = "${local.login_server}/hemat-api:${var.image_tag}"
@@ -82,7 +86,7 @@ locals {
 }
 
 resource "azurerm_role_assignment" "app_kv_secret_mgr" {
-  for_each           = toset(local.secret_names)
+  for_each           = local.secret_names
   scope              = "${data.azurerm_subscription.current.id}/resourcegroups/${var.core_infra.rg_name}/providers/Microsoft.KeyVault/vaults/${var.core_infra.kv_name}/secrets/${each.value}"
   role_definition_id = data.azurerm_role_definition.kv_secrets_user.id
   principal_id       = azurerm_user_assigned_identity.apps.principal_id
@@ -123,23 +127,23 @@ resource "azurerm_container_app" "web" {
   # ---- Secrets (Key Vault–backed) ----
   # Postgres connection string
   secret {
-    name                = "pg-url"
+    name                = "postgres-url"
     identity            = azurerm_user_assigned_identity.apps.id
-    key_vault_secret_id = "${local.kv_uri}/secrets/hemat-postgres-url"
+    key_vault_secret_id = "${local.kv_uri}/secrets/hemat-postgres-${var.environment}-url"
   }
 
   # Redis connection string
   secret {
     name                = "redis-url"
     identity            = azurerm_user_assigned_identity.apps.id
-    key_vault_secret_id = "${local.kv_uri}/secrets/hemat-redis-url"
+    key_vault_secret_id = "${local.kv_uri}/secrets/hemat-redis-${var.environment}-url"
   }
 
   # Blob Storage (connection string) – optional if you use MSI/RBAC
   secret {
-    name                = "blob-conn"
+    name                = "storage-url"
     identity            = azurerm_user_assigned_identity.apps.id
-    key_vault_secret_id = "${local.kv_uri}/secrets/hemat-blob-conn"
+    key_vault_secret_id = "${local.kv_uri}/secrets/hemat-blob-${var.environment}-url"
   }
 
   template {
@@ -154,15 +158,15 @@ resource "azurerm_container_app" "web" {
       # Use secret values
       env {
         name        = "DATABASE_URL"
-        secret_name = "pg-url"
+        secret_name = "postgres"
       }
       env {
         name        = "REDIS_URL"
-        secret_name = "redis-url"
+        secret_name = "redis"
       }
       env {
         name        = "BLOB_CONNECTION_STRING" # if using connection string auth
-        secret_name = "blob-conn"
+        secret_name = "blob"
       }
 
       # Non-secret envs (safe values)
@@ -176,7 +180,7 @@ resource "azurerm_container_app" "web" {
       }
       env {
         name  = "BLOB_CONTAINER"
-        value = "hemat-data"
+        value = "hemat-data-${var.environment}"
       }
     }
   }
@@ -197,6 +201,8 @@ resource "azurerm_container_app" "web" {
     azurerm_role_assignment.app_kv_secret_mgr,
     azurerm_role_assignment.app_pg_contrib
   ]
+
+  tags = var.tags
 }
 
 resource "azurerm_container_app" "api" {
@@ -291,6 +297,8 @@ resource "azurerm_container_app" "api" {
     azurerm_role_assignment.app_kv_secret_mgr,
     azurerm_role_assignment.app_pg_contrib
   ]
+
+  tags = var.tags
 }
 
 output "web_fqdn" { value = azurerm_container_app.web.latest_revision_fqdn }

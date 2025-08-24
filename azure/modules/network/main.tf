@@ -7,7 +7,6 @@ variable "core_infra" { type = object({
   rg_name   = string
 }) }
 variable "vnet" { type = object({
-  name           = string
   address        = string
   subnet_address = string
 }) }
@@ -32,7 +31,7 @@ resource "azurerm_virtual_network" "target_vnet" {
 }
 
 resource "azurerm_subnet" "cae_snet" {
-  name                 = "cae-snet"
+  name                 = "${var.project_name}-${var.environment}-snet"
   resource_group_name  = var.resource_group
   virtual_network_name = azurerm_virtual_network.target_vnet.name
   address_prefixes     = [var.vnet.subnet_address]

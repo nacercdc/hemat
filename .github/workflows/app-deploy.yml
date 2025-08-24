@@ -21,7 +21,7 @@ env:
   DOCKERFILE: ./Dockerfile
   # ===== Terraform =====
   TF_DIR: azure                         # <- path to africacdc azure Terraform root
-  TF_VERSION: 1.9.5
+  TF_VERSION: 1.12.2
 
 jobs:
   build-and-deploy:

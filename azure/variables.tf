@@ -44,34 +44,15 @@ variable "key_vault_name" {
   type    = string
   default = "africacdc-core-kv"
 } # e.g. africacdc-kv
-variable "pg_server_name" {
-  type    = string
-  default = "africacdc-core-dev-pgserv"
-} # Flexible Server name
-
-# KV secret you want to manage at secret-scope
-variable "kv_secret_name" {
-  type    = string
-  default = "hemat-secrets"
-}
 
 # container images (already built in CI and pushed to ACR)
 variable "image_tag" { type = string } # commit SHA
 
-# GitHub OIDC inputs
-variable "github_org" { type = string }  # e.g. "etmsoftware"
-variable "github_repo" { type = string } # e.g. "africa-cdc"
-variable "github_ref" { type = string }  # e.g. "refs/heads/main"
-
 # Database settings
-variable "postgres_admin_user" {
+variable "pg_server_name" {
   type    = string
-  default = "pgadmin"
-}
-variable "postgres_admin_password" {
-  type      = string
-  sensitive = true
-}
+  default = "africacdc-core-dev-pgserv"
+} # Flexible Server name
 variable "postgres_database" {
   type    = string
   default = "appdb"
@@ -82,9 +63,3 @@ variable "storage_containers" {
   type    = list(string)
   default = ["uploads"]
 }
-
-# Key Vault secrets you want to create initially
-variable "initial_secrets" {
-  type    = map(string)
-  default = {}
-} # e.g. { "JWT_SECRET" = "..." }
