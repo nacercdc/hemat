@@ -2,19 +2,26 @@ name: Trigger auto deployment for hemat-web
 
 # When this action will be executed
 on:
-  # Automatically trigger it when detected changes in repo
   push:
     branches: [ azure-ci ]
-
-  # Allow manual trigger 
-  workflow_dispatch:      
+  pull_request:
+    branches: [ azure-ci  ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target env (dev|prod)"
+        required: true
+        default: "dev"
 
 env:
+  # ===== Azure & ACR =====
   ACR_NAME: africacdc
-  IMAGE_TAG: ${{ github.sha }}
   IMAGE_NAME_WEB: hemat-web
   IMAGE_NAME_API: hemat-api
   DOCKERFILE: ./Dockerfile
+  # ===== Terraform =====
+  TF_DIR: azure                         # <- path to africacdc azure Terraform root
+  TF_VERSION: 1.9.5
 
 jobs:
   build-and-deploy:
@@ -23,9 +30,25 @@ jobs:
       id-token: write #This is required for requesting the OIDC JWT Token
       contents: read #Required when GH token is used to authenticate with private repo
 
+    outputs:
+      image_tag:    ${{ steps.acr.outputs.image_tag }}
+      login_server: ${{ steps.acr.outputs.login_server }}
+      envname:      ${{ steps.envname.outputs.envname }}
+
     steps:
       - name: Checkout to the branch
         uses: actions/checkout@v4
+
+      - name: Resolve environment
+        id: envname
+        run: |
+          if [ -n "${{ github.event.inputs.environment }}" ]; then
+            echo "envname=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "envname=dev" >> $GITHUB_OUTPUT
+          else
+            echo "envname=prod" >> $GITHUB_OUTPUT
+          fi
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2
@@ -38,7 +61,9 @@ jobs:
         id: acr
         run: |
           LOGIN_SERVER=$(az acr show -n "${{ env.ACR_NAME }}" --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" --query loginServer -o tsv)
+          TAG="${{ github.sha }}"
           echo "login_server=$LOGIN_SERVER" >> $GITHUB_OUTPUT
+          echo "image_tag=$TAG"            >> $GITHUB_OUTPUT
           echo "ACR login server: $LOGIN_SERVER"
       
       - name: Azure Container Registry Login
@@ -58,7 +83,7 @@ jobs:
           build-args: |
             APP_NAME=web
           tags: |
-            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_WEB }}:${{ env.IMAGE_TAG }}
+            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_WEB }}:${{ steps.acr.outputs.image_tag }}
             ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_WEB }}:latest
 
       # Build & push API (NestJS) from the 'service-runner' multi-stage target
@@ -72,5 +97,58 @@ jobs:
           build-args: |
             APP_NAME=hemat-api
           tags: |
-            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_API }}:${{ env.IMAGE_TAG }}
+            ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_API }}:${{ steps.acr.outputs.image_tag }}
             ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME_API }}:latest
+
+  terraform:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    permissions: { id-token: write, contents: read }
+    env:
+      # Let the azurerm provider know we are using OIDC
+      ARM_USE_OIDC: "true"
+      ARM_CLIENT_ID:       ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID:       ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id:       ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id:       ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Select workspace
+        id: ws
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          ENV="${{ needs.build-and-deploy.outputs.envname }}"
+          terraform init -upgrade
+          terraform workspace new "$ENV" || true
+          terraform workspace select "$ENV"
+          echo "ws=$ENV" >> $GITHUB_OUTPUT
+
+      # If you keep per-env tfvars (recommended), point to them here
+      - name: Terraform Plan
+        if: github.event_name != 'push' || github.ref != 'refs/heads/main'
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          terraform plan \
+            -var "image_tag=${{ needs.build-and-deploy.outputs.image_tag }}" \
+            -var-file="envs/${{ steps.ws.outputs.ws }}.tfvars"
+
+      - name: Terraform Apply (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          terraform apply -auto-approve \
+            -var "image_tag=${{ needs.build-and-deploy.outputs.image_tag }}" \
+            -var-file="envs/${{ steps.ws.outputs.ws }}.tfvars"
