@@ -1,4 +1,4 @@
-name: Trigger auto deployment for hemat-web
+name: Azure Integration and Deployment
 
 # When this action will be executed
 on:
@@ -12,6 +12,10 @@ on:
         description: "Target env (dev|prod)"
         required: true
         default: "dev"
+      project_name:
+        description: "Project name"
+        required: true
+        default: "hemat"
 
 env:
   # ===== Azure & ACR =====
