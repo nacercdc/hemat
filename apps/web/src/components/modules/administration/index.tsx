@@ -6,9 +6,9 @@ import { Icon } from "@iconify/react";
 import { PageContainer } from "../components/PageContainer";
 import { Button, Modal, useToast } from "@etm/web-ui-components";
 import { UpsideDownInvertedTabs } from "~/components/ui/upside-down-inverted-tabs";
-import { RolesTable } from "./components/tabs/roles-tab";
+import { ROLE_LIST_KEY, RolesTable } from "./components/tabs/roles-tab";
 import { RoleForm } from "./components/tabs/roles-tab/form";
-import { UsersTable } from "./components/tabs/users-tab/table";
+import { USER_LIST_KEY, UsersTable } from "./components/tabs/users-tab/table";
 import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 import { useAddMutation } from "~/libs/tanstack-api-query/hooks/useAddMutation";
 import { getPermissionIds } from "./utils";
@@ -76,7 +76,7 @@ export function Administration() {
             message: "Role has been created successfully!",
             variant: "success",
           });
-          queryClient.invalidateQueries({ queryKey: ["/roles"] });
+          queryClient.invalidateQueries({ queryKey: [ROLE_LIST_KEY] });
           addRoleModalRef.current?.closeModal();
         },
       }
@@ -121,7 +121,7 @@ export function Administration() {
             message: "User has been created successfully!",
             variant: "success",
           });
-          queryClient.invalidateQueries({ queryKey: ["/users"] });
+          queryClient.invalidateQueries({ queryKey: [USER_LIST_KEY] });
           addUserModalRef.current?.closeModal();
         },
       }

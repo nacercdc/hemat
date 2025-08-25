@@ -26,7 +26,7 @@ export function SubComponentCard({
           {content}
         </div>
       </div>
-      <div className="flex flex-col min-[600px]:flex-row flex-wrap justify-evenly gap-0 items-center">
+      <div className="flex flex-col min-[600px]:flex-row justify-evenly gap-0 items-center">
         <div className="flex w-full gap-4 justify-center items-center p-2 bg-[#FFC000]/10">
           <div className="flex flex-col">
             <span className="text-sm font-semibold">Current</span>
