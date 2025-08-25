@@ -16,7 +16,7 @@ export default function MetricsContainer({
     <div className="flex bg-layout-bg/15 p-3 rounded-md w-full min-h-40 overflow-x-hidden">
       <div
         className={cn("flex flex-col rounded-md w-full p-2 overflow-x-auto", {
-          "bg-card": title === "Measurement Metrics",
+          "bg-card": title === "Measurement Scale",
         })}
       >
         <div className="flex gap-5 items-center justify-between">

@@ -254,7 +254,7 @@ export function SubComponent({ subComponent }: Props) {
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
         {drawerOpen && <ComponentDetail subComponent={subComponent} />}
       </Drawer>
-      <Modal ref={editSubComponentModalRef} title={`Edit sub component`}>
+      <Modal ref={editSubComponentModalRef} title={`Edit Sub-Component`}>
         <SubComponentForm
           subComponent={subComponent}
           onScalesSubmit={onEditScalesSubmitHandler}
