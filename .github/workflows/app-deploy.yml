@@ -23,7 +23,6 @@ env:
   TF_VERSION: 1.12.2
 
   TF_VAR_project_name: ${{ secrets.PROJECT_NAME }} # <- project name, e.g. "hemat"
-  TF_VAR_location:     ${{ secrets.LOCATION }}        # <- Azure region, e.g. "East US"
   TF_VAR_key_vault_name: ${{ secrets.KEYVAULT }}
   TF_VAR_resource_tags: |
     {
