@@ -159,5 +159,4 @@ jobs:
         working-directory: ${{ env.TF_DIR }}
         run: |
           terraform apply -auto-approve \
-            -var "image_tag=${{ needs.build-and-deploy.outputs.image_tag }}" \
-            -var-file="envs/${{ steps.ws.outputs.ws }}.tfvars"
+            -var "image_tag=${{ needs.build-and-deploy.outputs.image_tag }}" 
