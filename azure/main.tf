@@ -3,87 +3,93 @@ module "naming" {
   source  = "Azure/naming/azurerm"
   version = "0.4.0"
 }
-
-locals {
-  project_rg = "${var.project_name}-${var.environment}-rg"
-}
+## variables
+# project_name
+# image_tag
+# environment
+# resource_tags
+# core_rg_name
+# environment
+# key_vault_name
 
 # -------- Lookup existing CORE resources --------
 data "azurerm_resource_group" "core" {
   name = var.core_rg_name
 }
 
-data "azurerm_log_analytics_workspace" "core" {
-  name                = var.log_analytics_workspace_name
-  resource_group_name = var.core_rg_name
+data "azurerm_key_vault" "core" {
+  name                = var.key_vault_name
+  resource_group_name = data.azurerm_resource_group.core.name
 }
 
-data "azurerm_storage_account" "core" {
-  name                = var.storage_account_name
-  resource_group_name = var.core_rg_name
+data "azurerm_key_vault_secret" "tfconfig" {
+  name         = "tf-config-${var.environment}"
+  key_vault_id = data.azurerm_key_vault.core.id
+}
+
+locals {
+  cfg      = jsondecode(data.azurerm_key_vault_secret.tfconfig.value)
+  location = data.azurerm_resource_group.core.location
+
+  project_rg = "${var.project_name}-${var.environment}-rg"
+}
+
+data "azurerm_log_analytics_workspace" "core" {
+  name                = local.cfg.log_analytics_workspace_name
+  resource_group_name = data.azurerm_resource_group.core.name
 }
 
 # -------- Resource Groups --------
 resource "azurerm_resource_group" "target_rg" {
-  name     = local.project_rg
-  location = var.location
+  name     = local.cfg.resource_group
+  location = local.location
   tags     = var.resource_tags
+}
+
+# -------- Identity for apps --------
+resource "azurerm_user_assigned_identity" "apps" {
+  name                = "hemat-app-mi"
+  resource_group_name = azurerm_resource_group.target_rg.name
+  location            = local.location
+  tags                = var.resource_tags
 }
 
 # -------- VNet + Subnet for CAE + peering --------
 module "network" {
-  source         = "./modules/network"
-  resource_group = azurerm_resource_group.target_rg.name
-  location       = azurerm_resource_group.target_rg.location
-  project_name   = var.project_name
-  environment    = var.environment
-  core_infra = {
-    vnet_name = var.core_vnet_name
-    rg_name   = var.core_rg_name
-  }
-  vnet = {
-    name           = "${var.project_name}-${var.environment}-vnet"
-    address        = var.target_vnet_cidr
-    subnet_address = var.cae_subnet_cidr
-  }
-  tags = var.resource_tags
+  source       = "./modules/network"
+  location     = azurerm_resource_group.target_rg.location
+  project_name = var.project_name
+  environment  = var.environment
+  config       = local.cfg
+  tags         = var.resource_tags
 }
 
 # -------- Container Apps Environment (CAE) --------
 module "cae" {
-  source           = "./modules/container_apps_env"
-  resource_group   = azurerm_resource_group.target_rg.name
-  location         = azurerm_resource_group.target_rg.location
-  name_prefix      = var.project_name
-  environment      = var.environment
-  log_analytics_id = data.azurerm_log_analytics_workspace.core.id
-  vnet_id          = module.network.vnet_id
-  subnet_id        = module.network.subnet_id
-  cae_storage_account = {
-    access_key   = data.azurerm_storage_account.core.primary_access_key
-    access_mode  = "ReadWrite"
-    account_name = data.azurerm_storage_account.core.name
-    share_name   = "${data.azurerm_storage_account.core.name}-${local.project_rg}-share"
-  }
-  tags = var.resource_tags
+  source               = "./modules/container_apps_env"
+  resource_group       = azurerm_resource_group.target_rg.name
+  location             = azurerm_resource_group.target_rg.location
+  project_name         = var.project_name
+  environment          = var.environment
+  log_analytics_id     = data.azurerm_log_analytics_workspace.core.id
+  vnet_id              = module.network.vnet_id
+  subnet_id            = module.network.subnet_id
+  storage_account_name = local.cfg.storage_account_name
+  core_rg              = data.azurerm_resource_group.core.name
+  tags                 = var.resource_tags
 }
 
 module "apps" {
-  source         = "./modules/apps"
-  resource_group = azurerm_resource_group.target_rg.name
-  location       = azurerm_resource_group.target_rg.location
-  project_name   = var.project_name
-  environment    = var.environment
-  image_tag      = var.image_tag
-  core_infra = {
-    acr_name             = var.acr_name
-    kv_name              = var.key_vault_name
-    pg_server_name       = var.pg_server_name
-    pg_database          = var.postgres_database
-    storage_account_name = var.storage_account_name
-    rg_name              = var.core_rg_name
-    log_analytics_id     = data.azurerm_log_analytics_workspace.core.id
+  source       = "./modules/apps"
+  location     = azurerm_resource_group.target_rg.location
+  project_name = var.project_name
+  environment  = var.environment
+  identity = {
+    id           = azurerm_user_assigned_identity.apps.id
+    principal_id = azurerm_user_assigned_identity.apps.principal_id
   }
+  image_tag             = var.image_tag
+  config                = local.cfg
   container_apps_env_id = module.cae.id
   tags                  = var.resource_tags
 }

@@ -1,21 +1,24 @@
 variable "resource_group" { type = string }
 variable "location" { type = string }
-variable "name_prefix" { type = string }
+variable "project_name" { type = string }
 variable "environment" { type = string }
 variable "log_analytics_id" { type = string }
 variable "vnet_id" { type = string }
 variable "subnet_id" { type = string }
-variable "cae_storage_account" {
-  type    = map(string)
-  default = {}
-}
+variable "storage_account_name" { type = string }
+variable "core_rg" { type = string }
 variable "tags" {
   type    = map(string)
   default = {}
 }
 
+data "azurerm_storage_account" "core" {
+  name                = var.storage_account_name
+  resource_group_name = var.core_rg
+}
+
 locals {
-  cae_name = "${var.name_prefix}-${var.environment}-cae"
+  cae_name = "${var.project_name}-${var.environment}-cae"
 }
 
 module "avm-res-app-managedenvironment" {
@@ -34,10 +37,10 @@ module "avm-res-app-managedenvironment" {
   }
   storages = {
     "default" = {
-      access_key   = var.cae_storage_account.access_key
-      access_mode  = var.cae_storage_account.access_mode
-      account_name = var.cae_storage_account.account_name
-      share_name   = var.cae_storage_account.share_name
+      access_key   = data.azurerm_storage_account.core.primary_access_key
+      access_mode  = "ReadWrite"
+      account_name = data.azurerm_storage_account.core.name
+      share_name   = "${data.azurerm_storage_account.core.name}-${var.resource_group}-share"
     }
   }
 

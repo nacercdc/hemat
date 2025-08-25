@@ -12,20 +12,27 @@ on:
         description: "Target env (dev|prod)"
         required: true
         default: "dev"
-      project_name:
-        description: "Project name"
-        required: true
-        default: "hemat"
 
 env:
   # ===== Azure & ACR =====
-  ACR_NAME: africacdc
   IMAGE_NAME_WEB: hemat-web
   IMAGE_NAME_API: hemat-api
   DOCKERFILE: ./Dockerfile
   # ===== Terraform =====
   TF_DIR: azure                         # <- path to africacdc azure Terraform root
   TF_VERSION: 1.12.2
+
+  TF_VAR_project_name: ${{ secrets.PROJECT_NAME }} # <- project name, e.g. "hemat"
+  TF_VAR_location:     ${{ secrets.LOCATION }}        # <- Azure region, e.g. "East US"
+  TF_VAR_key_vault_name: ${{ secrets.KEYVAULT }}
+  TF_VAR_resource_tags: |
+    {
+      "system"      = ${{ secrets.PROJECT_NAME }} 
+      "app"      = ${{ secrets.PROJECT_NAME }} 
+      "environment" = "${{ github.event.inputs.environment || 'dev' }}"
+      "owner"       = "africacdc"
+      "costcenter"  = "africacdc"
+    }
 
 jobs:
   build-and-deploy:
@@ -64,14 +71,14 @@ jobs:
       - name: Get ACR login server
         id: acr
         run: |
-          LOGIN_SERVER=$(az acr show -n "${{ env.ACR_NAME }}" --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" --query loginServer -o tsv)
+          LOGIN_SERVER=$(az acr show -n "${{ secrets.ACR_NAME }}" --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" --query loginServer -o tsv)
           TAG="${{ github.sha }}"
           echo "login_server=$LOGIN_SERVER" >> $GITHUB_OUTPUT
           echo "image_tag=$TAG"            >> $GITHUB_OUTPUT
           echo "ACR login server: $LOGIN_SERVER"
       
       - name: Azure Container Registry Login
-        run: az acr login --name "${{ env.ACR_NAME }}" --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}"
+        run: az acr login --name "${{ secrets.ACR_NAME }}" --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
