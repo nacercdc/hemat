@@ -152,8 +152,7 @@ jobs:
         working-directory: ${{ env.TF_DIR }}
         run: |
           terraform plan \
-            -var "image_tag=${{ needs.build-and-deploy.outputs.image_tag }}" \
-            -var-file="envs/${{ steps.ws.outputs.ws }}.tfvars"
+            -var "image_tag=${{ needs.build-and-deploy.outputs.image_tag }}" 
 
       - name: Terraform Apply (main only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
