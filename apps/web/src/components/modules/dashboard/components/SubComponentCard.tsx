@@ -59,18 +59,40 @@ export function SubComponentCard({
 
 export function DomainComponentCardSkeleton() {
   return (
-    <div className="h-64 flex flex-col justify-between rounded-sm border-dark-lighter/20 border-[1px] bg-white">
-      <div className="flex flex-col gap-4 p-2">
-        <Skeleton className="rounded-sm w-28 h-4" />
-        <Skeleton className="rounded-sm w-28 h-4" />
-      </div>
-      <div className="flex justify-between items-center p-2">
-        <div className="flex flex-col gap-2">
-          <Skeleton className="rounded-sm w-28 h-4" />
+    <div className="h-fit min-h-64 flex flex-col justify-between rounded-sm border-dark-lighter/20 border-[1px] bg-white">
+      <div className="flex flex-col gap-4">
+        <div className="bg-[#F0F7FA] text-dark text-xs font-bold p-2 py-4 rounded-sm">
           <Skeleton className="rounded-sm w-32 h-4" />
         </div>
-        <div className="w-7 h-6 rounded-sm text-center">
-          <Skeleton className="rounded-sm h-6 w-6" />
+        <div className="text-dark-light text-xs p-2 overflow-y-auto">
+          <Skeleton className="rounded-sm w-full h-10" />
+        </div>
+      </div>
+      <div className="flex flex-col min-[600px]:flex-row justify-evenly gap-0 items-center">
+        <div className="flex w-full gap-4 justify-center items-center p-2 bg-[#FFC000]/10">
+          <div className="flex flex-col">
+            <Skeleton className="rounded-sm w-14 h-4" />
+          </div>
+          <div className="w-7 h-6 rounded-sm text-center">
+            <Skeleton className="rounded-sm h-6 w-7" />
+          </div>
+        </div>
+        <div className="flex w-full gap-4 justify-center items-center p-2 bg-[#00B0F0]/10">
+          <div className="flex flex-col">
+            <Skeleton className="rounded-sm w-14 h-4" />
+          </div>
+          <div className="w-7 h-6 rounded-sm text-center">
+            <Skeleton className="rounded-sm h-6 w-7" />
+          </div>
+        </div>
+        <div className="flex w-full gap-4 justify-center items-center p-[2px] bg-[#11B050]/10">
+          <div className="flex flex-col">
+            <Skeleton className="rounded-sm w-16 h-4" />
+            <Skeleton className="rounded-sm w-20 h-3 mt-1" />
+          </div>
+          <div className="w-7 h-6 rounded-sm text-center">
+            <Skeleton className="rounded-sm h-6 w-7" />
+          </div>
         </div>
       </div>
     </div>
