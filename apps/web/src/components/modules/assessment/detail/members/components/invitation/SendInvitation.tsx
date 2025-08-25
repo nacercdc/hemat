@@ -21,6 +21,7 @@ import MemberAction from "../MemberAction";
 import MemberInfo from "../MemberInfo";
 import InvitationSection from "./InvitationSection";
 import InvitationListSkeleton from "./InvitationListSkeleton";
+import { ASSESSMENT_GROUPS_KEY } from "../AssessmentGroups";
 
 const addAssessmentInvitationSchema = z
   .object({
@@ -90,7 +91,7 @@ export function SendInvitation() {
       include: ["members", "members.user", "invitations"],
     },
     tqOptions: {
-      queryKey: ["ASSESSMENT_GROUPS_KEY"],
+      queryKey: [ASSESSMENT_GROUPS_KEY],
     },
   });
 
@@ -164,7 +165,7 @@ export function SendInvitation() {
           setValue("group.id", "");
           setAddNewGroupName(false);
           queryClient.invalidateQueries({
-            queryKey: ["ASSESSMENT_GROUPS_KEY"],
+            queryKey: [ASSESSMENT_GROUPS_KEY],
           });
         },
       }
@@ -294,6 +295,7 @@ export function SendInvitation() {
                 size="lg"
                 onClick={onInvitationSubmitHandler}
                 disabled={emails.length === 0 || sendInvitationState.isPending}
+                loading={sendInvitationState.isPending}
               >
                 Send Invitation
               </Button>

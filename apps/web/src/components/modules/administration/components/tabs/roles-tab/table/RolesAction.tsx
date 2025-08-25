@@ -16,6 +16,7 @@ import type { PermissionType } from "~/components/modules/administration/types";
 import type { Role, UpdateRole } from "~/libs/models/role.model";
 import { usePutMutation } from "~/libs/tanstack-api-query/hooks/usePutMutation";
 import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
+import { ROLE_LIST_KEY } from ".";
 
 interface Props {
   role: Role;
@@ -55,7 +56,7 @@ export default function RolesAction({
             message: "Role has been deleted successfully!",
             variant: "success",
           });
-          queryClient.invalidateQueries({ queryKey: ["/roles"] });
+          queryClient.invalidateQueries({ queryKey: [ROLE_LIST_KEY] });
           deleteRoleDialogRef.current?.closeDialog();
         },
       }
@@ -93,7 +94,8 @@ export default function RolesAction({
             message: "Role has been updated successfully!",
             variant: "success",
           });
-          queryClient.invalidateQueries({ queryKey: ["/roles"] });
+          queryClient.invalidateQueries({ queryKey: [ROLE_LIST_KEY] });
+
           updateRoleModalRef.current?.closeModal();
         },
       }
