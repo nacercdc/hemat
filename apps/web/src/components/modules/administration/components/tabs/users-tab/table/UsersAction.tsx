@@ -16,6 +16,7 @@ import type { PermissionModule, UserFormData } from "../form";
 import type { PermissionType } from "~/components/modules/administration/types";
 import type { Permission } from "~/libs/models/permission.model";
 import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
+import { USER_LIST_KEY } from ".";
 
 interface Props {
   user: User;
@@ -50,7 +51,7 @@ export default function UserAction({ user, modules, permissions }: Props) {
             message: "User has been deleted successfully!",
             variant: "success",
           });
-          queryClient.invalidateQueries({ queryKey: ["/users"] });
+          queryClient.invalidateQueries({ queryKey: [USER_LIST_KEY] });
           deleteUserDialogRef.current?.closeDialog();
         },
       }
@@ -92,7 +93,7 @@ export default function UserAction({ user, modules, permissions }: Props) {
             message: "User has been updated successfully!",
             variant: "success",
           });
-          queryClient.invalidateQueries({ queryKey: ["/users"] });
+          queryClient.invalidateQueries({ queryKey: [USER_LIST_KEY] });
           updateUserModalRef.current?.closeModal();
         },
       }

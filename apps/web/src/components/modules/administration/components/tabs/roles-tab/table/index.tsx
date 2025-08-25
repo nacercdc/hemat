@@ -19,6 +19,8 @@ import type { PermissionModule } from "../form";
 import type { QueryManyResponse } from "~/libs/tanstack-api-query/helpers/types";
 import type { Permission } from "~/libs/models/permission.model";
 
+export const ROLE_LIST_KEY = "roles";
+
 interface Props {
   modules: PermissionModule[];
   permissions?: Permission[];
@@ -27,7 +29,7 @@ interface Props {
 export function RolesTable({ modules, permissions }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<RoleSorts>({});
+  const [sort, setSort] = useState<RoleSorts>({ descending: "createdAt" });
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: DEFAULT_PAGE_INDEX,
     pageSize: DEFAULT_PAGE_SIZE,
@@ -45,6 +47,9 @@ export function RolesTable({ modules, permissions }: Props) {
       include: ["permissions"],
       sorts: sort,
       search,
+    },
+    tqOptions: {
+      queryKey: [ROLE_LIST_KEY],
     },
   });
 

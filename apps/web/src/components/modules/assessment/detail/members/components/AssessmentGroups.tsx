@@ -11,7 +11,7 @@ import type {
 } from "~/libs/models/assessment-member.model";
 import { useParams } from "next/navigation";
 import type { ModalRef } from "@etm/web-ui-components";
-import { Button, Modal, useToast } from "@etm/web-ui-components";
+import { Button, Modal, Skeleton, useToast } from "@etm/web-ui-components";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import AssessmentGroupsSkeleton from "./form/AssessmentGroupsSkeleton";
 import type { Domain } from "~/libs/models/domain.model";
@@ -24,7 +24,7 @@ import { queryClient } from "~/providers/tanstack-react-query/TanstackReactQuery
 import GroupsList from "../../components/GroupsList";
 import { useDeleteMutation } from "~/libs/tanstack-api-query/hooks/useDeleteMutation";
 
-export const ASSESSMENT_GROUPS_KEY = "assessments-groups-list";
+export const ASSESSMENT_GROUPS_KEY = "groups";
 
 export default function AssessmentGroups() {
   const params = useParams();
@@ -148,9 +148,7 @@ export default function AssessmentGroups() {
             variant: "success",
           });
           setSelectedDomainIds((prev) => prev.filter((d) => d !== id));
-          queryClient.invalidateQueries({
-            queryKey: ["groupDomains", assessmentId, selectedGroupId],
-          });
+          assessmentGroupDomainsState.refetch();
         },
       }
     );
@@ -177,9 +175,7 @@ export default function AssessmentGroups() {
             variant: "success",
           });
           setSelectedDomainIds((prev) => [...prev, id]);
-          queryClient.invalidateQueries({
-            queryKey: ["groupDomains", assessmentId, selectedGroupId],
-          });
+          assessmentGroupDomainsState.refetch();
         },
       }
     );
@@ -299,37 +295,69 @@ export default function AssessmentGroups() {
           assessmentDomainsState.isSuccess ? (
             mergedDomains.length != 0 ? (
               <ul className="space-y-2 text-sm">
-                {mergedDomains.map((domain) => (
-                  <li key={domain.id} className="flex items-center gap-2">
-                    <div className="flex items-center justify-between w-full">
-                      <span>{domain.name}</span>
+                {mergedDomains.map((domain) => {
+                  const isDeleting =
+                    assessmentGroupDomainsDeleteState.isPending &&
+                    assessmentGroupDomainsDeleteState.variables?.id ===
+                      domain.id;
+                  const isAssigning =
+                    assessmentGroupDomainsAssignState.isPending &&
+                    assessmentGroupDomainsAssignState.variables?.data
+                      ?.domainIds?.[0] === domain.id;
 
-                      {selectedDomainIds.includes(domain.id) ? (
-                        <Icon
-                          icon="material-symbols:close"
-                          className="!w-8 !h-8  rounded-full p-1 cursor-pointer text-destructive bg-basic/10"
-                          onClick={() =>
-                            onAssignDomainToGroupDeleteHandler(domain.id)
-                          }
-                        />
-                      ) : (
-                        <Icon
-                          icon={"material-symbols:add-2-rounded"}
-                          className="!w-8 !h-8 cursor-pointer text-success  bg-basic/10 rounded-full p-1"
-                          onClick={() => {
-                            onAssignDomainToGroupSubmitHandler(domain?.id);
-                          }}
-                        />
-                      )}
-                    </div>
-                  </li>
-                ))}
+                  return (
+                    <li key={domain.id} className="flex items-center gap-2">
+                      <div className="flex items-center justify-between w-full">
+                        <span>{domain.name}</span>
+
+                        {selectedDomainIds.includes(domain.id) ? (
+                          isDeleting ? (
+                            <Icon
+                              icon="svg-spinners:90-ring-with-bg"
+                              className="!w-8 !h-8 animate-spin-slow text-primary"
+                            />
+                          ) : (
+                            <Icon
+                              icon="material-symbols:close"
+                              className="!w-8 !h-8  rounded-full p-1 cursor-pointer text-destructive bg-basic/10"
+                              onClick={() =>
+                                onAssignDomainToGroupDeleteHandler(domain.id)
+                              }
+                            />
+                          )
+                        ) : isAssigning ? (
+                          <Icon
+                            icon="svg-spinners:90-ring-with-bg"
+                            className="!w-8 !h-8 animate-spin-slow text-primary"
+                          />
+                        ) : (
+                          <Icon
+                            icon={"material-symbols:add-2-rounded"}
+                            className="!w-8 !h-8 cursor-pointer text-success  bg-basic/10 rounded-full p-1"
+                            onClick={() => {
+                              onAssignDomainToGroupSubmitHandler(domain?.id);
+                            }}
+                          />
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <p className="text-muted text-sm">No domains available.</p>
             )
           ) : (
-            <p className="text-muted text-sm">Loading domains...</p>
+            <ul className="space-y-2 text-sm">
+              {Array.from({ length: 5 }).map((_, idx) => (
+                <li key={idx} className="flex items-center gap-2">
+                  <div className="flex items-center justify-between w-full">
+                    <Skeleton className="h-4 w-32 rounded" />
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                  </div>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
 

@@ -23,6 +23,8 @@ import type { Permission } from "~/libs/models/permission.model";
 import type { StatusType } from "./Toolbar";
 import Toolbar from "./Toolbar";
 
+export const USER_LIST_KEY = "users";
+
 interface Props {
   modules: PermissionModule[];
   permissions?: Permission[];
@@ -32,7 +34,7 @@ export function UsersTable({ modules, permissions }: Props) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("");
 
-  const [sort, setSort] = useState<UserSorts>({});
+  const [sort, setSort] = useState<UserSorts>({ descending: "createdAt" });
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: DEFAULT_PAGE_INDEX,
     pageSize: DEFAULT_PAGE_SIZE,
@@ -51,6 +53,9 @@ export function UsersTable({ modules, permissions }: Props) {
       sorts: sort,
       filters: { status: filter },
       search,
+    },
+    tqOptions: {
+      queryKey: [USER_LIST_KEY],
     },
   });
 

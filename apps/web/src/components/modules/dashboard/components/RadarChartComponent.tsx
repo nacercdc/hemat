@@ -12,6 +12,8 @@ import {
 } from "recharts";
 import africanCountries from "./AfricaMap/africa.geo.json";
 import { Skeleton } from "@etm/web-ui-components";
+import type { AssessmentMeasurementScale } from "~/libs/models/assessment-measurement-scale.model";
+import { useFindAll } from "~/libs/tanstack-api-query/hooks/useFindAll";
 
 export interface CountryDomainRatesWithBenchmark {
   id: string;
@@ -33,6 +35,21 @@ export function RadarChartComponent({
   countryCode,
   isLoading,
 }: RadarChartProps) {
+  const { data: measurementScales, ...measurementScalesState } =
+    useFindAll<AssessmentMeasurementScale>({
+      path: "/dashboard/measurement-scales",
+      queries: { sorts: { ascending: "rate" } },
+    });
+
+  const maxRate = measurementScales?.data.reduce(
+    (max, scale) => Math.max(max, scale.rate),
+    0
+  );
+  const minRate = measurementScales?.data.reduce(
+    (min, scale) => Math.min(min, scale.rate),
+    Infinity
+  );
+
   const radarChartData =
     data?.map((domain) => ({
       subject: domain.name,
@@ -41,7 +58,7 @@ export function RadarChartComponent({
       fullMark: 5,
     })) ?? [];
 
-  if (isLoading) {
+  if (isLoading || measurementScalesState.isLoading) {
     return (
       <div className="bg-card rounded-md w-full h-[600px] p-12">
         <Skeleton className="w-full h-full rounded-md" />
@@ -66,7 +83,7 @@ export function RadarChartComponent({
         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarChartData}>
           <PolarGrid />
           <PolarAngleAxis dataKey="subject" />
-          <PolarRadiusAxis domain={[0, 5]} />
+          <PolarRadiusAxis domain={[minRate ?? 0, maxRate ?? 5]} />
           <Radar
             name="Africa"
             dataKey="africaRate"

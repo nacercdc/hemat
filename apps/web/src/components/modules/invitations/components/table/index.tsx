@@ -16,7 +16,7 @@ import type {
 } from "~/libs/models/invitaion.model";
 import { InvitationsTableColumns } from "./InvitationsTableColumns";
 
-export const INVITATION_LIST_KEY = "invitation-list";
+export const INVITATION_LIST_KEY = "invitations";
 
 export function InvitationsTable() {
   const [search, setSearch] = useState("");
