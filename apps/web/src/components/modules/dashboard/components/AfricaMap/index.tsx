@@ -59,12 +59,11 @@ export const AfricaMap = () => {
 
   const router = useRouter();
 
-  const { data: measurementScales, ...measurementScalesState } = useFindAll<{
-    data: AssessmentMeasurementScale[];
-  }>({
-    path: "/dashboard/measurement-scales",
-    queries: { sorts: { ascending: "rate" } },
-  });
+  const { data: measurementScales, ...measurementScalesState } =
+    useFindAll<AssessmentMeasurementScale>({
+      path: "/dashboard/measurement-scales",
+      queries: { sorts: { ascending: "rate" } },
+    });
 
   const { data: countryStatuses } = useFindAll<Country[]>({
     path: `/dashboard/domains/average-rate/country`,
@@ -369,21 +368,22 @@ export const AfricaMap = () => {
       </div>
       {/* Legend Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 absolute left-10 2xl:left-48 bottom-20">
-        {!measurementScalesState.isLoading &&
-          (
-            measurementScales?.data as unknown as AssessmentMeasurementScale[]
-          )?.map((mScale, index) => (
-            <MetricsCard
-              key={index}
-              name={mScale.name}
-              color={mScale.color}
-              rate={mScale.rate}
-              legend
-            />
-          ))}
-        <MetricsCard name="No data" color="#DDD" legend />
+        {!measurementScalesState.isLoading && (
+          <>
+            {measurementScales?.data?.map((mScale, index) => (
+              <MetricsCard
+                key={index}
+                name={mScale.name}
+                color={mScale.color}
+                rate={mScale.rate}
+                legend
+              />
+            ))}
+            <MetricsCard name="No data" color="#DDD" legend />
+          </>
+        )}
         {measurementScalesState.isLoading &&
-          Array.from({ length: 5 }, (_, i) => <MetricsCardSkeleton key={i} />)}
+          Array.from({ length: 6 }, (_, i) => <MetricsCardSkeleton key={i} />)}
       </div>
     </div>
   );
